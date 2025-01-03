@@ -7,6 +7,9 @@ import eventReducer from "./tournament/eventSlice";
 import navReducer from "./NavBar/navSlice";
 import logger from "redux-logger";
 import getAllVenues from "./Venue/getVenues";
+import addCourtReducers from "./Venue/addCourt";
+import errorReducer from "./Error/errorSlice";
+import successReducer from "./Success/successSlice";
 import axiosInstance, { setupAxiosInterceptors } from "../Services/axios";
 import { refreshTokens } from "./Authentication/authActions";
 
@@ -24,6 +27,9 @@ const store = configureStore({
     Venue: venueReducer,
     Nav: navReducer,
     getVenues: getAllVenues,
+    addCourt: addCourtReducers,
+    error: errorReducer,
+    success: successReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(middleWares),

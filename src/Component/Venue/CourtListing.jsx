@@ -3,6 +3,8 @@ import { courtTableContent } from "../../Constant/venue";
 import DataTable from "../Common/DataTable";
 import { useDispatch } from "react-redux";
 import { showForm } from "../../redux/Venue/addVenue";
+import { useNavigate, useParams } from "react-router-dom";
+
 export const CourtListing = ({
   courts,
   currentPage,
@@ -10,7 +12,8 @@ export const CourtListing = ({
   onPageChange,
 }) => {
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
+  const { id } = useParams();
   return (
     <div className="flex flex-col ">
       <div className="flex justify-between bg-[#FFFFFF] items-center px-[24px] py-[20px]">
@@ -18,7 +21,7 @@ export const CourtListing = ({
         <Button
           type="button"
           className="block rounded-md bg-[#1570EF]  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          onClick={() => dispatch(showForm())}
+          onClick={() => navigate(`/venues/${id}/add-Court`)}
         >
           Add Court
         </Button>

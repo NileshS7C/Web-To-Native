@@ -92,7 +92,7 @@ export const ActionButtonCourt = [
   { name: "Delete", icon: DeleteIcon, action: "delete" },
 ];
 
-const venueFeatures = [
+const courtFeatures = [
   "Air conditioning",
   "Non-Air conditioning",
   "Indoor",
@@ -106,5 +106,5 @@ export {
   venueTabs,
   tableHeaders,
   courtTableContent,
-  venueFeatures,
+  courtFeatures,
 };

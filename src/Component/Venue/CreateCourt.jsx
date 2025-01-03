@@ -1,13 +1,18 @@
-import { Formik, Form, ErrorMessage } from "formik";
+import { Formik, Form, ErrorMessage, Field, useFormikContext } from "formik";
 import * as yup from "yup";
 import TextError from "../Error/formError";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { uploadIcon } from "../../Assests";
 import { BiX } from "react-icons/bi";
 import { removeFiles, updateFiles } from "../../redux/tournament/addTournament";
-import { venueFeatures } from "../../Constant/venue";
+import Button from "../Common/Button";
+import { courtFeatures } from "../../Constant/venue";
+import { createCourt } from "../../redux/Venue/venueActions";
+import { useParams } from "react-router-dom";
+import { ErrorModal } from "../Common/ErrorModal";
+import { showError } from "../../redux/Error/errorSlice";
 const validationSchema = {
-  courName: yup
+  courtName: yup
     .string()
     .required()
     .min(3, "Name must be at least 3 characters long.")
@@ -19,35 +24,87 @@ const validationSchema = {
     .min(1, "Court Number should be greater than 0"),
   features: yup.array().min(1, "At least feature should be selected"),
   price: yup.number().required().min(1, "Price should be greater than 1"),
-  bannerImages: yup
-    .array()
-    .required()
-    .min(1, "At least one layout image must be uploaded."),
+  bannerImages: yup.object().shape({
+    desktop: yup
+      .mixed()
+      .test("file-size", "Desktop banner image is too large", (value) => {
+        if (!value) return true;
+
+        return !value || (value && value?.size <= 100 * 1024); // 100 KB
+      })
+      .test(
+        "file-type",
+        "Desktop banner image should be of valid image type",
+        (value) => {
+          if (!value) return true;
+          return (
+            value &&
+            ["image/jpeg", "image/png", "image/gif"].includes(value?.type)
+          );
+        }
+      ),
+
+    mobile: yup
+      .mixed()
+      .test("file-size", "Mobile banner image is too large", (value) => {
+        if (!value) return true;
+        return !value || value.size <= 100 * 1024; // 100kb
+      })
+      .test(
+        "file-type",
+        "Mobile banner image should be of valid image type",
+        (value) => {
+          if (!value) return true;
+          return ["image/jpeg", "image/png", "image/gif"].includes(value.type);
+        }
+      ),
+  }),
 };
 
 const initialValues = {
   courtName: "",
-  courtNumber: 0,
+  courtNumber: Number(1),
   features: [],
-  price: 0,
-  bannerImages: [],
+  price: 1,
+  bannerImages: [
+    {
+      url: "https://example.com/banner1.jpg",
+    },
+    {
+      url: "https://example.com/banner2.jpg",
+    },
+  ],
 };
 
-const CourtCreation = () => {
-  const handleSubmit = (setSubmitting, { values }) => {
+export const CourtCreation = () => {
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  const { isLoading } = useSelector((state) => state.addCourt);
+
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
-    console.log(" values", values);
+
+    try {
+      await dispatch(createCourt({ formData: values, id: id })).unwrap();
+    } catch (err) {
+      console.log(" err", err);
+      dispatch(
+        showError({
+          message: err.data.message || "Something went wrong!",
+          onClose: "hideError",
+        })
+      );
+    }
   };
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
+    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
       <Form>
         <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
           <CourtDetails />
           <CourtFileUpload />
+          <CourtFeatures />
+          <CourtPrice />
+          <ErrorModal message="There has been an occured while creating the court." />
           <Button
             className="w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
             type="submit"
@@ -221,23 +278,47 @@ const CourtFileUpload = () => {
 };
 
 const CourtFeatures = () => {
+  const { form } = useFormikContext();
   return (
-    <div>
-      {CourtFeatures.map((feature) => (
+    <div className="flex justify-between">
+      {courtFeatures.map((feature) => (
         <label
           key={feature}
           className="flex items-center gap-2 text-[15px] leading-[18.15px] text-[#232323]"
+          htmlFor="features"
         >
           <Field
             type="checkbox"
-            name="availableDays"
-            value={day}
-            checked={form.values.features.includes(feature)}
+            name="features"
+            id="features"
+            value={feature}
+            checked={form?.values.features.includes(feature)}
             className="w-4 h-4 border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
           />
-          {day}
+          {feature}
         </label>
       ))}
+    </div>
+  );
+};
+
+const CourtPrice = () => {
+  return (
+    <div className="flex flex-col items-start gap-2.5">
+      <label
+        className=" text-[#232323] text-base leading-[19.36px]"
+        htmlFor="price"
+      >
+        Rate (Per Hour)
+      </label>
+      <Field
+        placeholder="Enter court price"
+        id="price"
+        name="price"
+        className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+        type="number"
+      />
+      <ErrorMessage name="price" component={TextError} />
     </div>
   );
 };
