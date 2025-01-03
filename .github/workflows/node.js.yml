@@ -2,7 +2,7 @@ name: picklebay-cms vite CI
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: ["dev"]
 
 jobs:
   build:
@@ -14,14 +14,16 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: |
-        touch .env
-        echo "$${{ secrets.DEV_ENV_FILE }}" > .env
-    - run: npm run build
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - run: npm ci
+      - run: |
+          touch .env
+          echo "$${{ secrets.DEV_ENV_FILE }}" > .env
+      - run: npm run build
+      - run: pm2 restart picklebay-cms-vite
+      - run: pm2 flush picklebay-cms-vite
