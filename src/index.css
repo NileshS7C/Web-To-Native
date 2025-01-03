@@ -1,0 +1,49 @@
+
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("./Assests/fonts/PublicSans-Regular.ttf") format("trueType");
+
+  font-weight: 400;
+  font-style: normal;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Public Sans";
+  }
+}
+* {
+  @apply box-border;
+}
+
+@layer {
+  th,
+  td {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+.tab-button.active::after {
+  position: absolute;
+  content: "";
+  bottom: 0;
+  left: 0;
+  width: 100%;
+
+  @apply border-b-[3px] border-[#5B8DFF] rounded-tl-[10px]
+    rounded-tr-[10px];
+}
+
+.tab-button {
+  @apply relative text-[#686868] font-[500] leading-[19.36px] text-base pb-4;
+}
+
+.tab-button.active {
+  @apply text-[#5B8DFF];
+}

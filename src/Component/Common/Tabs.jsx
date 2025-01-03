@@ -1,0 +1,59 @@
+import { ChevronDownIcon } from "@heroicons/react/16/solid";
+import PropTypes from "prop-types";
+
+function Tabs({ options, onChange }) {
+  const classNames = (...classes) => {
+    return classes.filter(Boolean).join(" ");
+  };
+  return (
+    <div>
+      <div className="grid grid-cols-1 items-center sm:hidden">
+        <select
+          defaultValue={options.find((tab) => tab.current).name}
+          aria-label="Select a tab"
+          className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[#1570EF]"
+          onChange={(e) => onChange(e.target.value)}
+        >
+          {options.map((tab) => (
+            <option key={tab.name} value={tab.name}>
+              {tab.name}
+            </option>
+          ))}
+        </select>
+        <ChevronDownIcon
+          aria-hidden="true"
+          className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end fill-gray-500"
+        />
+      </div>
+      <div className="hidden sm:block ">
+        <nav aria-label="Tabs" className="flex space-x-30 items-center">
+          {options.map((tab) => (
+            <a
+              key={tab.name}
+              href={tab.href}
+              aria-current={tab.current ? "page" : undefined}
+              className={classNames(
+                tab.current
+                  ? "bg-[#1570EF] text-[#FFFFFF]"
+                  : "text-gray-500 hover:text-gray-700",
+                "rounded-[4px] px-3 py-2 text-sm font-medium w-[250px] h-[40px] "
+              )}
+              onClick={(e) => {
+                e.preventDefault();
+                onChange(tab.name);
+              }}
+            >
+              {tab.name}
+            </a>
+          ))}
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+Tabs.propTypes = {
+  options: PropTypes.array.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+export default Tabs;
