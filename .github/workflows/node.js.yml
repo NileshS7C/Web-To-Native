@@ -5,7 +5,7 @@ on:
     branches: [ "dev" ]
 
 jobs:
-  build:
+  install-dependencies:
     runs-on: self-hosted
 
     strategy:
@@ -24,3 +24,4 @@ jobs:
     - run: |
         touch .env
         echo "$${{ secrets.DEV_ENV_FILE }}" > .env
+    - run: npm run build
