@@ -140,32 +140,7 @@ const validationSchema = yup.object().shape({
     .min(1, "At least one equipment item must be provided."),
   bannerImages: yup
     .array()
-    .min(1, "At least one banner image must be uploaded.")
-    .of(
-      yup.object({
-        url: yup
-          .mixed()
-          .nullable()
-          .required("Desktop banner image is required.")
-          .test("file-size", "Desktop banner image is too large", (value) => {
-            if (!value) return true;
-
-            return value?.length <= 100 * 1024; // 100 KB
-          })
-          .test(
-            "file-type",
-            "Desktop banner image should be of valid image type",
-            (value) => {
-              if (!value.length) return true;
-              return (
-                value &&
-                ["image/jpeg", "image/png", "image/gif"].includes(value?.type)
-              );
-            }
-          ),
-      })
-    )
-    .nullable(),
+    .min(1, "At least one banner image must be uploaded."),
 
   layoutImages: yup
     .array()
@@ -811,6 +786,8 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
     setPreviews(newPreviews);
   };
 
+  console.log(" values", values);
+
   const handleFileUpload = async (e) => {
     setIsError(false);
     setErrorMessage("");
@@ -827,11 +804,11 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
     }
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
-      if (result.data.status === "error")
-        setPreviews((prev) => [
-          ...prev,
-          { preview: result.data.uploadedFileUrl },
-        ]);
+
+      setPreviews((prev) => [
+        ...prev,
+        { preview: result.data.uploadedFileUrl },
+      ]);
       const url = result.data.uploadedFileUrl;
       setFieldValue("bannerImages", [...values.bannerImages, { url }]);
     } catch (err) {
