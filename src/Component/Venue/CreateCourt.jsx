@@ -158,6 +158,8 @@ export const CourtCreation = () => {
     }
   }, [court, id]);
 
+  console.log(" values of the court", court);
+
   if (isGettingCourt) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -234,11 +236,16 @@ const CourtDetails = () => {
 };
 
 const CourtFileUpload = ({ dispatch }) => {
+  const { values, setFieldValue, setFieldError } = useFormikContext();
   const { selectedFiles, bannerMobileFiles } = useSelector(
     (state) => state.Tournament
   );
-  const [previews, setPreviews] = useState([]);
-  const { values, setFieldValue, setFieldError } = useFormikContext();
+  const [previews, setPreviews] = useState(
+    values?.desktopBannerImages?.length
+      ? [{ preview: values.desktopBannerImages[0].url }]
+      : []
+  );
+
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const handleRemoveImageDesk = () => {
@@ -249,13 +256,16 @@ const CourtFileUpload = ({ dispatch }) => {
     setErrorMessage("");
     const uploadedFile = e.target.files[0];
     if (!uploadedFile.type.startsWith("image/")) {
-      setFieldError("bannerImages", "File should be a valid image type.");
+      setFieldError(
+        "desktopBannerImages",
+        "File should be a valid image type."
+      );
       return;
     }
 
     const maxSize = 1000 * 1024;
     if (uploadedFile.size > maxSize) {
-      setFieldError("bannerImages", "File should be less than 1 MB");
+      setFieldError("desktopBannerImages", "File should be less than 1 MB");
       return;
     }
     try {
@@ -363,8 +373,13 @@ const CourtFileUpload = ({ dispatch }) => {
 };
 
 const MobileBannerImage = ({ dispatch }) => {
-  const [previews, setPreviews] = useState([]);
   const { values, setFieldValue, setFieldError } = useFormikContext();
+  const [previews, setPreviews] = useState(
+    values?.mobileBannerImages?.length
+      ? [{ preview: values.mobileBannerImages[0].url }]
+      : []
+  );
+
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const handleRemoveImageMob = () => {

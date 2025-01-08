@@ -267,7 +267,6 @@ const VenueInfo = () => {
         navigate("/venues");
       }, 2000);
     } catch (error) {
-      console.log(" error", error);
       dispatch(
         showError({
           message: error.data.message || "Something went wrong!",
@@ -587,8 +586,6 @@ const VenueDescription = () => {
 const VenueAvailableDays = () => {
   const { values, setFieldValue, errors } = useFormikContext();
 
-  console.log(" errors", errors);
-
   useEffect(() => {
     if (
       values.allDaysSelected &&
@@ -834,6 +831,14 @@ const VenueEquipments = () => {
 const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
+  useEffect(() => {
+    const previewImages = values?.layoutImages?.length
+      ? values.bannerImages.map((image) => ({
+          preview: image.url,
+        }))
+      : [];
+    setPreviews(previewImages);
+  }, [values?.bannerImages]);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const handleRemoveImage = (index) => {
@@ -935,6 +940,15 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
 const VenueLayoutImage = ({ dispatch, uploadData, isUploading }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
+
+  useEffect(() => {
+    const previewImages = values?.layoutImages?.length
+      ? values.layoutImages.map((image) => ({
+          preview: image.url,
+        }))
+      : [];
+    setPreviews(previewImages);
+  }, [values?.layoutImages]);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const handleRemoveImage = (index) => {
