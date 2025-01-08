@@ -8,10 +8,45 @@ import { removeFiles, updateFiles } from "../../redux/tournament/addTournament";
 import Button from "../Common/Button";
 import { courtFeatures } from "../../Constant/venue";
 import { createCourt } from "../../redux/Venue/venueActions";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ErrorModal } from "../Common/ErrorModal";
-import { showError } from "../../redux/Error/errorSlice";
-const validationSchema = {
+import { cleanUpError, showError } from "../../redux/Error/errorSlice";
+import {
+  cleanUpSuccess,
+  hideSuccess,
+  showSuccess,
+} from "../../redux/Success/successSlice";
+import { SuccessModal } from "../Common/SuccessModal";
+
+//  .of(
+//       yup.object({
+//         url: yup
+//           .mixed()
+//           .nullable()
+//           .required("Desktop banner image is required.")
+//           .test("file-size", "Desktop banner image is too large", (value) => {
+
+//             if (!value) return true;
+
+//             // Check file size: 100 KB max
+//             return value?.length <= 100 * 1024; // 100 KB
+//           })
+//           .test(
+//             "file-type",
+//             "Desktop banner image should be of valid image type",
+//             (value) => {
+//               if (!value.length) return true;
+//               return (
+//                 value &&
+//                 ["image/jpeg", "image/png", "image/gif"].includes(value?.type)
+//               );
+//             }
+//           ),
+//       })
+//     )
+//     .nullable(),
+
+const validationSchema = yup.object().shape({
   courtName: yup
     .string()
     .required()
@@ -24,61 +59,25 @@ const validationSchema = {
     .min(1, "Court Number should be greater than 0"),
   features: yup.array().min(1, "At least feature should be selected"),
   price: yup.number().required().min(1, "Price should be greater than 1"),
-  bannerImages: yup.object().shape({
-    desktop: yup
-      .mixed()
-      .test("file-size", "Desktop banner image is too large", (value) => {
-        if (!value) return true;
 
-        return !value || (value && value?.size <= 100 * 1024); // 100 KB
-      })
-      .test(
-        "file-type",
-        "Desktop banner image should be of valid image type",
-        (value) => {
-          if (!value) return true;
-          return (
-            value &&
-            ["image/jpeg", "image/png", "image/gif"].includes(value?.type)
-          );
-        }
-      ),
+  desktopBannerImages: yup.array().min(1, "Desktop banner image is required."),
 
-    mobile: yup
-      .mixed()
-      .test("file-size", "Mobile banner image is too large", (value) => {
-        if (!value) return true;
-        return !value || value.size <= 100 * 1024; // 100kb
-      })
-      .test(
-        "file-type",
-        "Mobile banner image should be of valid image type",
-        (value) => {
-          if (!value) return true;
-          return ["image/jpeg", "image/png", "image/gif"].includes(value.type);
-        }
-      ),
-  }),
-};
+  mobileBannerImages: yup.array().min(1, "Mobile banner image is required."),
+});
 
 const initialValues = {
   courtName: "",
-  courtNumber: Number(1),
+  courtNumber: 1,
   features: [],
   price: 1,
-  bannerImages: [
-    {
-      url: "https://example.com/banner1.jpg",
-    },
-    {
-      url: "https://example.com/banner2.jpg",
-    },
-  ],
+  desktopBannerImages: [],
+  mobileBannerImages: [],
 };
 
 export const CourtCreation = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
+  const navigate = useNavigate();
   const { isLoading } = useSelector((state) => state.addCourt);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -86,25 +85,42 @@ export const CourtCreation = () => {
 
     try {
       await dispatch(createCourt({ formData: values, id: id })).unwrap();
+      resetForm();
+      dispatch(
+        showSuccess({
+          message: "Court added successfully",
+          onClose: "hideSuccess",
+        })
+      );
+      dispatch(cleanUpSuccess());
+      setTimeout(() => {
+        navigate("/venues");
+        dispatch(hideSuccess());
+      }, 2000);
     } catch (err) {
-      console.log(" err", err);
       dispatch(
         showError({
           message: err.data.message || "Something went wrong!",
           onClose: "hideError",
         })
       );
+      dispatch(cleanUpError());
     }
   };
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
       <Form>
         <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
           <CourtDetails />
           <CourtFileUpload />
           <CourtFeatures />
           <CourtPrice />
-          <ErrorModal message="There has been an occured while creating the court." />
+          <ErrorModal />
+          <SuccessModal />
           <Button
             className="w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
             type="submit"
@@ -129,7 +145,7 @@ const CourtDetails = () => {
           CourtName
         </label>
         <Field
-          placeholder="Enter Venue Name"
+          placeholder="Enter Court Name"
           id="courtName"
           name="courtName"
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -144,10 +160,11 @@ const CourtDetails = () => {
           Court No.
         </label>
         <Field
-          placeholder="Enter Venue Location"
+          placeholder="Enter Court Number"
           id="courtNumber"
           name="courtNumber"
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="number"
         />
         <ErrorMessage name="courtNumber" component={TextError} />
       </div>
@@ -160,11 +177,12 @@ const CourtFileUpload = () => {
   const { selectedFiles, bannerMobileFiles } = useSelector(
     (state) => state.Tournament
   );
+  const { values } = useFormikContext();
 
   return (
     <div className="grid grid-cols-2 gap-[30px]">
       <div className=" relative flex flex-col items-start gap-2.5 ">
-        <label className="text-xs text-[#232323]" htmlFor="bannerImage">
+        <label className="text-xs text-[#232323]" htmlFor="desktopBannerImages">
           Banner Image (Desktop)
         </label>
 
@@ -177,23 +195,24 @@ const CourtFileUpload = () => {
           </p>
 
           <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-          <Field name="bannerImage.desktop">
+          <Field name="desktopBannerImages">
             {({ form, field, meta }) => (
               <input
                 {...field}
-                id="bannerImage.desktop"
-                name="bannerImage.desktop"
+                id="desktopBannerImages"
+                name="desktopBannerImages"
                 onChange={(e) => {
                   const files = e.target.files[0];
                   if (selectedFiles.length >= 1) return;
                   const url = window.URL.createObjectURL(files);
                   dispatch(updateFiles({ name: url, source: "desktop" }));
-                  form.setFieldValue("bannerImage.desktop", files);
+                  form.setFieldValue("desktopBannerImages", [{ url }]);
                 }}
                 value=""
                 type="file"
                 className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
                 multiple={false}
+                accept="image/jpeg, image/png,image/gif"
               />
             )}
           </Field>
@@ -216,11 +235,11 @@ const CourtFileUpload = () => {
             </div>
           );
         })}
-        <ErrorMessage name="bannerImage.desktop" component={TextError} />
+        <ErrorMessage name="desktopBannerImages" component={TextError} />
       </div>
 
       <div className="relative flex flex-col items-start gap-2.5 ">
-        <label className="text-xs text-[#232323]" htmlFor="bannerImage_M">
+        <label className="text-xs text-[#232323]" htmlFor="mobileBannerImages">
           Banner Image (Mobile)
         </label>
 
@@ -233,22 +252,23 @@ const CourtFileUpload = () => {
           </p>
 
           <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-          <Field name="bannerImage.mobile">
+          <Field name="mobileBannerImages">
             {({ form, field }) => (
               <input
                 {...field}
-                id="bannerImage.mobile"
-                name="bannerImage.mobile"
+                id="mobileBannerImages"
+                name="mobileBannerImages"
                 onChange={(e) => {
                   const files = e.target.files[0];
                   if (bannerMobileFiles.length >= 1) return;
+                  const url = window.URL.createObjectURL(files);
                   dispatch(updateFiles({ name: files.name, source: "mobile" }));
-                  form.setFieldValue("bannerImage.mobile", files);
+                  form.setFieldValue("mobileBannerImages", [{ url }]);
                 }}
                 value=""
                 type="file"
                 className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                multiple=""
+                accept="image/jpeg, image/png,image/gif"
               />
             )}
           </Field>
@@ -271,7 +291,7 @@ const CourtFileUpload = () => {
             </div>
           );
         })}
-        <ErrorMessage name="bannerImage.mobile" component={TextError} />
+        <ErrorMessage name="mobileBannerImages" component={TextError} />
       </div>
     </div>
   );

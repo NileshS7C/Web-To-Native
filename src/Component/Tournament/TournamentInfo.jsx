@@ -137,7 +137,6 @@ const initialValues = {
 export const TournamentInfo = () => {
   const dispatch = useDispatch();
   const { formData } = useSelector((state) => state.Tournament);
-  console.log(" form data after saving the form", formData);
   return (
     <Formik
       initialValues={initialValues}

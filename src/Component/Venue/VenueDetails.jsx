@@ -1,17 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { locationIcon } from "../../Assests";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Slider } from "../Common/ImageCarousel";
 import { ArrowsPointingOutIcon } from "@heroicons/react/20/solid";
 import Tabs from "../Common/Tabs";
 import { venueTabs as initialVenueTabs } from "../../Constant/venue";
 import { CourtListing } from "./CourtListing";
-import { onPageChange } from "../../redux/Venue/getVenues";
+import { cleanPublishState, onPageChange } from "../../redux/Venue/getVenues";
+import Button from "../Common/Button";
+import { publishVenue } from "../../redux/Venue/venueActions";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { showSuccess } from "../../redux/Success/successSlice";
+import { showError } from "../../redux/Error/errorSlice";
+import { SuccessModal } from "../Common/SuccessModal";
 
 export default function VenueDescription() {
   const { venue } = useSelector((state) => state.getVenues);
   const [venueTabs, setVenueTabs] = useState(initialVenueTabs);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const { isPublished, isPublishing, isErrorInPublish, publishedErrorMessage } =
+    useSelector((state) => state.getVenues);
   const handleTabChange = (value) => {
     const updatedTabs = venueTabs.map((tab) => ({
       ...tab,
@@ -20,6 +31,28 @@ export default function VenueDescription() {
     setVenueTabs(updatedTabs);
   };
 
+  useEffect(() => {
+    if (isPublished) {
+      dispatch(
+        showSuccess({
+          message: "Venue published successfully",
+          onClose: "hideSuccess",
+        })
+      );
+
+      navigate("/venues");
+      dispatch(cleanPublishState());
+    } else if (isErrorInPublish) {
+      dispatch(
+        showError({
+          message: publishedErrorMessage || "Something went wrong!",
+          onClose: "hideError",
+        })
+      );
+      dispatch(cleanPublishState());
+    }
+  }, [isPublished, isErrorInPublish]);
+
   return (
     <div className="flex flex-col gap-[20px]">
       <div className="py-[15px] px-[20px] bg-[#FFFFFF] rounded-lg">
@@ -27,6 +60,19 @@ export default function VenueDescription() {
       </div>
       {venueTabs.find((venue) => venue.name === "Overview").current ? (
         <div className="flex flex-col gap-[30px] bg-[#FFFFFF] p-[50px] rounded-3xl">
+          <button
+            className="w-[200px] h-[80px] bg-orange-400 hover:bg-slate-300 shadow-lg "
+            onClick={() => {
+              dispatch(publishVenue(id));
+            }}
+            loading={isPublishing}
+            disabled={venue?.status === "PUBLISHED"}
+          >
+            {venue?.status !== "PUBLISHED"
+              ? "Publish Venue"
+              : "Venue Published"}
+          </button>
+          {isPublished && <SuccessModal />}
           <div className="mb-5">
             <Slider images={venue.bannerImages || []} />
           </div>

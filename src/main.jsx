@@ -7,7 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./redux/store";
-console.log("base ulr", import.meta.env.VITE_BASE_URL)
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>

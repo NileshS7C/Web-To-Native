@@ -18,8 +18,13 @@ export const errorSlice = createSlice({
       state.message = "";
       state.onClose = null;
     },
+    cleanUpError(state) {
+      state.isOpen = false;
+      state.message = "";
+      state.onClose = null;
+    },
   },
 });
 
-export const { showError, hideError } = errorSlice.actions;
+export const { showError, hideError, cleanUpError } = errorSlice.actions;
 export default errorSlice.reducer;

@@ -8,6 +8,7 @@ export { default as crossIcon } from "./Tournament/crossIcon.svg";
 export { default as SuccessPopUp } from "./Tournament/successPopUp.gif";
 // export { default as bookingIcon } from "./booking.svg";
 export { default as profileIcon } from "./Tournament/profile.svg";
+export {default as userProfileIcon} from "./Tournament/userProfile.svg"
 export { default as tournamentIcon } from "./Tournament/tournament.svg";
 export { default as eventsIcon } from "./Tournament/events.svg";
 export { default as teamIcon } from "./Tournament/teams.svg";

@@ -1,21 +1,29 @@
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import { CheckCircleIcon } from "@heroicons/react/20/solid";
+import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "./Button";
-import { hideSuccess } from "../../redux/Success/successSlice";
-export const SuccessModal = () => {
-  const dispatch = useDispatch();
-  const { isOpen, message, onClose } = useSelector((state) => state.success);
+import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
 
+export const ConfirmationModal = ({
+  isOpen,
+  onConfirm,
+  onCancel,
+  isLoading,
+  message,
+}) => {
+  const dispatch = useDispatch();
   const handleClose = () => {
-    if (onClose) {
-      dispatch(hideSuccess());
-    }
+    dispatch(onCancel());
   };
+
+  const handleConfirm = () => {
+    dispatch(onConfirm());
+  };
+
 
   if (!isOpen) return null;
   return (
-    <Dialog open={true} onClose={handleClose} className="relative z-10 ">
+    <Dialog open={isOpen} onClose={handleClose} className="relative z-10 ">
       <DialogBackdrop
         transition
         className="fixed  inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
@@ -30,18 +38,33 @@ export const SuccessModal = () => {
             <div>
               <div className="w-full bg-[#FFFFFF] px-[20px] flex flex-col gap-5 items-center">
                 <div className="flex gap-2.5">
-                  <CheckCircleIcon width="24px" height="24px" />
+                  <ExclamationCircleIcon
+                    width="30px"
+                    height="30px"
+                    color="red"
+                  />
                   <p className="text-sm text-[#343C6A] align-middle">
                     {message}
                   </p>
                 </div>
-                <Button
-                  type="button"
-                  className="w-20 h-10 rounded-md text-white"
-                  onClick={handleClose}
-                >
-                  Close
-                </Button>
+                <div className="flex gap-10">
+                  <Button
+                    type="button"
+                    className="w-20 h-10 rounded-md bg-white text-black shadow-lg hover:bg-slate-300"
+                    onClick={handleClose}
+                    disable={isLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    className="w-20 h-10 rounded-md bg-red-600 text-white shadow-lg hover:bg-red-500"
+                    onClick={handleConfirm}
+                    isLoading={isLoading}
+                  >
+                    Confirm
+                  </Button>
+                </div>
               </div>
             </div>
           </DialogPanel>

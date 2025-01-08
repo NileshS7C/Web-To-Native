@@ -1,5 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { refreshTokens, userLogout, userLogin } from "./authActions";
+import { Cookies } from "react-cookie";
+
+const cookies = new Cookies();
 
 const authSlice = createSlice({
   name: "auth",
@@ -11,8 +14,10 @@ const authSlice = createSlice({
     errorMessage: "",
     userPermissions: null,
     accessToken: null,
-    refreshToken: null,
+    refreshToken: cookies.get("refreshToken") || null,
     userRole: null,
+    isLoggedOut: false,
+    isUserAuthenticated: true,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -26,6 +31,7 @@ const authSlice = createSlice({
       state.accessToken = payload.data.accessToken;
       state.refreshToken = payload.data.refreshToken;
       state.userInfo = payload.user;
+      state.isUserAuthenticated = true;
     });
     builder.addCase(userLogin.rejected, (state, action) => {
       state.isAuthenticationFailed = true;
@@ -36,24 +42,29 @@ const authSlice = createSlice({
 
     // Refresh token cases
     builder.addCase(refreshTokens.fulfilled, (state, { payload }) => {
-      state.accessToken = payload.accessToken;
-      state.refreshToken = payload.refreshToken;
+      state.accessToken = payload.data.accessToken;
     });
     builder.addCase(refreshTokens.rejected, (state) => {
       state.isAuthenticationFailed = true;
     });
 
     // Logout cases
-    builder.addCase(userLogout.fulfilled, (state) => {
-      state.isAuthenticationFailed = false;
-      state.userInfo = null;
-      state.isLoading = false;
-      state.isSuccess = false;
-      state.errorMessage = "";
-      state.userPermissions = null;
-      state.accessToken = null;
-      state.refreshToken = null;
-    });
+    builder
+      .addCase(userLogout.fulfilled, (state) => {
+        state.isAuthenticationFailed = false;
+        state.userInfo = null;
+        state.isLoading = false;
+        state.isLoggedOut = true;
+        state.errorMessage = "";
+        state.userPermissions = null;
+        state.accessToken = null;
+        state.refreshToken = null;
+      })
+      .addCase(userLogout.rejected, (state, { payload }) => {
+        state.errorMessage = payload;
+        state.isLoggedOut = false;
+        state.isLoading = false;
+      });
   },
 });
 

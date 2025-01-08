@@ -1,14 +1,19 @@
 // src/services/axiosConfig.js
 import axios from "axios";
+import { Cookies } from "react-cookie";
+const cookies = new Cookies();
 
 const baseURL = import.meta.env.VITE_BASE_URL;
-
 
 // Create base axios instance without interceptors
 const axiosInstance = axios.create({
   baseURL,
   timeout: 5000,
 });
+
+const getRefreshTokenFromCookies = () => {
+  cookies.get("refreshToken");
+};
 
 // Initialize refresh token state
 let isRefreshing = false;
@@ -62,12 +67,18 @@ export const setupAxiosInterceptors = (
 
       try {
         const state = getState();
-        const refreshToken = state.auth?.refreshToken;
+        const refreshToken =
+          state.auth?.refreshToken || getRefreshTokenFromCookies();
 
         const response = await axios.put(
-          `${baseURL}/auth/update-refresh-access`,
+          `${baseURL}/users/auth/update-refresh-access`,
           {
             refreshToken,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${refreshToken}`, // Include refresh token in header
+            },
           }
         );
 
@@ -77,7 +88,7 @@ export const setupAxiosInterceptors = (
         refreshSubscribers.forEach((cb) => cb(null, tokens.accessToken));
         refreshSubscribers = [];
 
-        originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${tokens.data.accessToken}`;
         return axiosInstance(originalRequest);
       } catch (error) {
         refreshSubscribers.forEach((cb) => cb(error, null));

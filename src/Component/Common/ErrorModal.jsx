@@ -39,7 +39,7 @@ export const ErrorModal = () => {
                 </div>
                 <Button
                   type="button"
-                  className="w-20 h-10 rounded-md text-white"
+                  className="w-20 h-10 rounded-md text-black bg-white shadow-lg hover:bg-slate-200 active:bg-slate-200"
                   onClick={handleClose}
                 >
                   Close

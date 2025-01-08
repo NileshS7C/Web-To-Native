@@ -12,7 +12,7 @@ export const successSlice = createSlice({
   reducers: {
     showSuccess(state, action) {
       state.isOpen = true;
-      state.message = action.payload.data.message;
+      state.message = action.payload.message;
       state.onClose = action.payload.onClose;
     },
     hideSuccess(state) {
@@ -20,9 +20,14 @@ export const successSlice = createSlice({
       state.message = "";
       state.onClose = null;
     },
+    cleanUpSuccess(state) {
+      state.isOpen = false;
+      state.message = "";
+      state.onClose = null;
+    },
   },
 });
 
-export const { showSuccess, hideSuccess } = successSlice.actions;
+export const { showSuccess, hideSuccess, cleanUpSuccess } = successSlice.actions;
 
 export default successSlice.reducer;

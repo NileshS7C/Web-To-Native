@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllVenues, getSingleVenue } from "./venueActions";
+import { getAllVenues, getSingleVenue, publishVenue } from "./venueActions";
 
 const initialState = {
   venues: [],
@@ -11,6 +11,10 @@ const initialState = {
   venueWithNoCourt: false,
   selectedFilter: "published",
   venue: {},
+  isPublishing: false,
+  isPublished: true,
+  isErrorInPublish: false,
+  publishedErrorMessage: "",
 };
 
 const getVenuesSlice = createSlice({
@@ -25,6 +29,12 @@ const getVenuesSlice = createSlice({
     },
     onFilterChange(state, { payload }) {
       state.selectedFilter = payload;
+    },
+    cleanPublishState(state) {
+      state.isPublished = false;
+      state.isErrorInPublish = false;
+      state.isPublishing = false;
+      state.publishedErrorMessage = "";
     },
   },
   extraReducers: (builder) => {
@@ -48,18 +58,34 @@ const getVenuesSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(getSingleVenue.fulfilled, (state, { payload }) => {
-        state.venue = payload.data[0];
+        state.venue = payload.data;
         state.isSuccess = true;
+        state.isLoading = false;
       })
       .addCase(getSingleVenue.rejected, (state, { payload }) => {
         state.isSuccess = false;
         state.isLoading = false;
         state.errorMessage = payload.message;
       });
+
+    builder
+      .addCase(publishVenue.pending, (state) => {
+        state.isPublishing = true;
+      })
+      .addCase(publishVenue.fulfilled, (state) => {
+        state.isPublished = true;
+        state.isPublishing = false;
+      })
+      .addCase(publishVenue.rejected, (state, { payload }) => {
+        state.isErrorInPublish = true;
+        state.isPublished = false;
+        state.isPublishing = false;
+        state.publishedErrorMessage = payload.data.message;
+      });
   },
 });
 
-export const { onPageChange, checkVenue, onFilterChange } =
+export const { onPageChange, checkVenue, onFilterChange, cleanPublishState } =
   getVenuesSlice.actions;
 
 export default getVenuesSlice.reducer;

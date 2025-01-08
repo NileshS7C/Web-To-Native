@@ -5,6 +5,7 @@ export const ROUTES = {
     NEW: "/venues/new",
     DETAILS: (id) => `/venues/${id}`,
     ADD_COURT: (id) => `/venues/${id}/courts/add-court`,
+    EDIT_VENUE: (id) => `/venues/${id}/edit`,
   },
   TOURNAMENTS: "/tournaments",
 };
