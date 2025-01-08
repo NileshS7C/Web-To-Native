@@ -89,7 +89,6 @@ export const setupAxiosInterceptors = (
         originalRequest.headers.Authorization = `Bearer ${tokens.data.accessToken}`;
         return axiosInstance(originalRequest);
       } catch (error) {
-        console.log(" error", error);
         refreshSubscribers.forEach((cb) => cb(error, null));
         refreshSubscribers = [];
         return Promise.reject(error);

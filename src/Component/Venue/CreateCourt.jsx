@@ -18,6 +18,10 @@ import {
 } from "../../redux/Success/successSlice";
 import { SuccessModal } from "../Common/SuccessModal";
 
+import { IoIosCloseCircleOutline } from "react-icons/io";
+import { useState } from "react";
+import { uploadImage } from "../../redux/Upload/uploadActions";
+
 //  .of(
 //       yup.object({
 //         url: yup
@@ -116,7 +120,7 @@ export const CourtCreation = () => {
       <Form>
         <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
           <CourtDetails />
-          <CourtFileUpload />
+          <CourtFileUpload dispatch={dispatch} />
           <CourtFeatures />
           <CourtPrice />
           <ErrorModal />
@@ -172,12 +176,49 @@ const CourtDetails = () => {
   );
 };
 
-const CourtFileUpload = () => {
-  const dispatch = useDispatch();
+const CourtFileUpload = ({ dispatch }) => {
   const { selectedFiles, bannerMobileFiles } = useSelector(
     (state) => state.Tournament
   );
-  const { values } = useFormikContext();
+  const [previews, setPreviews] = useState([]);
+  const { values, setFieldValue, setFieldError } = useFormikContext();
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const handleRemoveImageDesk = () => {
+    setPreviews([]);
+  };
+  const handleFileUploadDesk = async (e) => {
+    setIsError(false);
+    setErrorMessage("");
+    const uploadedFile = e.target.files[0];
+    if (!uploadedFile.type.startsWith("image/")) {
+      setFieldError("bannerImages", "File should be a valid image type.");
+      return;
+    }
+
+    const maxSize = 1000 * 1024;
+    if (uploadedFile.size > maxSize) {
+      setFieldError("bannerImages", "File should be less than 1 MB");
+      return;
+    }
+    try {
+      const result = await dispatch(uploadImage(uploadedFile)).unwrap();
+
+      setPreviews((prev) => [
+        ...prev,
+        { preview: result.data.uploadedFileUrl },
+      ]);
+      const url = result.data.uploadedFileUrl;
+      setFieldValue("desktopBannerImages", [
+        ...values.desktopBannerImages,
+        { url },
+      ]);
+    } catch (err) {
+      setErrorMessage(err.data?.message);
+      setIsError(true);
+      setFieldError("desktopBannerImages", err.data.message);
+    }
+  };
 
   return (
     <div className="grid grid-cols-2 gap-[30px]">
@@ -185,37 +226,56 @@ const CourtFileUpload = () => {
         <label className="text-xs text-[#232323]" htmlFor="desktopBannerImages">
           Banner Image (Desktop)
         </label>
-
-        <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
-          <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
-
-          <p className="text-sm text-[#5B8DFF]">
-            Click to upload{" "}
-            <span className="text-sm text-[#353535] "> or drag and drop</span>
-          </p>
-
-          <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-          <Field name="desktopBannerImages">
-            {({ form, field, meta }) => (
-              <input
-                {...field}
-                id="desktopBannerImages"
-                name="desktopBannerImages"
-                onChange={(e) => {
-                  const files = e.target.files[0];
-                  if (selectedFiles.length >= 1) return;
-                  const url = window.URL.createObjectURL(files);
-                  dispatch(updateFiles({ name: url, source: "desktop" }));
-                  form.setFieldValue("desktopBannerImages", [{ url }]);
-                }}
-                value=""
-                type="file"
-                className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                multiple={false}
-                accept="image/jpeg, image/png,image/gif"
+        <div className="relative flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
+          {previews[0]?.preview && (
+            <>
+              <img
+                src={previews[0]?.preview || ""}
+                className="absolute inset-0 object-scale-down rounded h-full w-full z-100"
               />
-            )}
-          </Field>
+              {previews[0]?.preview && (
+                <IoIosCloseCircleOutline
+                  className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer "
+                  onClick={() => {
+                    handleRemoveImageDesk();
+                  }}
+                />
+              )}
+            </>
+          )}{" "}
+          {!previews[0]?.preview && (
+            <>
+              <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+
+              <p className="text-sm text-[#5B8DFF]">
+                Click to upload{" "}
+                <span className="text-sm text-[#353535] ">
+                  {" "}
+                  or drag and drop
+                </span>
+              </p>
+
+              <p className="text-xs text-[#353535] mt-1">
+                (Max. File size: 5MB)
+              </p>
+
+              <Field name="desktopBannerImages">
+                {({ form, field, meta }) => (
+                  <input
+                    {...field}
+                    id="desktopBannerImages"
+                    name="desktopBannerImages"
+                    onChange={(e) => handleFileUploadDesk(e)}
+                    value=""
+                    type="file"
+                    className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                    multiple={false}
+                    accept="image/jpeg, image/png,image/gif"
+                  />
+                )}
+              </Field>
+            </>
+          )}
         </div>
         {selectedFiles.map((file, index) => {
           return (
@@ -238,61 +298,107 @@ const CourtFileUpload = () => {
         <ErrorMessage name="desktopBannerImages" component={TextError} />
       </div>
 
-      <div className="relative flex flex-col items-start gap-2.5 ">
-        <label className="text-xs text-[#232323]" htmlFor="mobileBannerImages">
-          Banner Image (Mobile)
-        </label>
+      <MobileBannerImage dispatch={dispatch} />
 
-        <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
-          <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+      {isError && <TextError>{errorMessage}</TextError>}
+    </div>
+  );
+};
 
-          <p className="text-sm text-[#5B8DFF]">
-            Click to upload
-            <span className="text-sm text-[#353535] "> or drag and drop</span>
-          </p>
+const MobileBannerImage = ({ dispatch }) => {
+  const [previews, setPreviews] = useState([]);
+  const { values, setFieldValue, setFieldError } = useFormikContext();
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const handleRemoveImageMob = () => {
+    setPreviews([]);
+  };
+  const handleFileUploadMob = async (e) => {
+    setIsError(false);
+    setErrorMessage("");
+    const uploadedFile = e.target.files[0];
+    if (!uploadedFile.type.startsWith("image/")) {
+      setFieldError("mobileBannerImages", "File should be a valid image type.");
+      return;
+    }
 
-          <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-          <Field name="mobileBannerImages">
-            {({ form, field }) => (
-              <input
-                {...field}
-                id="mobileBannerImages"
-                name="mobileBannerImages"
-                onChange={(e) => {
-                  const files = e.target.files[0];
-                  if (bannerMobileFiles.length >= 1) return;
-                  const url = window.URL.createObjectURL(files);
-                  dispatch(updateFiles({ name: files.name, source: "mobile" }));
-                  form.setFieldValue("mobileBannerImages", [{ url }]);
+    const maxSize = 1000 * 1024;
+    if (uploadedFile.size > maxSize) {
+      setFieldError("mobileBannerImages", "File should be less than 1 MB");
+      return;
+    }
+    try {
+      const result = await dispatch(uploadImage(uploadedFile)).unwrap();
+
+      setPreviews((prev) => [
+        ...prev,
+        { preview: result.data.uploadedFileUrl },
+      ]);
+      const url = result.data.uploadedFileUrl;
+      setFieldValue("mobileBannerImages", [
+        ...values.desktopBannerImages,
+        { url },
+      ]);
+    } catch (err) {
+      setErrorMessage(err.data?.message);
+      setIsError(true);
+      setFieldError("mobileBannerImages", err.data.message);
+    }
+  };
+  return (
+    <div className="relative flex flex-col items-start gap-2.5 ">
+      <label className="text-xs text-[#232323]" htmlFor="mobileBannerImages">
+        Banner Image (Mobile)
+      </label>
+
+      <div className="relative flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
+        {previews[0]?.preview && (
+          <>
+            <img
+              src={previews[0]?.preview || ""}
+              className="absolute inset-0 object-scale-down rounded h-full w-full z-100"
+            />
+            {previews[0]?.preview && (
+              <IoIosCloseCircleOutline
+                className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer "
+                onClick={() => {
+                  handleRemoveImageMob();
                 }}
-                value=""
-                type="file"
-                className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                accept="image/jpeg, image/png,image/gif"
               />
             )}
-          </Field>
-        </div>
-        {bannerMobileFiles.map((file, index) => {
-          return (
-            <div
-              className="flex bg-[#eaeaea] rounded-[20px] items-center p-[3px] justify-center"
-              key={`${file}. ${index}`}
-            >
-              <div className=" text-xs ">{file}</div>
+          </>
+        )}
 
-              <BiX
-                className="w-4 h-4 cursor-pointer"
-                key={`${index}.icon`}
-                onClick={() => {
-                  dispatch(removeFiles(file, "mobile"));
-                }}
-              />
-            </div>
-          );
-        })}
-        <ErrorMessage name="mobileBannerImages" component={TextError} />
+        {!previews[0]?.preview && (
+          <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
+            <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+
+            <p className="text-sm text-[#5B8DFF]">
+              Click to upload
+              <span className="text-sm text-[#353535] "> or drag and drop</span>
+            </p>
+
+            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
+            <Field name="mobileBannerImages">
+              {({ form, field }) => (
+                <input
+                  {...field}
+                  id="mobileBannerImages"
+                  name="mobileBannerImages"
+                  onChange={(e) => handleFileUploadMob(e)}
+                  value=""
+                  type="file"
+                  className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                  accept="image/jpeg, image/png,image/gif"
+                />
+              )}
+            </Field>
+          </div>
+        )}
       </div>
+
+      {isError && <TextError>{errorMessage}</TextError>}
+      <ErrorMessage name="mobileBannerImages" component={TextError} />
     </div>
   );
 };

@@ -63,8 +63,6 @@ const requiredVenueFields = (venue) => {
 };
 
 const hasSelectedDays = (days) => {
-  console.log(" days", days);
-
   return days.some((day) => !!day.day);
 };
 
@@ -834,8 +832,6 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
     const newPreviews = previews.filter((_, i) => i !== index);
     setPreviews(newPreviews);
   };
-
-  console.log(" values", values);
 
   const handleFileUpload = async (e) => {
     setIsError(false);
