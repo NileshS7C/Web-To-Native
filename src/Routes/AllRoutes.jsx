@@ -31,6 +31,7 @@ const AllRoutes = () => {
             <Route path=":id">
               <Route index element={<VenueDescription />} />
               <Route path="add-court" element={<CourtCreation />} />
+              <Route path="edit-court" element={<CourtCreation />} />
               <Route path="edit" element={<VenueInfo />} />
             </Route>
           </Route>

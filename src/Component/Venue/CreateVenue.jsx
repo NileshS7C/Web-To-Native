@@ -26,6 +26,9 @@ import Spinner from "../Common/Spinner";
 import LocationSearchInput from "../Common/LocationSearch";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 
+
+
+
 const requiredVenueFields = (venue) => {
   const {
     name,

@@ -7,7 +7,11 @@ import { BiX } from "react-icons/bi";
 import { removeFiles, updateFiles } from "../../redux/tournament/addTournament";
 import Button from "../Common/Button";
 import { courtFeatures } from "../../Constant/venue";
-import { createCourt } from "../../redux/Venue/venueActions";
+import {
+  createCourt,
+  getCourt,
+  updateCourt,
+} from "../../redux/Venue/venueActions";
 import { useNavigate, useParams } from "react-router-dom";
 import { ErrorModal } from "../Common/ErrorModal";
 import { cleanUpError, showError } from "../../redux/Error/errorSlice";
@@ -19,8 +23,30 @@ import {
 import { SuccessModal } from "../Common/SuccessModal";
 
 import { IoIosCloseCircleOutline } from "react-icons/io";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { uploadImage } from "../../redux/Upload/uploadActions";
+import Spinner from "../Common/Spinner";
+import { resetCourtState } from "../../redux/Venue/addCourt";
+
+const requiredVenueFields = (court) => {
+  const {
+    courtName,
+    courtNumber,
+    features,
+    desktopBannerImages,
+    mobileBannerImages,
+    price,
+  } = court;
+
+  return {
+    courtName,
+    courtNumber,
+    features,
+    desktopBannerImages,
+    mobileBannerImages,
+    price,
+  };
+};
 
 //  .of(
 //       yup.object({
@@ -82,21 +108,28 @@ export const CourtCreation = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isLoading } = useSelector((state) => state.addCourt);
+  const { isLoading, isGettingCourt, court, isSuccess } = useSelector(
+    (state) => state.addCourt
+  );
+  const [initialState, setInitialState] = useState(initialValues);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
 
     try {
-      await dispatch(createCourt({ formData: values, id: id })).unwrap();
+      !id
+        ? await dispatch(createCourt({ formData: values, id: id })).unwrap()
+        : await dispatch(updateCourt({ formData: values, id: id })).unwrap();
       resetForm();
       dispatch(
         showSuccess({
-          message: "Court added successfully",
+          message: id
+            ? "Court updated successfully"
+            : "Court added successfully",
           onClose: "hideSuccess",
         })
       );
-      dispatch(cleanUpSuccess());
+      setInitialState(initialValues);
       setTimeout(() => {
         navigate("/venues");
         dispatch(hideSuccess());
@@ -108,17 +141,41 @@ export const CourtCreation = () => {
           onClose: "hideError",
         })
       );
-      dispatch(cleanUpError());
+    } finally {
+      dispatch(resetCourtState());
     }
   };
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getCourt(id));
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (court && id && isSuccess) {
+      setInitialState({ ...initialState, ...requiredVenueFields(court) });
+    }
+  }, [court, id]);
+
+  if (isGettingCourt) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spinner />
+      </div>
+    );
+  }
   return (
     <Formik
-      initialValues={initialValues}
+      enableReinitialize
+      initialValues={initialState}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
       <Form>
         <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
+          <ErrorModal />
+          <SuccessModal />
           <CourtDetails />
           <CourtFileUpload dispatch={dispatch} />
           <CourtFeatures />
@@ -404,7 +461,8 @@ const MobileBannerImage = ({ dispatch }) => {
 };
 
 const CourtFeatures = () => {
-  const { form } = useFormikContext();
+  const { form, values } = useFormikContext();
+  console.log(" form values", values);
   return (
     <div className="flex justify-between">
       {courtFeatures.map((feature) => (
@@ -418,7 +476,7 @@ const CourtFeatures = () => {
             name="features"
             id="features"
             value={feature}
-            checked={form?.values.features.includes(feature)}
+            checked={values.features.includes(feature)}
             className="w-4 h-4 border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
           />
           {feature}

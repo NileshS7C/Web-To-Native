@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createCourt, deleteCourt } from "./venueActions";
+import {
+  createCourt,
+  deleteCourt,
+  getCourt,
+  updateCourt,
+} from "./venueActions";
 
 const initialState = {
   isLoading: false,
@@ -8,6 +13,8 @@ const initialState = {
   errorMessage: "",
   isDeleting: false,
   isDeleted: false,
+  isGettingCourt: false,
+  court: {},
 };
 
 const courtSlice = createSlice({
@@ -20,6 +27,14 @@ const courtSlice = createSlice({
     resetErrorState(state) {
       state.isError = false;
       state.errorMessage = "";
+    },
+    resetCourtState(state) {
+      state.court = {};
+      state.isGettingCourt = false;
+      state.errorMessage = "";
+      state.isDeleted = false;
+      state.isSuccess = false;
+      state.isLoading = false;
     },
   },
   extraReducers: (builder) => {
@@ -52,7 +67,39 @@ const courtSlice = createSlice({
         state.isError = true;
         state.errorMessage = payload.data.message;
       });
+
+    builder
+      .addCase(getCourt.pending, (state) => {
+        state.isGettingCourt = true;
+      })
+      .addCase(getCourt.fulfilled, (state, { payload }) => {
+        state.isSuccess = true;
+        state.isGettingCourt = false;
+        state.court = payload.data;
+      })
+      .addCase(getCourt.rejected, (state, { payload }) => {
+        state.isSuccess = false;
+        state.isGettingCourt = false;
+        state.isError = true;
+        state.errorMessage = payload.data.message;
+      });
+
+    builder
+      .addCase(updateCourt.pending, (state) => {
+        state.isGettingCourt = true;
+      })
+      .addCase(updateCourt.fulfilled, (state, { payload }) => {
+        state.isSuccess = true;
+        state.isGettingCourt = false;
+        state.court = payload.data;
+      })
+      .addCase(updateCourt.rejected, (state, { payload }) => {
+        state.isSuccess = false;
+        state.isGettingCourt = false;
+        state.isError = true;
+        state.errorMessage = payload.data.message;
+      });
   },
 });
-export const { resetDeleteState, resetErrorState } = courtSlice.actions;
+export const { resetDeleteState, resetErrorState , resetCourtState} = courtSlice.actions;
 export default courtSlice.reducer;

@@ -13,7 +13,11 @@ const CourtActions = ({ id }) => {
   const dispatch = useDispatch();
   const { isConfirmed, type } = useSelector((state) => state.confirm);
   const handlers = {
-    edit: (team) => {},
+    edit: (team) => {
+      console.log(" id", id);
+
+      navigate(`/venues/${id}/edit-court`)
+    },
     delete: (team) => {
       dispatch(
         showConfirmation({
