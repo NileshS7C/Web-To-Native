@@ -80,8 +80,16 @@ export default function VenueDescription() {
           <Description description={venue.description || ""} />
           <div className="grid grid-cols-3 justify-start">
             <VenueAvailableDays days={venue.availableDays || []} />
-            <OpeningTime openingTime={venue.openingTime || ""} />
-            <ClosingTime closingTime={venue.closingTime || ""} />
+            <OpeningTime
+              openingTime={venue.availableDays || []}
+              allDaysSelected={venue.allDaysSelected || ""}
+              globalTime={venue.globalOpeningTime || ""}
+            />
+            <ClosingTime
+              closingTime={venue.availableDays || []}
+              allDaysSelected={venue.allDaysSelected || ""}
+              globalTime={venue.globalClosingTime || ""}
+            />
           </div>
 
           <Amenities amenities={venue.amenities || []} />
@@ -101,6 +109,13 @@ export default function VenueDescription() {
 }
 
 const Address = ({ address }) => {
+  const venueAddress = `${address?.line1 || ""}, ${address?.line2 || ""}, ${
+    address?.city || ""
+  }, ${address?.state || ""}, ${address?.postalCode || ""}`;
+
+  const googleMapsLink = `https://www.google.com/maps?q=${encodeURIComponent(
+    venueAddress
+  )}`;
   return (
     <div className="flex flex-col gap-2.5 items-start">
       <p className="text-sm font-medium">
@@ -133,7 +148,17 @@ const Address = ({ address }) => {
           width="24px"
           height="24px"
         />
-        <p className="text-sm text-[#718EBF]">View Location</p>
+        <p className="text-sm text-[#718EBF] cursor-pointer">
+          {" "}
+          <a
+            href={googleMapsLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            View Location
+          </a>
+        </p>
       </div>
     </div>
   );
@@ -146,6 +171,7 @@ const Description = ({ description }) => {
       <textarea
         id="about-venue"
         className="w-full h-[250px] p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        value={description}
       >
         {description}
       </textarea>
@@ -185,20 +211,32 @@ const VenueAvailableDays = ({ days }) => {
   );
 };
 
-const OpeningTime = ({ openingTime }) => {
+const OpeningTime = ({ openingTime, allDaysSelected, globalTime }) => {
+  let openingTiming;
+  if (allDaysSelected) {
+    openingTiming = globalTime;
+  } else {
+    openingTiming = openingTime.length > 0 ? openingTime[0].openingTime : "";
+  }
   return (
     <div className="flex flex-col gap-2.5">
       <h3 className="text-xs text-[#667085]">Opening Time</h3>
-      <p>{openingTime}</p>
+      <p>{openingTiming}</p>
     </div>
   );
 };
 
-const ClosingTime = ({ closingTime }) => {
+const ClosingTime = ({ closingTime, allDaysSelected, globalTime }) => {
+  let closingTiming;
+  if (allDaysSelected) {
+    closingTiming = globalTime;
+  } else {
+    closingTiming = closingTime?.length > 0 ? closingTime[0].closingTime : "";
+  }
   return (
     <div className="flex flex-col gap-2.5">
       <h3 className="text-xs text-[#667085]">Closing Time</h3>
-      <p>{closingTime}</p>
+      <p>{closingTiming}</p>
     </div>
   );
 };
