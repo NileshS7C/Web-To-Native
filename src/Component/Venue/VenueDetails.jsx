@@ -9,20 +9,27 @@ import { venueTabs as initialVenueTabs } from "../../Constant/venue";
 import { CourtListing } from "./CourtListing";
 import { cleanPublishState, onPageChange } from "../../redux/Venue/getVenues";
 import Button from "../Common/Button";
-import { publishVenue } from "../../redux/Venue/venueActions";
+import { getSingleVenue, publishVenue } from "../../redux/Venue/venueActions";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { showSuccess } from "../../redux/Success/successSlice";
 import { showError } from "../../redux/Error/errorSlice";
 import { SuccessModal } from "../Common/SuccessModal";
+import Spinner from "../Common/Spinner";
 
 export default function VenueDescription() {
-  const { venue } = useSelector((state) => state.getVenues);
   const [venueTabs, setVenueTabs] = useState(initialVenueTabs);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
-  const { isPublished, isPublishing, isErrorInPublish, publishedErrorMessage } =
-    useSelector((state) => state.getVenues);
+  const {
+    isPublished,
+    isPublishing,
+    isErrorInPublish,
+    publishedErrorMessage,
+    isLoading,
+    isSuccess,
+    venue,
+  } = useSelector((state) => state.getVenues);
   const handleTabChange = (value) => {
     const updatedTabs = venueTabs.map((tab) => ({
       ...tab,
@@ -30,6 +37,13 @@ export default function VenueDescription() {
     }));
     setVenueTabs(updatedTabs);
   };
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getSingleVenue(id));
+    }
+  }, [id]);
+
   dispatch(cleanPublishState());
   useEffect(() => {
     if (isPublished) {
@@ -51,6 +65,14 @@ export default function VenueDescription() {
       dispatch(cleanPublishState());
     }
   }, [isPublished, isErrorInPublish]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-[20px]">

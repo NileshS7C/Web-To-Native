@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ActionButtonGroup } from "../../Constant/app";
 import { ActionButtons } from "./ActionButtons";
 import { useNavigate } from "react-router-dom";
-import { deleteVenue, getSingleVenue } from "../../redux/Venue/venueActions";
+import { deleteVenue } from "../../redux/Venue/venueActions";
 import {
   resetConfirmationState,
   showConfirmation,
@@ -26,7 +26,7 @@ const VenueActions = ({ id, index }) => {
       );
     },
     view: (id) => {
-      dispatch(getSingleVenue(id));
+     
       navigate(`/venues/${id}`);
     },
   };
