@@ -12,7 +12,7 @@ const axiosInstance = axios.create({
 });
 
 const getRefreshTokenFromCookies = () => {
-  cookies.get("refreshToken");
+  return cookies.get("refreshToken");
 };
 
 // Initialize refresh token state
@@ -66,9 +66,7 @@ export const setupAxiosInterceptors = (
       isRefreshing = true;
 
       try {
-        const state = getState();
-        const refreshToken =
-          state.auth?.refreshToken || getRefreshTokenFromCookies();
+        const refreshToken = getRefreshTokenFromCookies();
 
         const response = await axios.put(
           `${baseURL}/users/auth/update-refresh-access`,
@@ -91,6 +89,7 @@ export const setupAxiosInterceptors = (
         originalRequest.headers.Authorization = `Bearer ${tokens.data.accessToken}`;
         return axiosInstance(originalRequest);
       } catch (error) {
+        console.log(" error", error);
         refreshSubscribers.forEach((cb) => cb(error, null));
         refreshSubscribers = [];
         return Promise.reject(error);

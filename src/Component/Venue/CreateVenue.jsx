@@ -62,6 +62,34 @@ const requiredVenueFields = (venue) => {
   };
 };
 
+const hasSelectedDays = (days) => {
+  console.log(" days", days);
+
+  return days.some((day) => !!day.day);
+};
+
+const validateTimes = (days) => {
+  return days.every((day) => {
+    if (day.day) {
+      return !!day.openingTime && !!day.closingTime;
+    }
+
+    return true;
+  });
+};
+
+const validateOpenAndCloseTime = (days) => {
+  return days.every((day) => {
+    if (day.day) {
+      const openingTime = new Date(`1970-01-01T${day.openingTime}:00`);
+      const closingTime = new Date(`1970-01-01T${day.closingTime}:00`);
+      return openingTime < closingTime;
+    }
+
+    return true;
+  });
+};
+
 const validationSchema = yup.object().shape({
   name: yup
     .string()
@@ -93,43 +121,65 @@ const validationSchema = yup.object().shape({
     .string()
     .required("Description is required.")
     .max(500, "Description cannot exceed 500 characters."),
-  availableDays: yup
-    .array()
-    .of(
-      yup.object().shape({
-        day: yup.string().required("Day is required"),
-        openingTime: yup.string().required("opening time is required"),
-        closingTime: yup
-          .string()
-          .required("closing time is requied")
-          .test(
-            "closing-after-opening",
-            "closing time must be after the opening time.",
-            function (closingTime) {
-              const openingTime = this.parent.openingTime;
-              return openingTime && closingTime && openingTime < closingTime;
-            }
-          ),
-      })
-    )
-    .test("unique-day-check", "Days must be unique", function (values) {
-      const days = values.map((item) => item.day);
-      const uniqueDays = new Set(days);
-      return days.length === uniqueDays.size;
-    }),
+  // availableDays: yup
+  //   .array()
+  //   .of(
+  //     yup.object().shape({
+  //       day: yup.string().required("Day is required"),
+  //       openingTime: yup.string().when("day", {
+  //         is: (day) => {
+  //           console.log(" day", day);
+  //         },
+  //         then: (schema) => schema.required("Opening time is required"),
+  //       }),
+  //       closingTime: yup
+  //         .string()
+  //         .required("closing time is requied")
+  //         .test(
+  //           "closing-after-opening",
+  //           "closing time must be after the opening time.",
+  //           function (closingTime) {
+  //             const openingTime = this.parent.openingTime;
+  //             return openingTime && closingTime && openingTime < closingTime;
+  //           }
+  //         ),
+  //     })
+  //   )
+  //   .test("unique-day-check", "Days must be unique", function (values) {
+  //     console.log(" valuesfsdfdfsd", values);
+  //     const days = values.map((item) => item.day);
+  //     const uniqueDays = new Set(days);
+  //     return days.length === uniqueDays.size;
+  //   }),
 
-  globalOpeningTime: yup.string().required("Opening time is required."),
-  globalClosingTime: yup
-    .string()
-    .required("Closing time is required.")
-    .test(
-      "is-after-opening-time",
-      "Closing time must be greater than opening time.",
-      function (value) {
-        const { globalOpeningTime } = this.parent;
-        return globalOpeningTime < value;
-      }
-    ),
+  // availableDays: yup
+  //   .array()
+  //   .test("at-least-one-day", "Please select at least one day", hasSelectedDays)
+  //   .test(
+  //     "valid-times",
+  //     "Opening and closing times are required for selected days",
+  //     validateTimes
+  //   )
+  //   .test(
+  //     "compare-time",
+  //     "Closing time should be greater than opening time.",
+  //     validateOpenAndCloseTime
+  //   ),
+  allDaysSelected: yup.bool(),
+  // globalOpeningTime: yup.string().required("Opening time is required"),
+
+  // globalClosingTime: yup
+  //   .string()
+  //   .required("Closing time is required.")
+  //   .test(
+  //     "is-after-opening-time",
+  //     "Closing time must be greater than opening time.",
+  //     function (value) {
+  //       const { globalOpeningTime } = this.parent;
+  //       return globalOpeningTime < value;
+  //     }
+  //   ),
+
   amenities: yup
     .array()
     .of(yup.string())
@@ -166,13 +216,13 @@ const initialValues = {
   },
   description: "",
   availableDays: [
-    { day: "monday", openingTime: "", closingTime: "" },
-    { day: "tuesday", openingTime: "", closingTime: "" },
-    { day: "wednesday", openingTime: "", closingTime: "" },
-    { day: "thursday", openingTime: "", closingTime: "" },
-    { day: "friday", openingTime: "", closingTime: "" },
-    { day: "saturday", openingTime: "", closingTime: "" },
-    { day: "sunday", openingTime: "", closingTime: "" },
+    { day: "", openingTime: "", closingTime: "" },
+    { day: "", openingTime: "", closingTime: "" },
+    { day: "", openingTime: "", closingTime: "" },
+    { day: "", openingTime: "", closingTime: "" },
+    { day: "", openingTime: "", closingTime: "" },
+    { day: "", openingTime: "", closingTime: "" },
+    { day: "", openingTime: "", closingTime: "" },
   ],
   amenities: [],
   allDaysSelected: false,
@@ -527,7 +577,9 @@ const VenueDescription = () => {
 };
 
 const VenueAvailableDays = () => {
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setFieldValue, errors } = useFormikContext();
+
+  console.log(" errors", errors);
 
   useEffect(() => {
     if (
@@ -642,11 +694,11 @@ const VenueAvailableDays = () => {
                           <option value="saturday">Saturday</option>
                           <option value="sunday">Sunday</option>
                         </Field>
+                        <ErrorMessage
+                          name={`availableDays[${index}].day`}
+                          component={TextError}
+                        />
                       </label>
-                      <ErrorMessage
-                        name={`availableDays[${index}].day`}
-                        component={TextError}
-                      />
 
                       <label className="flex flex-col items-start gap-2.5 justify-center">
                         Opening Time

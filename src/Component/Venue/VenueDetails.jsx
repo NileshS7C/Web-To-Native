@@ -30,7 +30,7 @@ export default function VenueDescription() {
     }));
     setVenueTabs(updatedTabs);
   };
-
+  dispatch(cleanPublishState());
   useEffect(() => {
     if (isPublished) {
       dispatch(
@@ -41,7 +41,6 @@ export default function VenueDescription() {
       );
 
       navigate("/venues");
-      dispatch(cleanPublishState());
     } else if (isErrorInPublish) {
       dispatch(
         showError({
@@ -87,7 +86,7 @@ export default function VenueDescription() {
 
           <Amenities amenities={venue.amenities || []} />
           <Equipments equipment={venue.equipments || []} />
-          <LayoutImages />
+          <LayoutImages images={venue.layoutImages || []} />
         </div>
       ) : (
         <CourtListing
@@ -115,7 +114,15 @@ const Address = ({ address }) => {
           height="24px"
         />
         <p className="text-sm text-[#101828]">
-          PlayAll Badminton Arena, Sector 73, Near Noida Pet Clinic, Noida
+          <span>{address?.line1 || ""}</span>
+          {","}
+          <span>{address?.line2 || ""}</span>
+          {","}
+          <span>{address?.city || ""}</span>
+          {","}
+          <span>{address?.state || ""}</span>
+          {","}
+          <span>{address?.postalCode || ""}</span>
         </p>
       </div>
 
@@ -132,7 +139,7 @@ const Address = ({ address }) => {
   );
 };
 
-const Description = () => {
+const Description = ({ description }) => {
   return (
     <div className="flex flex-col items-start gap-2.5">
       <h3 className="text-xs text-[#667085]">About Venue</h3>
@@ -140,18 +147,7 @@ const Description = () => {
         id="about-venue"
         className="w-full h-[250px] p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
       >
-        PlayAll Sports Complex was constructed to host 9th Asian Games held in
-        year 1982 and later upgraded with latest state of art facilities for
-        hosting Commonwealth Games-2010. The stadium is being maintained &
-        utilized by SAI on behalf of Ministry of Sports and Youth Affairs,
-        Government of India, as part of legacy to promote & develop sports
-        activities and to implement plans and schemes for the promotion of
-        sports . This situated in New Delhi is one of the most famous and
-        popular stadiums in India. It has been a witness to several important
-        sports events. This sports stadium that has hosted some major sports
-        events was established in 1982 by the government of India. This stadium
-        contains a wide range of stadiums that are required to hold various
-        events including soccer and several others.
+        {description}
       </textarea>
     </div>
   );
@@ -175,7 +171,9 @@ const VenueAvailableDays = ({ days }) => {
             <div
               key={`${day}`}
               className={
-                days.includes(day) ? "text-[#101828]" : "text-[#667085]"
+                days.map((item) => item === day)
+                  ? "text-[#101828]"
+                  : "text-[#667085]"
               }
             >
               {day.slice(0, 3)}
@@ -238,43 +236,22 @@ const Equipments = ({ equipment }) => {
     </div>
   );
 };
-const images = [
-  {
-    url: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    caption: "Beautiful Sunset",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    caption: "Mountain View",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1499955085172-a104c9463ece?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    caption: "Calm Beach",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    caption: "Forest Path",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    caption: "Starry Night",
-  },
-];
-const LayoutImages = () => {
+
+const LayoutImages = ({ images }) => {
   return (
     <div className="grid grid-cols-3 gap-2.5">
-      {images.map((image) => {
+      {images.map((image, index) => {
         return (
           <div key={`${image.url}`} className="group relative">
-            <ArrowsPointingOutIcon
+            {/* <ArrowsPointingOutIcon
               width="30px"
               height="30px"
               color="white"
               className="absolute right-0 top-1 transform transition-transform duration-300 group-hover:scale-110 group-hover:translate-y-[-4px]"
-            />
+            /> */}
             <img
               src={image.url}
-              alt={image.caption}
+              alt={image?.caption || index}
               width="500px"
               height="500px"
               className="object-cover rounded-lg "

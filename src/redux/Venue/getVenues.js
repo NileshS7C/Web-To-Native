@@ -50,7 +50,7 @@ const getVenuesSlice = createSlice({
       .addCase(getAllVenues.rejected, (state, { payload }) => {
         state.isSuccess = false;
         state.isLoading = false;
-        state.errorMessage = payload.message;
+        state.errorMessage = payload.data.message;
       });
 
     builder

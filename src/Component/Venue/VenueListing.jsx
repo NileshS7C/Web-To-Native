@@ -37,15 +37,16 @@ export default function VenueListing() {
   } = useSelector((state) => state.getVenues);
   useEffect(() => {
     dispatch(getAllVenues({ currentPage, selectedFilter }));
+  }, [currentPage, selectedFilter]);
 
+  useEffect(() => {
     if (venues?.length > 0) {
       const isVenueWithNoCourt = venues.some(
         (venue) => venue.courts.length === 0
       );
-
       dispatch(checkVenue(isVenueWithNoCourt));
     }
-  }, [currentPage, navigate, selectedFilter]);
+  }, [venues]);
 
   useEffect(() => {
     if (isDeleted) {
