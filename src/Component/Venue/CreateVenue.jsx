@@ -16,7 +16,11 @@ import * as yup from "yup";
 import { useState, useEffect } from "react";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import { addVenue, getSingleVenue } from "../../redux/Venue/venueActions";
+import {
+  addVenue,
+  getSingleVenue,
+  updateVenue,
+} from "../../redux/Venue/venueActions";
 import { ErrorModal } from "../Common/ErrorModal";
 import { cleanUpError, showError } from "../../redux/Error/errorSlice";
 import { SuccessModal } from "../Common/SuccessModal";
@@ -25,9 +29,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Spinner from "../Common/Spinner";
 import LocationSearchInput from "../Common/LocationSearch";
 import { uploadImage } from "../../redux/Upload/uploadActions";
-
-
-
+import { resetVenueState } from "../../redux/Venue/addVenue";
 
 const requiredVenueFields = (venue) => {
   const {
@@ -105,8 +107,8 @@ const validationSchema = yup.object().shape({
     coordinates: yup
       .array()
       .of(yup.number().required("Each coordinate must be a number."))
-      .length(2, "Coordinates must contain exactly two numbers.")
-      .required("Coordinates are required."),
+      .length(2, "Location must be provided.")
+      .required("Location is required."),
   }),
   address: yup.object().shape({
     line1: yup.string().notRequired(),
@@ -248,11 +250,15 @@ const VenueInfo = () => {
     setSubmitting(false);
 
     try {
-      await dispatch(addVenue(values)).unwrap();
+      !id
+        ? await dispatch(addVenue(values)).unwrap()
+        : await dispatch(updateVenue({ formData: values, id })).unwrap();
       resetForm();
       dispatch(
         showSuccess({
-          message: "Venue added successfully",
+          message: id
+            ? "Venue updated successfully"
+            : "Venue added successfully",
           onClose: "hideSuccess",
         })
       );
@@ -270,6 +276,7 @@ const VenueInfo = () => {
       );
     } finally {
       setSubmitting(false);
+      dispatch(resetVenueState());
     }
   };
 

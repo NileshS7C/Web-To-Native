@@ -19,6 +19,14 @@ const venueSlice = createSlice({
     setLocation(state, { payload }) {
       state.location = payload;
     },
+    resetVenueState(state) {
+      state.venueDetails = {};
+      state.isLoading = false;
+      state.isError = false;
+      state.isSuccess = false;
+      state.errorMessage = "";
+      state.location = {};
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(addVenue.pending, (state) => {
@@ -37,6 +45,6 @@ const venueSlice = createSlice({
   },
 });
 
-export const { showForm, setLocation } = venueSlice.actions;
+export const { showForm, setLocation, resetVenueState } = venueSlice.actions;
 
 export default venueSlice.reducer;
