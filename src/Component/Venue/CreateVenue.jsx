@@ -206,19 +206,17 @@ const VenueInfo = () => {
         })
       );
 
-      dispatch(cleanUpSuccess());
-
       setTimeout(() => {
         navigate("/venues");
-      }, 1000);
+      }, 2000);
     } catch (error) {
+      console.log(" error", error);
       dispatch(
         showError({
           message: error.data.message || "Something went wrong!",
           onClose: "hideError",
         })
       );
-      dispatch(cleanUpError());
     } finally {
       setSubmitting(false);
     }
@@ -299,7 +297,6 @@ const VenueInfo = () => {
           <ErrorModal />
           <SuccessModal />
           <VenueBasicInfo />
-
           <VenueAddress />
           <VenueMetaData />
           <VenueDescription />
