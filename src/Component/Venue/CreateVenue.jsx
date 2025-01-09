@@ -163,36 +163,6 @@ const VenueInfo = () => {
       .string()
       .required("Description is required.")
       .max(500, "Description cannot exceed 500 characters."),
-    // availableDays: yup
-    //   .array()
-    //   .of(
-    //     yup.object().shape({
-    //       day: yup.string().required("Day is required"),
-    //       openingTime: yup.string().when("day", {
-    //         is: (day) => {
-    //           console.log(" day", day);
-    //         },
-    //         then: (schema) => schema.required("Opening time is required"),
-    //       }),
-    //       closingTime: yup
-    //         .string()
-    //         .required("closing time is requied")
-    //         .test(
-    //           "closing-after-opening",
-    //           "closing time must be after the opening time.",
-    //           function (closingTime) {
-    //             const openingTime = this.parent.openingTime;
-    //             return openingTime && closingTime && openingTime < closingTime;
-    //           }
-    //         ),
-    //     })
-    //   )
-    //   .test("unique-day-check", "Days must be unique", function (values) {
-    //     console.log(" valuesfsdfdfsd", values);
-    //     const days = values.map((item) => item.day);
-    //     const uniqueDays = new Set(days);
-    //     return days.length === uniqueDays.size;
-    //   }),
 
     availableDays:
       !allSelected &&
