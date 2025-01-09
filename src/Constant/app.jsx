@@ -15,7 +15,6 @@ import {
 export const menus = [
   { name: "Overview", icon: overviewIcon },
   { name: "Tournaments", icon: tournamentIcon },
-  { name: "Events", icon: eventsIcon },
   { name: "Bookings", icon: bookingIcon },
   { name: "Venues", icon: venueIcon },
   {
@@ -25,6 +24,17 @@ export const menus = [
     dropdownIcon: downArrow,
   },
   { name: "Profile", icon: profileIcon },
+];
+
+export const ADMIN_NAVIGATION = [
+  { name: "DashBoard", icon: overviewIcon },
+  { name: "Tournament Org", icon: tournamentIcon },
+  { name: "Venue Org", icon: eventsIcon },
+  { name: "Tournament Bookings", icon: bookingIcon },
+  { name: "Court Bookings", icon: bookingIcon },
+  { name: "Tournaments", icon: tournamentIcon },
+  { name: "Venues", icon: venueIcon },
+  { name: "User", icon: profileIcon },
 ];
 
 export const ActionButtonGroup = [

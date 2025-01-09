@@ -67,7 +67,7 @@ export const setupAxiosInterceptors = (
 
       try {
         const refreshToken = getRefreshTokenFromCookies();
-
+        console.log(" refresh token", refreshToken);
         const response = await axios.put(
           `${baseURL}/users/auth/update-refresh-access`,
           {
@@ -79,6 +79,8 @@ export const setupAxiosInterceptors = (
             },
           }
         );
+
+        console.log(" response from the server", response)
 
         const tokens = response.data;
         await dispatch(refreshTokensAction(tokens));

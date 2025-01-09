@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
 import { Cookies } from "react-cookie";
+import axios from "axios";
 
 const cookies = new Cookies();
 
@@ -14,7 +15,7 @@ export const userLogin = createAsyncThunk(
         },
       };
 
-      const response = await axiosInstance.post(
+      const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/users/auth/login`,
         { identifier: email, password },
         config
@@ -59,11 +60,7 @@ export const userLogout = createAsyncThunk(
         },
       };
 
-      await axiosInstance.delete(
-        "/users/auth/logout",
-        config,
-        JSON.stringify({ refreshToken })
-      );
+      await axios.delete("/users/auth/logout", config);
       cookies.remove("refreshToken", { path: "/" });
       return null;
     } catch (error) {
