@@ -6,6 +6,7 @@ import {
   FieldArray,
   useFormikContext,
 } from "formik";
+
 import TextError from "../Error/formError";
 import { AvailableDays } from "../../Constant/tournament";
 import { Amenities, Equipment } from "../../Constant/venue";
@@ -93,115 +94,6 @@ const validateOpenAndCloseTime = (days) => {
   });
 };
 
-const validationSchema = yup.object().shape({
-  name: yup
-    .string()
-    .required("Name is required.")
-    .min(3, "Name must be at least 3 characters long.")
-    .max(50, "Name cannot exceed 50 characters."),
-  location: yup.object().shape({
-    type: yup
-      .string()
-      .oneOf(["Point"], "Location type must be 'Point'.")
-      .required("Location type is required."),
-    coordinates: yup
-      .array()
-      .of(yup.number().required("Each coordinate must be a number."))
-      .length(2, "Location must be provided.")
-      .required("Location is required."),
-  }),
-  address: yup.object().shape({
-    line1: yup.string().notRequired(),
-    line2: yup.string().notRequired(),
-    city: yup.string().required("City is required."),
-    state: yup.string().required("State is required."),
-    postalCode: yup
-      .string()
-      .required("Postal Code is required.")
-      .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
-  }),
-  description: yup
-    .string()
-    .required("Description is required.")
-    .max(500, "Description cannot exceed 500 characters."),
-  // availableDays: yup
-  //   .array()
-  //   .of(
-  //     yup.object().shape({
-  //       day: yup.string().required("Day is required"),
-  //       openingTime: yup.string().when("day", {
-  //         is: (day) => {
-  //           console.log(" day", day);
-  //         },
-  //         then: (schema) => schema.required("Opening time is required"),
-  //       }),
-  //       closingTime: yup
-  //         .string()
-  //         .required("closing time is requied")
-  //         .test(
-  //           "closing-after-opening",
-  //           "closing time must be after the opening time.",
-  //           function (closingTime) {
-  //             const openingTime = this.parent.openingTime;
-  //             return openingTime && closingTime && openingTime < closingTime;
-  //           }
-  //         ),
-  //     })
-  //   )
-  //   .test("unique-day-check", "Days must be unique", function (values) {
-  //     console.log(" valuesfsdfdfsd", values);
-  //     const days = values.map((item) => item.day);
-  //     const uniqueDays = new Set(days);
-  //     return days.length === uniqueDays.size;
-  //   }),
-
-  // availableDays: yup
-  //   .array()
-  //   .test("at-least-one-day", "Please select at least one day", hasSelectedDays)
-  //   .test(
-  //     "valid-times",
-  //     "Opening and closing times are required for selected days",
-  //     validateTimes
-  //   )
-  //   .test(
-  //     "compare-time",
-  //     "Closing time should be greater than opening time.",
-  //     validateOpenAndCloseTime
-  //   ),
-  allDaysSelected: yup.bool(),
-  // globalOpeningTime: yup.string().required("Opening time is required"),
-
-  // globalClosingTime: yup
-  //   .string()
-  //   .required("Closing time is required.")
-  //   .test(
-  //     "is-after-opening-time",
-  //     "Closing time must be greater than opening time.",
-  //     function (value) {
-  //       const { globalOpeningTime } = this.parent;
-  //       return globalOpeningTime < value;
-  //     }
-  //   ),
-
-  amenities: yup
-    .array()
-    .of(yup.string())
-    .min(1, "At least one amenity must be provided."),
-  equipments: yup
-    .array()
-    .of(yup.string())
-    .min(1, "At least one equipment item must be provided."),
-  bannerImages: yup
-    .array()
-    .min(1, "At least one banner image must be uploaded."),
-
-  layoutImages: yup
-    .array()
-    .min(1, "At least one layout image must be uploaded."),
-  rating: yup.array().of(yup.number().min(0).max(5)),
-  comments: yup.array().of(yup.string()),
-});
-
 const initialValues = {
   name: "",
   location: {
@@ -239,6 +131,95 @@ const initialValues = {
 };
 
 const VenueInfo = () => {
+  const [allSelected, setAllSelected] = useState(false);
+  const validationSchema = yup.object().shape({
+    name: yup
+      .string()
+      .required("Name is required.")
+      .min(3, "Name must be at least 3 characters long.")
+      .max(50, "Name cannot exceed 50 characters."),
+    location: yup.object().shape({
+      type: yup
+        .string()
+        .oneOf(["Point"], "Location type must be 'Point'.")
+        .required("Location type is required."),
+      coordinates: yup
+        .array()
+        .of(yup.number().required("Each coordinate must be a number."))
+        .length(2, "Location must be provided.")
+        .required("Location is required."),
+    }),
+    address: yup.object().shape({
+      line1: yup.string().notRequired(),
+      line2: yup.string().notRequired(),
+      city: yup.string().required("City is required."),
+      state: yup.string().required("State is required."),
+      postalCode: yup
+        .string()
+        .required("Postal Code is required.")
+        .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
+    }),
+    description: yup
+      .string()
+      .required("Description is required.")
+      .max(500, "Description cannot exceed 500 characters."),
+
+    availableDays:
+      !allSelected &&
+      yup
+        .array()
+        .test(
+          "at-least-one-day",
+          "Please select at least one day",
+          hasSelectedDays
+        )
+        .test(
+          "valid-times",
+          "Opening and closing times are required for selected days",
+          validateTimes
+        )
+        .test(
+          "compare-time",
+          "Closing time should be greater than opening time.",
+          validateOpenAndCloseTime
+        ),
+    allDaysSelected: yup.bool(),
+    globalOpeningTime: allSelected
+      ? yup.string().required("Opening time is required")
+      : yup.string(),
+
+    globalClosingTime: allSelected
+      ? yup
+          .string()
+          .required("Closing time is required.")
+          .test(
+            "is-after-opening-time",
+            "Closing time must be greater than opening time.",
+            function (value) {
+              const { globalOpeningTime } = this.parent;
+              return globalOpeningTime < value;
+            }
+          )
+      : yup.string(),
+
+    amenities: yup
+      .array()
+      .of(yup.string())
+      .min(1, "At least one amenity must be provided."),
+    equipments: yup
+      .array()
+      .of(yup.string())
+      .min(1, "At least one equipment item must be provided."),
+    bannerImages: yup
+      .array()
+      .min(1, "At least one banner image must be uploaded."),
+
+    layoutImages: yup
+      .array()
+      .min(1, "At least one layout image must be uploaded."),
+    rating: yup.array().of(yup.number().min(0).max(5)),
+    comments: yup.array().of(yup.string()),
+  });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading } = useSelector((state) => state.Venue);
@@ -357,7 +338,7 @@ const VenueInfo = () => {
           <VenueAddress />
           <VenueMetaData />
           <VenueDescription />
-          <VenueAvailableDays />
+          <VenueAvailableDays setAllSelected={setAllSelected} />
 
           <VenueAmenities />
           <VenueEquipments />
@@ -583,9 +564,9 @@ const VenueDescription = () => {
   );
 };
 
-const VenueAvailableDays = () => {
+const VenueAvailableDays = ({ setAllSelected }) => {
   const { values, setFieldValue, errors } = useFormikContext();
-
+  console.log("errors", errors);
   useEffect(() => {
     if (
       values.allDaysSelected &&
@@ -628,6 +609,7 @@ const VenueAvailableDays = () => {
                     name="allDaysSelected"
                     className="w-4 h-4 outline-none"
                     onChange={(e) => {
+                      setAllSelected(e.target.checked);
                       form.setFieldValue("allDaysSelected", e.target.checked);
                     }}
                   ></Field>
@@ -738,6 +720,7 @@ const VenueAvailableDays = () => {
           );
         }}
       </FieldArray>
+      <ErrorMessage name="availableDays" component={TextError} />
     </div>
   );
 };
@@ -832,7 +815,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
   useEffect(() => {
-    const previewImages = values?.layoutImages?.length
+    const previewImages = values?.bannerImages?.length
       ? values.bannerImages.map((image) => ({
           preview: image.url,
         }))

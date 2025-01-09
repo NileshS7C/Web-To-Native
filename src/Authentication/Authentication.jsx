@@ -1,13 +1,14 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { Cookies } from "react-cookie";
-const cookies = new Cookies();
+import { useCookies } from "react-cookie";
+
 const Authentication = ({ children }) => {
-  const isLoggedIn = cookies.get("refreshToken");
+  const [cookies] = useCookies("refreshToken");
+  const isLoggedIn = cookies.refreshToken;
   if (isLoggedIn) {
     return children;
   }
-  return <Navigate to="/login" />;
+  return <Navigate to="/login" replace />;
 };
 
 export default Authentication;
