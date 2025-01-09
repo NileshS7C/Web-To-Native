@@ -7,6 +7,7 @@ const initialState = {
   isSuccess: false,
   errorMessage: null,
   showCreateVenueForm: false,
+  location: {},
 };
 const venueSlice = createSlice({
   name: "Venue",
@@ -14,6 +15,17 @@ const venueSlice = createSlice({
   reducers: {
     showForm(state) {
       state.showCreateVenueForm = !state.showCreateVenueForm;
+    },
+    setLocation(state, { payload }) {
+      state.location = payload;
+    },
+    resetVenueState(state) {
+      state.venueDetails = {};
+      state.isLoading = false;
+      state.isError = false;
+      state.isSuccess = false;
+      state.errorMessage = "";
+      state.location = {};
     },
   },
   extraReducers: (builder) => {
@@ -33,6 +45,6 @@ const venueSlice = createSlice({
   },
 });
 
-export const { showForm } = venueSlice.actions;
+export const { showForm, setLocation, resetVenueState } = venueSlice.actions;
 
 export default venueSlice.reducer;

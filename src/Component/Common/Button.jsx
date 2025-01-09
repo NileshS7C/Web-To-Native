@@ -8,20 +8,22 @@ const Button = (props) => {
     ${className} 
     ${disabled || loading ? "opacity-50 cursor-not-allowed" : ""}
     ${loading ? "relative" : ""} 
-    bg-[#1570EF]  hover:bg-blue-700 active:bg-blue-800 transition-colors 
+    bg-[#1570EF]   hover:bg-blue-700 active:bg-blue-800 transition-colors 
     focus:outline-none focus:ring-2 focus:ring-blue-300
   `;
 
-  return loading ? (
-    <ImSpinner2 className="animate-spin w-4 h-4" />
-  ) : (
+  return (
     <button
       onClick={onClick}
       disabled={disabled || loading}
       className={buttonClasses}
       type={type || "text"}
     >
-      {children}
+      {loading ? (
+        <ImSpinner2 className="animate-spin w-8 h-8 m-auto" />
+      ) : (
+        children
+      )}
     </button>
   );
 };

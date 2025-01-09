@@ -77,7 +77,7 @@ const DataTable = ({
           </table>
         </div>
       </div>
-      {totalPages > 1 && (
+      {totalPages > 10 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

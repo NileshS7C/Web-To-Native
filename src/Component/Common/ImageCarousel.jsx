@@ -29,7 +29,7 @@ export const Slider = ({ images }) => {
     <AwesomeSlider style={{ height: "30vw" }} animation="cubeAnimation">
       {images.map((each, index) => {
         return (
-          <div key={`${each.caption}`}>
+          <div key={`${each?.caption}` || index}>
             <img src={each.url} />
           </div>
         );

@@ -3,22 +3,15 @@ import Header from "./Header/header";
 import { NavBar } from "./SideNavBar/NavBar";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import { useSelector } from "react-redux";
-const titles = {
-  "/venues": "Venues",
-  "/venues/create": "Add New Venue",
-  "/tournaments": "Tournaments",
-  "/home": "Home",
-};
+import { getPageTitle } from "../Constant/titles";
+
 const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
   const { venue } = useSelector((state) => state.getVenues);
 
-  const currentTitle =
-    location.pathname.startsWith("/venues") && id
-      ? venue.name
-      : titles[location.pathname];
+  const currentTitle = getPageTitle(location.pathname, { id }, venue);
 
   return (
     <div className="flex flex-col max-h-screen">

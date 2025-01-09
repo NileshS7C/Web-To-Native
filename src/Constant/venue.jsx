@@ -21,8 +21,8 @@ const venueFilters = [
 ];
 
 const venueTabs = [
-  { name: "Overview", href: "#", current: true },
-  { name: "Courts", href: "#", current: false },
+  { name: "Overview", href: "#", current: true, path: "/overview" },
+  { name: "Courts", href: "#", current: false , path: "/courts"},
 ];
 
 const tableHeaders = [
@@ -49,7 +49,7 @@ const tableHeaders = [
   {
     key: "actions",
     header: "Actions",
-    render: (item) => <VenueActions id={item._id} />,
+    render: (item, index) => <VenueActions id={item._id} index={index} />,
   },
 ];
 
@@ -87,12 +87,12 @@ const courtTableContent = [
   },
 ];
 
-export const ActionButtonCourt = [
+const ActionButtonCourt = [
   { name: "Edit", icon: EditIcon, action: "edit" },
   { name: "Delete", icon: DeleteIcon, action: "delete" },
 ];
 
-const venueFeatures = [
+const courtFeatures = [
   "Air conditioning",
   "Non-Air conditioning",
   "Indoor",
@@ -106,5 +106,6 @@ export {
   venueTabs,
   tableHeaders,
   courtTableContent,
-  venueFeatures,
+  courtFeatures,
+  ActionButtonCourt,
 };

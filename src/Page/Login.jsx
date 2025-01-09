@@ -156,7 +156,7 @@ const Login = () => {
   const { accessToken, refreshToken, isSuccess } = useSelector(
     (state) => state.auth
   );
-  console.log(" accesstoken", accessToken, refreshToken);
+
   const [isValidationError, setIsValidationError] = useState(false);
   const formError = useCallback((data) => {
     setIsValidationError(data);

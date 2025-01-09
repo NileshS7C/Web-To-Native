@@ -1,13 +1,83 @@
-import { Formik, Form, ErrorMessage } from "formik";
+import { Formik, Form, ErrorMessage, Field, useFormikContext } from "formik";
 import * as yup from "yup";
 import TextError from "../Error/formError";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { uploadIcon } from "../../Assests";
 import { BiX } from "react-icons/bi";
 import { removeFiles, updateFiles } from "../../redux/tournament/addTournament";
-import { venueFeatures } from "../../Constant/venue";
-const validationSchema = {
-  courName: yup
+import Button from "../Common/Button";
+import { courtFeatures } from "../../Constant/venue";
+import {
+  createCourt,
+  getCourt,
+  updateCourt,
+} from "../../redux/Venue/venueActions";
+import { useNavigate, useParams } from "react-router-dom";
+import { ErrorModal } from "../Common/ErrorModal";
+import { cleanUpError, showError } from "../../redux/Error/errorSlice";
+import {
+  cleanUpSuccess,
+  hideSuccess,
+  showSuccess,
+} from "../../redux/Success/successSlice";
+import { SuccessModal } from "../Common/SuccessModal";
+
+import { IoIosCloseCircleOutline } from "react-icons/io";
+import { useState, useEffect } from "react";
+import { uploadImage } from "../../redux/Upload/uploadActions";
+import Spinner from "../Common/Spinner";
+import { resetCourtState } from "../../redux/Venue/addCourt";
+
+const requiredVenueFields = (court) => {
+  const {
+    courtName,
+    courtNumber,
+    features,
+    desktopBannerImages,
+    mobileBannerImages,
+    price,
+  } = court;
+
+  return {
+    courtName,
+    courtNumber,
+    features,
+    desktopBannerImages,
+    mobileBannerImages,
+    price,
+  };
+};
+
+//  .of(
+//       yup.object({
+//         url: yup
+//           .mixed()
+//           .nullable()
+//           .required("Desktop banner image is required.")
+//           .test("file-size", "Desktop banner image is too large", (value) => {
+
+//             if (!value) return true;
+
+//             // Check file size: 100 KB max
+//             return value?.length <= 100 * 1024; // 100 KB
+//           })
+//           .test(
+//             "file-type",
+//             "Desktop banner image should be of valid image type",
+//             (value) => {
+//               if (!value.length) return true;
+//               return (
+//                 value &&
+//                 ["image/jpeg", "image/png", "image/gif"].includes(value?.type)
+//               );
+//             }
+//           ),
+//       })
+//     )
+//     .nullable(),
+
+const validationSchema = yup.object().shape({
+  courtName: yup
     .string()
     .required()
     .min(3, "Name must be at least 3 characters long.")
@@ -19,35 +89,101 @@ const validationSchema = {
     .min(1, "Court Number should be greater than 0"),
   features: yup.array().min(1, "At least feature should be selected"),
   price: yup.number().required().min(1, "Price should be greater than 1"),
-  bannerImages: yup
-    .array()
-    .required()
-    .min(1, "At least one layout image must be uploaded."),
-};
+
+  desktopBannerImages: yup.array().min(1, "Desktop banner image is required."),
+
+  mobileBannerImages: yup.array().min(1, "Mobile banner image is required."),
+});
 
 const initialValues = {
   courtName: "",
-  courtNumber: 0,
+  courtNumber: 1,
   features: [],
-  price: 0,
-  bannerImages: [],
+  price: 1,
+  desktopBannerImages: [],
+  mobileBannerImages: [],
 };
 
-const CourtCreation = () => {
-  const handleSubmit = (setSubmitting, { values }) => {
+export const CourtCreation = () => {
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { isLoading, isGettingCourt, court, isSuccess } = useSelector(
+    (state) => state.addCourt
+  );
+  const [initialState, setInitialState] = useState(initialValues);
+
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
-    console.log(" values", values);
+
+    try {
+      !id
+        ? await dispatch(createCourt({ formData: values, id: id })).unwrap()
+        : await dispatch(updateCourt({ formData: values, id: id })).unwrap();
+      resetForm();
+      dispatch(
+        showSuccess({
+          message: id
+            ? "Court updated successfully"
+            : "Court added successfully",
+          onClose: "hideSuccess",
+        })
+      );
+      setInitialState(initialValues);
+      setTimeout(() => {
+        navigate("/venues");
+        dispatch(hideSuccess());
+      }, 2000);
+    } catch (err) {
+      dispatch(
+        showError({
+          message: err.data.message || "Something went wrong!",
+          onClose: "hideError",
+        })
+      );
+    } finally {
+      dispatch(resetCourtState());
+    }
   };
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getCourt(id));
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (court && id && isSuccess) {
+      setInitialState({ ...initialState, ...requiredVenueFields(court) });
+    }
+  }, [court, id]);
+
+  console.log(" values of the court", court);
+
+  if (isGettingCourt) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spinner />
+      </div>
+    );
+  }
   return (
     <Formik
-      initialValues={initialValues}
+      enableReinitialize
+      initialValues={initialState}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
       <Form>
         <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
+          <ErrorModal />
+          <SuccessModal />
           <CourtDetails />
-          <CourtFileUpload />
+          <CourtFileUpload dispatch={dispatch} />
+          <CourtFeatures />
+          <CourtPrice />
+          <ErrorModal />
+          <SuccessModal />
           <Button
             className="w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
             type="submit"
@@ -72,7 +208,7 @@ const CourtDetails = () => {
           CourtName
         </label>
         <Field
-          placeholder="Enter Venue Name"
+          placeholder="Enter Court Name"
           id="courtName"
           name="courtName"
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -87,10 +223,11 @@ const CourtDetails = () => {
           Court No.
         </label>
         <Field
-          placeholder="Enter Venue Location"
+          placeholder="Enter Court Number"
           id="courtNumber"
           name="courtNumber"
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="number"
         />
         <ErrorMessage name="courtNumber" component={TextError} />
       </div>
@@ -98,48 +235,114 @@ const CourtDetails = () => {
   );
 };
 
-const CourtFileUpload = () => {
-  const dispatch = useDispatch();
+const CourtFileUpload = ({ dispatch }) => {
+  const { values, setFieldValue, setFieldError } = useFormikContext();
   const { selectedFiles, bannerMobileFiles } = useSelector(
     (state) => state.Tournament
   );
+  const [previews, setPreviews] = useState(
+    values?.desktopBannerImages?.length
+      ? [{ preview: values.desktopBannerImages[0].url }]
+      : []
+  );
+
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const handleRemoveImageDesk = () => {
+    setPreviews([]);
+  };
+  const handleFileUploadDesk = async (e) => {
+    setIsError(false);
+    setErrorMessage("");
+    const uploadedFile = e.target.files[0];
+    if (!uploadedFile.type.startsWith("image/")) {
+      setFieldError(
+        "desktopBannerImages",
+        "File should be a valid image type."
+      );
+      return;
+    }
+
+    const maxSize = 1000 * 1024;
+    if (uploadedFile.size > maxSize) {
+      setFieldError("desktopBannerImages", "File should be less than 1 MB");
+      return;
+    }
+    try {
+      const result = await dispatch(uploadImage(uploadedFile)).unwrap();
+
+      setPreviews((prev) => [
+        ...prev,
+        { preview: result.data.uploadedFileUrl },
+      ]);
+      const url = result.data.uploadedFileUrl;
+      setFieldValue("desktopBannerImages", [
+        ...values.desktopBannerImages,
+        { url },
+      ]);
+    } catch (err) {
+      setErrorMessage(err.data?.message);
+      setIsError(true);
+      setFieldError("desktopBannerImages", err.data.message);
+    }
+  };
 
   return (
     <div className="grid grid-cols-2 gap-[30px]">
       <div className=" relative flex flex-col items-start gap-2.5 ">
-        <label className="text-xs text-[#232323]" htmlFor="bannerImage">
+        <label className="text-xs text-[#232323]" htmlFor="desktopBannerImages">
           Banner Image (Desktop)
         </label>
-
-        <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
-          <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
-
-          <p className="text-sm text-[#5B8DFF]">
-            Click to upload{" "}
-            <span className="text-sm text-[#353535] "> or drag and drop</span>
-          </p>
-
-          <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-          <Field name="bannerImage.desktop">
-            {({ form, field, meta }) => (
-              <input
-                {...field}
-                id="bannerImage.desktop"
-                name="bannerImage.desktop"
-                onChange={(e) => {
-                  const files = e.target.files[0];
-                  if (selectedFiles.length >= 1) return;
-                  const url = window.URL.createObjectURL(files);
-                  dispatch(updateFiles({ name: url, source: "desktop" }));
-                  form.setFieldValue("bannerImage.desktop", files);
-                }}
-                value=""
-                type="file"
-                className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                multiple={false}
+        <div className="relative flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
+          {previews[0]?.preview && (
+            <>
+              <img
+                src={previews[0]?.preview || ""}
+                className="absolute inset-0 object-scale-down rounded h-full w-full z-100"
               />
-            )}
-          </Field>
+              {previews[0]?.preview && (
+                <IoIosCloseCircleOutline
+                  className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer "
+                  onClick={() => {
+                    handleRemoveImageDesk();
+                  }}
+                />
+              )}
+            </>
+          )}{" "}
+          {!previews[0]?.preview && (
+            <>
+              <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+
+              <p className="text-sm text-[#5B8DFF]">
+                Click to upload{" "}
+                <span className="text-sm text-[#353535] ">
+                  {" "}
+                  or drag and drop
+                </span>
+              </p>
+
+              <p className="text-xs text-[#353535] mt-1">
+                (Max. File size: 5MB)
+              </p>
+
+              <Field name="desktopBannerImages">
+                {({ form, field, meta }) => (
+                  <input
+                    {...field}
+                    id="desktopBannerImages"
+                    name="desktopBannerImages"
+                    onChange={(e) => handleFileUploadDesk(e)}
+                    value=""
+                    type="file"
+                    className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                    multiple={false}
+                    accept="image/jpeg, image/png,image/gif"
+                  />
+                )}
+              </Field>
+            </>
+          )}
         </div>
         {selectedFiles.map((file, index) => {
           return (
@@ -159,85 +362,162 @@ const CourtFileUpload = () => {
             </div>
           );
         })}
-        <ErrorMessage name="bannerImage.desktop" component={TextError} />
+        <ErrorMessage name="desktopBannerImages" component={TextError} />
       </div>
 
-      <div className="relative flex flex-col items-start gap-2.5 ">
-        <label className="text-xs text-[#232323]" htmlFor="bannerImage_M">
-          Banner Image (Mobile)
-        </label>
+      <MobileBannerImage dispatch={dispatch} />
 
-        <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
-          <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+      {isError && <TextError>{errorMessage}</TextError>}
+    </div>
+  );
+};
 
-          <p className="text-sm text-[#5B8DFF]">
-            Click to upload
-            <span className="text-sm text-[#353535] "> or drag and drop</span>
-          </p>
+const MobileBannerImage = ({ dispatch }) => {
+  const { values, setFieldValue, setFieldError } = useFormikContext();
+  const [previews, setPreviews] = useState(
+    values?.mobileBannerImages?.length
+      ? [{ preview: values.mobileBannerImages[0].url }]
+      : []
+  );
 
-          <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-          <Field name="bannerImage.mobile">
-            {({ form, field }) => (
-              <input
-                {...field}
-                id="bannerImage.mobile"
-                name="bannerImage.mobile"
-                onChange={(e) => {
-                  const files = e.target.files[0];
-                  if (bannerMobileFiles.length >= 1) return;
-                  dispatch(updateFiles({ name: files.name, source: "mobile" }));
-                  form.setFieldValue("bannerImage.mobile", files);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const handleRemoveImageMob = () => {
+    setPreviews([]);
+  };
+  const handleFileUploadMob = async (e) => {
+    setIsError(false);
+    setErrorMessage("");
+    const uploadedFile = e.target.files[0];
+    if (!uploadedFile.type.startsWith("image/")) {
+      setFieldError("mobileBannerImages", "File should be a valid image type.");
+      return;
+    }
+
+    const maxSize = 1000 * 1024;
+    if (uploadedFile.size > maxSize) {
+      setFieldError("mobileBannerImages", "File should be less than 1 MB");
+      return;
+    }
+    try {
+      const result = await dispatch(uploadImage(uploadedFile)).unwrap();
+
+      setPreviews((prev) => [
+        ...prev,
+        { preview: result.data.uploadedFileUrl },
+      ]);
+      const url = result.data.uploadedFileUrl;
+      setFieldValue("mobileBannerImages", [
+        ...values.desktopBannerImages,
+        { url },
+      ]);
+    } catch (err) {
+      setErrorMessage(err.data?.message);
+      setIsError(true);
+      setFieldError("mobileBannerImages", err.data.message);
+    }
+  };
+  return (
+    <div className="relative flex flex-col items-start gap-2.5 ">
+      <label className="text-xs text-[#232323]" htmlFor="mobileBannerImages">
+        Banner Image (Mobile)
+      </label>
+
+      <div className="relative flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
+        {previews[0]?.preview && (
+          <>
+            <img
+              src={previews[0]?.preview || ""}
+              className="absolute inset-0 object-scale-down rounded h-full w-full z-100"
+            />
+            {previews[0]?.preview && (
+              <IoIosCloseCircleOutline
+                className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer "
+                onClick={() => {
+                  handleRemoveImageMob();
                 }}
-                value=""
-                type="file"
-                className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                multiple=""
               />
             )}
-          </Field>
-        </div>
-        {bannerMobileFiles.map((file, index) => {
-          return (
-            <div
-              className="flex bg-[#eaeaea] rounded-[20px] items-center p-[3px] justify-center"
-              key={`${file}. ${index}`}
-            >
-              <div className=" text-xs ">{file}</div>
+          </>
+        )}
 
-              <BiX
-                className="w-4 h-4 cursor-pointer"
-                key={`${index}.icon`}
-                onClick={() => {
-                  dispatch(removeFiles(file, "mobile"));
-                }}
-              />
-            </div>
-          );
-        })}
-        <ErrorMessage name="bannerImage.mobile" component={TextError} />
+        {!previews[0]?.preview && (
+          <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
+            <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+
+            <p className="text-sm text-[#5B8DFF]">
+              Click to upload
+              <span className="text-sm text-[#353535] "> or drag and drop</span>
+            </p>
+
+            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
+            <Field name="mobileBannerImages">
+              {({ form, field }) => (
+                <input
+                  {...field}
+                  id="mobileBannerImages"
+                  name="mobileBannerImages"
+                  onChange={(e) => handleFileUploadMob(e)}
+                  value=""
+                  type="file"
+                  className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                  accept="image/jpeg, image/png,image/gif"
+                />
+              )}
+            </Field>
+          </div>
+        )}
       </div>
+
+      {isError && <TextError>{errorMessage}</TextError>}
+      <ErrorMessage name="mobileBannerImages" component={TextError} />
     </div>
   );
 };
 
 const CourtFeatures = () => {
+  const { form, values } = useFormikContext();
+  console.log(" form values", values);
   return (
-    <div>
-      {CourtFeatures.map((feature) => (
+    <div className="flex justify-between">
+      {courtFeatures.map((feature) => (
         <label
           key={feature}
           className="flex items-center gap-2 text-[15px] leading-[18.15px] text-[#232323]"
+          htmlFor="features"
         >
           <Field
             type="checkbox"
-            name="availableDays"
-            value={day}
-            checked={form.values.features.includes(feature)}
+            name="features"
+            id="features"
+            value={feature}
+            checked={values.features.includes(feature)}
             className="w-4 h-4 border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
           />
-          {day}
+          {feature}
         </label>
       ))}
+    </div>
+  );
+};
+
+const CourtPrice = () => {
+  return (
+    <div className="flex flex-col items-start gap-2.5">
+      <label
+        className=" text-[#232323] text-base leading-[19.36px]"
+        htmlFor="price"
+      >
+        Rate (Per Hour)
+      </label>
+      <Field
+        placeholder="Enter court price"
+        id="price"
+        name="price"
+        className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+        type="number"
+      />
+      <ErrorMessage name="price" component={TextError} />
     </div>
   );
 };

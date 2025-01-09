@@ -1,17 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { locationIcon } from "../../Assests";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Slider } from "../Common/ImageCarousel";
 import { ArrowsPointingOutIcon } from "@heroicons/react/20/solid";
 import Tabs from "../Common/Tabs";
 import { venueTabs as initialVenueTabs } from "../../Constant/venue";
 import { CourtListing } from "./CourtListing";
-import { onPageChange } from "../../redux/Venue/getVenues";
+import { cleanPublishState, onPageChange } from "../../redux/Venue/getVenues";
+import Button from "../Common/Button";
+import { getSingleVenue, publishVenue } from "../../redux/Venue/venueActions";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { showSuccess } from "../../redux/Success/successSlice";
+import { showError } from "../../redux/Error/errorSlice";
+import { SuccessModal } from "../Common/SuccessModal";
+import Spinner from "../Common/Spinner";
 
 export default function VenueDescription() {
-  const { venue } = useSelector((state) => state.getVenues);
   const [venueTabs, setVenueTabs] = useState(initialVenueTabs);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const {
+    isPublished,
+    isPublishing,
+    isErrorInPublish,
+    publishedErrorMessage,
+    isLoading,
+    isSuccess,
+    venue,
+  } = useSelector((state) => state.getVenues);
   const handleTabChange = (value) => {
     const updatedTabs = venueTabs.map((tab) => ({
       ...tab,
@@ -20,6 +38,42 @@ export default function VenueDescription() {
     setVenueTabs(updatedTabs);
   };
 
+  useEffect(() => {
+    if (id) {
+      dispatch(getSingleVenue(id));
+    }
+  }, [id]);
+
+  dispatch(cleanPublishState());
+  useEffect(() => {
+    if (isPublished) {
+      dispatch(
+        showSuccess({
+          message: "Venue published successfully",
+          onClose: "hideSuccess",
+        })
+      );
+
+      navigate("/venues");
+    } else if (isErrorInPublish) {
+      dispatch(
+        showError({
+          message: publishedErrorMessage || "Something went wrong!",
+          onClose: "hideError",
+        })
+      );
+      dispatch(cleanPublishState());
+    }
+  }, [isPublished, isErrorInPublish]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-[20px]">
       <div className="py-[15px] px-[20px] bg-[#FFFFFF] rounded-lg">
@@ -27,6 +81,19 @@ export default function VenueDescription() {
       </div>
       {venueTabs.find((venue) => venue.name === "Overview").current ? (
         <div className="flex flex-col gap-[30px] bg-[#FFFFFF] p-[50px] rounded-3xl">
+          <button
+            className="w-[200px] h-[80px] bg-orange-400 hover:bg-slate-300 shadow-lg "
+            onClick={() => {
+              dispatch(publishVenue(id));
+            }}
+            loading={isPublishing}
+            disabled={venue?.status === "PUBLISHED"}
+          >
+            {venue?.status !== "PUBLISHED"
+              ? "Publish Venue"
+              : "Venue Published"}
+          </button>
+          {isPublished && <SuccessModal />}
           <div className="mb-5">
             <Slider images={venue.bannerImages || []} />
           </div>
@@ -35,13 +102,21 @@ export default function VenueDescription() {
           <Description description={venue.description || ""} />
           <div className="grid grid-cols-3 justify-start">
             <VenueAvailableDays days={venue.availableDays || []} />
-            <OpeningTime openingTime={venue.openingTime || ""} />
-            <ClosingTime closingTime={venue.closingTime || ""} />
+            <OpeningTime
+              openingTime={venue.availableDays || []}
+              allDaysSelected={venue.allDaysSelected || ""}
+              globalTime={venue.globalOpeningTime || ""}
+            />
+            <ClosingTime
+              closingTime={venue.availableDays || []}
+              allDaysSelected={venue.allDaysSelected || ""}
+              globalTime={venue.globalClosingTime || ""}
+            />
           </div>
 
           <Amenities amenities={venue.amenities || []} />
           <Equipments equipment={venue.equipments || []} />
-          <LayoutImages />
+          <LayoutImages images={venue.layoutImages || []} />
         </div>
       ) : (
         <CourtListing
@@ -56,6 +131,13 @@ export default function VenueDescription() {
 }
 
 const Address = ({ address }) => {
+  const venueAddress = `${address?.line1 || ""}, ${address?.line2 || ""}, ${
+    address?.city || ""
+  }, ${address?.state || ""}, ${address?.postalCode || ""}`;
+
+  const googleMapsLink = `https://www.google.com/maps?q=${encodeURIComponent(
+    venueAddress
+  )}`;
   return (
     <div className="flex flex-col gap-2.5 items-start">
       <p className="text-sm font-medium">
@@ -69,7 +151,15 @@ const Address = ({ address }) => {
           height="24px"
         />
         <p className="text-sm text-[#101828]">
-          PlayAll Badminton Arena, Sector 73, Near Noida Pet Clinic, Noida
+          <span>{address?.line1 || ""}</span>
+          {","}
+          <span>{address?.line2 || ""}</span>
+          {","}
+          <span>{address?.city || ""}</span>
+          {","}
+          <span>{address?.state || ""}</span>
+          {","}
+          <span>{address?.postalCode || ""}</span>
         </p>
       </div>
 
@@ -80,32 +170,32 @@ const Address = ({ address }) => {
           width="24px"
           height="24px"
         />
-        <p className="text-sm text-[#718EBF]">View Location</p>
+        <p className="text-sm text-[#718EBF] cursor-pointer">
+          {" "}
+          <a
+            href={googleMapsLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            View Location
+          </a>
+        </p>
       </div>
     </div>
   );
 };
 
-const Description = () => {
+const Description = ({ description }) => {
   return (
     <div className="flex flex-col items-start gap-2.5">
       <h3 className="text-xs text-[#667085]">About Venue</h3>
       <textarea
         id="about-venue"
         className="w-full h-[250px] p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        value={description}
       >
-        PlayAll Sports Complex was constructed to host 9th Asian Games held in
-        year 1982 and later upgraded with latest state of art facilities for
-        hosting Commonwealth Games-2010. The stadium is being maintained &
-        utilized by SAI on behalf of Ministry of Sports and Youth Affairs,
-        Government of India, as part of legacy to promote & develop sports
-        activities and to implement plans and schemes for the promotion of
-        sports . This situated in New Delhi is one of the most famous and
-        popular stadiums in India. It has been a witness to several important
-        sports events. This sports stadium that has hosted some major sports
-        events was established in 1982 by the government of India. This stadium
-        contains a wide range of stadiums that are required to hold various
-        events including soccer and several others.
+        {description}
       </textarea>
     </div>
   );
@@ -129,7 +219,9 @@ const VenueAvailableDays = ({ days }) => {
             <div
               key={`${day}`}
               className={
-                days.includes(day) ? "text-[#101828]" : "text-[#667085]"
+                days.map((item) => item === day)
+                  ? "text-[#101828]"
+                  : "text-[#667085]"
               }
             >
               {day.slice(0, 3)}
@@ -141,20 +233,32 @@ const VenueAvailableDays = ({ days }) => {
   );
 };
 
-const OpeningTime = ({ openingTime }) => {
+const OpeningTime = ({ openingTime, allDaysSelected, globalTime }) => {
+  let openingTiming;
+  if (allDaysSelected) {
+    openingTiming = globalTime;
+  } else {
+    openingTiming = openingTime.length > 0 ? openingTime[0].openingTime : "";
+  }
   return (
     <div className="flex flex-col gap-2.5">
       <h3 className="text-xs text-[#667085]">Opening Time</h3>
-      <p>{openingTime}</p>
+      <p>{openingTiming}</p>
     </div>
   );
 };
 
-const ClosingTime = ({ closingTime }) => {
+const ClosingTime = ({ closingTime, allDaysSelected, globalTime }) => {
+  let closingTiming;
+  if (allDaysSelected) {
+    closingTiming = globalTime;
+  } else {
+    closingTiming = closingTime?.length > 0 ? closingTime[0].closingTime : "";
+  }
   return (
     <div className="flex flex-col gap-2.5">
       <h3 className="text-xs text-[#667085]">Closing Time</h3>
-      <p>{closingTime}</p>
+      <p>{closingTiming}</p>
     </div>
   );
 };
@@ -192,43 +296,22 @@ const Equipments = ({ equipment }) => {
     </div>
   );
 };
-const images = [
-  {
-    url: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    caption: "Beautiful Sunset",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    caption: "Mountain View",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1499955085172-a104c9463ece?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    caption: "Calm Beach",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    caption: "Forest Path",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    caption: "Starry Night",
-  },
-];
-const LayoutImages = () => {
+
+const LayoutImages = ({ images }) => {
   return (
     <div className="grid grid-cols-3 gap-2.5">
-      {images.map((image) => {
+      {images.map((image, index) => {
         return (
           <div key={`${image.url}`} className="group relative">
-            <ArrowsPointingOutIcon
+            {/* <ArrowsPointingOutIcon
               width="30px"
               height="30px"
               color="white"
               className="absolute right-0 top-1 transform transition-transform duration-300 group-hover:scale-110 group-hover:translate-y-[-4px]"
-            />
+            /> */}
             <img
               src={image.url}
-              alt={image.caption}
+              alt={image?.caption || index}
               width="500px"
               height="500px"
               className="object-cover rounded-lg "
