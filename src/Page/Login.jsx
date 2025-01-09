@@ -8,6 +8,10 @@ import { userLogin } from "../redux/Authentication/authActions";
 import Button from "../Component/Common/Button";
 import TextError from "../Component/Error/formError";
 import { useNavigate } from "react-router-dom";
+import { cleanUpSuccess, showSuccess } from "../redux/Success/successSlice";
+import { ErrorModal } from "../Component/Common/ErrorModal";
+import { SuccessModal } from "../Component/Common/SuccessModal";
+import { cleanUpError, showError } from "../redux/Error/errorSlice";
 
 const LogInForm = ({ formData, formError }) => {
   const [email, setEmail] = useState("");
@@ -170,25 +174,46 @@ const Login = () => {
     }));
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isValidationError) return;
-    dispatch(userLogin(loginData));
+    try {
+      await dispatch(userLogin(loginData)).unwrap();
+      dispatch(
+        showSuccess({
+          message: "Logged in successfully",
+          onClose: "hideSuccess",
+        })
+      );
+
+      setTimeout(() => {
+        navigate("/venues", {
+          replace: true,
+        });
+      }, 1000);
+    } catch (error) {
+      console.log(" errpr", error)
+      dispatch(
+        showError({
+          message: error.message || "Something went wrong!",
+          onClose: "hideError",
+        })
+      );
+    }
   };
 
-  useEffect(() => {
-    if (isSuccess) {
-      navigate("/venues", {
-        replace: true,
-      });
-    }
-  }, [isSuccess]);
+  // useEffect(() => {
+  //   if (isSuccess) {
+  //   }
+  // }, [isSuccess]);
 
   return (
     <div className="h-[100vh] flex justify-center  portrait:rotate-0 landscape:rotate-360 ">
       <form onSubmit={(e) => handleSubmit(e)}>
         <div className="grid grid-cols-3 place-items-center gap-[47px]">
           <div className="col-span-1 flex justify-center items-center pl-[47px] min-w-[200px] max-w-[400px]">
+            <ErrorModal />
+            <SuccessModal />
             <LogInForm formData={formData} formError={formError} />
           </div>
 

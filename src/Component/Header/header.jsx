@@ -15,10 +15,14 @@ const Header = () => {
   const { isLoggedOut, isLoading } = useSelector((state) => state.auth);
   const handleUserLogout = () => {
     dispatch(userLogout());
-    if (isLoggedOut) {
-      navigate("/login", { replace: true });
-    }
+    
   };
+
+  useEffect(() => {
+   if (isLoggedOut) {
+     navigate("/login", { replace: true });
+   }
+  }, [isLoggedOut]);
 
   return (
     <div className="flex items-center justify-between  pt-[20px] pb-[31px] px-[32px]">

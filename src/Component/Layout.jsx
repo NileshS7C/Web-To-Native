@@ -12,6 +12,8 @@ const Layout = () => {
   const { venue } = useSelector((state) => state.getVenues);
 
   const currentTitle = getPageTitle(location.pathname, { id }, venue);
+  const { accessToken } = useSelector((state) => state.auth);
+  console.log(" access token", accessToken);
 
   return (
     <div className="flex flex-col max-h-screen">
