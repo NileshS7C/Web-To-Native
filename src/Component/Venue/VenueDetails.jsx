@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Slider } from "../Common/ImageCarousel";
 import { ArrowsPointingOutIcon } from "@heroicons/react/20/solid";
 import Tabs from "../Common/Tabs";
-import { venueTabs as initialVenueTabs } from "../../Constant/venue";
+import { venueTabs as initialVenueTabs, fixedDays } from "../../Constant/venue";
 import { CourtListing } from "./CourtListing";
 import { cleanPublishState, onPageChange } from "../../redux/Venue/getVenues";
 import Button from "../Common/Button";
@@ -15,9 +15,13 @@ import { showSuccess } from "../../redux/Success/successSlice";
 import { showError } from "../../redux/Error/errorSlice";
 import { SuccessModal } from "../Common/SuccessModal";
 import Spinner from "../Common/Spinner";
-import { showConfirmation } from "../../redux/Confirmation/confirmationSlice";
+import {
+  showConfirmation,
+  onCofirm,
+  onCancel,
+} from "../../redux/Confirmation/confirmationSlice";
 import { ConfirmationModal } from "../Common/ConfirmationModal";
-import { onCofirm, onCancel } from "../../redux/Confirmation/confirmationSlice";
+
 export default function VenueDescription() {
   const [venueTabs, setVenueTabs] = useState(initialVenueTabs);
   const { isOpen, message, onClose, isConfirmed } = useSelector(
@@ -48,8 +52,6 @@ export default function VenueDescription() {
       dispatch(getSingleVenue(id));
     }
   }, [id]);
-
- 
 
   // useEffect(() => {
   //   if (isPublished) {
@@ -91,9 +93,9 @@ export default function VenueDescription() {
         <Tabs options={venueTabs} onChange={handleTabChange} />
       </div>
       {venueTabs.find((venue) => venue.name === "Overview").current ? (
-        <div className="flex flex-col gap-[30px] bg-[#FFFFFF] p-[50px] rounded-3xl">
+        <div className="flex flex-col gap-[30px] bg-[#FFFFFF] p-[50px]">
           <button
-            className="w-[200px] h-[80px] bg-orange-400 hover:bg-slate-300 shadow-lg "
+            className="w-[200px] h-[60px] rounded-lg text-md font-bold text-black disabled:bg-gray-300 bg-white hover:bg-slate-300 shadow-lg"
             onClick={() => {
               dispatch(
                 showConfirmation({
@@ -104,7 +106,9 @@ export default function VenueDescription() {
               );
             }}
             loading={isPublishing}
-            disabled={venue?.status === "PUBLISHED"}
+            disabled={
+              venue?.status === "PUBLISHED" || venue?.courts?.length === 0
+            }
           >
             {venue?.status !== "PUBLISHED"
               ? "Publish Venue"
@@ -124,25 +128,19 @@ export default function VenueDescription() {
             message={message}
           />
 
-          <Address address={venue.address || {}} />
-          <Description description={venue.description || ""} />
-          <div className="grid grid-cols-3 justify-start">
-            <VenueAvailableDays days={venue.availableDays || []} />
-            <OpeningTime
-              openingTime={venue.availableDays || []}
-              allDaysSelected={venue.allDaysSelected || ""}
-              globalTime={venue.globalOpeningTime || ""}
-            />
-            <ClosingTime
-              closingTime={venue.availableDays || []}
-              allDaysSelected={venue.allDaysSelected || ""}
-              globalTime={venue.globalClosingTime || ""}
-            />
-          </div>
+          <Address address={venue?.address || {}} />
+          <Description description={venue?.description || ""} />
 
-          <Amenities amenities={venue.amenities || []} />
-          <Equipments equipment={venue.equipments || []} />
-          <LayoutImages images={venue.layoutImages || []} />
+          <VenueAvailability
+            days={venue?.availableDays || []}
+            allDaysSelected={venue?.allDaysSelected || ""}
+            globalClosingTime={venue?.globalClosingTime || ""}
+            globalOpeningTime={venue?.globalOpeningTime || ""}
+          />
+
+          <Amenities amenities={venue?.amenities || []} />
+          <Equipments equipment={venue?.equipments || []} />
+          <LayoutImages images={venue?.layoutImages || []} />
         </div>
       ) : (
         <CourtListing
@@ -226,15 +224,64 @@ const Description = ({ description }) => {
     </div>
   );
 };
-const fixedDays = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+
+const VenueAvailability = ({
+  days,
+  allDaysSelected,
+  globalClosingTime,
+  globalOpeningTime,
+}) => {
+  return (
+    <>
+      {allDaysSelected ? (
+        <div>
+          <table className="min-w-full divide-y divide-gray-300">
+            <thead>
+              <tr className="bg-[#F7F9FC]">
+                <th className="py-3.5 text-left text-sm font-semibold text-[#667085] ">
+                  Day
+                </th>
+                <th className="py-3.5 text-left text-sm font-semibold text-[#667085] ">
+                  Opening Time
+                </th>
+                <th className="py-3.5 text-left text-sm font-semibold text-[#667085] ">
+                  Closing Time
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {days.map((data, index) => {
+                const { day = "", openingTime = "", closingTime = "" } = data;
+                return (
+                  <tr key={`${day}`}>
+                    <td className="text-left" scope="row">
+                      {fixedDays[index]}
+                    </td>
+                    <td className="text-left">{openingTime}</td>
+                    <td className="text-left">{closingTime}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 justify-start">
+          <VenueAvailableDays days={days} />
+          <OpeningTime
+            availableDays={days}
+            globalTime={globalOpeningTime || ""}
+          />
+          <ClosingTime
+            availableDays={days || []}
+            globalTime={globalClosingTime || ""}
+          />
+        </div>
+      )}
+    </>
+  );
+};
 const VenueAvailableDays = ({ days }) => {
   return (
     <div className="flex flex-col gap-2.5 items-start">
@@ -259,32 +306,20 @@ const VenueAvailableDays = ({ days }) => {
   );
 };
 
-const OpeningTime = ({ openingTime, allDaysSelected, globalTime }) => {
-  let openingTiming;
-  if (allDaysSelected) {
-    openingTiming = globalTime;
-  } else {
-    openingTiming = openingTime.length > 0 ? openingTime[0].openingTime : "";
-  }
+const OpeningTime = ({ availableDays, globalTime }) => {
   return (
     <div className="flex flex-col gap-2.5">
       <h3 className="text-xs text-[#667085]">Opening Time</h3>
-      <p>{openingTiming}</p>
+      <p>{globalTime}</p>
     </div>
   );
 };
 
-const ClosingTime = ({ closingTime, allDaysSelected, globalTime }) => {
-  let closingTiming;
-  if (allDaysSelected) {
-    closingTiming = globalTime;
-  } else {
-    closingTiming = closingTime?.length > 0 ? closingTime[0].closingTime : "";
-  }
+const ClosingTime = ({ availableDays, globalTime }) => {
   return (
     <div className="flex flex-col gap-2.5">
       <h3 className="text-xs text-[#667085]">Closing Time</h3>
-      <p>{closingTiming}</p>
+      <p>{globalTime}</p>
     </div>
   );
 };
@@ -335,13 +370,16 @@ const LayoutImages = ({ images }) => {
               color="white"
               className="absolute right-0 top-1 transform transition-transform duration-300 group-hover:scale-110 group-hover:translate-y-[-4px]"
             /> */}
-            <img
-              src={image.url}
-              alt={image?.caption || index}
-              width="500px"
-              height="500px"
-              className="object-cover rounded-lg "
-            />
+
+            <a href={image?.url} target="_blank">
+              <img
+                src={image?.url}
+                alt={image?.caption || index}
+                width="320px"
+                height="320px"
+                className="object-cover rounded-lg "
+              />
+            </a>
           </div>
         );
       })}

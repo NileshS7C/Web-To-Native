@@ -108,6 +108,16 @@ const courtFeatures = [
   "Outdoor",
 ];
 
+const fixedDays = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
 export {
   Amenities,
   Equipment,
@@ -117,4 +127,5 @@ export {
   courtTableContent,
   courtFeatures,
   ActionButtonCourt,
+  fixedDays
 };

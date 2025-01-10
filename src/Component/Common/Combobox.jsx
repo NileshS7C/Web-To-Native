@@ -5,13 +5,6 @@ import Spinner from "./Spinner";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import PropTypes from "prop-types";
 
-Combopopoverm.propTypes = {
-  setFieldValue: PropTypes.func,
-  className: PropTypes.string,
-  isGettingTags: PropTypes.bool,
-  checkedTags: PropTypes.array,
-  uniqueTags: PropTypes.array,
-};
 const CreateTags = ({ selectedTag, handleRemoveTag }) => {
   return (
     <>
