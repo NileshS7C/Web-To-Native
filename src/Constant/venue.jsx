@@ -1,6 +1,7 @@
 import VenueActions from "../Component/Common/VenueActions";
 import { EditIcon, DeleteIcon } from "../Assests";
 import CourtActions from "../Component/Common/CourtActions";
+import { Link } from "react-router-dom";
 const Amenities = [
   "Drinking",
   "Locker Rooms",
@@ -22,7 +23,7 @@ const venueFilters = [
 
 const venueTabs = [
   { name: "Overview", href: "#", current: true, path: "/overview" },
-  { name: "Courts", href: "#", current: false , path: "/courts"},
+  { name: "Courts", href: "#", current: false, path: "/courts" },
 ];
 
 const tableHeaders = [
@@ -31,11 +32,19 @@ const tableHeaders = [
     header: "S.No.",
     render: (_, index, currentPage) => (currentPage - 1) * 10 + (index + 1),
   },
-  { key: "venueName", header: "Venue Name", render: (item) => item.name },
+  {
+    key: "venueName",
+    header: "Venue Name",
+    render: (item) => (
+      <Link to={`/venues/${item._id}`} className="hover:text-blue-600">
+        {item.name}
+      </Link>
+    ),
+  },
   {
     key: "courts",
-    header: "Courts",
-    render: (item) => item.courts.map((court) => court.courtNumber).join(","),
+    header: "Total Courts",
+    render: (item) => item.courts.length,
   },
   {
     key: "status",

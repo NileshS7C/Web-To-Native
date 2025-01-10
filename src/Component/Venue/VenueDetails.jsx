@@ -15,9 +15,14 @@ import { showSuccess } from "../../redux/Success/successSlice";
 import { showError } from "../../redux/Error/errorSlice";
 import { SuccessModal } from "../Common/SuccessModal";
 import Spinner from "../Common/Spinner";
-
+import { showConfirmation } from "../../redux/Confirmation/confirmationSlice";
+import { ConfirmationModal } from "../Common/ConfirmationModal";
+import { onCofirm, onCancel } from "../../redux/Confirmation/confirmationSlice";
 export default function VenueDescription() {
   const [venueTabs, setVenueTabs] = useState(initialVenueTabs);
+  const { isOpen, message, onClose, isConfirmed } = useSelector(
+    (state) => state.confirm
+  );
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -44,27 +49,33 @@ export default function VenueDescription() {
     }
   }, [id]);
 
-  dispatch(cleanPublishState());
-  useEffect(() => {
-    if (isPublished) {
-      dispatch(
-        showSuccess({
-          message: "Venue published successfully",
-          onClose: "hideSuccess",
-        })
-      );
+ 
 
-      navigate("/venues");
-    } else if (isErrorInPublish) {
-      dispatch(
-        showError({
-          message: publishedErrorMessage || "Something went wrong!",
-          onClose: "hideError",
-        })
-      );
-      dispatch(cleanPublishState());
+  // useEffect(() => {
+  //   if (isPublished) {
+  //     dispatch(
+  //       showSuccess({
+  //         message: "Venue published successfully",
+  //         onClose: "hideSuccess",
+  //       })
+  //     );
+
+  //     navigate("/venues");
+  //   } else if (isErrorInPublish) {
+  //     dispatch(
+  //       showError({
+  //         message: publishedErrorMessage || "Something went wrong!",
+  //         onClose: "hideError",
+  //       })
+  //     );
+  //   }
+  // }, [isPublished, isErrorInPublish]);
+
+  useEffect(() => {
+    if (isConfirmed) {
+      dispatch(publishVenue(id));
     }
-  }, [isPublished, isErrorInPublish]);
+  }, [isConfirmed]);
 
   if (isLoading) {
     return (
@@ -84,7 +95,13 @@ export default function VenueDescription() {
           <button
             className="w-[200px] h-[80px] bg-orange-400 hover:bg-slate-300 shadow-lg "
             onClick={() => {
-              dispatch(publishVenue(id));
+              dispatch(
+                showConfirmation({
+                  message:
+                    "Publishing this venue will make it visible to players. Are you sure you want to proceed?",
+                  type: "venue",
+                })
+              );
             }}
             loading={isPublishing}
             disabled={venue?.status === "PUBLISHED"}
@@ -97,6 +114,15 @@ export default function VenueDescription() {
           <div className="mb-5">
             <Slider images={venue.bannerImages || []} />
           </div>
+
+          <ConfirmationModal
+            isOpen={isOpen}
+            onCancel={onCancel}
+            onClose={onClose}
+            onConfirm={onCofirm}
+            isLoading={isPublishing}
+            message={message}
+          />
 
           <Address address={venue.address || {}} />
           <Description description={venue.description || ""} />

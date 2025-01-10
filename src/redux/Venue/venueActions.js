@@ -35,7 +35,7 @@ export const addVenue = createAsyncThunk(
 
 export const updateVenue = createAsyncThunk(
   "Venue/updateVenue",
-  async ({formData , id}, { rejectWithValue }) => {
+  async ({ formData, id }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -108,6 +108,37 @@ export const getSingleVenue = createAsyncThunk(
       };
       const response = await axiosInstance.get(
         `${import.meta.env.VITE_BASE_URL}/users/admin/venues/${id}`,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const getUniqueVenueTags = createAsyncThunk(
+  "Venue/getUniqueTags",
+  async (_, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/venues/tags`,
         config
       );
 

@@ -31,6 +31,9 @@ import Spinner from "../Common/Spinner";
 import LocationSearchInput from "../Common/LocationSearch";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import { resetVenueState } from "../../redux/Venue/addVenue";
+import Combobox from "../Common/Combobox";
+import Combopopover from "../Common/Combobox";
+import { getUniqueVenueTags } from "../../redux/Venue/venueActions";
 
 const requiredVenueFields = (venue) => {
   const {
@@ -226,6 +229,7 @@ const VenueInfo = () => {
   const { id } = useParams();
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.Venue);
+  const [selectedTags, setSelectedTags] = useState([]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
@@ -234,6 +238,7 @@ const VenueInfo = () => {
       !id
         ? await dispatch(addVenue(values)).unwrap()
         : await dispatch(updateVenue({ formData: values, id })).unwrap();
+
       resetForm();
       dispatch(
         showSuccess({
@@ -243,6 +248,8 @@ const VenueInfo = () => {
           onClose: "hideSuccess",
         })
       );
+
+      setAllSelected();
 
       setTimeout(() => {
         navigate("/venues");
@@ -265,7 +272,9 @@ const VenueInfo = () => {
     isLoading: isGettingVenue,
     isSuccess,
   } = useSelector((state) => state.getVenues);
-
+  const { isGettingTags, uniqueTags, tagError } = useSelector(
+    (state) => state.getVenues
+  );
   useEffect(() => {
     if (id) {
       dispatch(getSingleVenue(id));
@@ -273,10 +282,19 @@ const VenueInfo = () => {
   }, [id]);
 
   useEffect(() => {
+    dispatch(getUniqueVenueTags());
+  }, []);
+
+  useEffect(() => {
     if (venue && id && isSuccess) {
-      setInitialState({ ...initialState, ...requiredVenueFields(venue) });
+      const values = requiredVenueFields(venue);
+      setInitialState({ ...initialState, ...values });
+      setAllSelected(values.allDaysSelected);
+      setSelectedTags(values.tags);
     }
   }, [venue, id]);
+
+  
 
   useEffect(() => {
     const newState = { ...initialState };
@@ -336,9 +354,16 @@ const VenueInfo = () => {
           <SuccessModal />
           <VenueBasicInfo />
           <VenueAddress />
-          <VenueMetaData />
+          <VenueMetaData
+            isGettingTags={isGettingTags}
+            uniqueTags={uniqueTags}
+            selectedTags={selectedTags}
+          />
           <VenueDescription />
-          <VenueAvailableDays setAllSelected={setAllSelected} />
+          <VenueAvailableDays
+            setAllSelected={setAllSelected}
+            allSelected={allSelected}
+          />
 
           <VenueAmenities />
           <VenueEquipments />
@@ -399,9 +424,10 @@ const VenueBasicInfo = () => {
   );
 };
 
-const VenueMetaData = () => {
+const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
   const [venueHandle, setVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
+ 
 
   useEffect(() => {
     if (values.name) {
@@ -417,7 +443,7 @@ const VenueMetaData = () => {
   }, [values.name]);
 
   return (
-    <div className="grid grid-cols-2 gap-[30px] ">
+    <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -434,8 +460,8 @@ const VenueMetaData = () => {
         />
         <ErrorMessage name="handle" component={TextError} />
       </div>
-      <div className="flex flex-col items-start gap-2.5">
-        <label
+
+      {/* <label
           className=" text-[#232323] text-base leading-[19.36px]"
           htmlFor="tags"
         >
@@ -451,9 +477,16 @@ const VenueMetaData = () => {
 
             setFieldValue("tags", tags);
           }}
-        />
-        <ErrorMessage name="tags" component={TextError} />
-      </div>
+        /> */}
+
+      <Combopopover
+        isGettingTags={isGettingTags}
+        uniqueTags={uniqueTags}
+        setFieldValue={setFieldValue}
+        checkedTags={selectedTags}
+      />
+
+      <ErrorMessage name="tags" component={TextError} />
     </div>
   );
 };
@@ -564,9 +597,9 @@ const VenueDescription = () => {
   );
 };
 
-const VenueAvailableDays = ({ setAllSelected }) => {
+const VenueAvailableDays = ({ setAllSelected, allSelected }) => {
   const { values, setFieldValue, errors } = useFormikContext();
-  console.log("errors", errors);
+ 
   useEffect(() => {
     if (
       values.allDaysSelected &&
@@ -590,6 +623,8 @@ const VenueAvailableDays = ({ setAllSelected }) => {
 
     setFieldValue("availableDays", updatedDays);
   };
+
+  
   return (
     <div className="flex flex-col items-start gap-2.5">
       <p className=" text-[#232323] text-base leading-[19.36px]">
@@ -604,7 +639,7 @@ const VenueAvailableDays = ({ setAllSelected }) => {
                 <div className="flex gap-2.5 items-center">
                   <Field
                     type="checkbox"
-                    checked={form.values.allDaysSelected}
+                    checked={values.allDaysSelected}
                     id="allDaysSelected"
                     name="allDaysSelected"
                     className="w-4 h-4 outline-none"

@@ -158,7 +158,7 @@ export const CourtCreation = () => {
     }
   }, [court, id]);
 
-  console.log(" values of the court", court);
+  
 
   if (isGettingCourt) {
     return (
@@ -477,7 +477,7 @@ const MobileBannerImage = ({ dispatch }) => {
 
 const CourtFeatures = () => {
   const { form, values } = useFormikContext();
-  console.log(" form values", values);
+  
   return (
     <div className="flex justify-between">
       {courtFeatures.map((feature) => (

@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllVenues, getSingleVenue, publishVenue } from "./venueActions";
+import {
+  getAllVenues,
+  getSingleVenue,
+  getUniqueVenueTags,
+  publishVenue,
+} from "./venueActions";
 
 const initialState = {
   venues: [],
@@ -15,6 +20,9 @@ const initialState = {
   isPublished: true,
   isErrorInPublish: false,
   publishedErrorMessage: "",
+  isGettingTags: "",
+  uniqueTags: [],
+  tagError: false,
 };
 
 const getVenuesSlice = createSlice({
@@ -81,6 +89,19 @@ const getVenuesSlice = createSlice({
         state.isPublished = false;
         state.isPublishing = false;
         state.publishedErrorMessage = payload.data.message;
+      });
+
+    builder
+      .addCase(getUniqueVenueTags.pending, (state) => {
+        state.isGettingTags = true;
+      })
+      .addCase(getUniqueVenueTags.fulfilled, (state, { payload }) => {
+        state.uniqueTags = payload.data;
+        state.isGettingTags = false;
+      })
+      .addCase(getUniqueVenueTags.rejected, (state) => {
+        state.isGettingTags = false;
+        state.tagError = true;
       });
   },
 });

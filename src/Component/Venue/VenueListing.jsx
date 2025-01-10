@@ -56,7 +56,6 @@ export default function VenueListing() {
           onClose: "hideSuccess",
         })
       );
-      dispatch(cleanUpSuccess());
       dispatch(getAllVenues(currentPage));
     }
 
@@ -67,11 +66,8 @@ export default function VenueListing() {
           onClose: "hideError",
         })
       );
-      dispatch(cleanUpError());
     }
-
-    dispatch(onCancel());
-  }, [isDeleted, isError]);
+  }, [isDeleted, isError,dispatch]);
 
   if (isLoading) {
     return (
