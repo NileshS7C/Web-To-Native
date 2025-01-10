@@ -2,7 +2,13 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "./Button";
-import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
+
+import {
+  onCancel,
+  onCofirm,
+  resetConfirmationState,
+} from "../../redux/Confirmation/confirmationSlice";
+import { useEffect } from "react";
 
 export const ConfirmationModal = ({
   isOpen,
@@ -20,6 +26,9 @@ export const ConfirmationModal = ({
     dispatch(onConfirm());
   };
 
+  useEffect(() => {
+    dispatch(resetConfirmationState());
+  }, [dispatch]);
 
   if (!isOpen) return null;
   return (

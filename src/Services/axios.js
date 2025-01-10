@@ -1,6 +1,8 @@
 // src/services/axiosConfig.js
 import axios from "axios";
 import { Cookies } from "react-cookie";
+import { userLogout } from "../redux/Authentication/authActions";
+import { showError } from "../redux/Error/errorSlice";
 const cookies = new Cookies();
 
 const baseURL = import.meta.env.VITE_BASE_URL;
@@ -49,6 +51,14 @@ export const setupAxiosInterceptors = (
         return Promise.reject(error);
       }
 
+      console.log("staus", error.response?.status);
+
+      if (error.response?.status === 403) {
+        dispatch(userLogout());
+
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           refreshSubscribers.push((error, token) => {
@@ -80,19 +90,27 @@ export const setupAxiosInterceptors = (
           }
         );
 
-        console.log(" response from the server", response)
+        console.log(" response from the server", response);
 
         const tokens = response.data;
         await dispatch(refreshTokensAction(tokens));
-
-        refreshSubscribers.forEach((cb) => cb(null, tokens.accessToken));
+        refreshSubscribers.forEach((cb) => cb(null, tokens.data.accessToken));
         refreshSubscribers = [];
-
         originalRequest.headers.Authorization = `Bearer ${tokens.data.accessToken}`;
         return axiosInstance(originalRequest);
       } catch (error) {
         refreshSubscribers.forEach((cb) => cb(error, null));
         refreshSubscribers = [];
+        dispatch(
+          showError({
+            message: "User unauthorized!",
+            onClose: "hideError",
+          })
+        );
+        dispatch(userLogout());
+
+        // Optionally redirect the user to login
+        window.location.href = "/login";
         return Promise.reject(error);
       } finally {
         isRefreshing = false;

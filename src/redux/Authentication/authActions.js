@@ -27,10 +27,32 @@ export const userLogin = createAsyncThunk(
         sameSite: "strict",
         secure: true,
       });
+      cookies.set("userRole", response.data.data.user.roleName, {
+        path: "/",
+        maxAge: 24 * 60 * 60,
+        sameSite: "strict",
+        secure: true,
+      });
+      cookies.set("name", response.data.data.user.name, {
+        path: "/",
+        maxAge: 24 * 60 * 60,
+        sameSite: "strict",
+        secure: true,
+      });
 
       return response.data;
-    } catch (error) {
-      return rejectWithValue(error.message);
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "Some thing went wrong!",
+        });
+      }
     }
   }
 );
@@ -40,8 +62,18 @@ export const refreshTokens = createAsyncThunk(
   async (tokens, { rejectWithValue }) => {
     try {
       return tokens;
-    } catch (error) {
-      return rejectWithValue(error.response.data.message);
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
     }
   }
 );
@@ -60,11 +92,23 @@ export const userLogout = createAsyncThunk(
         },
       };
 
-      await axios.delete("/users/auth/logout", config);
+      await axiosInstance.delete("/users/auth/logout", config);
       cookies.remove("refreshToken", { path: "/" });
+      cookies.remove("userRole", { path: "/" });
+      cookies.remove("name", { path: "/" });
       return null;
-    } catch (error) {
-      return rejectWithValue(error.response.data.message);
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
     }
   }
 );

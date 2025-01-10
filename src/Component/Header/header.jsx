@@ -1,27 +1,33 @@
 import { useDispatch, useSelector } from "react-redux";
-import {
-  notificationIcon,
-  userProfileIcon,
-  pickleBayLogo,
-  downArrow,
-} from "../../Assests";
+import { userProfileIcon, pickleBayLogo } from "../../Assests";
 import { userLogout } from "../../redux/Authentication/authActions";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { showSuccess } from "../../redux/Success/successSlice";
 
 const Header = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { isLoggedOut, isLoading } = useSelector((state) => state.auth);
   const handleUserLogout = () => {
     dispatch(userLogout());
-    
   };
 
   useEffect(() => {
-   if (isLoggedOut) {
-     navigate("/login", { replace: true });
-   }
+    if (isLoggedOut) {
+      dispatch(
+        showSuccess({
+          message: "Logged out successfully",
+          onClose: "hideSuccess",
+        })
+      );
+      const timerId = setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
+      return () => {
+        if (timerId) {
+          clearTimeout(timerId);
+        }
+      };
+    }
   }, [isLoggedOut]);
 
   return (

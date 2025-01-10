@@ -17,12 +17,13 @@ const authSlice = createSlice({
     refreshToken: cookies.get("refreshToken") || null,
     userRole: null,
     isLoggedOut: false,
-    isUserAuthenticated: true,
+    isUserAuthenticated: false,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(userLogin.pending, (state) => {
       state.isLoading = true;
+      state.isUserAuthenticated = false;
     });
     builder.addCase(userLogin.fulfilled, (state, { payload }) => {
       state.isLoading = false;
@@ -38,6 +39,7 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.isSuccess = false;
       state.errorMessage = action.payload;
+      state.isUserAuthenticated = false;
     });
 
     // Refresh token cases
@@ -50,6 +52,10 @@ const authSlice = createSlice({
 
     // Logout cases
     builder
+      .addCase(userLogout.pending, (state) => {
+        state.isUserAuthenticated = false;
+        state.isLoggedOut = false;
+      })
       .addCase(userLogout.fulfilled, (state) => {
         state.isAuthenticationFailed = false;
         state.userInfo = null;
@@ -58,12 +64,14 @@ const authSlice = createSlice({
         state.errorMessage = "";
         state.userPermissions = null;
         state.accessToken = null;
+        state.isUserAuthenticated = true;
         state.refreshToken = null;
       })
       .addCase(userLogout.rejected, (state, { payload }) => {
         state.errorMessage = payload;
         state.isLoggedOut = false;
         state.isLoading = false;
+        state.isUserAuthenticated = false;
       });
   },
 });

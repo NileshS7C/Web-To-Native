@@ -190,22 +190,18 @@ const Login = () => {
         navigate("/venues", {
           replace: true,
         });
-      }, 1000);
+      }, 2000);
     } catch (error) {
-      console.log(" errpr", error)
       dispatch(
         showError({
-          message: error.message || "Something went wrong!",
+          message:
+            error.data.message ||
+            "Your session has expired or you are not logged in.",
           onClose: "hideError",
         })
       );
     }
   };
-
-  // useEffect(() => {
-  //   if (isSuccess) {
-  //   }
-  // }, [isSuccess]);
 
   return (
     <div className="h-[100vh] flex justify-center  portrait:rotate-0 landscape:rotate-360 ">

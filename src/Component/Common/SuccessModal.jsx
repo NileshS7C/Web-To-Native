@@ -3,6 +3,7 @@ import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "./Button";
 import { hideSuccess } from "../../redux/Success/successSlice";
+import { useEffect } from "react";
 export const SuccessModal = () => {
   const dispatch = useDispatch();
   const { isOpen, message, onClose } = useSelector((state) => state.success);
@@ -12,6 +13,12 @@ export const SuccessModal = () => {
       dispatch(hideSuccess());
     }
   };
+
+  useEffect(() => {
+    return () => {
+      dispatch(hideSuccess());
+    };
+  }, [dispatch]);
 
   if (!isOpen) return null;
   return (
