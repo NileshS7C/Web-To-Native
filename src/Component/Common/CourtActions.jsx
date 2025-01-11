@@ -11,7 +11,7 @@ import { useEffect } from "react";
 const CourtActions = ({ id, name }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isConfirmed, type } = useSelector((state) => state.confirm);
+
   const handlers = {
     edit: (team) => {
       navigate(`/venues/${id}/edit-court?name=${name}`);
@@ -22,19 +22,12 @@ const CourtActions = ({ id, name }) => {
           message:
             "Deleting this court will remove it from your records and any associated data. Are you sure you want to proceed?",
           type: "Court",
+          id,
         })
       );
     },
     view: (id) => {},
   };
-
-  useEffect(() => {
-    if (isConfirmed && type === "Court") {
-      dispatch(deleteCourt(id));
-      dispatch(resetConfirmationState());
-      navigate("/venues");
-    }
-  }, [isConfirmed, type]);
 
   return (
     <ActionButtons

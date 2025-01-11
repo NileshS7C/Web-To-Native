@@ -1,6 +1,6 @@
 import AlertBanner from "../Common/AlertBanner";
 import FilterGroup from "../Common/FilterGroup";
-import { getAllVenues } from "../../redux/Venue/venueActions";
+import { getAllVenues, deleteVenue } from "../../redux/Venue/venueActions";
 import {
   checkVenue,
   onPageChange,
@@ -15,10 +15,11 @@ import { ConfirmationModal } from "../Common/ConfirmationModal";
 import { useNavigate } from "react-router-dom";
 import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
 import { SuccessModal } from "../Common/SuccessModal";
-import { cleanUpSuccess, showSuccess } from "../../redux/Success/successSlice";
+import { showSuccess } from "../../redux/Success/successSlice";
 import { ErrorModal } from "../Common/ErrorModal";
-import { cleanUpError, showError } from "../../redux/Error/errorSlice";
+import { showError } from "../../redux/Error/errorSlice";
 import Spinner from "../Common/Spinner";
+
 export default function VenueListing() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,9 +36,19 @@ export default function VenueListing() {
     selectedFilter,
     isLoading,
   } = useSelector((state) => state.getVenues);
+
+  const { isConfirmed, type, confirmationId } = useSelector(
+    (state) => state.confirm
+  );
+  useEffect(() => {
+    if (isConfirmed && type === "Venue" && confirmationId) {
+      dispatch(deleteVenue(confirmationId));
+    }
+  }, [isConfirmed, type, confirmationId]);
+
   useEffect(() => {
     dispatch(getAllVenues({ currentPage, selectedFilter }));
-  }, [currentPage, selectedFilter]);
+  }, [currentPage, selectedFilter, isDeleted]);
 
   useEffect(() => {
     if (venues?.length > 0) {
@@ -56,7 +67,6 @@ export default function VenueListing() {
           onClose: "hideSuccess",
         })
       );
-      dispatch(getAllVenues(currentPage));
     }
 
     if (isError) {
@@ -66,8 +76,9 @@ export default function VenueListing() {
           onClose: "hideError",
         })
       );
+      dispatch(onCancel());
     }
-  }, [isDeleted, isError, dispatch]);
+  }, [isDeleted, isError]);
 
   if (isLoading) {
     return (
@@ -107,7 +118,6 @@ export default function VenueListing() {
         message={message}
       />
 
-      {isDeleted && <SuccessModal />}
       <ErrorModal />
 
       <DataTable

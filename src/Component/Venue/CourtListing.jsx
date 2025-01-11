@@ -12,6 +12,8 @@ import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
 import { cleanUpSuccess, showSuccess } from "../../redux/Success/successSlice";
 import { cleanUpError, showError } from "../../redux/Error/errorSlice";
 import { resetDeleteState, resetErrorState } from "../../redux/Venue/addCourt";
+import { deleteCourt } from "../../redux/Venue/venueActions";
+import { resetConfirmationState } from "../../redux/Confirmation/confirmationSlice";
 
 export const CourtListing = ({
   courts,
@@ -26,6 +28,18 @@ export const CourtListing = ({
   const { isDeleting, isDeleted, isError, errorMessage } = useSelector(
     (state) => state.addCourt
   );
+
+  const { isConfirmed, type, confirmationId } = useSelector(
+    (state) => state.confirm
+  );
+
+  useEffect(() => {
+    if (isConfirmed && type === "Court" && confirmationId) {
+      dispatch(deleteCourt(confirmationId));
+      dispatch(resetConfirmationState());
+      navigate("/venues");
+    }
+  }, [isConfirmed, type, confirmationId]);
 
   useEffect(() => {
     if (isDeleted) {

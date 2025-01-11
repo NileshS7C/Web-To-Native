@@ -83,7 +83,6 @@ export default function VenueDescription() {
   useEffect(() => {
     if (isPublished) {
       dispatch(getSingleVenue(id));
-
       dispatch(
         showSuccess({
           message: "Venue published successfully",

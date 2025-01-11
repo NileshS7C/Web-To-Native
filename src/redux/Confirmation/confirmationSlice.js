@@ -6,6 +6,7 @@ const initialState = {
   isConfirmed: false,
   message: "",
   type: "",
+  confirmationId: "",
 };
 
 const confirmationSlice = createSlice({
@@ -18,8 +19,9 @@ const confirmationSlice = createSlice({
       state.type = payload.type;
       state.isConfirmed = false;
       state.onClose = null;
+      state.confirmationId = payload.id;
     },
-    onCofirm(state) {
+    onCofirm(state, { payload }) {
       state.isConfirmed = true;
     },
     onCancel(state) {
