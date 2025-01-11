@@ -1,13 +1,8 @@
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import Button from "./Button";
-
-import {
-  onCancel,
-  onCofirm,
-  resetConfirmationState,
-} from "../../redux/Confirmation/confirmationSlice";
+import { resetConfirmationState } from "../../redux/Confirmation/confirmationSlice";
 import { useEffect } from "react";
 
 export const ConfirmationModal = ({
@@ -61,7 +56,7 @@ export const ConfirmationModal = ({
                     type="button"
                     className="w-20 h-10 rounded-md bg-white text-black shadow-lg hover:bg-slate-300"
                     onClick={handleClose}
-                    disable={isLoading}
+                    disabled={isLoading}
                   >
                     Cancel
                   </Button>
@@ -69,7 +64,7 @@ export const ConfirmationModal = ({
                     type="button"
                     className="w-20 h-10 rounded-md bg-red-600 text-white shadow-lg hover:bg-red-500"
                     onClick={handleConfirm}
-                    isLoading={isLoading}
+                    loading={isLoading}
                   >
                     Confirm
                   </Button>

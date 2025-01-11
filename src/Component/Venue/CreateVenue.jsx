@@ -8,7 +8,6 @@ import {
 } from "formik";
 
 import TextError from "../Error/formError";
-import { AvailableDays } from "../../Constant/tournament";
 import { Amenities, Equipment } from "../../Constant/venue";
 import { AiFillQuestionCircle } from "react-icons/ai";
 import { uploadIcon, venueUploadImage } from "../../Assests";
@@ -21,6 +20,7 @@ import {
   addVenue,
   getSingleVenue,
   updateVenue,
+  getUniqueVenueTags,
 } from "../../redux/Venue/venueActions";
 import { ErrorModal } from "../Common/ErrorModal";
 import { cleanUpError, showError } from "../../redux/Error/errorSlice";
@@ -31,9 +31,7 @@ import Spinner from "../Common/Spinner";
 import LocationSearchInput from "../Common/LocationSearch";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import { resetVenueState } from "../../redux/Venue/addVenue";
-import Combobox from "../Common/Combobox";
 import Combopopover from "../Common/Combobox";
-import { getUniqueVenueTags } from "../../redux/Venue/venueActions";
 
 const requiredVenueFields = (venue) => {
   const {
@@ -294,8 +292,6 @@ const VenueInfo = () => {
     }
   }, [venue, id]);
 
-  
-
   useEffect(() => {
     const newState = { ...initialState };
 
@@ -427,7 +423,6 @@ const VenueBasicInfo = () => {
 const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
   const [venueHandle, setVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
- 
 
   useEffect(() => {
     if (values.name) {
@@ -460,24 +455,6 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         />
         <ErrorMessage name="handle" component={TextError} />
       </div>
-
-      {/* <label
-          className=" text-[#232323] text-base leading-[19.36px]"
-          htmlFor="tags"
-        >
-          Venue Tags
-        </label>
-        <Field
-          placeholder="Enter Venue Tags"
-          id="tags"
-          name="tags"
-          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onChange={(e) => {
-            const tags = e.target.value?.split(",") || "";
-
-            setFieldValue("tags", tags);
-          }}
-        /> */}
 
       <Combopopover
         isGettingTags={isGettingTags}
@@ -599,7 +576,7 @@ const VenueDescription = () => {
 
 const VenueAvailableDays = ({ setAllSelected, allSelected }) => {
   const { values, setFieldValue, errors } = useFormikContext();
- 
+
   useEffect(() => {
     if (
       values.allDaysSelected &&
@@ -624,7 +601,6 @@ const VenueAvailableDays = ({ setAllSelected, allSelected }) => {
     setFieldValue("availableDays", updatedDays);
   };
 
-  
   return (
     <div className="flex flex-col items-start gap-2.5">
       <p className=" text-[#232323] text-base leading-[19.36px]">

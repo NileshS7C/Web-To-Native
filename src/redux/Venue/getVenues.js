@@ -14,7 +14,7 @@ const initialState = {
   totalVenues: 0,
   currentPage: 1,
   venueWithNoCourt: false,
-  selectedFilter: "published",
+  selectedFilter: "draft",
   venue: {},
   isPublishing: false,
   isPublished: true,
@@ -37,12 +37,16 @@ const getVenuesSlice = createSlice({
     },
     onFilterChange(state, { payload }) {
       state.selectedFilter = payload;
+      state.currentPage = 1;
     },
     cleanPublishState(state) {
       state.isPublished = false;
       state.isErrorInPublish = false;
       state.isPublishing = false;
       state.publishedErrorMessage = "";
+    },
+    setPublish(state) {
+      state.isPublished = false;
     },
   },
   extraReducers: (builder) => {
@@ -79,6 +83,8 @@ const getVenuesSlice = createSlice({
     builder
       .addCase(publishVenue.pending, (state) => {
         state.isPublishing = true;
+        state.isErrorInPublish = false;
+        state.isSuccess = false;
       })
       .addCase(publishVenue.fulfilled, (state) => {
         state.isPublished = true;
@@ -94,6 +100,8 @@ const getVenuesSlice = createSlice({
     builder
       .addCase(getUniqueVenueTags.pending, (state) => {
         state.isGettingTags = true;
+        state.uniqueTags = [];
+        state.tagError = false;
       })
       .addCase(getUniqueVenueTags.fulfilled, (state, { payload }) => {
         state.uniqueTags = payload.data;
@@ -106,7 +114,7 @@ const getVenuesSlice = createSlice({
   },
 });
 
-export const { onPageChange, checkVenue, onFilterChange, cleanPublishState } =
+export const { onPageChange, checkVenue, onFilterChange, cleanPublishState, setPublish } =
   getVenuesSlice.actions;
 
 export default getVenuesSlice.reducer;

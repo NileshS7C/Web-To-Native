@@ -8,15 +8,13 @@ import {
 } from "../../redux/Confirmation/confirmationSlice";
 import { deleteCourt } from "../../redux/Venue/venueActions";
 import { useEffect } from "react";
-const CourtActions = ({ id }) => {
+const CourtActions = ({ id, name }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isConfirmed, type } = useSelector((state) => state.confirm);
   const handlers = {
     edit: (team) => {
-      
-
-      navigate(`/venues/${id}/edit-court`)
+      navigate(`/venues/${id}/edit-court?name=${name}`);
     },
     delete: (team) => {
       dispatch(

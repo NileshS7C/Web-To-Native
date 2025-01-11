@@ -16,6 +16,8 @@ const confirmationSlice = createSlice({
       state.isOpen = true;
       state.message = payload.message;
       state.type = payload.type;
+      state.isConfirmed = false;
+      state.onClose = null;
     },
     onCofirm(state) {
       state.isConfirmed = true;
@@ -23,6 +25,9 @@ const confirmationSlice = createSlice({
     onCancel(state) {
       state.onClose = null;
       state.isOpen = false;
+      state.isConfirmed = false;
+      state.type = "";
+      state.message = "";
     },
     resetConfirmationState(state) {
       state.onClose = null;

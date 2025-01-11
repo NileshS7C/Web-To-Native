@@ -92,7 +92,7 @@ const courtTableContent = [
   {
     key: "actions",
     header: "Actions",
-    render: (item) => <CourtActions id={item._id} />,
+    render: (item) => <CourtActions id={item?._id} name={item?.courtName} />,
   },
 ];
 
@@ -127,5 +127,5 @@ export {
   courtTableContent,
   courtFeatures,
   ActionButtonCourt,
-  fixedDays
+  fixedDays,
 };

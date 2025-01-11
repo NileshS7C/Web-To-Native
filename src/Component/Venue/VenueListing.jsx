@@ -67,7 +67,7 @@ export default function VenueListing() {
         })
       );
     }
-  }, [isDeleted, isError,dispatch]);
+  }, [isDeleted, isError, dispatch]);
 
   if (isLoading) {
     return (

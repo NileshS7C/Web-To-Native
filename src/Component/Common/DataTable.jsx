@@ -7,6 +7,7 @@ const DataTable = ({
   totalPages = 0,
   onPageChange,
   className = "",
+
 }) => {
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
@@ -80,8 +81,9 @@ const DataTable = ({
       {totalPages > 10 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
+          total={totalPages}
           onPageChange={onPageChange}
+         
         />
       )}
     </div>

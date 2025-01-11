@@ -26,7 +26,7 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useState, useEffect } from "react";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import Spinner from "../Common/Spinner";
-import { resetCourtState } from "../../redux/Venue/addCourt";
+import { resetCourtState, setCourtName } from "../../redux/Venue/addCourt";
 
 const requiredVenueFields = (court) => {
   const {
@@ -112,18 +112,20 @@ export const CourtCreation = () => {
     (state) => state.addCourt
   );
   const [initialState, setInitialState] = useState(initialValues);
+  const isAddCourtPathName = window.location.pathname.includes("add-court");
+  const isEditCourtPathName = window.location.pathname.includes("edit-court");
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
 
     try {
-      !id
+      !isAddCourtPathName
         ? await dispatch(createCourt({ formData: values, id: id })).unwrap()
         : await dispatch(updateCourt({ formData: values, id: id })).unwrap();
       resetForm();
       dispatch(
         showSuccess({
-          message: id
+          message: isAddCourtPathName
             ? "Court updated successfully"
             : "Court added successfully",
           onClose: "hideSuccess",
@@ -147,18 +149,18 @@ export const CourtCreation = () => {
   };
 
   useEffect(() => {
-    if (id) {
+    if (id && isEditCourtPathName) {
       dispatch(getCourt(id));
     }
-  }, [id]);
+  }, [id, isEditCourtPathName]);
 
   useEffect(() => {
-    if (court && id && isSuccess) {
-      setInitialState({ ...initialState, ...requiredVenueFields(court) });
+    if (court && id && isSuccess && isEditCourtPathName) {
+      const courtData = requiredVenueFields(court);
+      setInitialState({ ...initialState, ...courtData });
+      dispatch(setCourtName(courtData.courtName));
     }
-  }, [court, id]);
-
-  
+  }, [court, id, isEditCourtPathName]);
 
   if (isGettingCourt) {
     return (
@@ -237,14 +239,17 @@ const CourtDetails = () => {
 
 const CourtFileUpload = ({ dispatch }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
-  const { selectedFiles, bannerMobileFiles } = useSelector(
-    (state) => state.Tournament
-  );
-  const [previews, setPreviews] = useState(
-    values?.desktopBannerImages?.length
-      ? [{ preview: values.desktopBannerImages[0].url }]
-      : []
-  );
+  const [previews, setPreviews] = useState([]);
+
+  useEffect(() => {
+    if (values?.desktopBannerImages?.length) {
+      setPreviews(
+        values.desktopBannerImages.map((image) => ({ preview: image.url }))
+      );
+    } else {
+      setPreviews([]);
+    }
+  }, [values.desktopBannerImages]);
 
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -344,24 +349,7 @@ const CourtFileUpload = ({ dispatch }) => {
             </>
           )}
         </div>
-        {selectedFiles.map((file, index) => {
-          return (
-            <div
-              className="flex bg-[#eaeaea] rounded-[20px] items-center p-[3px] justify-center"
-              key={`${file}. ${index}`}
-            >
-              <div className=" text-xs ">{file}</div>
 
-              <BiX
-                className="w-4 h-4 cursor-pointer"
-                key={`${index}.icon`}
-                onClick={() => {
-                  dispatch(removeFiles(file, "desktop"));
-                }}
-              />
-            </div>
-          );
-        })}
         <ErrorMessage name="desktopBannerImages" component={TextError} />
       </div>
 
@@ -374,11 +362,17 @@ const CourtFileUpload = ({ dispatch }) => {
 
 const MobileBannerImage = ({ dispatch }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
-  const [previews, setPreviews] = useState(
-    values?.mobileBannerImages?.length
-      ? [{ preview: values.mobileBannerImages[0].url }]
-      : []
-  );
+  const [previews, setPreviews] = useState([]);
+
+  useEffect(() => {
+    if (values?.mobileBannerImages?.length) {
+      setPreviews(
+        values.mobileBannerImages.map((image) => ({ preview: image.url }))
+      );
+    } else {
+      setPreviews([]);
+    }
+  }, [values.mobileBannerImages]);
 
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -477,7 +471,7 @@ const MobileBannerImage = ({ dispatch }) => {
 
 const CourtFeatures = () => {
   const { form, values } = useFormikContext();
-  
+
   return (
     <div className="flex justify-between">
       {courtFeatures.map((feature) => (

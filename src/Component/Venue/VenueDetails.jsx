@@ -7,7 +7,11 @@ import { ArrowsPointingOutIcon } from "@heroicons/react/20/solid";
 import Tabs from "../Common/Tabs";
 import { venueTabs as initialVenueTabs, fixedDays } from "../../Constant/venue";
 import { CourtListing } from "./CourtListing";
-import { cleanPublishState, onPageChange } from "../../redux/Venue/getVenues";
+import {
+  cleanPublishState,
+  onPageChange,
+  setPublish,
+} from "../../redux/Venue/getVenues";
 import Button from "../Common/Button";
 import { getSingleVenue, publishVenue } from "../../redux/Venue/venueActions";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -21,15 +25,17 @@ import {
   onCancel,
 } from "../../redux/Confirmation/confirmationSlice";
 import { ConfirmationModal } from "../Common/ConfirmationModal";
+import { ErrorModal } from "../Common/ErrorModal";
 
 export default function VenueDescription() {
-  const [venueTabs, setVenueTabs] = useState(initialVenueTabs);
-  const { isOpen, message, onClose, isConfirmed } = useSelector(
-    (state) => state.confirm
-  );
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
+  const [venueTabs, setVenueTabs] = useState(initialVenueTabs);
+
+  const { isOpen, message, onClose, isConfirmed } = useSelector(
+    (state) => state.confirm
+  );
   const {
     isPublished,
     isPublishing,
@@ -39,6 +45,7 @@ export default function VenueDescription() {
     isSuccess,
     venue,
   } = useSelector((state) => state.getVenues);
+
   const handleTabChange = (value) => {
     const updatedTabs = venueTabs.map((tab) => ({
       ...tab,
@@ -48,36 +55,43 @@ export default function VenueDescription() {
   };
 
   useEffect(() => {
+    dispatch(setPublish());
     if (id) {
       dispatch(getSingleVenue(id));
     }
   }, [id]);
 
-  // useEffect(() => {
-  //   if (isPublished) {
-  //     dispatch(
-  //       showSuccess({
-  //         message: "Venue published successfully",
-  //         onClose: "hideSuccess",
-  //       })
-  //     );
-
-  //     navigate("/venues");
-  //   } else if (isErrorInPublish) {
-  //     dispatch(
-  //       showError({
-  //         message: publishedErrorMessage || "Something went wrong!",
-  //         onClose: "hideError",
-  //       })
-  //     );
-  //   }
-  // }, [isPublished, isErrorInPublish]);
-
   useEffect(() => {
     if (isConfirmed) {
       dispatch(publishVenue(id));
+      dispatch(onCancel());
     }
   }, [isConfirmed]);
+
+  useEffect(() => {
+    if (isErrorInPublish) {
+      dispatch(
+        showError({
+          message: publishedErrorMessage || "Something went wrong!",
+          onClose: "hideError",
+        })
+      );
+    }
+    dispatch(onCancel());
+  }, [isErrorInPublish, publishedErrorMessage]);
+
+  useEffect(() => {
+    if (isPublished) {
+      dispatch(getSingleVenue(id));
+
+      dispatch(
+        showSuccess({
+          message: "Venue published successfully",
+          onClose: "hideSuccess",
+        })
+      );
+    }
+  }, [isPublished]);
 
   if (isLoading) {
     return (
@@ -92,9 +106,18 @@ export default function VenueDescription() {
       <div className="py-[15px] px-[20px] bg-[#FFFFFF] rounded-lg">
         <Tabs options={venueTabs} onChange={handleTabChange} />
       </div>
+      <SuccessModal />
+      <ErrorModal />
+      <ConfirmationModal
+        isOpen={isOpen}
+        isLoading={isPublishing}
+        onConfirm={onCofirm}
+        onCancel={onCancel}
+        message={message}
+      />
       {venueTabs.find((venue) => venue.name === "Overview").current ? (
         <div className="flex flex-col gap-[30px] bg-[#FFFFFF] p-[50px]">
-          <button
+          <Button
             className="w-[200px] h-[60px] rounded-lg text-md font-bold text-black disabled:bg-gray-300 bg-white hover:bg-slate-300 shadow-lg"
             onClick={() => {
               dispatch(
@@ -113,20 +136,11 @@ export default function VenueDescription() {
             {venue?.status !== "PUBLISHED"
               ? "Publish Venue"
               : "Venue Published"}
-          </button>
-          {isPublished && <SuccessModal />}
+          </Button>
+
           <div className="mb-5">
             <Slider images={venue.bannerImages || []} />
           </div>
-
-          <ConfirmationModal
-            isOpen={isOpen}
-            onCancel={onCancel}
-            onClose={onClose}
-            onConfirm={onCofirm}
-            isLoading={isPublishing}
-            message={message}
-          />
 
           <Address address={venue?.address || {}} />
           <Description description={venue?.description || ""} />

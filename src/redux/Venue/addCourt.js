@@ -15,6 +15,7 @@ const initialState = {
   isDeleted: false,
   isGettingCourt: false,
   court: {},
+  courtName: "",
 };
 
 const courtSlice = createSlice({
@@ -35,6 +36,10 @@ const courtSlice = createSlice({
       state.isDeleted = false;
       state.isSuccess = false;
       state.isLoading = false;
+    },
+
+    setCourtName(state, { payload }) {
+      state.courtName = payload;
     },
   },
   extraReducers: (builder) => {
@@ -101,5 +106,10 @@ const courtSlice = createSlice({
       });
   },
 });
-export const { resetDeleteState, resetErrorState , resetCourtState} = courtSlice.actions;
+export const {
+  resetDeleteState,
+  resetErrorState,
+  resetCourtState,
+  setCourtName,
+} = courtSlice.actions;
 export default courtSlice.reducer;
