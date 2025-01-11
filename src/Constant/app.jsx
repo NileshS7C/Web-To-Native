@@ -44,3 +44,7 @@ export const ActionButtonGroup = [
 ];
 
 export const rowsInOnePage = 10;
+
+export const venueImageSize = 1000 * 1024;
+
+export const courtImageSize = 500 * 1024;

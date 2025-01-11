@@ -32,6 +32,7 @@ import LocationSearchInput from "../Common/LocationSearch";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import { resetVenueState } from "../../redux/Venue/addVenue";
 import Combopopover from "../Common/Combobox";
+import { venueImageSize } from "../../Constant/app";
 
 const requiredVenueFields = (venue) => {
   const {
@@ -360,7 +361,6 @@ const VenueInfo = () => {
             setAllSelected={setAllSelected}
             allSelected={allSelected}
           />
-
           <VenueAmenities />
           <VenueEquipments />
           <VenueBannerImage
@@ -848,12 +848,34 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
     const uploadedFile = e.target.files[0];
     if (!uploadedFile.type.startsWith("image/")) {
       setFieldError("bannerImages", "File should be a valid image type.");
+      dispatch(
+        showError({
+          message: "File should be a valid image type.",
+          onClose: "hideError",
+        })
+      );
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    if (values.bannerImages.length === 4) {
+      dispatch(
+        showError({
+          message: "You can add up to 4 images only.",
+          onClose: "hideError",
+        })
+      );
+      return;
+    }
+
+    const maxSize = venueImageSize;
     if (uploadedFile.size > maxSize) {
       setFieldError("bannerImages", "File should be less than 1 MB");
+      dispatch(
+        showError({
+          message: "File should be less than 1 MB.",
+          onClose: "hideError",
+        })
+      );
       return;
     }
     try {
@@ -961,7 +983,17 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading }) => {
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    if (values.layoutImages.length === 4) {
+      dispatch(
+        showError({
+          message: "You can add up to 4 images only.",
+          onClose: "hideError",
+        })
+      );
+      return;
+    }
+
+    const maxSize = venueImageSize;
     if (uploadedFile.size > maxSize) {
       setFieldError("layoutImages", "File should be less than 1 MB");
       return;

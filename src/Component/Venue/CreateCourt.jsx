@@ -27,6 +27,7 @@ import { useState, useEffect } from "react";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import Spinner from "../Common/Spinner";
 import { resetCourtState, setCourtName } from "../../redux/Venue/addCourt";
+import { courtImageSize } from "../../Constant/app";
 
 const requiredVenueFields = (court) => {
   const {
@@ -265,12 +266,24 @@ const CourtFileUpload = ({ dispatch }) => {
         "desktopBannerImages",
         "File should be a valid image type."
       );
+      dispatch(
+        showError({
+          message: "File should be a valid image type.",
+          onClose: "hideError",
+        })
+      );
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    const maxSize = courtImageSize;
     if (uploadedFile.size > maxSize) {
-      setFieldError("desktopBannerImages", "File should be less than 1 MB");
+      setFieldError("desktopBannerImages", "File should be less than 500 KB");
+      dispatch(
+        showError({
+          message: "File should be less than 500 KB.",
+          onClose: "hideError",
+        })
+      );
       return;
     }
     try {
@@ -385,12 +398,24 @@ const MobileBannerImage = ({ dispatch }) => {
     const uploadedFile = e.target.files[0];
     if (!uploadedFile.type.startsWith("image/")) {
       setFieldError("mobileBannerImages", "File should be a valid image type.");
+      dispatch(
+        showError({
+          message: "File should be a valid image type.",
+          onClose: "hideError",
+        })
+      );
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    const maxSize = courtImageSize;
     if (uploadedFile.size > maxSize) {
-      setFieldError("mobileBannerImages", "File should be less than 1 MB");
+      setFieldError("mobileBannerImages", "File should be less than 500 KB");
+      dispatch(
+        showError({
+          message: "File should be less than 500 KB",
+          onClose: "hideError",
+        })
+      );
       return;
     }
     try {
