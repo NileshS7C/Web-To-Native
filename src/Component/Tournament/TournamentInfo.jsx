@@ -56,7 +56,7 @@ const validationSchema = yup.object({
       .test("file-size", "Desktop banner image is too large", (value) => {
         if (!value) return true;
 
-        return !value || (value && value?.size <= 100 * 1024); // 100 KB
+        return !value || (value && value?.size <= 1000 * 1024); // 100 KB
       })
       .test(
         "file-type",
@@ -74,7 +74,7 @@ const validationSchema = yup.object({
       .mixed()
       .test("file-size", "Mobile banner image is too large", (value) => {
         if (!value) return true;
-        return !value || value.size <= 100 * 1024; // 100kb
+        return !value || value.size <= 500 * 1024; // 100kb
       })
       .test(
         "file-type",
