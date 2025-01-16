@@ -6,7 +6,8 @@ import {
   FieldArray,
   useFormikContext,
 } from "formik";
-
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import TextError from "../Error/formError";
 import { Amenities, Equipment, fixedDays } from "../../Constant/venue";
 import { AiFillQuestionCircle } from "react-icons/ai";
@@ -423,7 +424,7 @@ const VenueBasicInfo = () => {
 
 const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
   const [venueHandle, setVenueHandle] = useState("");
-  const { values, setFieldValue, errors } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
 
   useEffect(() => {
     if (values.name) {
@@ -574,17 +575,30 @@ const VenueAddress = ({ location }) => {
 };
 
 const VenueDescription = () => {
+  const { values, setFieldValue } = useFormikContext();
+
+  useEffect(() => {
+    if (values.description) {
+      setFieldValue("description", values.description);
+    }
+  }, [values.description]);
+
   return (
     <div className="grid grid-cols-1 gap-2 items-start">
       <p className=" text-[#232323] text-base leading-[19.36px] justify-self-start">
         Description
       </p>
-      <Field
+
+      <ReactQuill
+        theme="snow"
         id="description"
         name="description"
-        placeholder="Enter Venue Description"
-        className=" px-[19px] pt-[16px] h-[170px] border-[1px] border-[#DFEAF2] rounded-[15px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-        as="textarea"
+        placeholder="Enter Tournament Description"
+        onChange={(e) => {
+          setFieldValue("description", e);
+        }}
+        className="custom-quill"
+        value={values.description}
       />
       <ErrorMessage
         name="description"
@@ -915,13 +929,6 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
     }
   };
 
-  if (isUploading) {
-    return (
-      <div className="flex items-center justify-center h-full w-full">
-        <Spinner />
-      </div>
-    );
-  }
   return (
     <div className=" flex flex-col items-start gap-2.5">
       <p className="text-base leading-[19.36px] text-[#232323]">Upload Image</p>
