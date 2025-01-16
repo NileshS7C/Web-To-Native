@@ -19,6 +19,7 @@ import { showSuccess } from "../../redux/Success/successSlice";
 import { ErrorModal } from "../Common/ErrorModal";
 import { showError } from "../../redux/Error/errorSlice";
 import Spinner from "../Common/Spinner";
+import NotCreated from "../Common/NotCreated";
 
 export default function VenueListing() {
   const dispatch = useDispatch();
@@ -84,6 +85,18 @@ export default function VenueListing() {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spinner />
+      </div>
+    );
+  }
+
+  if (venues.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <NotCreated
+          message="You haven't created any Venue yet! Start by adding a new Venue."
+          buttonText="Add Venue"
+          type="venue"
+        />
       </div>
     );
   }

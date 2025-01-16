@@ -6,7 +6,7 @@ import { setLocation } from "../../redux/Venue/addVenue";
 import debounce from "../../Services/debounce";
 import getPlaceDetailsByPlaceId from "../../Services/getPlaceIds";
 
-const LocationSearchInput = ({ id, name }) => {
+const LocationSearchInput = ({ id, name, setFieldValue }) => {
   const { location } = useSelector((state) => state.Venue);
   const dispatch = useDispatch();
   const { placePredictions, getPlacePredictions, isPlacePredictionsLoading } =
@@ -47,6 +47,12 @@ const LocationSearchInput = ({ id, name }) => {
     setQuery(suggestion.description);
     setIsOpen(false);
     const coordinates = await getPlaceDetailsByPlaceId(suggestion.place_id);
+    setFieldValue("address.location.coordinates", [
+      coordinates.lng,
+      coordinates.lat,
+    ]);
+   
+
     dispatch(
       setLocation({
         formatted_address: coordinates.formatted_address,

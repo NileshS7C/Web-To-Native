@@ -8,10 +8,10 @@ const VenueActions = ({ id, index }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handlers = {
-    edit: (team) => {
+    edit: () => {
       navigate(`/venues/${id}/edit`);
     },
-    delete: (team) => {
+    delete: () => {
       dispatch(
         showConfirmation({
           message:

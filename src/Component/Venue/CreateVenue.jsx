@@ -8,7 +8,7 @@ import {
 } from "formik";
 
 import TextError from "../Error/formError";
-import { Amenities, Equipment } from "../../Constant/venue";
+import { Amenities, Equipment, fixedDays } from "../../Constant/venue";
 import { AiFillQuestionCircle } from "react-icons/ai";
 import { uploadIcon, venueUploadImage } from "../../Assests";
 import Button from "../Common/Button";
@@ -33,11 +33,11 @@ import { uploadImage } from "../../redux/Upload/uploadActions";
 import { resetVenueState } from "../../redux/Venue/addVenue";
 import Combopopover from "../Common/Combobox";
 import { venueImageSize } from "../../Constant/app";
+import { ImSpinner2 } from "react-icons/im";
 
 const requiredVenueFields = (venue) => {
   const {
     name,
-    location,
     handle,
     tags,
     address,
@@ -54,7 +54,6 @@ const requiredVenueFields = (venue) => {
 
   return {
     name,
-    location,
     handle,
     tags,
     address,
@@ -98,10 +97,6 @@ const validateOpenAndCloseTime = (days) => {
 
 const initialValues = {
   name: "",
-  location: {
-    type: "Point",
-    coordinates: [],
-  },
   handle: "",
   tags: "",
   address: {
@@ -110,6 +105,10 @@ const initialValues = {
     city: "",
     state: "",
     postalCode: "",
+    location: {
+      type: "Point",
+      coordinates: [],
+    },
   },
   description: "",
   availableDays: [
@@ -140,17 +139,8 @@ const VenueInfo = () => {
       .required("Name is required.")
       .min(3, "Name must be at least 3 characters long.")
       .max(50, "Name cannot exceed 50 characters."),
-    location: yup.object().shape({
-      type: yup
-        .string()
-        .oneOf(["Point"], "Location type must be 'Point'.")
-        .required("Location type is required."),
-      coordinates: yup
-        .array()
-        .of(yup.number().required("Each coordinate must be a number."))
-        .length(2, "Location must be provided.")
-        .required("Location is required."),
-    }),
+    handle: yup.string().required("Venue handle is required."),
+
     address: yup.object().shape({
       line1: yup.string().notRequired(),
       line2: yup.string().notRequired(),
@@ -160,6 +150,17 @@ const VenueInfo = () => {
         .string()
         .required("Postal Code is required.")
         .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
+      location: yup.object().shape({
+        type: yup
+          .string()
+          .oneOf(["Point"], "Location type must be 'Point'.")
+          .required("Location type is required."),
+        coordinates: yup
+          .array()
+          .of(yup.number().required("Each coordinate must be a number."))
+          .length(2, "Location must be provided.")
+          .required("Location is required."),
+      }),
     }),
     description: yup
       .string()
@@ -184,6 +185,24 @@ const VenueInfo = () => {
           "compare-time",
           "Closing time should be greater than opening time.",
           validateOpenAndCloseTime
+        )
+        .test(
+          "unique-days",
+          "Each day must have unique opening and closing times, and no duplicate days are allowed.",
+          function () {
+            const { availableDays } = this.parent;
+            const uniqueDays = new Set();
+
+            for (const daySelected of availableDays) {
+              if (daySelected.day) {
+                if (uniqueDays.has(daySelected.day)) {
+                  return false;
+                }
+                uniqueDays.add(daySelected.day);
+              }
+            }
+            return true;
+          }
         ),
     allDaysSelected: yup.bool(),
     globalOpeningTime: allSelected
@@ -233,9 +252,15 @@ const VenueInfo = () => {
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
 
+    const filteredDays = values.availableDays.filter(
+      (days) => days.day && days.openingTime && days.closingTime
+    );
+
+    const updatedValues = { ...values, availableDays: filteredDays };
+
     try {
       !id
-        ? await dispatch(addVenue(values)).unwrap()
+        ? await dispatch(addVenue(updatedValues)).unwrap()
         : await dispatch(updateVenue({ formData: values, id })).unwrap();
 
       resetForm();
@@ -271,6 +296,7 @@ const VenueInfo = () => {
     isLoading: isGettingVenue,
     isSuccess,
   } = useSelector((state) => state.getVenues);
+
   const { isGettingTags, uniqueTags, tagError } = useSelector(
     (state) => state.getVenues
   );
@@ -291,41 +317,8 @@ const VenueInfo = () => {
       setAllSelected(values.allDaysSelected);
       setSelectedTags(values.tags);
     }
-  }, [venue, id]);
+  }, [venue, id, isSuccess]);
 
-  useEffect(() => {
-    const newState = { ...initialState };
-
-    if (location.lat && location.lng) {
-      newState.location = {
-        type: "Point",
-        coordinates: [location.lng, location.lat],
-      };
-      setInitialState(newState);
-    }
-
-    if (location.city || location.state) {
-      newState.address = {
-        city: location.city,
-        state: location.state,
-        postalCode: location.pin_code,
-        line1: location.address_line1,
-        line2: location.address_line2,
-      };
-    }
-
-    if (Object.keys(newState).length > 1) {
-      setInitialState(newState);
-    }
-  }, [
-    location.lat,
-    location.lng,
-    location.city,
-    location.state,
-    location.pin_code,
-    location.address_line1,
-    location.address_line2,
-  ]);
   const { uplodedData, isUploading, isUploaded } = useSelector(
     (state) => state.upload
   );
@@ -350,7 +343,7 @@ const VenueInfo = () => {
           <ErrorModal />
           <SuccessModal />
           <VenueBasicInfo />
-          <VenueAddress />
+          <VenueAddress location={location} />
           <VenueMetaData
             isGettingTags={isGettingTags}
             uniqueTags={uniqueTags}
@@ -388,6 +381,7 @@ const VenueInfo = () => {
 };
 
 const VenueBasicInfo = () => {
+  const { setFieldValue } = useFormikContext();
   return (
     <div className="grid grid-cols-2 gap-[30px] ">
       <div className="flex flex-col items-start gap-2.5">
@@ -408,13 +402,20 @@ const VenueBasicInfo = () => {
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
-          htmlFor="location"
+          htmlFor="address.location"
         >
           Google Map
         </label>
 
-        <LocationSearchInput id="location" name="location" />
-        <ErrorMessage name="location.coordinates" component={TextError} />
+        <LocationSearchInput
+          id="address.location"
+          name="address.location"
+          setFieldValue={setFieldValue}
+        />
+        <ErrorMessage
+          name="address.location.coordinates"
+          component={TextError}
+        />
       </div>
     </div>
   );
@@ -422,7 +423,7 @@ const VenueBasicInfo = () => {
 
 const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
   const [venueHandle, setVenueHandle] = useState("");
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setFieldValue, errors } = useFormikContext();
 
   useEffect(() => {
     if (values.name) {
@@ -451,7 +452,9 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
           id="handle"
           name="handle"
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={venueHandle}
+          onChange={(e) => {
+            setFieldValue("handle", e.target.value);
+          }}
         />
         <ErrorMessage name="handle" component={TextError} />
       </div>
@@ -468,7 +471,25 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
   );
 };
 
-const VenueAddress = () => {
+const VenueAddress = ({ location }) => {
+  const { setFieldValue } = useFormikContext();
+  useEffect(() => {
+    if (location.city || location.state) {
+      setFieldValue("address.line1", location?.address_line1);
+      setFieldValue("address.line2", location.address_line2);
+      setFieldValue("address.city", location.city);
+      setFieldValue("address.state", location.state);
+      setFieldValue("address.postalCode", location.pin_code);
+    }
+  }, [
+    location.lat,
+    location.lng,
+    location.city,
+    location.state,
+    location.pin_code,
+    location.address_line1,
+    location.address_line2,
+  ]);
   return (
     <div className="flex flex-col items-start gap-2.5">
       <p className=" text-base leading-[19.36px] text-[#232323]">
@@ -893,6 +914,14 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
       setFieldError("bannerImages", err.data.message);
     }
   };
+
+  if (isUploading) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spinner />
+      </div>
+    );
+  }
   return (
     <div className=" flex flex-col items-start gap-2.5">
       <p className="text-base leading-[19.36px] text-[#232323]">Upload Image</p>
@@ -910,6 +939,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
                 alt={`Venue upload ${index + 1}`}
                 className=" object-scale-down rounded h-full w-[223px]"
               />
+
               {previews[index]?.preview && (
                 <IoIosCloseCircleOutline
                   className="absolute right-0 w-6 h-6 z-100 text-black  cursor-pointer "
@@ -932,6 +962,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
             </p>
 
             <p className="text-xs text-[#353535] mt-1">(Max. File size: 1MB)</p>
+
             <FieldArray name="bannerImages">
               {({ form, field, meta, push }) => (
                 <input

@@ -246,7 +246,7 @@ const VenueAvailability = ({
 }) => {
   return (
     <>
-      {allDaysSelected ? (
+      {!allDaysSelected ? (
         <div>
           <table className="min-w-full divide-y divide-gray-300">
             <thead>

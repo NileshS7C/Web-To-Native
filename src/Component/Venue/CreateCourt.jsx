@@ -1,10 +1,9 @@
+import { useState, useEffect } from "react";
 import { Formik, Form, ErrorMessage, Field, useFormikContext } from "formik";
 import * as yup from "yup";
 import TextError from "../Error/formError";
 import { useDispatch, useSelector } from "react-redux";
 import { uploadIcon } from "../../Assests";
-import { BiX } from "react-icons/bi";
-import { removeFiles, updateFiles } from "../../redux/tournament/addTournament";
 import Button from "../Common/Button";
 import { courtFeatures } from "../../Constant/venue";
 import {
@@ -14,16 +13,10 @@ import {
 } from "../../redux/Venue/venueActions";
 import { useNavigate, useParams } from "react-router-dom";
 import { ErrorModal } from "../Common/ErrorModal";
-import { cleanUpError, showError } from "../../redux/Error/errorSlice";
-import {
-  cleanUpSuccess,
-  hideSuccess,
-  showSuccess,
-} from "../../redux/Success/successSlice";
+import { showError } from "../../redux/Error/errorSlice";
+import { hideSuccess, showSuccess } from "../../redux/Success/successSlice";
 import { SuccessModal } from "../Common/SuccessModal";
-
 import { IoIosCloseCircleOutline } from "react-icons/io";
-import { useState, useEffect } from "react";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import Spinner from "../Common/Spinner";
 import { resetCourtState, setCourtName } from "../../redux/Venue/addCourt";
@@ -48,34 +41,6 @@ const requiredVenueFields = (court) => {
     price,
   };
 };
-
-//  .of(
-//       yup.object({
-//         url: yup
-//           .mixed()
-//           .nullable()
-//           .required("Desktop banner image is required.")
-//           .test("file-size", "Desktop banner image is too large", (value) => {
-
-//             if (!value) return true;
-
-//             // Check file size: 100 KB max
-//             return value?.length <= 100 * 1024; // 100 KB
-//           })
-//           .test(
-//             "file-type",
-//             "Desktop banner image should be of valid image type",
-//             (value) => {
-//               if (!value.length) return true;
-//               return (
-//                 value &&
-//                 ["image/jpeg", "image/png", "image/gif"].includes(value?.type)
-//               );
-//             }
-//           ),
-//       })
-//     )
-//     .nullable(),
 
 const validationSchema = yup.object().shape({
   courtName: yup
@@ -115,20 +80,19 @@ export const CourtCreation = () => {
   const [initialState, setInitialState] = useState(initialValues);
   const isAddCourtPathName = window.location.pathname.includes("add-court");
   const isEditCourtPathName = window.location.pathname.includes("edit-court");
-
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
 
     try {
-      !isAddCourtPathName
+      isAddCourtPathName
         ? await dispatch(createCourt({ formData: values, id: id })).unwrap()
         : await dispatch(updateCourt({ formData: values, id: id })).unwrap();
       resetForm();
       dispatch(
         showSuccess({
           message: isAddCourtPathName
-            ? "Court updated successfully"
-            : "Court added successfully",
+            ? "Court add successfully"
+            : "Court updated successfully",
           onClose: "hideSuccess",
         })
       );
@@ -465,7 +429,7 @@ const MobileBannerImage = ({ dispatch }) => {
             <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
 
             <p className="text-sm text-[#5B8DFF]">
-              Click to upload
+              Click to upload{""}
               <span className="text-sm text-[#353535] "> or drag and drop</span>
             </p>
 

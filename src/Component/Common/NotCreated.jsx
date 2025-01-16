@@ -1,15 +1,11 @@
-import { useDispatch, useSelector } from "react-redux";
 import Button from "./Button";
-import { setFormOpen } from "../../redux/tournament/addTournament";
-import { showForm } from "../../redux/Venue/addVenue";
+import { useNavigate } from "react-router-dom";
 
 const NotCreated = ({ message, buttonText, type }) => {
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handleAddTournament = () => {
-    if (type === "tournament") {
-      dispatch(setFormOpen());
-    } else if (type === "venue") {
-      dispatch(showForm());
+    if (type === "venue") {
+      navigate("/venues/new");
     }
   };
   return (
