@@ -14,7 +14,7 @@ const initialState = {
   totalVenues: 0,
   currentPage: 1,
   venueWithNoCourt: false,
-  selectedFilter: "draft",
+  selectedFilter: "all",
   venue: {},
   isPublishing: false,
   isPublished: true,

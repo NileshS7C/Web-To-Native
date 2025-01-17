@@ -17,13 +17,14 @@ const Amenities = [
 
 const Equipment = ["Paddles", "First Aid Box", "Shoes", "Balls", "Rackets"];
 const venueFilters = [
+  { id: "all", title: "All" },
   { id: "draft", title: "Draft" },
   { id: "published", title: "Published" },
 ];
 
 const venueTabs = [
   { name: "Overview", href: "#", current: true, path: "/overview" },
-  { name: "Courts", href: "#", current: false, path: "/courts" },
+  { name: "Courts", href: "/courts", current: false, path: "/courts" },
 ];
 
 const tableHeaders = [
@@ -50,7 +51,13 @@ const tableHeaders = [
     key: "status",
     header: "Status",
     render: (item) => (
-      <span className="inline-flex items-center rounded-2xl bg-green-50 px-2 py-1 text-xs font-medium text-[#41C588] ring-1 ring-inset ring-green-600/20">
+      <span
+        className={`inline-flex items-center rounded-2xl ${
+          item.status === "PUBLISHED"
+            ? "bg-gray-300 text-black-800"
+            : "bg-green-50 text-[#41C588]"
+        }  px-2 py-1 text-xs font-medium  ring-1 ring-inset ring-green-600/20`}
+      >
         {item.status}
       </span>
     ),
@@ -118,6 +125,16 @@ const fixedDays = [
   "Sunday",
 ];
 
+const fixedDaysLower = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+];
+
 export {
   Amenities,
   Equipment,
@@ -128,4 +145,5 @@ export {
   courtFeatures,
   ActionButtonCourt,
   fixedDays,
+  fixedDaysLower,
 };

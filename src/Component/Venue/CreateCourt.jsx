@@ -19,9 +19,13 @@ import { SuccessModal } from "../Common/SuccessModal";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import Spinner from "../Common/Spinner";
-import { resetCourtState, setCourtName } from "../../redux/Venue/addCourt";
+import {
+  resetCourtState,
+  setCourtName,
+  setCourtStatus,
+} from "../../redux/Venue/addCourt";
 import { courtImageSize } from "../../Constant/app";
-
+import { setTabs } from "../../redux/Venue/addVenue";
 const requiredVenueFields = (court) => {
   const {
     courtName,
@@ -77,6 +81,7 @@ export const CourtCreation = () => {
   const { isLoading, isGettingCourt, court, isSuccess } = useSelector(
     (state) => state.addCourt
   );
+
   const [initialState, setInitialState] = useState(initialValues);
   const isAddCourtPathName = window.location.pathname.includes("add-court");
   const isEditCourtPathName = window.location.pathname.includes("edit-court");
@@ -97,11 +102,13 @@ export const CourtCreation = () => {
         })
       );
       setInitialState(initialValues);
+      dispatch(setCourtStatus(true));
       setTimeout(() => {
-        navigate("/venues");
+        navigate(-1);
         dispatch(hideSuccess());
       }, 2000);
     } catch (err) {
+      dispatch(setCourtStatus(false));
       dispatch(
         showError({
           message: err.data.message || "Something went wrong!",

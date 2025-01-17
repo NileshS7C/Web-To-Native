@@ -75,7 +75,7 @@ export const CourtListing = ({
         <Button
           type="button"
           className="block rounded-md bg-[#1570EF]  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          onClick={() => navigate(`/venues/${id}/add-Court`)}
+          onClick={() => navigate(`/venues/${id}/add-court`)}
         >
           Add Court
         </Button>

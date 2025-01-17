@@ -61,7 +61,7 @@
 
 /* Customize the toolbar */
 #description .ql-toolbar {
-  @apply bg-[#DFEAF2] border-2 border-[#DFEAF2] rounded-t-md;
+  @apply flex justify-center gap-5 bg-[#DFEAF2] border-2 border-[#DFEAF2] rounded-t-md;
 }
 
 /* Style the toolbar buttons */
@@ -77,4 +77,9 @@
 /* Customize editor focus state */
 #description .ql-container:focus-within {
   @apply border-blue-500 shadow-md;
+}
+
+
+#description .ql-toolbar .ql-formats {
+  @apply flex gap-3 mx-2; /* Adjust gap and margin as needed */
 }

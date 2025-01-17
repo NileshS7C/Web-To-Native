@@ -19,7 +19,7 @@ export const getPageTitle = (pathname, params, venueData) => {
       return `Edit Venue - ${venueData?.name || "Venue"}`;
     }
 
-    if (pathname.includes("/add-Court")) {
+    if (pathname.includes("/add-court")) {
       return "Add Court";
     }
     // match the court and set the page title with the court name

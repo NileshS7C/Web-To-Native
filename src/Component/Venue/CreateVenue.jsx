@@ -35,6 +35,7 @@ import { resetVenueState } from "../../redux/Venue/addVenue";
 import Combopopover from "../Common/Combobox";
 import { venueImageSize } from "../../Constant/app";
 import { ImSpinner2 } from "react-icons/im";
+import { fixedDaysLower } from "../../Constant/venue";
 
 const requiredVenueFields = (venue) => {
   const {
@@ -143,8 +144,14 @@ const VenueInfo = () => {
     handle: yup.string().required("Venue handle is required."),
 
     address: yup.object().shape({
-      line1: yup.string().notRequired(),
-      line2: yup.string().notRequired(),
+      line1: yup
+        .string()
+        .notRequired()
+        .max(100, "Line 1 of the address cannot exceed 50 characters."),
+      line2: yup
+        .string()
+        .notRequired()
+        .max(100, "Line 1 of the address cannot exceed 50 characters."),
       city: yup.string().required("City is required."),
       state: yup.string().required("State is required."),
       postalCode: yup
@@ -277,7 +284,7 @@ const VenueInfo = () => {
       setAllSelected();
 
       setTimeout(() => {
-        navigate("/venues");
+        !id ? navigate("/venues") : navigate(`/venues/${id}`);
       }, 2000);
     } catch (error) {
       dispatch(
@@ -314,7 +321,32 @@ const VenueInfo = () => {
   useEffect(() => {
     if (venue && id && isSuccess) {
       const values = requiredVenueFields(venue);
-      setInitialState({ ...initialState, ...values });
+      const notIncludedDays = fixedDaysLower.map((day) => {
+        const isDayExist = values.availableDays.find(
+          (dayObj) => dayObj.day === day
+        );
+
+        if (isDayExist) {
+          return {
+            day: isDayExist.day,
+            openingTime: isDayExist.openingTime,
+            closingTime: isDayExist.closingTime,
+          };
+        } else {
+          return {
+            day: "",
+            openingTime: "",
+            closingTime: "",
+          };
+        }
+      });
+
+      setInitialState({
+        ...initialState,
+        ...values,
+        availableDays: notIncludedDays,
+      });
+
       setAllSelected(values.allDaysSelected);
       setSelectedTags(values.tags);
     }
@@ -384,7 +416,7 @@ const VenueInfo = () => {
 const VenueBasicInfo = () => {
   const { setFieldValue } = useFormikContext();
   return (
-    <div className="grid grid-cols-2 gap-[30px] ">
+    <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -400,7 +432,7 @@ const VenueBasicInfo = () => {
         />
         <ErrorMessage name="name" component={TextError} />
       </div>
-      <div className="flex flex-col items-start gap-2.5">
+      <div className="flex flex-col items-start gap-2.5 w-full">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
           htmlFor="address.location"

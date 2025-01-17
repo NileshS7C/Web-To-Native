@@ -33,9 +33,9 @@ export default function VenueListing() {
     venues,
     totalVenues,
     currentPage,
-    venueWithNoCourt,
     selectedFilter,
     isLoading,
+    isSuccess,
   } = useSelector((state) => state.getVenues);
 
   const { isConfirmed, type, confirmationId } = useSelector(
@@ -49,16 +49,7 @@ export default function VenueListing() {
 
   useEffect(() => {
     dispatch(getAllVenues({ currentPage, selectedFilter }));
-  }, [currentPage, selectedFilter, isDeleted]);
-
-  useEffect(() => {
-    if (venues?.length > 0) {
-      const isVenueWithNoCourt = venues.some(
-        (venue) => venue.courts.length === 0
-      );
-      dispatch(checkVenue(isVenueWithNoCourt));
-    }
-  }, [venues]);
+  }, [currentPage, selectedFilter, isDeleted, isSuccess]);
 
   useEffect(() => {
     if (isDeleted) {
@@ -89,7 +80,7 @@ export default function VenueListing() {
     );
   }
 
-  if (venues.length === 0) {
+  if (venues.length === 0 && selectedFilter === "all") {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <NotCreated
@@ -119,9 +110,7 @@ export default function VenueListing() {
           Add New Venue
         </Button>
       </div>
-      {venueWithNoCourt && venues?.length > 0 && (
-        <AlertBanner description="You Will Need to Add Courts " />
-      )}
+
       <ConfirmationModal
         isOpen={isOpen}
         onCancel={onCancel}

@@ -8,6 +8,10 @@ const initialState = {
   errorMessage: null,
   showCreateVenueForm: false,
   location: {},
+  venueTabs: [
+    { name: "Overview", href: "#", current: true, path: "/overview" },
+    { name: "Courts", href: "#", current: false, path: "/courts" },
+  ],
 };
 const venueSlice = createSlice({
   name: "Venue",
@@ -27,6 +31,10 @@ const venueSlice = createSlice({
       state.errorMessage = "";
       state.location = {};
     },
+    setTabs(state, { payload }) {
+      console.log(" payload", payload);
+      state.venueTabs = payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(addVenue.pending, (state) => {
@@ -45,6 +53,7 @@ const venueSlice = createSlice({
   },
 });
 
-export const { showForm, setLocation, resetVenueState } = venueSlice.actions;
+export const { showForm, setLocation, resetVenueState, setTabs } =
+  venueSlice.actions;
 
 export default venueSlice.reducer;
