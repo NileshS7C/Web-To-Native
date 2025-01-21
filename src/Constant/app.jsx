@@ -15,7 +15,6 @@ import {
 export const menus = [
   { name: "Overview", icon: overviewIcon },
   { name: "Tournaments", icon: tournamentIcon },
-  { name: "Events", icon: eventsIcon },
   { name: "Bookings", icon: bookingIcon },
   { name: "Venues", icon: venueIcon },
   {
@@ -27,8 +26,25 @@ export const menus = [
   { name: "Profile", icon: profileIcon },
 ];
 
+export const ADMIN_NAVIGATION = [
+  { name: "DashBoard", icon: overviewIcon },
+  { name: "Tournament Org", icon: tournamentIcon },
+  { name: "Venue Org", icon: eventsIcon },
+  { name: "Tournament Bookings", icon: bookingIcon },
+  { name: "Court Bookings", icon: bookingIcon },
+  { name: "Tournaments", icon: tournamentIcon },
+  { name: "Venues", icon: venueIcon },
+  { name: "User", icon: profileIcon },
+];
+
 export const ActionButtonGroup = [
   { name: "Edit", icon: EditIcon, action: "edit" },
   { name: "Delete", icon: DeleteIcon, action: "delete" },
   { name: "View", icon: ViewIcon, action: "view" },
 ];
+
+export const rowsInOnePage = 10;
+
+export const venueImageSize = 1000 * 1024;
+
+export const courtImageSize = 500 * 1024;

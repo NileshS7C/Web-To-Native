@@ -8,15 +8,13 @@ import {
 } from "../../redux/Confirmation/confirmationSlice";
 import { deleteCourt } from "../../redux/Venue/venueActions";
 import { useEffect } from "react";
-const CourtActions = ({ id }) => {
+const CourtActions = ({ id, name }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isConfirmed, type } = useSelector((state) => state.confirm);
+
   const handlers = {
     edit: (team) => {
-      console.log(" id", id);
-
-      navigate(`/venues/${id}/edit-court`)
+      navigate(`/venues/${id}/edit-court?name=${name}`);
     },
     delete: (team) => {
       dispatch(
@@ -24,19 +22,12 @@ const CourtActions = ({ id }) => {
           message:
             "Deleting this court will remove it from your records and any associated data. Are you sure you want to proceed?",
           type: "Court",
+          id,
         })
       );
     },
     view: (id) => {},
   };
-
-  useEffect(() => {
-    if (isConfirmed && type === "Court") {
-      dispatch(deleteCourt(id));
-      dispatch(resetConfirmationState());
-      navigate("/venues");
-    }
-  }, [isConfirmed, type]);
 
   return (
     <ActionButtons

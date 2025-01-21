@@ -12,6 +12,8 @@ import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
 import { cleanUpSuccess, showSuccess } from "../../redux/Success/successSlice";
 import { cleanUpError, showError } from "../../redux/Error/errorSlice";
 import { resetDeleteState, resetErrorState } from "../../redux/Venue/addCourt";
+import { deleteCourt } from "../../redux/Venue/venueActions";
+import { resetConfirmationState } from "../../redux/Confirmation/confirmationSlice";
 
 export const CourtListing = ({
   courts,
@@ -26,6 +28,18 @@ export const CourtListing = ({
   const { isDeleting, isDeleted, isError, errorMessage } = useSelector(
     (state) => state.addCourt
   );
+
+  const { isConfirmed, type, confirmationId } = useSelector(
+    (state) => state.confirm
+  );
+
+  useEffect(() => {
+    if (isConfirmed && type === "Court" && confirmationId) {
+      dispatch(deleteCourt(confirmationId));
+      dispatch(resetConfirmationState());
+      navigate("/venues");
+    }
+  }, [isConfirmed, type, confirmationId]);
 
   useEffect(() => {
     if (isDeleted) {
@@ -61,7 +75,7 @@ export const CourtListing = ({
         <Button
           type="button"
           className="block rounded-md bg-[#1570EF]  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          onClick={() => navigate(`/venues/${id}/add-Court`)}
+          onClick={() => navigate(`/venues/${id}/add-court`)}
         >
           Add Court
         </Button>

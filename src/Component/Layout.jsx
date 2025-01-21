@@ -10,14 +10,13 @@ const Layout = () => {
   const location = useLocation();
   const { id } = useParams();
   const { venue } = useSelector((state) => state.getVenues);
-
   const currentTitle = getPageTitle(location.pathname, { id }, venue);
 
   return (
     <div className="flex flex-col max-h-screen">
       <Header />
-      <div className="flex flex-1 bg-[#F5F7FA]">
-        <div className="w-[250px] h-auto bg-[#FFFFFF]">
+      <div className="flex flex-1 bg-[#F5F7FA] ">
+        <div className="w-[300px] h-auto bg-[#FFFFFF] ">
           <NavBar />
         </div>
         <div className="flex-1 p-[50px] overflow-auto">

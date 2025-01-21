@@ -4,7 +4,9 @@ import {
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
 } from "@heroicons/react/20/solid";
-export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+import { rowsInOnePage } from "../../Constant/app";
+export const Pagination = ({ currentPage, total, onPageChange }) => {
+  const totalPages = Math.ceil(total / rowsInOnePage);
   const dispatch = useDispatch();
   const generatePages = () => {
     const pages = [];

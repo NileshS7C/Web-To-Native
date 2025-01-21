@@ -1,6 +1,6 @@
 import AlertBanner from "../Common/AlertBanner";
 import FilterGroup from "../Common/FilterGroup";
-import { getAllVenues } from "../../redux/Venue/venueActions";
+import { getAllVenues, deleteVenue } from "../../redux/Venue/venueActions";
 import {
   checkVenue,
   onPageChange,
@@ -15,10 +15,12 @@ import { ConfirmationModal } from "../Common/ConfirmationModal";
 import { useNavigate } from "react-router-dom";
 import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
 import { SuccessModal } from "../Common/SuccessModal";
-import { cleanUpSuccess, showSuccess } from "../../redux/Success/successSlice";
+import { showSuccess } from "../../redux/Success/successSlice";
 import { ErrorModal } from "../Common/ErrorModal";
-import { cleanUpError, showError } from "../../redux/Error/errorSlice";
+import { showError } from "../../redux/Error/errorSlice";
 import Spinner from "../Common/Spinner";
+import NotCreated from "../Common/NotCreated";
+
 export default function VenueListing() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -31,22 +33,23 @@ export default function VenueListing() {
     venues,
     totalVenues,
     currentPage,
-    venueWithNoCourt,
     selectedFilter,
     isLoading,
+    isSuccess,
   } = useSelector((state) => state.getVenues);
+
+  const { isConfirmed, type, confirmationId } = useSelector(
+    (state) => state.confirm
+  );
   useEffect(() => {
-    dispatch(getAllVenues({ currentPage, selectedFilter }));
-  }, [currentPage, selectedFilter]);
+    if (isConfirmed && type === "Venue" && confirmationId) {
+      dispatch(deleteVenue(confirmationId));
+    }
+  }, [isConfirmed, type, confirmationId]);
 
   useEffect(() => {
-    if (venues?.length > 0) {
-      const isVenueWithNoCourt = venues.some(
-        (venue) => venue.courts.length === 0
-      );
-      dispatch(checkVenue(isVenueWithNoCourt));
-    }
-  }, [venues]);
+    dispatch(getAllVenues({ currentPage, selectedFilter }));
+  }, [currentPage, selectedFilter, isDeleted, isSuccess]);
 
   useEffect(() => {
     if (isDeleted) {
@@ -56,8 +59,6 @@ export default function VenueListing() {
           onClose: "hideSuccess",
         })
       );
-      dispatch(cleanUpSuccess());
-      dispatch(getAllVenues(currentPage));
     }
 
     if (isError) {
@@ -67,16 +68,26 @@ export default function VenueListing() {
           onClose: "hideError",
         })
       );
-      dispatch(cleanUpError());
+      dispatch(onCancel());
     }
-
-    dispatch(onCancel());
   }, [isDeleted, isError]);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spinner />
+      </div>
+    );
+  }
+
+  if (venues.length === 0 && selectedFilter === "all") {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <NotCreated
+          message="You haven't created any Venue yet! Start by adding a new Venue."
+          buttonText="Add Venue"
+          type="venue"
+        />
       </div>
     );
   }
@@ -99,9 +110,7 @@ export default function VenueListing() {
           Add New Venue
         </Button>
       </div>
-      {venueWithNoCourt && venues?.length > 0 && (
-        <AlertBanner description="You Will Need to Add Courts " />
-      )}
+
       <ConfirmationModal
         isOpen={isOpen}
         onCancel={onCancel}
@@ -111,7 +120,6 @@ export default function VenueListing() {
         message={message}
       />
 
-      {isDeleted && <SuccessModal />}
       <ErrorModal />
 
       <DataTable

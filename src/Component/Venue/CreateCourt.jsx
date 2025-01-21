@@ -1,10 +1,9 @@
+import { useState, useEffect } from "react";
 import { Formik, Form, ErrorMessage, Field, useFormikContext } from "formik";
 import * as yup from "yup";
 import TextError from "../Error/formError";
 import { useDispatch, useSelector } from "react-redux";
 import { uploadIcon } from "../../Assests";
-import { BiX } from "react-icons/bi";
-import { removeFiles, updateFiles } from "../../redux/tournament/addTournament";
 import Button from "../Common/Button";
 import { courtFeatures } from "../../Constant/venue";
 import {
@@ -14,20 +13,19 @@ import {
 } from "../../redux/Venue/venueActions";
 import { useNavigate, useParams } from "react-router-dom";
 import { ErrorModal } from "../Common/ErrorModal";
-import { cleanUpError, showError } from "../../redux/Error/errorSlice";
-import {
-  cleanUpSuccess,
-  hideSuccess,
-  showSuccess,
-} from "../../redux/Success/successSlice";
+import { showError } from "../../redux/Error/errorSlice";
+import { hideSuccess, showSuccess } from "../../redux/Success/successSlice";
 import { SuccessModal } from "../Common/SuccessModal";
-
 import { IoIosCloseCircleOutline } from "react-icons/io";
-import { useState, useEffect } from "react";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import Spinner from "../Common/Spinner";
-import { resetCourtState } from "../../redux/Venue/addCourt";
-
+import {
+  resetCourtState,
+  setCourtName,
+  setCourtStatus,
+} from "../../redux/Venue/addCourt";
+import { courtImageSize } from "../../Constant/app";
+import { setTabs } from "../../redux/Venue/addVenue";
 const requiredVenueFields = (court) => {
   const {
     courtName,
@@ -47,34 +45,6 @@ const requiredVenueFields = (court) => {
     price,
   };
 };
-
-//  .of(
-//       yup.object({
-//         url: yup
-//           .mixed()
-//           .nullable()
-//           .required("Desktop banner image is required.")
-//           .test("file-size", "Desktop banner image is too large", (value) => {
-
-//             if (!value) return true;
-
-//             // Check file size: 100 KB max
-//             return value?.length <= 100 * 1024; // 100 KB
-//           })
-//           .test(
-//             "file-type",
-//             "Desktop banner image should be of valid image type",
-//             (value) => {
-//               if (!value.length) return true;
-//               return (
-//                 value &&
-//                 ["image/jpeg", "image/png", "image/gif"].includes(value?.type)
-//               );
-//             }
-//           ),
-//       })
-//     )
-//     .nullable(),
 
 const validationSchema = yup.object().shape({
   courtName: yup
@@ -111,30 +81,34 @@ export const CourtCreation = () => {
   const { isLoading, isGettingCourt, court, isSuccess } = useSelector(
     (state) => state.addCourt
   );
-  const [initialState, setInitialState] = useState(initialValues);
 
+  const [initialState, setInitialState] = useState(initialValues);
+  const isAddCourtPathName = window.location.pathname.includes("add-court");
+  const isEditCourtPathName = window.location.pathname.includes("edit-court");
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
 
     try {
-      !id
+      isAddCourtPathName
         ? await dispatch(createCourt({ formData: values, id: id })).unwrap()
         : await dispatch(updateCourt({ formData: values, id: id })).unwrap();
       resetForm();
       dispatch(
         showSuccess({
-          message: id
-            ? "Court updated successfully"
-            : "Court added successfully",
+          message: isAddCourtPathName
+            ? "Court add successfully"
+            : "Court updated successfully",
           onClose: "hideSuccess",
         })
       );
       setInitialState(initialValues);
+      dispatch(setCourtStatus(true));
       setTimeout(() => {
-        navigate("/venues");
+        navigate(-1);
         dispatch(hideSuccess());
       }, 2000);
     } catch (err) {
+      dispatch(setCourtStatus(false));
       dispatch(
         showError({
           message: err.data.message || "Something went wrong!",
@@ -147,18 +121,18 @@ export const CourtCreation = () => {
   };
 
   useEffect(() => {
-    if (id) {
+    if (id && isEditCourtPathName) {
       dispatch(getCourt(id));
     }
-  }, [id]);
+  }, [id, isEditCourtPathName]);
 
   useEffect(() => {
-    if (court && id && isSuccess) {
-      setInitialState({ ...initialState, ...requiredVenueFields(court) });
+    if (court && id && isSuccess && isEditCourtPathName) {
+      const courtData = requiredVenueFields(court);
+      setInitialState({ ...initialState, ...courtData });
+      dispatch(setCourtName(courtData.courtName));
     }
-  }, [court, id]);
-
-  console.log(" values of the court", court);
+  }, [court, id, isEditCourtPathName]);
 
   if (isGettingCourt) {
     return (
@@ -237,14 +211,17 @@ const CourtDetails = () => {
 
 const CourtFileUpload = ({ dispatch }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
-  const { selectedFiles, bannerMobileFiles } = useSelector(
-    (state) => state.Tournament
-  );
-  const [previews, setPreviews] = useState(
-    values?.desktopBannerImages?.length
-      ? [{ preview: values.desktopBannerImages[0].url }]
-      : []
-  );
+  const [previews, setPreviews] = useState([]);
+
+  useEffect(() => {
+    if (values?.desktopBannerImages?.length) {
+      setPreviews(
+        values.desktopBannerImages.map((image) => ({ preview: image.url }))
+      );
+    } else {
+      setPreviews([]);
+    }
+  }, [values.desktopBannerImages]);
 
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -260,12 +237,24 @@ const CourtFileUpload = ({ dispatch }) => {
         "desktopBannerImages",
         "File should be a valid image type."
       );
+      dispatch(
+        showError({
+          message: "File should be a valid image type.",
+          onClose: "hideError",
+        })
+      );
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    const maxSize = courtImageSize;
     if (uploadedFile.size > maxSize) {
-      setFieldError("desktopBannerImages", "File should be less than 1 MB");
+      setFieldError("desktopBannerImages", "File should be less than 500 KB");
+      dispatch(
+        showError({
+          message: "File should be less than 500 KB.",
+          onClose: "hideError",
+        })
+      );
       return;
     }
     try {
@@ -344,24 +333,7 @@ const CourtFileUpload = ({ dispatch }) => {
             </>
           )}
         </div>
-        {selectedFiles.map((file, index) => {
-          return (
-            <div
-              className="flex bg-[#eaeaea] rounded-[20px] items-center p-[3px] justify-center"
-              key={`${file}. ${index}`}
-            >
-              <div className=" text-xs ">{file}</div>
 
-              <BiX
-                className="w-4 h-4 cursor-pointer"
-                key={`${index}.icon`}
-                onClick={() => {
-                  dispatch(removeFiles(file, "desktop"));
-                }}
-              />
-            </div>
-          );
-        })}
         <ErrorMessage name="desktopBannerImages" component={TextError} />
       </div>
 
@@ -374,11 +346,17 @@ const CourtFileUpload = ({ dispatch }) => {
 
 const MobileBannerImage = ({ dispatch }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
-  const [previews, setPreviews] = useState(
-    values?.mobileBannerImages?.length
-      ? [{ preview: values.mobileBannerImages[0].url }]
-      : []
-  );
+  const [previews, setPreviews] = useState([]);
+
+  useEffect(() => {
+    if (values?.mobileBannerImages?.length) {
+      setPreviews(
+        values.mobileBannerImages.map((image) => ({ preview: image.url }))
+      );
+    } else {
+      setPreviews([]);
+    }
+  }, [values.mobileBannerImages]);
 
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -391,12 +369,24 @@ const MobileBannerImage = ({ dispatch }) => {
     const uploadedFile = e.target.files[0];
     if (!uploadedFile.type.startsWith("image/")) {
       setFieldError("mobileBannerImages", "File should be a valid image type.");
+      dispatch(
+        showError({
+          message: "File should be a valid image type.",
+          onClose: "hideError",
+        })
+      );
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    const maxSize = courtImageSize;
     if (uploadedFile.size > maxSize) {
-      setFieldError("mobileBannerImages", "File should be less than 1 MB");
+      setFieldError("mobileBannerImages", "File should be less than 500 KB");
+      dispatch(
+        showError({
+          message: "File should be less than 500 KB",
+          onClose: "hideError",
+        })
+      );
       return;
     }
     try {
@@ -446,7 +436,7 @@ const MobileBannerImage = ({ dispatch }) => {
             <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
 
             <p className="text-sm text-[#5B8DFF]">
-              Click to upload
+              Click to upload{""}
               <span className="text-sm text-[#353535] "> or drag and drop</span>
             </p>
 
@@ -477,7 +467,7 @@ const MobileBannerImage = ({ dispatch }) => {
 
 const CourtFeatures = () => {
   const { form, values } = useFormikContext();
-  console.log(" form values", values);
+
   return (
     <div className="flex justify-between">
       {courtFeatures.map((feature) => (

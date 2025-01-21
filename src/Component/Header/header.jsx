@@ -1,24 +1,36 @@
 import { useDispatch, useSelector } from "react-redux";
-import {
-  notificationIcon,
-  userProfileIcon,
-  pickleBayLogo,
-  downArrow,
-} from "../../Assests";
+import { userProfileIcon, pickleBayLogo } from "../../Assests";
 import { userLogout } from "../../redux/Authentication/authActions";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { showSuccess } from "../../redux/Success/successSlice";
+import { useCookies } from "react-cookie";
 
 const Header = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const [cookies] = useCookies();
   const { isLoggedOut, isLoading } = useSelector((state) => state.auth);
   const handleUserLogout = () => {
     dispatch(userLogout());
-    if (isLoggedOut) {
-      navigate("/login", { replace: true });
-    }
   };
+
+  useEffect(() => {
+    if (isLoggedOut) {
+      dispatch(
+        showSuccess({
+          message: "Logged out successfully",
+          onClose: "hideSuccess",
+        })
+      );
+      const timerId = setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
+      return () => {
+        if (timerId) {
+          clearTimeout(timerId);
+        }
+      };
+    }
+  }, [isLoggedOut]);
 
   return (
     <div className="flex items-center justify-between  pt-[20px] pb-[31px] px-[32px]">
@@ -26,9 +38,7 @@ const Header = () => {
         <img src={pickleBayLogo} alt="pickle bay" />
       </div>
       <div className="flex items-center gap-5">
-        {/* <img src={notificationIcon} alt="notification icon" /> */}
-
-        {/* <img src={downArrow} alt="downward arrow icon" /> */}
+        <p>{cookies.name || ""}</p>
         <details className="relative">
           <summary className="list-none">
             <img src={userProfileIcon} alt="profile" />

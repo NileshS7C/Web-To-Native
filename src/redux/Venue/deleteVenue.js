@@ -10,10 +10,14 @@ const initialState = {
 const deleteVenueSlice = createSlice({
   name: "deleteVenue",
   initialState,
+ 
   extraReducers: (builder) => {
     builder
       .addCase(deleteVenue.pending, (state) => {
         state.isDeleting = true;
+        state.isDeleted = false;
+        state.isError = false;
+        state.errorMessage = "";
       })
       .addCase(deleteVenue.fulfilled, (state, { payload }) => {
         state.isDeleting = false;

@@ -1,6 +1,7 @@
 import { ROUTES } from "../Constant/routes.js";
-
 export const getPageTitle = (pathname, params, venueData) => {
+  const searchParams = new URLSearchParams(window.location.search);
+  const name = searchParams.get("name");
   const STATIC_TITLES = {
     [ROUTES.HOME]: "Home",
     [ROUTES.VENUES.LIST]: "Venues",
@@ -18,10 +19,13 @@ export const getPageTitle = (pathname, params, venueData) => {
       return `Edit Venue - ${venueData?.name || "Venue"}`;
     }
 
-    if (pathname.includes("/add-Court")) {
+    if (pathname.includes("/add-court")) {
       return "Add Court";
     }
-
+    // match the court and set the page title with the court name
+    if (pathname.includes("/edit-court")) {
+      return `Edit Court-${name}`;
+    }
     return STATIC_TITLES[pathname] || "Dashboard";
   };
 

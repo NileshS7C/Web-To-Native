@@ -9,6 +9,7 @@ import VenueInfo from "../Component/Venue/CreateVenue";
 import VenueDescription from "../Component/Venue/VenueDetails";
 import { CourtCreation } from "../Component/Venue/CreateCourt";
 import VenueListing from "../Component/Venue/VenueListing";
+import NotCreated from "../Component/Common/NotCreated";
 
 const AllRoutes = () => {
   return (
@@ -35,6 +36,16 @@ const AllRoutes = () => {
               <Route path="edit" element={<VenueInfo />} />
             </Route>
           </Route>
+          <Route
+            path="*"
+            element={
+              <NotCreated
+                message="You have not created any tournaments yet. Create the tournament to get started."
+                buttonText="Add Tournament"
+                type="text"
+              />
+            }
+          />
         </Route>
 
         <Route path="/login" element={<Login />} />
