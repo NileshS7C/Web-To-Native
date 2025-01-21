@@ -13,17 +13,26 @@ const Layout = () => {
   const currentTitle = getPageTitle(location.pathname, { id }, venue);
 
   return (
-    <div className="flex flex-col max-h-screen">
+    <div className="flex flex-col min-h-screen ">
       <Header />
       <div className="flex flex-1 bg-[#F5F7FA] ">
-        <div className="w-[300px] h-auto bg-[#FFFFFF] ">
+        {/* <div
+          className={`${
+            showNavBar ? "block z-10 absolute" : "hidden"
+          } lg:block w-[300px]  bg-[#FFFFFF]`}
+          style={{ height: "100vh" }}
+        > */}
+        <div className="w-[300px] h-auto bg-[#FFFFFF]">
           <NavBar />
         </div>
         <div className="flex-1 p-[50px] overflow-auto">
           <div className="flex gap-2.5 items-center mb-4">
-            <button onClick={() => navigate(-1)}>
-              <ArrowLeftIcon width="24px" height="24px" color="#343C6A" />
-            </button>
+            {currentTitle !== "Venues" && (
+              <button onClick={() => navigate(-1)}>
+                <ArrowLeftIcon width="24px" height="24px" color="#343C6A" />
+              </button>
+            )}
+
             <p className="text-[#343C6A] font-semibold text-[22px]">
               {currentTitle}
             </p>
