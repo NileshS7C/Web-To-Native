@@ -14,9 +14,7 @@ const CourtActions = ({ id }) => {
   const { isConfirmed, type } = useSelector((state) => state.confirm);
   const handlers = {
     edit: (team) => {
-      console.log(" id", id);
-
-      navigate(`/venues/${id}/edit-court`)
+      navigate(`/venues/${id}/edit-court`);
     },
     delete: (team) => {
       dispatch(

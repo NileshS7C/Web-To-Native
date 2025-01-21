@@ -30,7 +30,8 @@ const authSlice = createSlice({
       state.userPermissions = payload.userPermissions;
       state.accessToken = payload.data.accessToken;
       state.refreshToken = payload.data.refreshToken;
-      state.userInfo = payload.user;
+      state.userInfo = payload.data.user;
+      state.userRole = payload.data.roleName;
       state.isUserAuthenticated = true;
     });
     builder.addCase(userLogin.rejected, (state, action) => {
@@ -40,7 +41,6 @@ const authSlice = createSlice({
       state.errorMessage = action.payload;
     });
 
-    // Refresh token cases
     builder.addCase(refreshTokens.fulfilled, (state, { payload }) => {
       state.accessToken = payload.data.accessToken;
     });
@@ -48,7 +48,6 @@ const authSlice = createSlice({
       state.isAuthenticationFailed = true;
     });
 
-    // Logout cases
     builder
       .addCase(userLogout.fulfilled, (state) => {
         state.isAuthenticationFailed = false;

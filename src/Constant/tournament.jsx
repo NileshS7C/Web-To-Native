@@ -4,18 +4,19 @@ const tournamentDetails = {
 
 const tournamentEvent = {
   format: [
-    "Select Event Format",
-    "Single Elimination",
-    "Double Elimination",
-    "Round Robin",
+    { name: "Select Event Format", shortName: "" },
+    { name: "Single Elimination", shortName: "SE" },
+    { name: "Double Elimination", shortName: "DE" },
+    { name: "Round Robin", shortName: "RR" },
   ],
   category: [
-    "Men's Open Singles",
-    "Women's Open Singles",
-    "Men's Doubles",
-    "Women's Doubles",
-    "Mix Singles",
-    "Mix Doubles",
+    { name: "Select Event Category", shortName: "" },
+    { name: "Men's Open Singles", shortName: "MS" },
+    { name: "Women's Open Singles", shortName: "WS" },
+    { name: "Men's Doubles", shortName: "MD" },
+    { name: "Women's Doubles", shortName: "WD" },
+    { name: "Mix Singles", shortName: "MS" },
+    { name: "Mix Doubles", shortName: "MD" },
   ],
   grandFinales: [1, 2, 3],
   roundRobins: {

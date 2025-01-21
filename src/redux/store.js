@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import tournamentReducer from "./tournament/addTournament";
 import authReducer from "./Authentication/authSlice";
 import tournamentFormReducer from "./tournament/formSlice";
@@ -13,34 +13,52 @@ import successReducer from "./Success/successSlice";
 import confirmReducer from "./Confirmation/confirmationSlice";
 import deleteVenueReducer from "./Venue/deleteVenue";
 import uploadReducer from "./Upload/uploadImage";
+import locationReducer from "./Location/locationSlice";
+import getTourna_Reducer from "./tournament/getTournament";
 import axiosInstance, { setupAxiosInterceptors } from "../Services/axios";
 import { refreshTokens } from "./Authentication/authActions";
 
+import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+
+const rootReducer = combineReducers({
+  auth: authReducer,
+  Tournament: tournamentReducer,
+  tournamentForm: tournamentFormReducer,
+  event: eventReducer,
+  Venue: venueReducer,
+  Nav: navReducer,
+  getVenues: getAllVenues,
+  addCourt: addCourtReducers,
+  error: errorReducer,
+  success: successReducer,
+  confirm: confirmReducer,
+  deleteVenue: deleteVenueReducer,
+  upload: uploadReducer,
+  location: locationReducer,
+  GET_TOUR: getTourna_Reducer,
+});
+
+const persistConfig = {
+  key: "root",
+  storage,
+  whitelist: ["Tournament"],
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 const middleWares = [];
 if (process.env.NODE_ENV === "development") {
   middleWares.push(logger);
 }
 
 const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    Tournament: tournamentReducer,
-    tournamentForm: tournamentFormReducer,
-    event: eventReducer,
-    Venue: venueReducer,
-    Nav: navReducer,
-    getVenues: getAllVenues,
-    addCourt: addCourtReducers,
-    error: errorReducer,
-    success: successReducer,
-    confirm: confirmReducer,
-    deleteVenue: deleteVenueReducer,
-    upload: uploadReducer,
-  },
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(middleWares),
+    getDefaultMiddleware({ serializableCheck: false }).concat(middleWares),
   devTools: true,
 });
+
+export const persistor = persistStore(store);
 
 setupAxiosInterceptors(store.getState, store.dispatch, refreshTokens);
 

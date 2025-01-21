@@ -158,8 +158,6 @@ export const CourtCreation = () => {
     }
   }, [court, id]);
 
-  console.log(" values of the court", court);
-
   if (isGettingCourt) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -237,9 +235,7 @@ const CourtDetails = () => {
 
 const CourtFileUpload = ({ dispatch }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
-  const { selectedFiles, bannerMobileFiles } = useSelector(
-    (state) => state.Tournament
-  );
+
   const [previews, setPreviews] = useState(
     values?.desktopBannerImages?.length
       ? [{ preview: values.desktopBannerImages[0].url }]
@@ -344,24 +340,7 @@ const CourtFileUpload = ({ dispatch }) => {
             </>
           )}
         </div>
-        {selectedFiles.map((file, index) => {
-          return (
-            <div
-              className="flex bg-[#eaeaea] rounded-[20px] items-center p-[3px] justify-center"
-              key={`${file}. ${index}`}
-            >
-              <div className=" text-xs ">{file}</div>
 
-              <BiX
-                className="w-4 h-4 cursor-pointer"
-                key={`${index}.icon`}
-                onClick={() => {
-                  dispatch(removeFiles(file, "desktop"));
-                }}
-              />
-            </div>
-          );
-        })}
         <ErrorMessage name="desktopBannerImages" component={TextError} />
       </div>
 
@@ -477,7 +456,6 @@ const MobileBannerImage = ({ dispatch }) => {
 
 const CourtFeatures = () => {
   const { form, values } = useFormikContext();
-  console.log(" form values", values);
   return (
     <div className="flex justify-between">
       {courtFeatures.map((feature) => (

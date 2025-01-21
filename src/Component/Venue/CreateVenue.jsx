@@ -402,7 +402,6 @@ const VenueBasicInfo = () => {
 const VenueMetaData = () => {
   const [venueHandle, setVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
-
   useEffect(() => {
     if (values.name) {
       const { name } = values;
@@ -566,7 +565,6 @@ const VenueDescription = () => {
 
 const VenueAvailableDays = ({ setAllSelected }) => {
   const { values, setFieldValue, errors } = useFormikContext();
-  console.log("errors", errors);
   useEffect(() => {
     if (
       values.allDaysSelected &&
