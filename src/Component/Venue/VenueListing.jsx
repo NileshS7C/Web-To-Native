@@ -8,7 +8,7 @@ import {
 } from "../../redux/Venue/getVenues";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { tableHeaders, venueFilters } from "../../Constant/venue";
+import { tableHeaders, venueFilters, venueLimit } from "../../Constant/venue";
 import Button from "../Common/Button";
 import DataTable from "../Common/DataTable";
 import { ConfirmationModal } from "../Common/ConfirmationModal";
@@ -48,7 +48,7 @@ export default function VenueListing() {
   }, [isConfirmed, type, confirmationId]);
 
   useEffect(() => {
-    dispatch(getAllVenues({ currentPage, selectedFilter }));
+    dispatch(getAllVenues({ currentPage, selectedFilter, limit: venueLimit }));
   }, [currentPage, selectedFilter, isDeleted, isSuccess]);
 
   useEffect(() => {
