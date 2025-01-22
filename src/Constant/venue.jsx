@@ -15,6 +15,8 @@ const Amenities = [
   "Flood Lights",
 ];
 
+const venueLimit = 10;
+
 const Equipment = ["Paddles", "First Aid Box", "Shoes", "Balls", "Rackets"];
 const venueFilters = [
   { id: "all", title: "All" },
@@ -146,4 +148,5 @@ export {
   ActionButtonCourt,
   fixedDays,
   fixedDaysLower,
+  venueLimit
 };

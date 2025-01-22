@@ -66,7 +66,7 @@ export const updateVenue = createAsyncThunk(
 );
 export const getAllVenues = createAsyncThunk(
   "Venue/getAllVenues",
-  async ({ currentPage, selectedFilter }, { rejectWithValue }) => {
+  async ({ currentPage, selectedFilter, limit = 10 }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -76,7 +76,7 @@ export const getAllVenues = createAsyncThunk(
       const response = await axiosInstance.get(
         `${
           import.meta.env.VITE_BASE_URL
-        }/users/admin/venues?page=${currentPage}&status=${selectedFilter}`,
+        }/users/admin/venues?page=${currentPage}&status=${selectedFilter}&limit=${limit}`,
         config
       );
 

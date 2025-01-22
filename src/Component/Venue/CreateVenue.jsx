@@ -99,7 +99,7 @@ const validateOpenAndCloseTime = (days) => {
 const initialValues = {
   name: "",
   handle: "",
-  tags: "",
+  tags: [],
   address: {
     line1: "",
     line2: "",
@@ -123,9 +123,6 @@ const initialValues = {
     { day: "sunday", openingTime: "", closingTime: "", active: false },
   ],
   amenities: [],
-  allDaysSelected: false,
-  globalOpeningTime: "",
-  globalClosingTime: "",
   equipments: [],
   bannerImages: [],
   layoutImages: [],
@@ -134,7 +131,6 @@ const initialValues = {
 };
 
 const VenueInfo = () => {
-  const [allSelected, setAllSelected] = useState(false);
   const validationSchema = yup.object().shape({
     name: yup
       .string()
@@ -142,7 +138,6 @@ const VenueInfo = () => {
       .min(3, "Name must be at least 3 characters long.")
       .max(50, "Name cannot exceed 50 characters."),
     handle: yup.string().required("Venue handle is required."),
-
     address: yup.object().shape({
       line1: yup
         .string()
@@ -151,7 +146,7 @@ const VenueInfo = () => {
       line2: yup
         .string()
         .notRequired()
-        .max(100, "Line 1 of the address cannot exceed 50 characters."),
+        .max(100, "Line 2 of the address cannot exceed 50 characters."),
       city: yup.string().required("City is required."),
       state: yup.string().required("State is required."),
       postalCode: yup
@@ -259,8 +254,6 @@ const VenueInfo = () => {
         })
       );
 
-      setAllSelected();
-
       setTimeout(() => {
         !id ? navigate("/venues") : navigate(`/venues/${id}`);
       }, 2000);
@@ -306,7 +299,6 @@ const VenueInfo = () => {
         availableDays: values.availableDays,
       });
 
-      setAllSelected(values.allDaysSelected);
       setSelectedTags(values.tags);
     }
   }, [venue, id, isSuccess]);
@@ -343,10 +335,6 @@ const VenueInfo = () => {
           />
           <VenueDescription />
           <VenueAvailableDays />
-          {/* <VenueAvailableDays
-            setAllSelected={setAllSelected}
-            allSelected={allSelected}
-          /> */}
           <VenueAmenities />
           <VenueEquipments />
           <VenueBannerImage

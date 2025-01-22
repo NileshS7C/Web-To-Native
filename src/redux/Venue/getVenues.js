@@ -57,7 +57,7 @@ const getVenuesSlice = createSlice({
       .addCase(getAllVenues.fulfilled, (state, { payload }) => {
         state.isLoading = false;
         state.venues = payload.data.venues;
-        state.totalVenues = payload.data.total;
+        state.totalVenues = payload.data.totalCount;
       })
       .addCase(getAllVenues.rejected, (state, { payload }) => {
         state.isSuccess = false;
