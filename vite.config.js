@@ -12,12 +12,11 @@ export default defineConfig({
         ".js": "jsx",
       },
     },
+    include: ["react-quill"],
   },
-
   build: {
     rollupOptions: {
       external: ["react-quill"],
     },
   },
-  optimizeDeps: { include: ["react-quill"] },
 });
