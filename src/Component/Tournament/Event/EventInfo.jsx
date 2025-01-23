@@ -8,30 +8,28 @@ import { useDispatch, useSelector } from "react-redux";
 function EventInfo() {
   const dispatch = useDispatch();
   const { currentStep } = useSelector((state) => state.Tournament);
-
+  const { categories } = useSelector((state) => state.event);
   return (
-    <div className="grid grid-cols-1 gap-[50px]">
+    <div className="grid grid-cols-1 gap-[50px] pb-20">
       <div className="flex items-center">
-        <p className="text-[18px] font-[500] text-[#232323] justify-self-start leading-[28px]">
-          Events
-        </p>
         <div className="flex ml-auto gap-[10px]">
-          <SearchEvents />
+          {categories.length > 0 && (
+            <Button
+              className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
+              onClick={() => dispatch(toggleModal())}
+            >
+              Add New Event
+            </Button>
+          )}
         </div>
       </div>
       <EventTable />
 
       <Button
-        className="text-[15px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[18.15px] ml-auto"
-        onClick={() => dispatch(toggleModal())}
-      >
-        Add New Event
-      </Button>
-      <Button
         className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
         onClick={() => dispatch(stepReducer(currentStep))}
       >
-        Next
+        Save & Continue
       </Button>
     </div>
   );

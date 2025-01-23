@@ -12,7 +12,7 @@ const TournamentNavBar = () => {
   const { currentStep } = useSelector((state) => state.Tournament);
 
   return (
-    <div className="flex flex-col pl-[50px] pr-[30px]   bg-[#FFFFFF]">
+    <div className="flex flex-col pl-[50px] pr-[30px]  bg-[#FFFFFF] rounded-3xl">
       <div className="py-[50px] ">
         <div className="flex items-center  border-b-[1px] border-[#EDEDED] gap-[67px] ">
           <button

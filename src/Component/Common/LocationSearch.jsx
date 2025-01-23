@@ -93,6 +93,7 @@ const LocationSearchInput = ({ id, name }) => {
           }}
           id={id}
           name={name}
+          
         />
         <ImSearch className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400" />
       </div>

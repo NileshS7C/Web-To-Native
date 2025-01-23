@@ -37,7 +37,7 @@ import { ErrorModal } from "../Common/ErrorModal";
 import { SuccessModal } from "../Common/SuccessModal";
 import { showError } from "../../redux/Error/errorSlice";
 import { showSuccess } from "../../redux/Success/successSlice";
-
+import { formattedDate, parseDate } from "../../utils/dateUtils";
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -80,19 +80,6 @@ const requiredTournamentFields = (tournament) => {
     bookingEndDate,
     sponsors,
   };
-};
-
-const formattedDate = (date) => {
-  return new Date(date).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-};
-
-const parseDate = (date) => {
-  const [day, month, year] = date.split("/").map(Number);
-  return new Date(year, month - 1, day);
 };
 
 const initialValues = {

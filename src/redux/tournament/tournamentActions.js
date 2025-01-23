@@ -45,7 +45,7 @@ export const getAll_TO = createAsyncThunk(
       const response = await axiosInstance.get(
         `${
           import.meta.env.VITE_BASE_URL
-        }/users/admin/tournament-owner?page=${currentPage}&limit=${limit}`,
+        }/users/admin/tournament-owners?page=${currentPage}&limit=${limit}`,
         config
       );
 
@@ -78,7 +78,7 @@ export const getAllUniqueTags = createAsyncThunk(
       const response = await axiosInstance.get(
         `${
           import.meta.env.VITE_BASE_URL
-        }/users/tournament-owner/tournaments/tournament-tags`,
+        }/users/tournament-owners/tournaments/tournament-tags`,
         config
       );
 
@@ -142,6 +142,73 @@ export const updateTournament = createAsyncThunk(
       const response = await axiosInstance.put(
         `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${id}`,
         JSON.stringify(formData),
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const addEventCategory = createAsyncThunk(
+  "Event/createCategory",
+  async ({ formData, id }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/tournaments/${id}/categories`,
+        JSON.stringify(formData),
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const getAllCategories = createAsyncThunk(
+  "Tournament/getAllCategories",
+  async ({ currentPage, limit, id }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/tournaments/${id}/categories?page=${currentPage}&limit=${limit}`,
         config
       );
 

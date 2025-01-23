@@ -11,9 +11,12 @@ const locationSlice = createSlice({
     setGlobalLocation(state, { payload }) {
       state.location = payload;
     },
+    resetGlobalLocation(state) {
+      state.location = {};
+    },
   },
 });
 
-export const { setGlobalLocation } = locationSlice.actions;
+export const { setGlobalLocation, resetGlobalLocation } = locationSlice.actions;
 
-export default locationSlice.reducer
+export default locationSlice.reducer;
