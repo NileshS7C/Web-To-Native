@@ -32,3 +32,12 @@ export const ActionButtonGroup = [
   { name: "Delete", icon: DeleteIcon, action: "delete" },
   { name: "View", icon: ViewIcon, action: "view" },
 ];
+
+export const notHaveBackButton = ["Tournaments", "Venues", "Bookings"];
+
+export const ROLES = [
+  "SUPER_ADMIN",
+  "ADMIN",
+  "TOURNAMENT_OWNER",
+  "VENUE_OWNER",
+];

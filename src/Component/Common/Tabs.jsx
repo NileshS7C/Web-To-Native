@@ -1,21 +1,40 @@
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
 import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
-function Tabs({ options, onChange }) {
+function Tabs({ options, onChange, hasLink = false }) {
   const classNames = (...classes) => {
     return classes.filter(Boolean).join(" ");
   };
+  const [selectedTab, setSelectedTab] = useState(options[0]?.name || "");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get("tab");
+
+  useEffect(() => {
+    if (currentTab) {
+      setSelectedTab(currentTab);
+    } else {
+      setSelectedTab(options[0]?.name.toLowerCase() || "");
+    }
+  }, [selectedTab]);
+
   return (
     <div>
       <div className="grid grid-cols-1 items-center sm:hidden">
         <select
-          defaultValue={options.find((tab) => tab.current).name}
+          value={
+            currentTab
+              ? options.find((tab) => tab?.name?.toLowerCase() === currentTab)
+                  .name
+              : options[0]?.name?.toLowerCase()
+          }
           aria-label="Select a tab"
           className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[#1570EF]"
           onChange={(e) => onChange(e.target.value)}
         >
           {options.map((tab) => (
-            <option key={tab.name} value={tab.name}>
+            <option key={tab.name} value={tab.name.toLowerCase()}>
               {tab.name}
             </option>
           ))}
@@ -26,26 +45,48 @@ function Tabs({ options, onChange }) {
         />
       </div>
       <div className="hidden sm:block ">
-        <nav aria-label="Tabs" className="flex space-x-30 items-center">
-          {options.map((tab) => (
-            <a
-              key={tab.name}
-              href={tab.href}
-              aria-current={tab.current ? "page" : undefined}
-              className={classNames(
-                tab.current
-                  ? "bg-[#1570EF] text-[#FFFFFF]"
-                  : "text-gray-500 hover:text-gray-700",
-                "rounded-[4px] px-3 py-2 text-sm font-medium w-[250px] h-[40px] "
-              )}
-              onClick={(e) => {
-                e.preventDefault();
-                onChange(tab.name);
-              }}
-            >
-              {tab.name}
-            </a>
-          ))}
+        <nav
+          aria-label="Tabs"
+          className="flex space-x-30 items-center justify-evenly"
+        >
+          {options.map((tab) =>
+            !hasLink ? (
+              <a
+                key={tab.name}
+                href={tab.href}
+                aria-current={tab.current ? "page" : undefined}
+                className={classNames(
+                  tab.current
+                    ? "bg-[#1570EF] text-[#FFFFFF]"
+                    : "text-gray-500 hover:text-gray-700",
+                  "rounded-[4px] px-3 py-2 text-sm font-medium w-[250px] h-[40px]"
+                )}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onChange(tab.name);
+                }}
+              >
+                {tab.name}
+              </a>
+            ) : (
+              <Link
+                key={tab.name}
+                to={{ pathname: tab.path, search: tab.search }}
+                aria-current={tab.current ? "page" : undefined}
+                className={classNames(
+                  tab.name.toLowerCase() === selectedTab
+                    ? "bg-[#1570EF] text-[#FFFFFF]"
+                    : "text-gray-500 hover:text-gray-700",
+                  "rounded-[4px] px-3 py-2 text-sm font-medium w-[250px] h-[40px] "
+                )}
+                onClick={(e) => {
+                  onChange?.(tab.name);
+                }}
+              >
+                {tab.name}
+              </Link>
+            )
+          )}
         </nav>
       </div>
     </div>
@@ -55,5 +96,6 @@ function Tabs({ options, onChange }) {
 Tabs.propTypes = {
   options: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
+  hasLink: PropTypes.bool,
 };
 export default Tabs;

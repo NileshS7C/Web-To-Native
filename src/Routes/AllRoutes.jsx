@@ -9,6 +9,8 @@ import VenueInfo from "../Component/Venue/CreateVenue";
 import VenueDescription from "../Component/Venue/VenueDetails";
 import { CourtCreation } from "../Component/Venue/CreateCourt";
 import VenueListing from "../Component/Venue/VenueListing";
+import TournamentCreationForm from "../Component/Tournament/TournamentNav";
+import TournamentListing from "../Component/Tournament/TournamentListing";
 
 const AllRoutes = () => {
   return (
@@ -22,7 +24,16 @@ const AllRoutes = () => {
             </Authentication>
           }
         >
-          <Route path="tournaments" element={<Tournament />} />
+          <Route path="tournaments">
+            <Route index element={<TournamentListing />} />
+            <Route path="add" element={<TournamentCreationForm />} />
+            <Route path=":id">
+              <Route
+                path="edit"
+                element={<TournamentCreationForm />}
+              />
+            </Route>
+          </Route>
           <Route path="home" element={<Home />} />
           <Route path="venues">
             <Route index element={<VenueListing />} />

@@ -4,6 +4,7 @@ import { NavBar } from "./SideNavBar/NavBar";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import { useSelector } from "react-redux";
 import { getPageTitle } from "../Constant/titles";
+import { notHaveBackButton } from "../Constant/app";
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -22,9 +23,11 @@ const Layout = () => {
         </div>
         <div className="flex-1 p-[50px] overflow-auto">
           <div className="flex gap-2.5 items-center mb-4">
-            <button onClick={() => navigate(-1)}>
-              <ArrowLeftIcon width="24px" height="24px" color="#343C6A" />
-            </button>
+            {!notHaveBackButton.includes(currentTitle) && (
+              <button onClick={() => navigate(-1)}>
+                <ArrowLeftIcon width="24px" height="24px" color="#343C6A" />
+              </button>
+            )}
             <p className="text-[#343C6A] font-semibold text-[22px]">
               {currentTitle}
             </p>

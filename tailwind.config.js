@@ -11,6 +11,7 @@ module.exports = {
       },
       colors: {
         customColor: "#232323",
+        tour_List_Color: "#718EBF",
       },
       backgroundColor: {
         customColor: "#FFFFFF",

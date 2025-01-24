@@ -7,7 +7,7 @@ import { TournamentInfo } from "./TournamentInfo";
 
 import { setFormOpen } from "../../redux/tournament/addTournament";
 
-const TournamentNavBar = () => {
+const TournamentCreationForm = () => {
   const dispatch = useDispatch();
   const { currentStep } = useSelector((state) => state.Tournament);
 
@@ -48,4 +48,4 @@ const TournamentNavBar = () => {
   );
 };
 
-export default TournamentNavBar;
+export default TournamentCreationForm;

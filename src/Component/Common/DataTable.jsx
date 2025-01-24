@@ -16,9 +16,7 @@ const DataTable = ({
     <div className="flex flex-col gap-2.5 justify-start">
       <div className="">
         <div className="-mx-4  sm:-mx-0 ">
-          <table
-            className={`min-w-full divide-y divide-gray-300 ${className} `}
-          >
+          <table className={`min-w-full divide-y divide-gray-300 ${className}`}>
             <thead>
               <tr className="bg-[#F7F9FC]">
                 {columns.map((column, index) => (

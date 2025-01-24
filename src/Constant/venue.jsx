@@ -22,7 +22,7 @@ const venueFilters = [
 
 const venueTabs = [
   { name: "Overview", href: "#", current: true, path: "/overview" },
-  { name: "Courts", href: "#", current: false , path: "/courts"},
+  { name: "Courts", href: "#", current: false, path: "/courts" },
 ];
 
 const tableHeaders = [

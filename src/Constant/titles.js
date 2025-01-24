@@ -22,6 +22,8 @@ export const getPageTitle = (pathname, params, venueData) => {
       return "Add Court";
     }
 
+    if(pathname.includes)
+
     return STATIC_TITLES[pathname] || "Dashboard";
   };
 

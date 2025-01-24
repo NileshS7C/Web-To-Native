@@ -31,7 +31,7 @@ const authSlice = createSlice({
       state.accessToken = payload.data.accessToken;
       state.refreshToken = payload.data.refreshToken;
       state.userInfo = payload.data.user;
-      state.userRole = payload.data.roleName;
+      state.userRole = payload.data.user.roleName;
       state.isUserAuthenticated = true;
     });
     builder.addCase(userLogin.rejected, (state, action) => {

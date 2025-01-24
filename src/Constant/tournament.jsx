@@ -1,4 +1,7 @@
+import { Link } from "react-router-dom";
+import { listingIcon } from "../Assests";
 import EventActions from "../Component/Common/EventActions";
+import { GoDotFill } from "react-icons/go";
 
 const tournamentDetails = {
   steps: ["basic info", "event", "acknowledgement"],
@@ -78,10 +81,140 @@ const eventTableHeaders = [
     render: (item) => item?.categoryStartDate.split("/").join("-"),
   },
   {
+    key: "tournament_venue",
+    header: "venue",
+    render: (item) => item?.categoryLocation.name,
+  },
+  {
     key: "actions",
     header: "Actions",
     render: (item, index) => <EventActions id={item._id} index={index} />,
   },
 ];
 
-export { tournamentDetails, tournamentEvent, AvailableDays, eventTableHeaders };
+const tournamentListingTabs = [
+  {
+    name: "All",
+    href: "#",
+    current: true,
+    search: "",
+    path: "/tournaments",
+  },
+  {
+    name: "Active",
+    href: "#",
+    current: false,
+    search: "?tab=active",
+    path: "/tournaments",
+  },
+  {
+    name: "Draft",
+    href: "#",
+    current: false,
+    search: "?tab=draft",
+    path: "/tournaments",
+  },
+  {
+    name: "Upcoming",
+    href: "#",
+    current: false,
+    search: "?tab=upcoming",
+    path: "/tournaments",
+  },
+  {
+    name: "Archive",
+    href: "#",
+    current: false,
+    search: "?tab=archive",
+    path: "/tournaments",
+  },
+];
+
+const TournamentTableHeaders = [
+  {
+    key: "tour_logo",
+    render: () => {
+      return (
+        <div className="flex flex-col">
+          <img
+            src={listingIcon}
+            width="60px"
+            height="60px"
+            alt="tounament logo"
+          />
+        </div>
+      );
+    },
+  },
+  {
+    key: "tournamentName",
+    render: (item) => {
+      return (
+        <div className="flex flex-col">
+          <p className="text-customColor font-semibold">Tournament Name</p>
+          <p className="text-tour_List_Color">{item.tournamentName}</p>
+        </div>
+      );
+    },
+  },
+  {
+    key: "events",
+    render: (item) => {
+      return (
+        <div className="flex flex-col">
+          <p className="text-customColor font-semibold">Events</p>
+          <p className="text-tour_List_Color">{item?.events || 0}</p>
+        </div>
+      );
+    },
+  },
+  {
+    key: "startDate",
+    render: (item) => {
+      return (
+        <div className="flex flex-col">
+          <p className="text-customColor font-semibold">Start Date</p>
+          <p className="text-tour_List_Color">{item.startDate}</p>
+        </div>
+      );
+    },
+  },
+  {
+    key: "tour_status",
+    render: (item) => {
+      return (
+        <div className="flex flex-col gap-1">
+          <p className="text-customColor font-semibold">Approval Status</p>
+          <p className="inline-flex w-[100px] items-center rounded-2xl bg-green-50 px-2 py-1 text-xs font-medium text-[#41C588] ring-1 ring-inset ring-green-600/20">
+            <span>
+              <GoDotFill />
+            </span>
+            <span> {item.status}</span>
+          </p>
+        </div>
+      );
+    },
+  },
+  {
+    key: "button",
+    render: (item) => {
+      return (
+        <Link
+          className="text-[#718EBF] text-sm border-[1px] border-[#718EBF] px-[30px] py-2 rounded-md"
+          to={`/tournaments/${item?.handle || ""}`}
+        >
+          View Detail
+        </Link>
+      );
+    },
+  },
+];
+
+export {
+  tournamentDetails,
+  tournamentEvent,
+  AvailableDays,
+  eventTableHeaders,
+  tournamentListingTabs,
+  TournamentTableHeaders,
+};

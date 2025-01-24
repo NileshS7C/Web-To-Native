@@ -4,8 +4,23 @@ import {
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
 } from "@heroicons/react/20/solid";
-export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
+export const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  hasLink = false,
+}) => {
   const dispatch = useDispatch();
+  const updateQueryString = (value) => {
+    const searchParams = new URLSearchParams(window.location.search);
+    Object.entries(value).forEach(([key, value]) => {
+      searchParams.set(key, value);
+    });
+
+    return searchParams.toString();
+  };
   const generatePages = () => {
     const pages = [];
     const range = 2;
@@ -50,8 +65,22 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
       <div className="hidden md:-mt-px md:flex">
         {pages.map((page, index) => (
-          <React.Fragment key={index}>
-            {typeof page === "number" ? (
+          <React.Fragment key={`page_${page}`}>
+            {hasLink ? (
+              <Link
+                to={{
+                  pathname: "/tournaments",
+                  search: updateQueryString({ page: page.toString() }),
+                }}
+                className={`inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium ${
+                  page === currentPage
+                    ? "border-indigo-500 text-indigo-600"
+                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                }`}
+              >
+                {page}
+              </Link>
+            ) : (
               <button
                 onClick={() => dispatch(onPageChange(page))}
                 className={`inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium ${
@@ -62,10 +91,6 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
               >
                 {page}
               </button>
-            ) : (
-              <span className="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500">
-                {page}
-              </span>
             )}
           </React.Fragment>
         ))}
@@ -87,4 +112,11 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       </div>
     </nav>
   );
+};
+
+Pagination.propTypes = {
+  currentPage: PropTypes.number,
+  totalPages: PropTypes.number,
+  onPageChange: PropTypes.func,
+  hasLink: PropTypes.bool,
 };

@@ -228,3 +228,38 @@ export const getAllCategories = createAsyncThunk(
     }
   }
 );
+
+export const getAllTournaments = createAsyncThunk(
+  "GET_TOUR/getAllTournaments",
+  async ({ currentPage, limit, status }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/tournaments/?page=${currentPage}&limit=${limit}${
+          status ? `&status=${status}` : ""
+        }`,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);

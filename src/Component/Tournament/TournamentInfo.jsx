@@ -38,6 +38,8 @@ import { SuccessModal } from "../Common/SuccessModal";
 import { showError } from "../../redux/Error/errorSlice";
 import { showSuccess } from "../../redux/Success/successSlice";
 import { formattedDate, parseDate } from "../../utils/dateUtils";
+import { userLogout } from "../../redux/Authentication/authActions";
+import { ROLES } from "../../Constant/app";
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -90,7 +92,7 @@ const initialValues = {
   tournamentLocation: {
     location: {
       type: "Point",
-      coordinates: [-72, 38],
+      coordinates: [],
     },
     address: {
       line1: "",
@@ -218,19 +220,19 @@ export const TournamentInfo = () => {
       .date()
       .nullable()
       .required("Booking end date is required.")
-      .min(new Date(), "Start date should be today or later"),
-    // .test(
-    //   "valid-booking-start-date",
-    //   "Booking start Date must be greater than tournament start date.",
-    //   function (value) {
-    //     const { startDate, endDate } = this.parent;
-    //     const newStartDate = new Date(startDate).getTime();
-    //     const newEndDate = new Date(endDate).getTime();
-    //     const bookingDate = new Date(value).getTime();
+      .min(new Date(), "Start date should be today or later")
+      .test(
+        "valid-booking-start-date",
+        "Booking start Date must be greater than tournament start date.",
+        function (value) {
+          const { startDate, endDate } = this.parent;
+          const newStartDate = new Date(startDate).getTime();
+          const newEndDate = new Date(endDate).getTime();
+          const bookingDate = new Date(value).getTime();
 
-    //     return newStartDate > bookingDate && bookingDate < newEndDate;
-    //   }
-    // ),
+          return newStartDate > bookingDate && bookingDate < newEndDate;
+        }
+      ),
     bookingEndDate: yup
       .date()
       .nullable()
@@ -238,19 +240,19 @@ export const TournamentInfo = () => {
       .min(
         yup.ref("bookingStartDate"),
         "End date must be equal to or after the start date"
-      ),
-    // .test(
-    //   "valid-booking-end-date",
-    //   "Booking end Date must be greater than tournament start date",
-    //   function (value) {
-    //     const { startDate, endDate } = this.parent;
-    //     const newStartDate = new Date(startDate).getTime();
-    //     const newEndDate = new Date(endDate).getTime();
-    //     const bookingDate = new Date(value).getTime();
+      )
+      .test(
+        "valid-booking-end-date",
+        "Booking end Date must be greater than tournament start date",
+        function (value) {
+          const { startDate, endDate } = this.parent;
+          const newStartDate = new Date(startDate).getTime();
+          const newEndDate = new Date(endDate).getTime();
+          const bookingDate = new Date(value).getTime();
 
-    //     return newStartDate > bookingDate && bookingDate < newEndDate;
-    //   }
-    // ),
+          return bookingDate < newEndDate;
+        }
+      ),
     sponserName: yup.string(),
   });
 
@@ -258,7 +260,7 @@ export const TournamentInfo = () => {
   const { id } = useParams();
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.location);
-  const [cookies] = useCookies("name");
+  const [cookies] = useCookies(["name", "userRole"]);
   const {
     isGettingALLTO,
     err_IN_TO,
@@ -276,6 +278,23 @@ export const TournamentInfo = () => {
     dispatch(getAll_TO({ currentPage, limit }));
     dispatch(getAllUniqueTags());
   }, []);
+
+  useEffect(() => {
+    const userRole = cookies.userRole;
+    if (!userRole) {
+      dispatch(userLogout());
+    }
+    if (tournamentOwners?.owners?.length > 0) {
+      setInitialState({
+        ...initialState,
+        ownerUserId: ROLES.slice(0, 2).includes(userRole)
+          ? tournamentOwners.owners[0].name
+          : cookies.name,
+      });
+    }
+  }, [tournamentOwners]);
+
+  console.log(" user role", userRole);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
@@ -302,7 +321,7 @@ export const TournamentInfo = () => {
           onClose: "hideSuccess",
         })
       );
-      // resetForm();
+      resetForm();
     } catch (error) {
       dispatch(
         showError({
@@ -342,7 +361,7 @@ export const TournamentInfo = () => {
         });
       }
     }
-  }, []);
+  }, [id]);
 
   return (
     <Formik
@@ -395,7 +414,8 @@ const TournamentBasicInfo = ({
   isGettingALLTO,
   hasError,
 }) => {
-  const { setFieldError } = useFormikContext();
+  const { setFieldError, values } = useFormikContext();
+  console.log(" values", values);
 
   useEffect(() => {
     if (hasError) {
@@ -455,7 +475,7 @@ const TournamentBasicInfo = ({
           {!isGettingALLTO && tournamentOwners?.owners?.length > 0
             ? tournamentOwners.owners.map((owner, index) => {
                 return (
-                  <option key={owner.name} selected={!index}>
+                  <option key={owner.name} value={owner.id}>
                     {owner.name}
                   </option>
                 );
@@ -1125,7 +1145,7 @@ const TournamentSponserTable = () => {
 
                 <td>
                   <Button
-                    className="w-[60px] h-[40px] rounded-[8px]"
+                    className="w-[60px] h-[40px] rounded-[8px] text-white"
                     type="button"
                     onClick={() => {
                       push({ sponsorImage, sponsorName });
