@@ -1,4 +1,4 @@
-import { ROUTES } from "../Constant/routes.js";
+import { ROUTES } from "./routes.js";
 
 export const getPageTitle = (pathname, params, venueData) => {
   const STATIC_TITLES = {
@@ -15,14 +15,29 @@ export const getPageTitle = (pathname, params, venueData) => {
 
     // Match for venue edit page: /venues/:id/edit
     if (pathname.match(/^\/venues\/\w+\/edit$/)) {
-      return `Edit Venue - ${venueData?.name || "Venue"}`;
+      return `Edit Venue - ${venueData?.venue?.name || "Venue"}`;
     }
 
     if (pathname.includes("/add-Court")) {
       return "Add Court";
     }
 
-    if(pathname.includes)
+    if (pathname.match(/^\/tournaments\/\w+\/edit$/)) {
+      return `Edit Tournament - ${venueData?.tournament?.tournamentName || ""}`;
+    }
+
+    if (
+      pathname.match(/^\/tournaments\/\w+\/add$/) ||
+      pathname.match(/^\/tournaments\/add$/)
+    ) {
+      return "Add Tournament";
+    }
+
+    //for matching /tournaments/:id/event/:id
+
+    if (pathname.match(/^\/tournaments\/\w+\/event\/\w+$/)) {
+      return `${venueData?.tournament?.tournamentName || ""}  >`;
+    }
 
     return STATIC_TITLES[pathname] || "Dashboard";
   };

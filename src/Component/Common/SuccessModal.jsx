@@ -44,6 +44,7 @@ export const SuccessModal = () => {
                 </Button>
               </div>
             </div>
+           
           </DialogPanel>
         </div>
       </div>

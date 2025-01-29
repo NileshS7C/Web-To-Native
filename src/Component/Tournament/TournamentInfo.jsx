@@ -16,23 +16,26 @@ import {
 import * as yup from "yup";
 import TextError from "../Error/formError";
 import { useDispatch, useSelector } from "react-redux";
-import { editRow, setTournamentId } from "../../redux/tournament/addTournament";
+import { editRow, setFormOpen } from "../../redux/tournament/addTournament";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { MdOutlineModeEditOutline } from "react-icons/md";
 import { useEffect, useState } from "react";
-import { uploadImage } from "../../redux/Upload/uploadActions";
+import {
+  deleteUploadedImage,
+  uploadImage,
+} from "../../redux/Upload/uploadActions";
 import { IoMdTrash } from "react-icons/io";
 import {
   addTournamentStepOne,
   getAll_TO,
   getAllUniqueTags,
-  getSingleTournament,
+  handleTournamentDecision,
 } from "../../redux/tournament/tournamentActions";
 import Combopopover from "../Common/Combobox";
 import LocationSearchInput from "../Common/LocationSearch";
 import { ImSpinner2 } from "react-icons/im";
-import PropTypes from "prop-types";
-import { useParams } from "react-router-dom";
+import PropTypes, { object } from "prop-types";
+import { useNavigate, useParams } from "react-router-dom";
 import { ErrorModal } from "../Common/ErrorModal";
 import { SuccessModal } from "../Common/SuccessModal";
 import { showError } from "../../redux/Error/errorSlice";
@@ -40,14 +43,26 @@ import { showSuccess } from "../../redux/Success/successSlice";
 import { formattedDate, parseDate } from "../../utils/dateUtils";
 import { userLogout } from "../../redux/Authentication/authActions";
 import { ROLES } from "../../Constant/app";
+import { ConfirmationModal } from "../Common/ConfirmationModal";
+import {
+  onCancel,
+  onCofirm,
+  resetConfirmationState,
+} from "../../redux/Confirmation/confirmationSlice";
+import { approvalBody } from "../../Constant/tournament";
+import Spinner from "../Common/Spinner";
+
 const requiredTournamentFields = (tournament) => {
+  console.log(" address", tournament);
   const {
     ownerUserId,
     tournamentId,
     tournamentName,
     tournamentLocation: {
-      location: { is_location_exact, ...locationWithOutExact },
-      ...address
+      address: {
+        location: { is_location_exact, ...locationWithOutExact },
+        ...restOfAddress
+      },
     },
     handle,
     tags,
@@ -62,7 +77,7 @@ const requiredTournamentFields = (tournament) => {
   } = tournament;
 
   const updatedTournamentLocation = {
-    ...address,
+    ...restOfAddress,
     location: locationWithOutExact,
   };
 
@@ -70,7 +85,7 @@ const requiredTournamentFields = (tournament) => {
     ownerUserId,
     tournamentId,
     tournamentName,
-    tournamentLocation: updatedTournamentLocation,
+    tournamentLocation: { address: updatedTournamentLocation },
     handle,
     tags,
     description,
@@ -90,16 +105,16 @@ const initialValues = {
   tournamentId: "",
   tournamentName: "",
   tournamentLocation: {
-    location: {
-      type: "Point",
-      coordinates: [],
-    },
     address: {
       line1: "",
       line2: "",
       city: "",
       state: "",
       postalCode: "",
+      location: {
+        type: "Point",
+        coordinates: [],
+      },
     },
   },
   handle: "",
@@ -114,22 +129,11 @@ const initialValues = {
   sponsors: [],
 };
 
-export const TournamentInfo = () => {
+export const TournamentInfo = ({ tournament, status, isDisable }) => {
   const validationSchema = yup.object({
     ownerUserId: yup.string().required("Name is required"),
     tournamentName: yup.string().required("Please provide a tournament name."),
     tournamentLocation: yup.object().shape({
-      location: yup.object().shape({
-        type: yup
-          .string()
-          .oneOf(["Point"], "Location type must be 'Point'.")
-          .required("Location type is required."),
-        coordinates: yup
-          .array()
-          .of(yup.number().required("Each coordinate must be a number."))
-          .length(2, "Location must be provided.")
-          .required("Location is required."),
-      }),
       address: yup.object().shape({
         line1: yup.string().notRequired(),
         line2: yup.string().notRequired(),
@@ -139,6 +143,17 @@ export const TournamentInfo = () => {
           .string()
           .required("Postal Code is required.")
           .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
+        location: yup.object().shape({
+          type: yup
+            .string()
+            .oneOf(["Point"], "Location type must be 'Point'.")
+            .required("Location type is required."),
+          coordinates: yup
+            .array()
+            .of(yup.number().required("Each coordinate must be a number."))
+            .length(2, "Location must be provided.")
+            .required("Location is required."),
+        }),
       }),
     }),
 
@@ -257,10 +272,13 @@ export const TournamentInfo = () => {
   });
 
   const dispatch = useDispatch();
-  const { id } = useParams();
+  const navigate = useNavigate();
+  const { tournamentId } = useParams();
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.location);
   const [cookies] = useCookies(["name", "userRole"]);
+  const [selectedTags, setSelectedTags] = useState([]);
+
   const {
     isGettingALLTO,
     err_IN_TO,
@@ -268,12 +286,23 @@ export const TournamentInfo = () => {
     isGettingTags,
     tags,
     hasTagError,
-    tournamentId,
+    rejectionComments,
   } = useSelector((state) => state.Tournament);
+
   const { userRole } = useSelector((state) => state.auth);
-  const { tournament, isSuccess } = useSelector((state) => state.GET_TOUR);
+
+  const { isSuccess, isGettingTournament } = useSelector(
+    (state) => state.GET_TOUR
+  );
+
+  const { isUploading, isUploaded } = useSelector((state) => state.upload);
+
+  const { isOpen, message, onClose, isConfirmed } = useSelector(
+    (state) => state.confirm
+  );
+
   const currentPage = 1;
-  const limit = 10;
+  const limit = 50;
   useEffect(() => {
     dispatch(getAll_TO({ currentPage, limit }));
     dispatch(getAllUniqueTags());
@@ -294,8 +323,6 @@ export const TournamentInfo = () => {
     }
   }, [tournamentOwners]);
 
-  console.log(" user role", userRole);
-
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setSubmitting(true);
@@ -312,15 +339,24 @@ export const TournamentInfo = () => {
         bookingStartDate: formattedDate(values.bookingStartDate),
         bookingEndDate: formattedDate(values.bookingEndDate),
       };
-      await dispatch(addTournamentStepOne(updatedValues)).unwrap();
+      const result = await dispatch(
+        addTournamentStepOne(updatedValues)
+      ).unwrap();
+
+      dispatch(setFormOpen("event"));
       dispatch(
         showSuccess({
-          message: id
+          message: tournamentId
             ? "Tournament updated successfully."
             : "Tournament added successfully.",
           onClose: "hideSuccess",
         })
       );
+
+      if (!result.responseCode) {
+        navigate(`/tournaments/${result?.data?.tournament._id}/add`);
+      }
+
       resetForm();
     } catch (error) {
       dispatch(
@@ -333,14 +369,9 @@ export const TournamentInfo = () => {
       setSubmitting(false);
     }
   };
-  const { uplodedData, isUploading, isUploaded } = useSelector(
-    (state) => state.upload
-  );
 
   useEffect(() => {
-    dispatch(getSingleTournament(tournamentId));
-
-    if (isSuccess) {
+    if (isSuccess && tournamentId && Object.keys(tournament).length > 0) {
       const updatedTournament = requiredTournamentFields(tournament);
       const owner =
         tournamentOwners?.owners?.find(
@@ -349,19 +380,44 @@ export const TournamentInfo = () => {
 
       if (owner) {
         const ownerName = owner.name;
-        setInitialState({
-          ...initialState,
+
+        setInitialState((prevState) => ({
+          ...prevState,
           ...updatedTournament,
           ownerUserId: ownerName,
           tournamentId,
-          startDate: parseDate(updatedTournament.startDate),
-          endDate: parseDate(updatedTournament.endDate),
-          bookingStartDate: parseDate(updatedTournament.bookingStartDate),
-          bookingEndDate: parseDate(updatedTournament.bookingEndDate),
-        });
+          startDate: parseDate(updatedTournament?.startDate),
+          endDate: parseDate(updatedTournament?.endDate),
+          bookingStartDate: parseDate(updatedTournament?.bookingStartDate),
+          bookingEndDate: parseDate(updatedTournament?.bookingEndDate),
+        }));
+
+        setSelectedTags(updatedTournament?.tags);
       }
     }
-  }, [id]);
+  }, [tournament, tournamentId, isSuccess, tournamentOwners]);
+
+  useEffect(() => {
+    if (isConfirmed && tournamentId) {
+      const rejectionBody = {
+        ...approvalBody,
+        action: "REJECTION",
+        rejectionComments,
+      };
+
+      dispatch(
+        handleTournamentDecision({ actions: rejectionBody, tournamentId })
+      );
+    }
+  }, [isConfirmed, tournamentId]);
+
+  if (isGettingTournament) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <Formik
@@ -372,35 +428,47 @@ export const TournamentInfo = () => {
     >
       {({ isSubmitting }) => (
         <Form>
-          <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323]">
-            <ErrorModal />
-            <SuccessModal />
-            <TournamentBasicInfo
-              userName={cookies?.name || ""}
-              userRole={userRole}
-              tournamentOwners={tournamentOwners}
-              isGettingALLTO={isGettingALLTO}
-              hasError={err_IN_TO}
-            />
-            <TournamentMetaData
-              isGettingTags={isGettingTags}
-              uniqueTags={tags}
-              selectedTags={[]}
-            />
-            <TournamentAddress location={location} />
-            <TournamentDescription />
-            <TournamentDates />
-            <TournamentFileUpload dispatch={dispatch} />
-            <TournamentSponserTable />
-            <TournamentBookingDates />
-            <Button
-              className="w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px]"
-              type="submit"
-              loading={isSubmitting}
-            >
-              Save and Continue
-            </Button>
-          </div>
+          <fieldset disabled={!isDisable}>
+            <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323]">
+              <ErrorModal />
+              <SuccessModal />
+              <ConfirmationModal
+                isOpen={isOpen}
+                onCancel={onCancel}
+                onClose={onClose}
+                onConfirm={onCofirm}
+                isLoading={false}
+                message={message}
+                withComments={true}
+              />
+              <TournamentBasicInfo
+                userName={cookies?.name || ""}
+                userRole={userRole}
+                tournamentOwners={tournamentOwners}
+                isGettingALLTO={isGettingALLTO}
+                hasError={err_IN_TO}
+              />
+              <TournamentMetaData
+                isGettingTags={isGettingTags}
+                uniqueTags={tags}
+                selectedTags={selectedTags}
+              />
+              <TournamentAddress location={location} />
+              <TournamentDescription isDisable={isDisable} />
+              <TournamentDates />
+              <TournamentFileUpload dispatch={dispatch} isDisable={isDisable} />
+              <TournamentSponserTable isDisable={isDisable} />
+              <TournamentBookingDates />
+              <Button
+                className="w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px]"
+                type="submit"
+                loading={isSubmitting}
+                disabled={tournamentId && !isDisable}
+              >
+                Save and Continue
+              </Button>
+            </div>
+          </fieldset>
         </Form>
       )}
     </Formik>
@@ -415,8 +483,6 @@ const TournamentBasicInfo = ({
   hasError,
 }) => {
   const { setFieldError, values } = useFormikContext();
-  console.log(" values", values);
-
   useEffect(() => {
     if (hasError) {
       setFieldError("ownerUserId", "Error in getting the owners.");
@@ -506,7 +572,6 @@ const TournamentBasicInfo = ({
 const TournamentMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
   const [tournamentHandle, setTournamentVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
-
   useEffect(() => {
     const { tournamentName = "" } = values;
     if (values.tournamentName) {
@@ -545,7 +610,7 @@ const TournamentMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         isGettingTags={false}
         uniqueTags={[]}
         setFieldValue={setFieldValue}
-        checkedTags={[]}
+        checkedTags={selectedTags}
       />
 
       <ErrorMessage name="tags" component={TextError} />
@@ -553,17 +618,17 @@ const TournamentMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
-          htmlFor="tournamentLocation.location"
+          htmlFor="tournamentLocation.address.location"
         >
           Google Map
         </label>
 
         <LocationSearchInput
-          id="tournamentLocation.location"
-          name="tournamentLocation.location"
+          id="tournamentLocation.address.location"
+          name="tournamentLocation.address.location"
         />
         <ErrorMessage
-          name="tournamentLocation.location.coordinates"
+          name="tournamentLocation.address.location.coordinates"
           component={TextError}
         />
       </div>
@@ -573,11 +638,20 @@ const TournamentMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
 const TournamentAddress = ({ location }) => {
   const { setFieldValue } = useFormikContext();
   useEffect(() => {
-    if (location.city || location.state) {
+    if (location.city || location.state || location.lng || location.lat) {
       setFieldValue(
         "tournamentLocation.address.line1",
         location?.address_line1
       );
+      setFieldValue(
+        "tournamentLocation.address.location.coordinates[0]",
+        location?.lng
+      );
+      setFieldValue(
+        "tournamentLocation.address.location.coordinates[1]",
+        location?.lat
+      );
+
       setFieldValue("tournamentLocation.address.line2", location.address_line2);
       setFieldValue("tournamentLocation.address.city", location.city);
       setFieldValue("tournamentLocation.address.state", location.state);
@@ -697,8 +771,13 @@ const TournamentAddress = ({ location }) => {
   );
 };
 
-const TournamentDescription = () => {
-  const { setFieldValue } = useFormikContext();
+const TournamentDescription = ({ isDisable }) => {
+  const { values, setFieldValue } = useFormikContext();
+  useEffect(() => {
+    if (values.description) {
+      setFieldValue("description", values.description);
+    }
+  }, [values.description]);
   return (
     <div className="grid grid-cols-1 gap-2">
       <label
@@ -716,13 +795,15 @@ const TournamentDescription = () => {
           setFieldValue("description", e);
         }}
         className="custom-quill"
+        value={values?.description}
+        readOnly={!isDisable}
       />
       ;
     </div>
   );
 };
 
-const TournamentFileUpload = ({ dispatch }) => {
+const TournamentFileUpload = ({ dispatch, isDisable }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
 
   return (
@@ -732,12 +813,14 @@ const TournamentFileUpload = ({ dispatch }) => {
         setFieldValue={setFieldValue}
         setFieldError={setFieldError}
         dispatch={dispatch}
+        isDisable={isDisable}
       />
       <MobileBannerImageUpload
         values={values}
         setFieldValue={setFieldValue}
         setFieldError={setFieldError}
         dispatch={dispatch}
+        isDisable={isDisable}
       />
     </div>
   );
@@ -748,6 +831,7 @@ const DesktopBannerImageUpload = ({
   setFieldValue,
   setFieldError,
   dispatch,
+  isDisable,
 }) => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -759,9 +843,10 @@ const DesktopBannerImageUpload = ({
       : [];
 
     setPreviews(previewImages);
-  }, [values.bannerDesktopImages]);
+  }, [values?.bannerDesktopImages]);
 
-  const handleRemoveImageDesk = () => {
+  const handleRemoveImageDesk = (value) => {
+    dispatch(deleteUploadedImage(value[0]));
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
@@ -787,12 +872,10 @@ const DesktopBannerImageUpload = ({
     }
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
+      console.log(" result", result);
 
-      setPreviews((prev) => [
-        ...prev,
-        { preview: result.data.uploadedFileUrl },
-      ]);
-      const url = result.data.uploadedFileUrl;
+      setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
+      const url = result.data.url;
       setFieldValue("bannerDesktopImages", [url]);
     } catch (err) {
       setErrorMessage(err.data?.message);
@@ -815,12 +898,13 @@ const DesktopBannerImageUpload = ({
             <img
               src={previews[0]?.preview || ""}
               className="absolute inset-0 object-scale-down rounded h-full w-full z-100"
+              alt="desktop banner"
             />
             {previews[0]?.preview && (
               <IoMdTrash
                 className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
                 onClick={() => {
-                  handleRemoveImageDesk();
+                  handleRemoveImageDesk(previews[0]?.preview);
                 }}
               />
             )}
@@ -848,6 +932,7 @@ const DesktopBannerImageUpload = ({
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
                   multiple={false}
+                  disabled={!isDisable}
                 />
               )}
             </Field>
@@ -856,7 +941,6 @@ const DesktopBannerImageUpload = ({
       </div>
 
       <ErrorMessage name="bannerDesktopImages" component={TextError} />
-      <TextError>{errorMessage}</TextError>
     </div>
   );
 };
@@ -866,6 +950,7 @@ const MobileBannerImageUpload = ({
   setFieldValue,
   setFieldError,
   dispatch,
+  isDisable,
 }) => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -879,7 +964,8 @@ const MobileBannerImageUpload = ({
     setPreviews(previewImages);
   }, [values?.bannerMobileImages]);
 
-  const handleRemoveImageDesk = () => {
+  const handleRemoveImageDesk = (value) => {
+    dispatch(deleteUploadedImage(value[0]));
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
@@ -903,11 +989,8 @@ const MobileBannerImageUpload = ({
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
 
-      setPreviews((prev) => [
-        ...prev,
-        { preview: result.data.uploadedFileUrl },
-      ]);
-      const url = result.data.uploadedFileUrl;
+      setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
+      const url = result?.data?.url;
       setFieldValue("bannerMobileImages", [...values.bannerMobileImages, url]);
     } catch (err) {
       setErrorMessage(err.data?.message);
@@ -935,7 +1018,7 @@ const MobileBannerImageUpload = ({
               <IoMdTrash
                 className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
                 onClick={() => {
-                  handleRemoveImageDesk();
+                  handleRemoveImageDesk(previews[0]?.preview);
                 }}
               />
             )}
@@ -962,6 +1045,7 @@ const MobileBannerImageUpload = ({
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                  disabled={!isDisable}
                 />
               )}
             </Field>
@@ -969,16 +1053,15 @@ const MobileBannerImageUpload = ({
         )}
       </div>
       <ErrorMessage name="bannerMobileImages" component={TextError} />
-      <TextError>{errorMessage}</TextError>
     </div>
   );
 };
 
-const TournamentSponserTable = () => {
+const TournamentSponserTable = ({ isDisable }) => {
   const dispatch = useDispatch();
   const [sponsorName, setSponsorName] = useState("");
   const [sponsorImage, setSponsorImage] = useState("");
-  const { values, setFieldValue, setFieldError } = useFormikContext();
+  const { setFieldError } = useFormikContext();
   const { editRowIndex } = useSelector((state) => state.Tournament);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -1001,7 +1084,7 @@ const TournamentSponserTable = () => {
     }
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
-      const url = result.data.uploadedFileUrl;
+      const url = result.data.url;
       setSponsorImage(url);
       setErrorMessage(result?.message);
     } catch (err) {
@@ -1060,6 +1143,7 @@ const TournamentSponserTable = () => {
                               type="file"
                               className="absolute  w-8 h-8  inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
                               multiple={false}
+                              disabled={!isDisable}
                             />
                           )}
                         </Field>
@@ -1083,18 +1167,27 @@ const TournamentSponserTable = () => {
                       </Field>
                     </td>
                     <td className="text-left p-2">
-                      <div className="flex gap-4">
-                        <RiDeleteBin6Line
-                          className="w-4 h-4 cursor-pointer"
-                          onClick={() => remove(index)}
-                        />
-                        <MdOutlineModeEditOutline
-                          className="w-4 h-4 cursor-pointer"
-                          onClick={() => {
-                            dispatch(editRow(index));
-                          }}
-                        />
-                      </div>
+                      {isDisable && (
+                        <div className="flex gap-4">
+                          <RiDeleteBin6Line
+                            className="w-4 h-4 cursor-pointer"
+                            onClick={() => {
+                              dispatch(
+                                deleteUploadedImage(
+                                  form?.values?.sponsors[index]?.sponsorImage
+                                )
+                              );
+                              remove(index);
+                            }}
+                          />
+                          <MdOutlineModeEditOutline
+                            className="w-4 h-4 cursor-pointer"
+                            onClick={() => {
+                              dispatch(editRow(index));
+                            }}
+                          />
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -1330,6 +1423,7 @@ TournamentMetaData.propTypes = {
 
 TournamentFileUpload.propTypes = {
   dispatch: PropTypes.func,
+  isDisable: PropTypes.bool,
 };
 
 DesktopBannerImageUpload.propTypes = {
@@ -1337,6 +1431,7 @@ DesktopBannerImageUpload.propTypes = {
   setFieldValue: PropTypes.func,
   setFieldError: PropTypes.func,
   dispatch: PropTypes.func,
+  isDisable: PropTypes.bool,
 };
 
 MobileBannerImageUpload.propTypes = {
@@ -1344,7 +1439,12 @@ MobileBannerImageUpload.propTypes = {
   setFieldValue: PropTypes.func,
   setFieldError: PropTypes.func,
   dispatch: PropTypes.func,
+  isDisable: PropTypes.bool,
 };
 TournamentAddress.propTypes = {
   location: PropTypes.array,
+};
+
+TournamentSponserTable.propTypes = {
+  isDisable: PropTypes.bool,
 };

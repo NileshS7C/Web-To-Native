@@ -26,6 +26,8 @@ const DataTable = ({
                     className={`py-3.5 text-left text-sm font-semibold text-[#667085] ${
                       column.key === "serialNumber"
                         ? "pl-4 pr-3 sm:pl-0"
+                        : column.key === "playerActions"
+                        ? "pl-4 text-right"
                         : "px-3"
                     } ${column.className || ""}`}
                   >

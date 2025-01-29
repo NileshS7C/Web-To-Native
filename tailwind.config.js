@@ -12,6 +12,7 @@ module.exports = {
       colors: {
         customColor: "#232323",
         tour_List_Color: "#718EBF",
+        player_table: "#667085",
       },
       backgroundColor: {
         customColor: "#FFFFFF",

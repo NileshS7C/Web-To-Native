@@ -2,15 +2,22 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   TournamentTableHeaders,
   tournamentListingTabs as initialTour_Tabs,
+  tournamentStatusFilters,
 } from "../../Constant/tournament";
 import Tabs from "../Common/Tabs";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getAllTournaments } from "../../redux/tournament/tournamentActions";
 import Spinner from "../Common/Spinner";
 import PropTypes from "prop-types";
 import { useSearchParams } from "react-router-dom";
 import { CreateTournamentTable } from "./tournamentTable";
 import { searchIcon } from "../../Assests";
+import FilterGroup from "../Common/FilterGroup";
+import { onTour_FilterChange } from "../../redux/tournament/getTournament";
+import { formattedDate } from "../../utils/dateUtils";
+
+
+
 
 const SearchEvents = () => {
   return (
@@ -31,25 +38,75 @@ const SearchEvents = () => {
 function TournamentListing() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { tournaments, totalTournaments, isGettingTournament } = useSelector(
-    (state) => state.GET_TOUR
-  );
-
+  const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
+    useSelector((state) => state.GET_TOUR);
   const selectedTab = searchParams.get("tab");
   const currentPage = searchParams.get("page");
+
   useEffect(() => {
-    if (selectedTab === "all") {
-      dispatch(getAllTournaments({ currentPage: currentPage || 1, limit: 10 }));
-    } else {
-      dispatch(
-        getAllTournaments({
-          currentPage: currentPage || 1,
-          limit: 10,
-          status: selectedTab?.toUpperCase(),
-        })
-      );
+    switch (selectedTab) {
+      case "all":
+        dispatch(getAllTournaments({ page: currentPage || 1, limit: 10 }));
+        break;
+      case "draft":
+        dispatch(
+          getAllTournaments({
+            page: currentPage || 1,
+            limit: 10,
+            status: selectedTab?.toUpperCase(),
+          })
+        );
+
+        break;
+      case "active":
+        dispatch(
+          getAllTournaments({
+            page: currentPage || 1,
+            limit: 10,
+            "dateRange[startDate]": formattedDate(new Date()),
+            timeline: "ACTIVE",
+          })
+        );
+        break;
+
+      case "upcoming":
+        if (selectedFilter && selectedFilter !== "all") {
+          dispatch(
+            getAllTournaments({
+              page: currentPage || 1,
+              limit: 10,
+              "dateRange[endDate]": formattedDate(new Date()),
+              status: selectedFilter?.toUpperCase(),
+              timeline: "UPCOMING",
+            })
+          );
+        } else {
+          dispatch(
+            getAllTournaments({
+              page: currentPage || 1,
+              limit: 10,
+              "dateRange[endDate]": formattedDate(new Date()),
+              timeline: "UPCOMING",
+            })
+          );
+        }
+        break;
+
+      case "archive":
+        dispatch(
+          getAllTournaments({
+            page: currentPage || 1,
+            limit: 10,
+            "dateRange[endDate]": formattedDate(new Date()),
+            timeline: "COMPLETED",
+          })
+        );
+        break;
+
+      default:
+        dispatch(getAllTournaments({ page: currentPage || 1, limit: 10 }));
     }
-  }, [selectedTab, currentPage]);
+  }, [selectedTab, currentPage, selectedFilter]);
 
   if (isGettingTournament) {
     return (
@@ -64,8 +121,20 @@ function TournamentListing() {
       <div className="bg-[#FFFFFF] p-[10px] rounded-md text-[#232323] mb-4">
         <Tabs options={initialTour_Tabs} hasLink={true} />
       </div>
-      <div className="flex justify-end">
-        <SearchEvents />
+
+      <div className="flex flex-col gap-2.5 justify-end items-end">
+        <div className="flex justify-end">
+          <SearchEvents />
+        </div>
+        {selectedTab && selectedTab === "upcoming" && (
+          <FilterGroup
+            title="Filter by approved status:"
+            options={tournamentStatusFilters}
+            selectedValue={selectedFilter}
+            defaultValue="all"
+            onChange={(value) => dispatch(onTour_FilterChange(value))}
+          />
+        )}
       </div>
 
       <CreateTournamentTable

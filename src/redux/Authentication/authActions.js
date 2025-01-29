@@ -20,26 +20,30 @@ export const userLogin = createAsyncThunk(
         config
       );
 
-      cookies.set("refreshToken", response.data.data.refreshToken, {
-        path: "/",
-        maxAge: 24 * 60 * 60,
-        sameSite: "strict",
-        secure: true,
-      });
+      console.log("response data", response.data);
 
-      cookies.set("userRole", response.data?.data?.user?.roleName, {
-        path: "/",
-        maxAge: 24 * 60 * 60,
-        sameSite: "strict",
-        secure: true,
-      });
+      if (!response.code) {
+        cookies.set("refreshToken", response.data.data.refreshToken, {
+          path: "/",
+          maxAge: 24 * 60 * 60,
+          sameSite: "strict",
+          secure: true,
+        });
 
-      cookies.set("name", response.data?.data?.user?.name, {
-        path: "/",
-        maxAge: 24 * 60 * 60,
-        sameSite: "strict",
-        secure: true,
-      });
+        cookies.set("userRole", response.data?.data?.user?.roleName, {
+          path: "/",
+          maxAge: 24 * 60 * 60,
+          sameSite: "strict",
+          secure: true,
+        });
+
+        cookies.set("name", response.data?.data?.user?.name, {
+          path: "/",
+          maxAge: 24 * 60 * 60,
+          sameSite: "strict",
+          secure: true,
+        });
+      }
 
       return response.data;
     } catch (error) {
@@ -78,7 +82,7 @@ export const userLogout = createAsyncThunk(
         config,
         JSON.stringify({ refreshToken })
       );
-    
+
       return null;
     } catch (error) {
       return rejectWithValue(error.response.data.message);

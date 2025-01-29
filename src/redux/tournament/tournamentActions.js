@@ -1,8 +1,41 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
+import { formatURL } from "../../utils/dateUtils";
 
 export const addTournamentStepOne = createAsyncThunk(
   "Tournament/addTournamentStepOne",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments`,
+        JSON.stringify(formData),
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const submitFinalTournament = createAsyncThunk(
+  "Tournament/submitFinalTournament",
   async (formData, { rejectWithValue }) => {
     try {
       const config = {
@@ -196,6 +229,40 @@ export const addEventCategory = createAsyncThunk(
   }
 );
 
+export const updateEventCategory = createAsyncThunk(
+  "Event/createCategory",
+  async ({ formData, id }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.put(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/tournaments/${id}/categories`,
+        JSON.stringify(formData),
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
 export const getAllCategories = createAsyncThunk(
   "Tournament/getAllCategories",
   async ({ currentPage, limit, id }, { rejectWithValue }) => {
@@ -229,9 +296,9 @@ export const getAllCategories = createAsyncThunk(
   }
 );
 
-export const getAllTournaments = createAsyncThunk(
-  "GET_TOUR/getAllTournaments",
-  async ({ currentPage, limit, status }, { rejectWithValue }) => {
+export const getSingleCategory = createAsyncThunk(
+  "Event/getSingleCategory",
+  async ({ tour_Id, eventId }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -241,9 +308,108 @@ export const getAllTournaments = createAsyncThunk(
       const response = await axiosInstance.get(
         `${
           import.meta.env.VITE_BASE_URL
-        }/users/admin/tournaments/?page=${currentPage}&limit=${limit}${
-          status ? `&status=${status}` : ""
-        }`,
+        }/users/admin/tournaments/${tour_Id}/categories/${eventId}`,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const getAllTournaments = createAsyncThunk(
+  "GET_TOUR/getAllTournaments",
+  async ({ ...rest }, { rejectWithValue }) => {
+    try {
+      console.log(" rest", rest);
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      const formattedURL = formatURL(rest);
+      const response = await axiosInstance.get(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/tournaments/?${formattedURL}`,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const handleTournamentDecision = createAsyncThunk(
+  "Tournament/handleTournamentDecision",
+  async ({ actions, id }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${id}/verify`,
+        JSON.stringify(actions),
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const getAllBookings = createAsyncThunk(
+  "GET_TOUR/getAllBookings",
+  async ({ currentPage, limit, tour_Id, eventId }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/tournaments/${tour_Id}/categories/${eventId}/bookings?page=${currentPage}&limit=${limit}`,
         config
       );
 

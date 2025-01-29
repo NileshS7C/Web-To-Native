@@ -17,7 +17,7 @@ function Tabs({ options, onChange, hasLink = false }) {
     } else {
       setSelectedTab(options[0]?.name.toLowerCase() || "");
     }
-  }, [selectedTab]);
+  }, [selectedTab, currentTab]);
 
   return (
     <div>
@@ -77,7 +77,7 @@ function Tabs({ options, onChange, hasLink = false }) {
                   tab.name.toLowerCase() === selectedTab
                     ? "bg-[#1570EF] text-[#FFFFFF]"
                     : "text-gray-500 hover:text-gray-700",
-                  "rounded-[4px] px-3 py-2 text-sm font-medium w-[250px] h-[40px] "
+                  "rounded-[4px] px-3 py-2 text-sm font-medium w-[250px] h-[40px]"
                 )}
                 onClick={(e) => {
                   onChange?.(tab.name);

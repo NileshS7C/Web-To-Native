@@ -1,3 +1,4 @@
+import EmptyBanner from "../Common/EmptyStateBanner";
 import { Pagination } from "../Common/Pagination";
 import PropTypes from "prop-types";
 export const CreateTournamentTable = ({
@@ -7,13 +8,13 @@ export const CreateTournamentTable = ({
   totalPages,
 }) => {
   return (
-    <div className="grid grid-cols-1 gap-3">
+    <div className="grid grid-cols-1">
       <div className="flex flex-col gap-4">
         {data.length > 0 ? (
           data.map((item, index) => (
             <div
               key={item?.id || item?._id || index}
-              className="text-sm text-[#667085] align-middle flex items-center justify-between bg-[#FFFFFF] rounded-lg py-4 px-4"
+              className="text-sm text-[#667085] flex items-center justify-between bg-[#FFFFFF] rounded-lg py-4 px-4"
             >
               {columns.map((column, colIndex) => {
                 const cellContent = column.render
@@ -29,7 +30,7 @@ export const CreateTournamentTable = ({
                       column.key === "serialNumber"
                         ? "text-[#2B2F38]"
                         : "text-[#5D6679]"
-                    } ${column.cellClassName || ""}`}
+                    } ${column.cellClassName || "flex items-center justify-start w-full h-full"}`}
                   >
                     {cellContent}
                   </div>
@@ -43,7 +44,10 @@ export const CreateTournamentTable = ({
               colSpan={columns.length}
               className="text-center py-4 text-[#667085]"
             >
-              No data available
+              <EmptyBanner
+                message="Your search did not match any tournaments. Please adjust
+                    your filters and try again."
+              />
             </div>
           </div>
         )}

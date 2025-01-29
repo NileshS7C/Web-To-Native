@@ -5,6 +5,7 @@ import { useCookies } from "react-cookie";
 const Authentication = ({ children }) => {
   const [cookies] = useCookies("refreshToken");
   const isLoggedIn = cookies.refreshToken;
+
   if (isLoggedIn) {
     return children;
   }

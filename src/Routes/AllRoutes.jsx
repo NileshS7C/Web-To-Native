@@ -11,6 +11,7 @@ import { CourtCreation } from "../Component/Venue/CreateCourt";
 import VenueListing from "../Component/Venue/VenueListing";
 import TournamentCreationForm from "../Component/Tournament/TournamentNav";
 import TournamentListing from "../Component/Tournament/TournamentListing";
+import EventDetailPage from "../Component/Tournament/Event/EventDetails";
 
 const AllRoutes = () => {
   return (
@@ -26,12 +27,15 @@ const AllRoutes = () => {
         >
           <Route path="tournaments">
             <Route index element={<TournamentListing />} />
-            <Route path="add" element={<TournamentCreationForm />} />
-            <Route path=":id">
-              <Route
-                path="edit"
-                element={<TournamentCreationForm />}
-              />
+            <Route path="add">
+              <Route index element={<TournamentCreationForm />} />
+            </Route>
+            <Route path=":tournamentId">
+              <Route path="add" element={<TournamentCreationForm />} />
+              <Route path="edit" element={<TournamentCreationForm />} />
+              <Route path="event">
+                <Route path=":eventId" element={<EventDetailPage />} />
+              </Route>
             </Route>
           </Route>
           <Route path="home" element={<Home />} />

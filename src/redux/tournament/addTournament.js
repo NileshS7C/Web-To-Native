@@ -1,11 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAll_TO, getAllUniqueTags } from "./tournamentActions";
+import {
+  getAll_TO,
+  getAllUniqueTags,
+  handleTournamentDecision,
+} from "./tournamentActions";
 
 const addTournamentSteps = ["basic info", "event", "acknowledgement"];
 
 const tournamentSlice = createSlice({
   name: "Tournament",
   initialState: {
+    changingDecision: false,
+    verificationError: false,
+    verificationSuccess: false,
     tounrnaments: [],
     error: null,
     isLoading: false,
@@ -25,9 +32,16 @@ const tournamentSlice = createSlice({
     isGettingTags: false,
     tags: [],
     hasTagError: false,
-    tournamentId: null,
+    tournament_Id: null,
+    rejectionComments: "",
+    isNotEditable: false,
+    isConfirmed: false,
   },
+
   reducers: {
+    setRejectionComments(state, { payload }) {
+      state.rejectionComments = payload;
+    },
     setFormOpen(state, action) {
       state.currentStep = action.payload;
     },
@@ -42,9 +56,18 @@ const tournamentSlice = createSlice({
         return;
       }
     },
+    confirmSubmission(state, { payload }) {
+      state.isConfirmed = true;
+    },
 
+    setIsConfirmed(state, { payload }) {
+      state.isConfirmed = payload;
+    },
+    setIsEditable(state, { payload }) {
+      state.isNotEditable = payload;
+    },
     setTournamentId(state, { payload }) {
-      state.tournamentId = payload;
+      state.tournament_Id = payload;
     },
 
     removeFiles: {
@@ -140,6 +163,24 @@ const tournamentSlice = createSlice({
         state.tags = [];
         state.isGettingTags = false;
       });
+
+    builder
+      .addCase(handleTournamentDecision.pending, (state) => {
+        state.changingDecision = true;
+        state.verificationError = false;
+        state.verificationSuccess = false;
+      })
+      .addCase(handleTournamentDecision.fulfilled, (state) => {
+        state.verificationSuccess = true;
+        state.changingDecision = false;
+        state.verificationError = false;
+      })
+      .addCase(handleTournamentDecision.rejected, (state) => {
+        console.log(" state", state);
+        state.verificationSuccess = false;
+        state.changingDecision = false;
+        state.verificationError = true;
+      });
   },
 });
 export const {
@@ -153,5 +194,9 @@ export const {
   stepReducer,
   setLocation,
   setTournamentId,
+  setRejectionComments,
+  setIsEditable,
+  confirmSubmission,
+  setIsConfirmed,
 } = tournamentSlice.actions;
 export default tournamentSlice.reducer;

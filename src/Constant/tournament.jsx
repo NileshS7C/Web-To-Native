@@ -1,11 +1,16 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { listingIcon } from "../Assests";
 import EventActions from "../Component/Common/EventActions";
 import { GoDotFill } from "react-icons/go";
+import { findFormatName } from "../utils/tournamentUtils";
+import { useDispatch } from "react-redux";
+import { setFormOpen } from "../redux/tournament/addTournament";
 
 const tournamentDetails = {
   steps: ["basic info", "event", "acknowledgement"],
 };
+
+const bookingLimit = 10;
 
 const tournamentEvent = {
   format: [
@@ -20,8 +25,8 @@ const tournamentEvent = {
     { name: "Women's Open Singles", shortName: "WS" },
     { name: "Men's Doubles", shortName: "MD" },
     { name: "Women's Doubles", shortName: "WD" },
-    { name: "Mix Singles", shortName: "MS" },
-    { name: "Mix Doubles", shortName: "MD" },
+    { name: "Mix Singles", shortName: "MIS" },
+    { name: "Mix Doubles", shortName: "MID" },
   ],
 
   skillLevels: ["Select Skill Level", "Beginner", "Intermediate", "Advance"],
@@ -58,37 +63,47 @@ const eventTableHeaders = [
   {
     key: "eventCategory",
     header: "Event Category",
-    render: (item) => item.categoryName,
+    render: (item) => {
+      const { tournamentId } = useParams();
+      const formatName = findFormatName(tournamentEvent, item);
+      console.log("formate name", formatName);
+      return (
+        <Link
+          to={`/tournaments/${tournamentId}/event/${item?._id}?event=${formatName?.name}`}
+          className=":hover-bg-indigo-600"
+        >
+          {item?.categoryName}
+        </Link>
+      );
+    },
   },
   {
     key: "eventFormat",
     header: "Event Format",
     render: (item) => {
-      const formatName = tournamentEvent.format.find(
-        (event) => event.shortName === item.format
-      );
+      const formatName = findFormatName(tournamentEvent, item);
 
       if (!formatName) {
         return "";
       }
 
-      return formatName.name;
+      return formatName?.name;
     },
   },
   {
     key: "date",
     header: "Date",
-    render: (item) => item?.categoryStartDate.split("/").join("-"),
+    render: (item) => item?.categoryStartDate?.split("/").join("-"),
   },
   {
     key: "tournament_venue",
     header: "venue",
-    render: (item) => item?.categoryLocation.name,
+    render: (item) => item?.categoryLocation?.name,
   },
   {
     key: "actions",
     header: "Actions",
-    render: (item, index) => <EventActions id={item._id} index={index} />,
+    render: (item, index) => <EventActions id={item?._id} index={index} />,
   },
 ];
 
@@ -152,7 +167,7 @@ const TournamentTableHeaders = [
       return (
         <div className="flex flex-col">
           <p className="text-customColor font-semibold">Tournament Name</p>
-          <p className="text-tour_List_Color">{item.tournamentName}</p>
+          <p className="text-tour_List_Color">{item?.tournamentName}</p>
         </div>
       );
     },
@@ -174,7 +189,7 @@ const TournamentTableHeaders = [
       return (
         <div className="flex flex-col">
           <p className="text-customColor font-semibold">Start Date</p>
-          <p className="text-tour_List_Color">{item.startDate}</p>
+          <p className="text-tour_List_Color">{item?.startDate}</p>
         </div>
       );
     },
@@ -182,14 +197,24 @@ const TournamentTableHeaders = [
   {
     key: "tour_status",
     render: (item) => {
+      let tagColor = "";
+      if (item?.status === "PUBLISHED") {
+        tagColor = "bg-green-50 text-[#41C588] ring-green-600/20";
+      } else if (item?.status === "DRAFT") {
+        tagColor = "bg-orange-100 text-[#FF791A] ring-orange-600/20";
+      } else {
+        tagColor = "bg-gray-300 text-[#5D5D5D] ring-gray-600/20";
+      }
       return (
         <div className="flex flex-col gap-1">
           <p className="text-customColor font-semibold">Approval Status</p>
-          <p className="inline-flex w-[100px] items-center rounded-2xl bg-green-50 px-2 py-1 text-xs font-medium text-[#41C588] ring-1 ring-inset ring-green-600/20">
+          <p
+            className={`inline-flex flex-1 w-full items-center rounded-2xl  px-2 py-1 text-xs font-medium  ring-1 ring-inset  ${tagColor}`}
+          >
             <span>
               <GoDotFill />
             </span>
-            <span> {item.status}</span>
+            <span> {item?.status}</span>
           </p>
         </div>
       );
@@ -198,10 +223,17 @@ const TournamentTableHeaders = [
   {
     key: "button",
     render: (item) => {
+      const { status = "" } = item;
+      if (!status) return;
+
+      const navigateToRoute =
+        status !== "DRAFT"
+          ? `/tournaments/${item?._id || ""}/edit`
+          : `/tournaments/${item?._id || ""}/add`;
       return (
         <Link
           className="text-[#718EBF] text-sm border-[1px] border-[#718EBF] px-[30px] py-2 rounded-md"
-          to={`/tournaments/${item?.handle || ""}`}
+          to={navigateToRoute}
         >
           View Detail
         </Link>
@@ -210,11 +242,25 @@ const TournamentTableHeaders = [
   },
 ];
 
+const tournamentStatusFilters = [
+  { id: "all", title: "all" },
+  { id: "pending", title: "Pending" },
+  { id: "approved", title: "Approved" },
+];
+
+const approvalBody = {
+  action: "APPROVE",
+  rejectionComments: "",
+};
+
 export {
   tournamentDetails,
   tournamentEvent,
   AvailableDays,
-  eventTableHeaders,
   tournamentListingTabs,
+  eventTableHeaders,
   TournamentTableHeaders,
+  approvalBody,
+  bookingLimit,
+  tournamentStatusFilters,
 };

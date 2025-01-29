@@ -31,6 +31,8 @@ export default function Combopopover({
 }) {
   const [query, setQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState(checkedTags);
+
+  console.log(" selected tags", selectedTags);
   const [showInput, setShowInput] = useState(false);
   const inputRef = useRef(null);
   const handleClickOutSide = (event) => {
@@ -68,6 +70,10 @@ export default function Combopopover({
     );
     setSelectedTags(updatedTags);
   };
+
+  useEffect(() => {
+    setSelectedTags(checkedTags)
+  }, [checkedTags]);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutSide);
