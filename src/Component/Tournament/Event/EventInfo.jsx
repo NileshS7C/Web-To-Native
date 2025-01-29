@@ -5,7 +5,7 @@ import { stepReducer } from "../../../redux/tournament/addTournament";
 import { toggleModal } from "../../../redux/tournament/eventSlice";
 import { useDispatch, useSelector } from "react-redux";
 
-function EventInfo() {
+function EventInfo({ isDisable }) {
   const dispatch = useDispatch();
   const { currentStep } = useSelector((state) => state.Tournament);
   const { categories } = useSelector((state) => state.event);
@@ -17,17 +17,19 @@ function EventInfo() {
             <Button
               className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
               onClick={() => dispatch(toggleModal())}
+              disabled={!isDisable}
             >
               Add New Event
             </Button>
           )}
         </div>
       </div>
-      <EventTable />
+      <EventTable isDisable={isDisable} />
 
       <Button
         className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
         onClick={() => dispatch(stepReducer(currentStep))}
+        disabled={!isDisable}
       >
         Save & Continue
       </Button>
