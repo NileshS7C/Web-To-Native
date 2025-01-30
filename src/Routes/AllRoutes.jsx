@@ -10,6 +10,10 @@ import VenueDescription from "../Component/Venue/VenueDetails";
 import { CourtCreation } from "../Component/Venue/CreateCourt";
 import VenueListing from "../Component/Venue/VenueListing";
 import NotCreated from "../Component/Common/NotCreated";
+import Explore from "../Page/CMS/Homepage/Explore";
+import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
+import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
+import FeaturedVenues from "../Page/CMS/Homepage/FeaturedVenues";
 
 const AllRoutes = () => {
   return (
@@ -25,6 +29,11 @@ const AllRoutes = () => {
         >
           <Route path="tournaments" element={<Tournament />} />
           <Route path="home" element={<Home />} />
+          <Route path="cms/homepage/explore" element={<Explore />} />
+          <Route path="cms/homepage/featured-tournaments" element={<FeaturedTournaments />} />
+          <Route path="cms/homepage/featured-week" element={<FeaturedWeek />} />
+          <Route path="cms/homepage/featured-venues" element={<FeaturedVenues />} />
+
           <Route path="venues">
             <Route index element={<VenueListing />} />
             <Route path="new" element={<VenueInfo />} />

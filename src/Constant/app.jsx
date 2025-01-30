@@ -35,6 +35,22 @@ export const ADMIN_NAVIGATION = [
   { name: "Tournaments", icon: tournamentIcon },
   { name: "Venues", icon: venueIcon },
   { name: "User", icon: profileIcon },
+  {
+    name: "CMS",
+    icon: profileIcon,
+    children: [
+      {
+        name: "Homepage",
+        children: [
+          { name: "Explore", icon: profileIcon },
+          { name: "Featured Tournaments", icon: profileIcon },
+          { name: "Featured Week", icon: profileIcon },
+          { name: "Featured Venues", icon: profileIcon },
+
+        ],
+      },
+    ],
+  },
 ];
 
 export const ActionButtonGroup = [
