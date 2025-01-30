@@ -1,8 +1,9 @@
+import PropTypes from "prop-types";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
-import { useDispatch, useSelector } from "react-redux";
 import Button from "./Button";
-import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
 import { setRejectionComments } from "../../redux/tournament/addTournament";
 
 export const ConfirmationModal = ({
@@ -14,6 +15,7 @@ export const ConfirmationModal = ({
   withComments = false,
 }) => {
   const dispatch = useDispatch();
+  const [inputValue, setInputValue] = useState("");
   const handleClose = () => {
     dispatch(onCancel());
   };
@@ -51,15 +53,17 @@ export const ConfirmationModal = ({
                 {withComments && (
                   <div className="flex flex-col gap-2.5 w-full">
                     <label htmlFor="comment" className="text-sm text-[#343C6A]">
-                      Rejection Comments
+                      Rejection Comments <span className="text-red-600">*</span>
                     </label>
                     <input
                       name="comment"
                       id="comment"
                       className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                       onChange={(e) => {
+                        setInputValue(e?.target?.value);
                         dispatch(setRejectionComments(e?.target?.value));
                       }}
+                      required={true}
                     />
                   </div>
                 )}
@@ -77,6 +81,7 @@ export const ConfirmationModal = ({
                     className="w-20 h-10 rounded-md bg-red-600 text-white shadow-lg hover:bg-red-500"
                     onClick={handleConfirm}
                     isLoading={isLoading}
+                    disabled={withComments && !inputValue}
                   >
                     Confirm
                   </Button>
@@ -88,4 +93,13 @@ export const ConfirmationModal = ({
       </div>
     </Dialog>
   );
+};
+
+ConfirmationModal.propTypes = {
+  isOpen: PropTypes.bool,
+  onConfirm: PropTypes.func,
+  onCancel: PropTypes.func,
+  isLoading: PropTypes.bool,
+  withComments: PropTypes.bool,
+  message: PropTypes.string,
 };

@@ -135,6 +135,7 @@ export const EventCreationModal = () => {
       }),
     categoryStartDate: yup.date().optional(),
   });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showModal } = useSelector((state) => state.event);
@@ -150,7 +151,6 @@ export const EventCreationModal = () => {
 
   const { tournamentId } = useParams();
   const {
-    eventId,
     category,
     loadingSingleCategory,
     SingleCategoryError,
@@ -195,6 +195,8 @@ export const EventCreationModal = () => {
           })
         );
       }
+
+      resetForm();
     } catch (error) {
       if (process.env.NODE_ENV === "development") {
         console.log(" err occured in saving the form", error);
@@ -230,7 +232,6 @@ export const EventCreationModal = () => {
   useEffect(() => {
     if (categoryId && tournamentId && singleCategorySuccess) {
       const updatedCategory = requiredCategoryFields(category);
-
       setInitialState((prevState) => ({
         ...prevState,
         ...updatedCategory,
@@ -240,13 +241,18 @@ export const EventCreationModal = () => {
       updatedCategory?.categoryLocation
         ? setIsVenueDecided(true)
         : setIsVenueDecided(false);
+    } else {
+      setInitialState({});
     }
   }, [categoryId, tournamentId, singleCategorySuccess]);
 
   return (
     <Dialog
       open={showModal}
-      onClose={() => dispatch(toggleModal())}
+      onClose={() => {
+        setInitialState({});
+        dispatch(toggleModal());
+      }}
       className="relative z-10 "
     >
       <DialogBackdrop
@@ -541,7 +547,7 @@ const VenueSelection = ({
               type="checkbox"
               id="venue_final"
               name="venue"
-              className="w-4 h-4 border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
+              className="w-4 h-4  border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
               checked={currentCheckBox === "decided"}
               onChange={(e) => {
                 if (e.target.checked) {

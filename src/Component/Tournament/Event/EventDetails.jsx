@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
+import { getSingleTournament } from "../../../redux/tournament/tournamentActions";
 import Tabs from "../../Common/Tabs";
 import EventDescription from "./EventDescription";
 import EventRegistrations from "./EventRegistration";
-import { useEffect, useState } from "react";
 
 const options = (tournamentId, eventId) => {
   return [
@@ -59,11 +61,19 @@ const options = (tournamentId, eventId) => {
 };
 
 function EventDetailPage() {
+  const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { tournamentId, eventId } = useParams();
   const [selectedTab, setSelectedTab] = useState("");
   const eventTabOptions = options(tournamentId, eventId);
-  const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab");
+  const { tournament } = useSelector((state) => state.GET_TOUR);
+
+  useEffect(() => {
+    if (tournamentId) {
+      dispatch(getSingleTournament(tournamentId));
+    }
+  }, [tournamentId]);
 
   useEffect(() => {
     setSelectedTab(currentTab);
@@ -73,8 +83,10 @@ function EventDetailPage() {
       <div className="bg-[#FFFFFF] p-[10px] rounded-md text-[#232323] mb-4">
         <Tabs options={eventTabOptions} hasLink={true} />
       </div>
-      {!selectedTab && <EventDescription />}
-      {selectedTab === "players" && <EventRegistrations />}
+      {(!selectedTab || selectedTab === "overview") && <EventDescription />}
+      {selectedTab === "players" && (
+        <EventRegistrations tournament={tournament} />
+      )}
     </div>
   );
 }

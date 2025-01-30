@@ -15,10 +15,12 @@ const DataTable = ({
   return (
     <div className="flex flex-col gap-2.5 justify-start">
       <div className="">
-        <div className="-mx-4  sm:-mx-0 ">
-          <table className={`min-w-full divide-y divide-gray-300 ${className}`}>
-            <thead>
-              <tr className="bg-[#F7F9FC]">
+        <div className="-mx-4  sm:-mx-0">
+          <table
+            className={`min-w-full border-none sm:divide-y sm:divide-gray-300 ${className}`}
+          >
+            <thead className="hidden md:table-header-group">
+              <tr className="bg-[#F9FAFB]">
                 {columns.map((column, index) => (
                   <th
                     key={column.key || `column-${index}`}
@@ -36,13 +38,42 @@ const DataTable = ({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="space-y-4 divide-y divide-gray-200">
               {data.length > 0 ? (
                 data.map((item, index) => (
                   <tr
                     key={item?.id || item?._id || index}
-                    className="text-sm text-[#667085] align-middle border-t-2 h-[55px]"
+                    className="block text-sm text-[#667085]  md:border-t-2 md:h-[55px] md:table-row  md:shadow-none  shadow-lg align-middle"
                   >
+                    <div className="md:hidden flex flex-col bg-white rounded-xl">
+                      {columns.map((column, colIndex) => {
+                        const cellContent = column.render
+                          ? column.render(item, index)
+                          : item?.[column.key];
+
+                        return (
+                          <div
+                            key={`${item?.id || item?._id || index}-${
+                              column.key || colIndex
+                            }`}
+                            className="flex justify-between items-center gap-3 px-4 py-3 "
+                          >
+                            <span className="font-medium text-black">
+                              {column.header}:
+                            </span>
+                            <span
+                              className={`text-gray-600 ${
+                                column.key === "serialNumber"
+                                  ? "text-[#2B2F38]"
+                                  : "text-[#5D6679]"
+                              } ${column.cellClassName || ""}`}
+                            >
+                              {cellContent}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                     {columns.map((column, colIndex) => {
                       const cellContent = column.render
                         ? column.render(item, index, currentPage)
@@ -53,7 +84,7 @@ const DataTable = ({
                           key={`${item?.id || item?._id || index}-${
                             column.key || colIndex
                           }`}
-                          className={`text-left ${
+                          className={`text-left hidden md:table-cell ${
                             column.key === "serialNumber"
                               ? "text-[#2B2F38]"
                               : "text-[#5D6679]"

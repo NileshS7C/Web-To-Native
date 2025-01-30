@@ -1,26 +1,36 @@
-import { useSelector, useDispatch } from "react-redux";
-import ErrorBanner from "../../Common/ErrorBanner";
-import Spinner from "../../Common/Spinner";
 import { useEffect } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { getAllBookings } from "../../../redux/tournament/tournamentActions";
-import { bookingLimit } from "../../../Constant/tournament";
-import EmptyBanner from "../../Common/EmptyStateBanner";
-import DataTable from "../../Common/DataTable";
-import { bookingTableHeaders, data } from "../../../Constant/booking";
 import {
   onPageChangeEvent,
   toggleBookingModal,
 } from "../../../redux/tournament/eventSlice";
+import {
+  onCancel,
+  onCofirm,
+} from "../../../redux/Confirmation/confirmationSlice";
+import ErrorBanner from "../../Common/ErrorBanner";
+import Spinner from "../../Common/Spinner";
+import { bookingLimit } from "../../../Constant/tournament";
+import EmptyBanner from "../../Common/EmptyStateBanner";
+import DataTable from "../../Common/DataTable";
+import { bookingTableHeaders, data } from "../../../Constant/booking";
 import { Button } from "@headlessui/react";
 import AddParticipants from "./AddParticipantPage";
-function EventRegistrations() {
+import { ConfirmationModal } from "../../Common/ConfirmationModal";
+import PropTypes from "prop-types";
+
+function EventRegistrations({ tournament }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = searchParams.get("page");
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const { bookings, bookingError, isGettingBookings } = useSelector(
     (state) => state.GET_TOUR
+  );
+  const { isOpen, message, onClose, isConfirmed } = useSelector(
+    (state) => state.confirm
   );
 
   useEffect(() => {
@@ -56,7 +66,7 @@ function EventRegistrations() {
   //   );
   // }
   return (
-    <div className="flex flex-col gap-5 bg-[#FFFFFF] justify-center p-5 rounded-lg">
+    <div className="flex flex-col gap-5 md:bg-[#FFFFFF] justify-center p-5 rounded-lg">
       <div className="flex justify-end mt-4">
         <Button
           type="button"
@@ -71,16 +81,30 @@ function EventRegistrations() {
         <AddParticipants />
       </div>
 
+      <ConfirmationModal
+        isOpen={isOpen}
+        onCancel={onCancel}
+        onClose={onClose}
+        onConfirm={onCofirm}
+        isLoading={false}
+        message={message}
+        withComments={true}
+      />
+
       <DataTable
         columns={bookingTableHeaders}
         data={data}
         totalPages="20"
-        currentPage={1}
+        currentPage={currentPage}
         onPageChange={onPageChangeEvent}
         className="border-[1px] rounded-md"
       />
     </div>
   );
 }
+
+EventRegistrations.propTypes = {
+  tournament: PropTypes.object,
+};
 
 export default EventRegistrations;

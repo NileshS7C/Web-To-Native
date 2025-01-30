@@ -1,7 +1,7 @@
 import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { getSingleCategory } from "../../../redux/tournament/tournamentActions";
-import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../../Common/Spinner";
 import ErrorBanner from "../../Common/ErrorBanner";
 import { locationIcon } from "../../../Assests";
@@ -35,7 +35,7 @@ function EventDescription() {
   }
 
   return (
-    <div className="grid grid-cols-3 bg-[#FFFFFF] rounded-[20px] p-[40px]">
+    <div className="grid grid-cols-2 sm:grid-col-3 gap-10 items-start justify-center bg-[#FFFFFF] rounded-[20px] p-[20px] sm:p-[40px]">
       <EventNameAndDate
         name={category?.categoryName}
         format={category?.format}
@@ -59,24 +59,28 @@ function EventDescription() {
 
 const EventNameAndDate = ({ name, format, maxPlayer }) => {
   return (
-    <div className="flex flex-col items-start gap-10">
+    <div className="flex flex-col items-start flex-1 gap-10">
       <div className="flex flex-wrap flex-col items-start gap-2.5">
-        <p className="text-tour_List_Color text-md @lg:text-md ">Event Name</p>
-        <p className="text-customColor font-semibold text-md @lg:text-sm">
+        <p className="text-tour_List_Color text-xs sm:text-sm md:text-md lg:text-lg ">
+          Event Name
+        </p>
+        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg whitespace-nowrap">
           {name}
         </p>
       </div>
       <div className="flex flex-wrap flex-col items-start gap-2.5">
-        <p className="text-tour_List_Color text-md @lg:text-sm ">
+        <p className="text-tour_List_Color text-xs sm:text-sm md:text-md lg:text-lg ">
           Event Format
         </p>
-        <p className="text-customColor font-semibold text-md @lg:text-sm">
+        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
           {format}
         </p>
       </div>
       <div className="flex flex-wrap flex-col items-start gap-2.5">
-        <p className="text-tour_List_Color text-md @lg:text-sm ">Max Players</p>
-        <p className="text-customColor font-semibold text-md @lg:text-sm ">
+        <p className="text-tour_List_Color text-xs sm:text-sm md:text-md lg:text-lg">
+          Max Players
+        </p>
+        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg ">
           {maxPlayer || 0}
         </p>
       </div>
@@ -86,25 +90,29 @@ const EventNameAndDate = ({ name, format, maxPlayer }) => {
 
 const EventFormatAndCategory = ({ date, category, minPlayer }) => {
   return (
-    <div className="flex flex-col items-start gap-10">
+    <div className="flex flex-col items-start flex-1 gap-10">
       <div className="flex flex-wrap flex-col items-start gap-2.5">
-        <p className="text-tour_List_Color text-md @lg:text-sm ">Date</p>
-        <p className="text-customColor font-semibold text-md @lg:text-sm">
+        <p className="text-tour_List_Color text-xs sm:text-sm md:text-md lg:text-lg ">
+          Date
+        </p>
+        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
           {date}
         </p>
       </div>
 
       <div className="flex flex-wrap flex-col items-start gap-2.5">
-        <p className="text-tour_List_Color text-md @lg:text-sm ">
+        <p className="text-tour_List_Color text-xs sm:text-sm md:text-md lg:text-lg whitespace-nowrap">
           Event Category
         </p>
-        <p className="text-customColor font-semibold text-md @lg:text-sm">
+        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
           {category}
         </p>
       </div>
       <div className="flex flex-wrap flex-col items-start gap-2.5">
-        <p className="text-tour_List_Color text-md @lg:text-sm ">Min Players</p>
-        <p className="text-customColor font-semibold text-md @lg:text-sm">
+        <p className="text-tour_List_Color text-xs sm:text-sm md:text-md lg:text-lg ">
+          Min Players
+        </p>
+        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
           {minPlayer || 0}
         </p>
       </div>
@@ -116,17 +124,19 @@ const EventPlayers = ({ fee, skillLevel }) => {
   return (
     <div className="flex flex-col items-start gap-10">
       <div className="flex flex-wrap flex-col items-start gap-2.5">
-        <p className="text-tour_List_Color  text-md @lg:text-sm ">
+        <p className="text-tour_List_Color  text-xs sm:text-sm md:text-md lg:text-lg whitespace-nowrap">
           Registration Fee
         </p>
-        <p className="text-customColor font-semibold text-md @lg:text-sm">
+        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
           {fee}
         </p>
       </div>
 
       <div className="flex flex-wrap flex-col items-start gap-2.5">
-        <p className="text-tour_List_Color text-md @lg:text-sm ">Skill level</p>
-        <p className="text-customColor font-semibold text-md @lg:text-sm">
+        <p className="text-tour_List_Color text-xs sm:text-sm md:text-md lg:text-lg">
+          Skill level
+        </p>
+        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
           {skillLevel}
         </p>
       </div>

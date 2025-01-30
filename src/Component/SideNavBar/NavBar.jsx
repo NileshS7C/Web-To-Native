@@ -6,7 +6,7 @@ export const NavBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   return (
-    <div className="grid grid-rows-6 gap-2 auto-rows-[60px] justify-items-start px-[10px] text-lg font-normal text-[#232323] bg-[#FFFFFF]">
+    <div className="grid grid-rows-6 gap-2 auto-rows-[60px]  justify-items-start px-[10px] text-lg font-normal text-[#232323] bg-[#FFFFFF]">
       {menus.map((menu, index) => (
         <div
           key={index}

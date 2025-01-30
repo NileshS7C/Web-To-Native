@@ -36,7 +36,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     //for matching /tournaments/:id/event/:id
 
     if (pathname.match(/^\/tournaments\/\w+\/event\/\w+$/)) {
-      return `${venueData?.tournament?.tournamentName || ""}  >`;
+      return `${venueData?.tournament?.tournamentName || ""}  > ${
+        venueData?.category?.categoryName
+      }`;
     }
 
     return STATIC_TITLES[pathname] || "Dashboard";

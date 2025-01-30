@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { FaCircleInfo } from "react-icons/fa6";
 
 export default function EmptyBanner({ message }) {
@@ -10,3 +11,7 @@ export default function EmptyBanner({ message }) {
     </div>
   );
 }
+
+EmptyBanner.propTypes = {
+  message: PropTypes.string,
+};

@@ -20,8 +20,6 @@ export const userLogin = createAsyncThunk(
         config
       );
 
-      console.log("response data", response.data);
-
       if (!response.code) {
         cookies.set("refreshToken", response.data.data.refreshToken, {
           path: "/",

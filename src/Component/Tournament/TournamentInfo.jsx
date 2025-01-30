@@ -53,7 +53,6 @@ import { approvalBody } from "../../Constant/tournament";
 import Spinner from "../Common/Spinner";
 
 const requiredTournamentFields = (tournament) => {
-  console.log(" address", tournament);
   const {
     ownerUserId,
     tournamentId,
@@ -278,27 +277,14 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   const { location } = useSelector((state) => state.location);
   const [cookies] = useCookies(["name", "userRole"]);
   const [selectedTags, setSelectedTags] = useState([]);
-
-  const {
-    isGettingALLTO,
-    err_IN_TO,
-    tournamentOwners,
-    isGettingTags,
-    tags,
-    hasTagError,
-    rejectionComments,
-  } = useSelector((state) => state.Tournament);
+  const isAddInThePath = window.location.pathname.includes("add");
+  const { isGettingALLTO, err_IN_TO, tournamentOwners, isGettingTags, tags } =
+    useSelector((state) => state.Tournament);
 
   const { userRole } = useSelector((state) => state.auth);
 
   const { isSuccess, isGettingTournament } = useSelector(
     (state) => state.GET_TOUR
-  );
-
-  const { isUploading, isUploaded } = useSelector((state) => state.upload);
-
-  const { isOpen, message, onClose, isConfirmed } = useSelector(
-    (state) => state.confirm
   );
 
   const currentPage = 1;
@@ -343,7 +329,6 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
         addTournamentStepOne(updatedValues)
       ).unwrap();
 
-      dispatch(setFormOpen("event"));
       dispatch(
         showSuccess({
           message: tournamentId
@@ -353,7 +338,8 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
         })
       );
 
-      if (!result.responseCode) {
+      if (!result.responseCode && isAddInThePath) {
+        dispatch(setFormOpen("event"));
         navigate(`/tournaments/${result?.data?.tournament._id}/add`);
       }
 
@@ -397,20 +383,6 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
     }
   }, [tournament, tournamentId, isSuccess, tournamentOwners]);
 
-  useEffect(() => {
-    if (isConfirmed && tournamentId) {
-      const rejectionBody = {
-        ...approvalBody,
-        action: "REJECTION",
-        rejectionComments,
-      };
-
-      dispatch(
-        handleTournamentDecision({ actions: rejectionBody, tournamentId })
-      );
-    }
-  }, [isConfirmed, tournamentId]);
-
   if (isGettingTournament) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -432,15 +404,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
             <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323]">
               <ErrorModal />
               <SuccessModal />
-              <ConfirmationModal
-                isOpen={isOpen}
-                onCancel={onCancel}
-                onClose={onClose}
-                onConfirm={onCofirm}
-                isLoading={false}
-                message={message}
-                withComments={true}
-              />
+
               <TournamentBasicInfo
                 userName={cookies?.name || ""}
                 userRole={userRole}
@@ -872,8 +836,6 @@ const DesktopBannerImageUpload = ({
     }
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
-      console.log(" result", result);
-
       setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
       const url = result.data.url;
       setFieldValue("bannerDesktopImages", [url]);

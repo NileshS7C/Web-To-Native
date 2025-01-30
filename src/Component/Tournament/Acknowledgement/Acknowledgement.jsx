@@ -72,7 +72,6 @@ export const AcknowledgementText = ({ ownerUserId }) => {
   };
 
   useEffect(() => {
-    console.log(" i am working inside this");
     if (isConfirmed) {
       handleSubmit();
     }
@@ -90,7 +89,6 @@ export const AcknowledgementText = ({ ownerUserId }) => {
           checked={isChecked}
           onChange={(e) => {
             setIsChecked(!isChecked);
-            console.log(" is checked", e.target.checked);
             setInitialValues((prev) => ({
               ...prev,
               acknowledgment: e.target.checked,

@@ -4,6 +4,7 @@ import {
   getAllUniqueTags,
   handleTournamentDecision,
 } from "./tournamentActions";
+import { approvalBody } from "../../Constant/tournament";
 
 const addTournamentSteps = ["basic info", "event", "acknowledgement"];
 
@@ -13,6 +14,7 @@ const tournamentSlice = createSlice({
     changingDecision: false,
     verificationError: false,
     verificationSuccess: false,
+    verificationErrorMessage: "",
     tounrnaments: [],
     error: null,
     isLoading: false,
@@ -36,6 +38,7 @@ const tournamentSlice = createSlice({
     rejectionComments: "",
     isNotEditable: false,
     isConfirmed: false,
+    approvalBody: { action: "APPROVE", rejectionComments: "" },
   },
 
   reducers: {
@@ -68,6 +71,16 @@ const tournamentSlice = createSlice({
     },
     setTournamentId(state, { payload }) {
       state.tournament_Id = payload;
+    },
+
+    setApprovalBody(state, { payload }) {
+      state.approvalBody = payload;
+    },
+
+    resetVerificationState(state) {
+      state.verificationSuccess = false;
+      state.verificationError = false;
+      state.verificationErrorMessage = "  ";
     },
 
     removeFiles: {
@@ -169,17 +182,19 @@ const tournamentSlice = createSlice({
         state.changingDecision = true;
         state.verificationError = false;
         state.verificationSuccess = false;
+        state.verificationErrorMessage = "";
       })
       .addCase(handleTournamentDecision.fulfilled, (state) => {
         state.verificationSuccess = true;
         state.changingDecision = false;
         state.verificationError = false;
+        state.verificationErrorMessage = "";
       })
-      .addCase(handleTournamentDecision.rejected, (state) => {
-        console.log(" state", state);
+      .addCase(handleTournamentDecision.rejected, (state, { payload }) => {
         state.verificationSuccess = false;
         state.changingDecision = false;
         state.verificationError = true;
+        state.verificationErrorMessage = payload.data.message;
       });
   },
 });
@@ -198,5 +213,7 @@ export const {
   setIsEditable,
   confirmSubmission,
   setIsConfirmed,
+  resetVerificationState,
+  setApprovalBody,
 } = tournamentSlice.actions;
 export default tournamentSlice.reducer;

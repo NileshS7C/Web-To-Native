@@ -333,7 +333,6 @@ export const getAllTournaments = createAsyncThunk(
   "GET_TOUR/getAllTournaments",
   async ({ ...rest }, { rejectWithValue }) => {
     try {
-      console.log(" rest", rest);
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -410,6 +409,74 @@ export const getAllBookings = createAsyncThunk(
         `${
           import.meta.env.VITE_BASE_URL
         }/users/admin/tournaments/${tour_Id}/categories/${eventId}/bookings?page=${currentPage}&limit=${limit}`,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const createConfirmBooking = createAsyncThunk(
+  "GET_TOUR/createConfirmBooking",
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/bookings/owner/67921bf3026dcfaa04c326f0`,
+        JSON.stringify(data),
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const cancelAndRefundBooking = createAsyncThunk(
+  "GET_TOUR/cancelAndRefundBooking",
+  async ({ data, type }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/bookings/owner/67921bf3026dcfaa04c326f0/${type}`,
+        JSON.stringify(data),
         config
       );
 

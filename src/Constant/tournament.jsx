@@ -3,8 +3,6 @@ import { listingIcon } from "../Assests";
 import EventActions from "../Component/Common/EventActions";
 import { GoDotFill } from "react-icons/go";
 import { findFormatName } from "../utils/tournamentUtils";
-import { useDispatch } from "react-redux";
-import { setFormOpen } from "../redux/tournament/addTournament";
 
 const tournamentDetails = {
   steps: ["basic info", "event", "acknowledgement"],
@@ -66,7 +64,6 @@ const eventTableHeaders = [
     render: (item) => {
       const { tournamentId } = useParams();
       const formatName = findFormatName(tournamentEvent, item);
-      console.log("formate name", formatName);
       return (
         <Link
           to={`/tournaments/${tournamentId}/event/${item?._id}?event=${formatName?.name}`}

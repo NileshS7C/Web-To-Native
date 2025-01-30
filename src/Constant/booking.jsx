@@ -1,5 +1,6 @@
 import { EditIcon } from "../Assests";
 import { Link } from "react-router-dom";
+import BookingActions from "../Component/Common/BookingActions";
 
 const data = [
   {
@@ -250,24 +251,10 @@ const bookingTableHeaders = [
   {
     key: "playerActions",
     header: "Actions",
-    render: () => {
-      return (
-        <div className="flex justify-end gap-2.5">
-          {ActionButtonBooking.map((item) => {
-            return (
-              <button
-                className="text-[#718EBF] text-sm border-[1px] border-[#718EBF] px-[20px] py-2 rounded-md"
-                type="button"
-                key={item?.name}
-              >
-                {item?.name}
-              </button>
-            );
-          })}
-        </div>
-      );
+    render: (bookingData, index) => {
+      return <BookingActions id={bookingData?._id} index={index} />;
     },
   },
 ];
 
-export { bookingTableHeaders, data };
+export { bookingTableHeaders, data, ActionButtonBooking };

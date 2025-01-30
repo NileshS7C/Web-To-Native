@@ -9,33 +9,57 @@ import { useCookies } from "react-cookie";
 import { FiEdit3 } from "react-icons/fi";
 import { setTournamentEditMode } from "../redux/tournament/getTournament";
 import { handleTournamentDecision } from "../redux/tournament/tournamentActions";
-import { approvalBody } from "../Constant/tournament";
 import { showConfirmation } from "../redux/Confirmation/confirmationSlice";
 import Button from "./Common/Button";
+import { SuccessModal } from "./Common/SuccessModal";
+import { setApprovalBody } from "../redux/tournament/addTournament";
+import { ErrorModal } from "./Common/ErrorModal";
+import { useEffect, useState } from "react";
 
 const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const { id } = useParams();
+  const { tournamentId } = useParams();
   const { venue } = useSelector((state) => state.getVenues);
   const { tournament } = useSelector((state) => state.GET_TOUR);
-  const { changingDecision } = useSelector((state) => state.Tournament);
+  const [approveButtonClicked, setApproveButtonClicked] = useState(false);
+  const { changingDecision, verificationSuccess, approvalBody } = useSelector(
+    (state) => state.Tournament
+  );
+  const { category } = useSelector((state) => state.event);
 
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
 
   const currentTitle = getPageTitle(
     location.pathname,
-    { id },
-    { venue, tournament }
+    { tournamentId },
+    { venue, tournament, category }
   );
+
+  useEffect(() => {
+    if (
+      approvalBody.action === "APPROVE" &&
+      approveButtonClicked &&
+      tournamentId
+    ) {
+      dispatch(
+        handleTournamentDecision({
+          actions: approvalBody,
+          id: tournamentId,
+        })
+      );
+
+      setApproveButtonClicked(false);
+    }
+  }, [approvalBody, tournamentId, approveButtonClicked]);
 
   return (
     <div className="flex flex-col max-h-screen">
       <Header />
       <div className="flex flex-1 bg-[#F5F7FA]">
-        <div className="w-[250px] h-auto bg-[#FFFFFF]">
+        <div className="w-[250px] hidden lg:block h-auto bg-[#FFFFFF]">
           <NavBar />
         </div>
         <div className="flex-1 p-[50px] overflow-auto">
@@ -46,9 +70,13 @@ const Layout = () => {
               </button>
             )}
 
+            <ErrorModal />
+
+            {verificationSuccess && <SuccessModal />}
+
             <div className="flex items-center justify-between w-full">
               <p className="text-[#343C6A] font-semibold text-[22px]">
-                {currentTitle}
+                {currentTitle}{" "}
               </p>
 
               {currentTitle === "Tournaments" && (
@@ -76,23 +104,27 @@ const Layout = () => {
 
                   {ROLES.slice(0, 2).includes(userRole) && (
                     <div className="flex items-center gap-2">
-                      <button
-                        className="flex items-center justify-center gap-3 w-[200px] h-[60px] bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100"
+                      <Button
+                        className={`flex items-center justify-center gap-3 w-[200px] h-[60px] bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
                         type="button"
-                        onClick={() =>
-                          dispatch(
-                            handleTournamentDecision({
-                              actions: approvalBody,
-                              id,
-                            })
-                          )
+                        onClick={() => {
+                          setApproveButtonClicked(true);
+                          const updatedBody = {
+                            ...approvalBody,
+                            action: "APPROVE",
+                            rejectionComments: "",
+                          };
+                          dispatch(setApprovalBody(updatedBody));
+                        }}
+                        loading={
+                          changingDecision && approvalBody.action === "APPROVE"
                         }
-                        loading={changingDecision}
+                        disabled={tournament?.status === "PUBLISHED"}
                       >
                         Accept Tournament
-                      </button>
-                      <button
-                        className="flex items-center justify-center gap-3 w-[200px] h-[60px] bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600"
+                      </Button>
+                      <Button
+                        className={`flex items-center justify-center gap-3 w-[200px] h-[60px] bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
                         type="button"
                         onClick={() => {
                           dispatch(
@@ -103,9 +135,13 @@ const Layout = () => {
                             })
                           );
                         }}
+                        loading={
+                          changingDecision && approvalBody.action !== "APPROVE"
+                        }
+                        disabled={tournament?.status === "PUBLISHED"}
                       >
                         Reject Tournament
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>

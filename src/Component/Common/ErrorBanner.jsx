@@ -7,7 +7,7 @@ export default function ErrorBanner({ message }) {
       <BiCommentError color="red" className="w-8 h-8" />
       <div className="pointer-events-auto flex items-center justify-between gap-x-6 bg-red-600 px-6 py-2.5 sm:rounded-xl sm:py-3 sm:pr-3.5 sm:pl-4">
         <p className="text-sm/6 text-white">{message}</p>
-         <IoMdCloseCircleOutline />
+         {/* <IoMdCloseCircleOutline /> */}
       </div>
     </div>
   );
