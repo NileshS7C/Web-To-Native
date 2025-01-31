@@ -6,17 +6,8 @@ export default defineConfig({
   resolve: {
     extensions: [".js", ".jsx", ".json"],
   },
+
   optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        ".js": "jsx",
-      },
-    },
     include: ["react-quill"],
-  },
-  build: {
-    rollupOptions: {
-      external: ["react-quill"],
-    },
   },
 });
