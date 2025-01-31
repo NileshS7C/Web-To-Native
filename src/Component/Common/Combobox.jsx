@@ -1,7 +1,7 @@
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { useEffect, useRef, useState } from "react";
 import { RxCrossCircled } from "react-icons/rx";
-import { ImSpinner2 } from "react-icons/im";
+import Spinner from "./Spinner";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import PropTypes from "prop-types";
 
@@ -70,6 +70,10 @@ export default function Combopopover({
     );
     setSelectedTags(updatedTags);
   };
+
+  useEffect(() => {
+    setSelectedTags(checkedTags);
+  }, [checkedTags]);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutSide);
@@ -156,7 +160,7 @@ export default function Combopopover({
               ))
             ) : (
               <div className="flex items-center justify-center h-full w-full">
-                <ImSpinner2 className="animate-spin w-[24x] h-[24px]" />;
+                <Spinner />
               </div>
             )}
           </options>

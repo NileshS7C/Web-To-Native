@@ -404,7 +404,6 @@ const VenueBasicInfo = () => {
 const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
   const [venueHandle, setVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
-
   useEffect(() => {
     if (values.name) {
       const { name } = values;

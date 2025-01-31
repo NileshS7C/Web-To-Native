@@ -1,6 +1,6 @@
 import React from "react";
 import NotCreated from "../Component/Common/NotCreated";
-import TournamentNavBar from "../Component/Tournament/TournamentNav";
+import TournamentCreationForm from "../Component/Tournament/TournamentNav";
 import { useDispatch, useSelector } from "react-redux";
 
 function Tournament() {
@@ -9,7 +9,7 @@ function Tournament() {
     (state) => state.Tournament
   );
 
-  return <TournamentNavBar />;
+  return <TournamentCreationForm />;
 }
 
 export default Tournament;

@@ -34,7 +34,7 @@ const uploadSlice = createSlice({
       .addCase(uploadImage.rejected, (state, { payload }) => {
         state.isUploading = false;
         state.isUploded = false;
-        state.uploadErrorMessage = payload.data.message;
+        state.uploadErrorMessage = payload.message;
       });
   },
 });

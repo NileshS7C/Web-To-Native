@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 const NotCreated = ({ message, buttonText, type }) => {
   const navigate = useNavigate();
   const handleAddTournament = () => {
-    if (type === "venue") {
+    if (type === "tournament") {
+      navigate("/tournaments/add");
+    } else if (type === "venue") {
       navigate("/venues/new");
     }
   };

@@ -11,6 +11,8 @@ module.exports = {
       },
       colors: {
         customColor: "#232323",
+        tour_List_Color: "#718EBF",
+        player_table: "#667085",
       },
       backgroundColor: {
         customColor: "#FFFFFF",
@@ -18,6 +20,7 @@ module.exports = {
       screens: {
         portrait: { raw: "(orientation: portrait)" },
         landscape: { raw: "(orientation: landscape)" },
+        ipad_air: "820px",
       },
       animation: {
         spin: "spin 1s linear infinite",
