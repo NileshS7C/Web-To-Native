@@ -1,9 +1,10 @@
+import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
+import { stepReducer } from "../../../redux/tournament/addTournament";
+import { toggleModal } from "../../../redux/tournament/eventSlice";
 import { searchIcon } from "../../../Assests";
 import Button from "../../Common/Button";
 import { EventTable } from "./EventTable";
-import { stepReducer } from "../../../redux/tournament/addTournament";
-import { toggleModal } from "../../../redux/tournament/eventSlice";
-import { useDispatch, useSelector } from "react-redux";
 
 function EventInfo({ isDisable }) {
   const dispatch = useDispatch();
@@ -51,6 +52,10 @@ const SearchEvents = () => {
       />
     </div>
   );
+};
+
+EventInfo.propTypes = {
+  isDisable: PropTypes.bool,
 };
 
 export default EventInfo;
