@@ -15,7 +15,10 @@ import TournamentListing from "../Component/Tournament/TournamentListing";
 import EventDetailPage from "../Component/Tournament/Event/EventDetails";
 import NotFound from "../Component/Common/NotFound";
 
+import { useCookies } from "react-cookie";
+
 const AllRoutes = () => {
+  const [cookies] = useCookies(["refreshToken"]);
   return (
     <div>
       <Routes>
@@ -52,19 +55,9 @@ const AllRoutes = () => {
               <Route path="edit" element={<VenueInfo />} />
             </Route>
           </Route>
-          <Route
-            path="*"
-            element={
-              <NotCreated
-                message="You have not created any tournaments yet. Create the tournament to get started."
-                buttonText="Add Tournament"
-                type="text"
-              />
-            }
-          />
         </Route>
 
-        <Route path="/login" element={<Login />} />
+        {!cookies?.refreshToken && <Route path="/login" element={<Login />} />}
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </div>
