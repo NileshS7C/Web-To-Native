@@ -16,9 +16,6 @@ import FilterGroup from "../Common/FilterGroup";
 import { onTour_FilterChange } from "../../redux/tournament/getTournament";
 import { formattedDate } from "../../utils/dateUtils";
 
-
-
-
 const SearchEvents = () => {
   return (
     <div className="relative ">
@@ -42,6 +39,8 @@ function TournamentListing() {
     useSelector((state) => state.GET_TOUR);
   const selectedTab = searchParams.get("tab");
   const currentPage = searchParams.get("page");
+
+  console.log(" current page", currentPage);
 
   useEffect(() => {
     switch (selectedTab) {
@@ -140,7 +139,7 @@ function TournamentListing() {
       <CreateTournamentTable
         columns={TournamentTableHeaders}
         data={tournaments}
-        currentPage={currentPage}
+        currentPage={currentPage || 1}
         totalPages={totalTournaments}
       />
     </div>

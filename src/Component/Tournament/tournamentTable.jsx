@@ -55,7 +55,7 @@ export const CreateTournamentTable = ({
       {totalPages > 10 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
+          total={totalPages}
           hasLink={true}
         />
       )}

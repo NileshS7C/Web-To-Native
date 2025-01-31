@@ -81,7 +81,7 @@ export const VenueTable = ({
       </div>
       <Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
+        total={totalPages}
         onPageChange={onPageChange}
       />
     </div>

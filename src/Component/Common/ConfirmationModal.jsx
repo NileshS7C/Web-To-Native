@@ -1,12 +1,11 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
-import { useDispatch } from "react-redux";
 import Button from "./Button";
 import { resetConfirmationState } from "../../redux/Confirmation/confirmationSlice";
-import { useEffect } from "react";
+
 import { setRejectionComments } from "../../redux/tournament/addTournament";
 
 export const ConfirmationModal = ({
