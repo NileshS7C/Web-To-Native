@@ -11,6 +11,7 @@ const baseURL = import.meta.env.VITE_BASE_URL;
 const axiosInstance = axios.create({
   baseURL,
   timeout: 5000,
+  withCredentials: true,
 });
 
 const getRefreshTokenFromCookies = () => {
@@ -51,8 +52,6 @@ export const setupAxiosInterceptors = (
         return Promise.reject(error);
       }
 
-      
-
       if (error.response?.status === 403) {
         dispatch(userLogout());
 
@@ -77,7 +76,7 @@ export const setupAxiosInterceptors = (
 
       try {
         const refreshToken = getRefreshTokenFromCookies();
-       
+
         const response = await axios.put(
           `${baseURL}/users/auth/update-refresh-access`,
           {
@@ -89,8 +88,6 @@ export const setupAxiosInterceptors = (
             },
           }
         );
-
-        
 
         const tokens = response.data;
         await dispatch(refreshTokensAction(tokens));
