@@ -285,7 +285,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   );
 
   const currentPage = 1;
-  const limit = 50;
+  const limit = 100;
   useEffect(() => {
     dispatch(getAll_TO({ currentPage, limit }));
     dispatch(getAllUniqueTags());

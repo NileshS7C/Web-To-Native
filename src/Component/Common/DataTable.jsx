@@ -7,6 +7,7 @@ const DataTable = ({
   totalPages = 0,
   onPageChange,
   className = "",
+  pathName = "",
 }) => {
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
@@ -115,6 +116,8 @@ const DataTable = ({
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={onPageChange}
+          hasLink={true}
+          pathName={pathName}
         />
       )}
     </div>

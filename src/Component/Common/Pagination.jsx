@@ -11,6 +11,7 @@ export const Pagination = ({
   totalPages,
   onPageChange,
   hasLink = false,
+  pathName = "",
 }) => {
   const dispatch = useDispatch();
   const updateQueryString = (value) => {
@@ -69,7 +70,7 @@ export const Pagination = ({
             {hasLink ? (
               <Link
                 to={{
-                  pathname: "/tournaments",
+                  pathname: !pathName ? "/tournaments" : pathName,
                   search: updateQueryString({ page: page.toString() }),
                 }}
                 className={`inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium ${
@@ -119,4 +120,5 @@ Pagination.propTypes = {
   totalPages: PropTypes.number,
   onPageChange: PropTypes.func,
   hasLink: PropTypes.bool,
+  pathName: PropTypes.string,
 };

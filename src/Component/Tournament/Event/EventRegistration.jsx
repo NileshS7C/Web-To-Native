@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllBookings } from "../../../redux/tournament/tournamentActions";
 import {
@@ -25,6 +25,7 @@ function EventRegistrations({ tournament }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = searchParams.get("page");
   const dispatch = useDispatch();
+  const location = useLocation();
   const { tournamentId, eventId } = useParams();
   const { bookings, bookingError, isGettingBookings } = useSelector(
     (state) => state.GET_TOUR
@@ -32,6 +33,8 @@ function EventRegistrations({ tournament }) {
   const { isOpen, message, onClose, isConfirmed } = useSelector(
     (state) => state.confirm
   );
+
+  const currentPath = location.pathname;
 
   useEffect(() => {
     if (tournamentId && eventId) {
@@ -98,6 +101,7 @@ function EventRegistrations({ tournament }) {
         currentPage={currentPage}
         onPageChange={onPageChangeEvent}
         className="border-[1px] rounded-md"
+        pathName={currentPath}
       />
     </div>
   );
