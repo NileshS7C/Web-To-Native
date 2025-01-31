@@ -1,8 +1,8 @@
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { AcknowledgementText } from "./Acknowledgement/Acknowledgement";
-import { EventCreationModal } from "./Event/EventCreationModal";
-import EventInfo from "./Event/EventInfo";
-import { TournamentInfo } from "./TournamentInfo";
+import { useCookies } from "react-cookie";
+
 import {
   resetVerificationState,
   setApprovalBody,
@@ -10,15 +10,11 @@ import {
   setIsEditable,
   setRejectionComments,
 } from "../../redux/tournament/addTournament";
-import { useParams } from "react-router-dom";
-import { useEffect } from "react";
 import {
   getSingleTournament,
   handleTournamentDecision,
 } from "../../redux/tournament/tournamentActions";
-import { useCookies } from "react-cookie";
-import { shouldBeDisable } from "../../utils/tournamentUtils";
-import { ConfirmationModal } from "../Common/ConfirmationModal";
+
 import {
   onCancel,
   onCofirm,
@@ -26,7 +22,14 @@ import {
 } from "../../redux/Confirmation/confirmationSlice";
 import { showSuccess } from "../../redux/Success/successSlice";
 import { showError } from "../../redux/Error/errorSlice";
+
 import RejectionBanner from "../Common/RejectionBanner";
+import { shouldBeDisable } from "../../utils/tournamentUtils";
+import { ConfirmationModal } from "../Common/ConfirmationModal";
+import { AcknowledgementText } from "./Acknowledgement/Acknowledgement";
+import { EventCreationModal } from "./Event/EventCreationModal";
+import EventInfo from "./Event/EventInfo";
+import { TournamentInfo } from "./TournamentInfo";
 
 const TournamentCreationForm = () => {
   const dispatch = useDispatch();
