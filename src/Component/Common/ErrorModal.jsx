@@ -3,6 +3,7 @@ import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "./Button";
 import { hideError } from "../../redux/Error/errorSlice";
+import { useEffect } from "react";
 export const ErrorModal = () => {
   const dispatch = useDispatch();
   const { isOpen, message, onClose } = useSelector((state) => state.error);
@@ -12,6 +13,12 @@ export const ErrorModal = () => {
       dispatch(hideError());
     }
   };
+
+  useEffect(() => {
+    return () => {
+      dispatch(hideError());
+    };
+  }, [dispatch]);
 
   if (!isOpen) return null;
   return (

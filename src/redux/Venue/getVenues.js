@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllVenues, getSingleVenue, publishVenue } from "./venueActions";
+import {
+  getAllVenues,
+  getSingleVenue,
+  getUniqueVenueTags,
+  publishVenue,
+} from "./venueActions";
 
 const initialState = {
   venues: [],
@@ -9,12 +14,15 @@ const initialState = {
   totalVenues: 0,
   currentPage: 1,
   venueWithNoCourt: false,
-  selectedFilter: "published",
+  selectedFilter: "all",
   venue: {},
   isPublishing: false,
   isPublished: true,
   isErrorInPublish: false,
   publishedErrorMessage: "",
+  isGettingTags: "",
+  uniqueTags: [],
+  tagError: false,
 };
 
 const getVenuesSlice = createSlice({
@@ -29,12 +37,16 @@ const getVenuesSlice = createSlice({
     },
     onFilterChange(state, { payload }) {
       state.selectedFilter = payload;
+      state.currentPage = 1;
     },
     cleanPublishState(state) {
       state.isPublished = false;
       state.isErrorInPublish = false;
       state.isPublishing = false;
       state.publishedErrorMessage = "";
+    },
+    setPublish(state) {
+      state.isPublished = false;
     },
   },
   extraReducers: (builder) => {
@@ -45,7 +57,7 @@ const getVenuesSlice = createSlice({
       .addCase(getAllVenues.fulfilled, (state, { payload }) => {
         state.isLoading = false;
         state.venues = payload.data.venues;
-        state.totalVenues = payload.data.total;
+        state.totalVenues = payload.data.totalCount;
       })
       .addCase(getAllVenues.rejected, (state, { payload }) => {
         state.isSuccess = false;
@@ -71,6 +83,8 @@ const getVenuesSlice = createSlice({
     builder
       .addCase(publishVenue.pending, (state) => {
         state.isPublishing = true;
+        state.isErrorInPublish = false;
+        state.isSuccess = false;
       })
       .addCase(publishVenue.fulfilled, (state) => {
         state.isPublished = true;
@@ -82,10 +96,25 @@ const getVenuesSlice = createSlice({
         state.isPublishing = false;
         state.publishedErrorMessage = payload.data.message;
       });
+
+    builder
+      .addCase(getUniqueVenueTags.pending, (state) => {
+        state.isGettingTags = true;
+        state.uniqueTags = [];
+        state.tagError = false;
+      })
+      .addCase(getUniqueVenueTags.fulfilled, (state, { payload }) => {
+        state.uniqueTags = payload.data;
+        state.isGettingTags = false;
+      })
+      .addCase(getUniqueVenueTags.rejected, (state) => {
+        state.isGettingTags = false;
+        state.tagError = true;
+      });
   },
 });
 
-export const { onPageChange, checkVenue, onFilterChange, cleanPublishState } =
+export const { onPageChange, checkVenue, onFilterChange, cleanPublishState, setPublish } =
   getVenuesSlice.actions;
 
 export default getVenuesSlice.reducer;

@@ -56,10 +56,12 @@ export default function Combopopover({
     const queryArray = query.split(/\s*,\s*/);
     setSelectedTags((prevTags) => {
       const uniqueTags = queryArray.filter((tag) => !prevTags.includes(tag));
-      return uniqueTags;
+      console.log(" unique tags", prevTags);
+      return [...prevTags, ...uniqueTags];
     });
 
     setQuery("");
+    setShowInput(false);
   };
 
   const handleRemoveTag = (tag) => {
@@ -94,13 +96,14 @@ export default function Combopopover({
             setQuery(event.target.value);
           }}
           onFocus={() => setShowInput(true)}
+          placeholder="Enter Venue Tags"
         />
 
         {showInput && (
-          <options className="absolute z-10 left-0 top-14 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+          <options className="absolute z-10 left-0 top-14 min-h-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
             {query && (
               <div
-                className="flex items-center gap-2.5 shadow-lg  group relative cursor-default select-none pl-2 py-2 pl- pr-4 text-gray-900 hover:bg-gray-100 data-[focus]:text-black data-[focus]:outline-none"
+                className="flex items-center gap-2.5   group relative cursor-default select-none pl-2 py-2 pl- pr-4 text-gray-900 hover:bg-gray-100 data-[focus]:text-black data-[focus]:outline-none"
                 onClick={handleTagUserInput}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -119,6 +122,11 @@ export default function Combopopover({
                 </div>
               </div>
             )}
+
+            {!uniqueTags.length && (
+              <p className="align-middle">No tags found. Please add tags manually. </p>
+            )}
+
             {!isGettingTags ? (
               uniqueTags.map((tag) => (
                 <div

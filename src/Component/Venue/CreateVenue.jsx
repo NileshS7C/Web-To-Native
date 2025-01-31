@@ -6,36 +6,39 @@ import {
   FieldArray,
   useFormikContext,
 } from "formik";
+import ReactQuill from "react-quill";
 
 import TextError from "../Error/formError";
-import { AvailableDays } from "../../Constant/tournament";
 import { Amenities, Equipment } from "../../Constant/venue";
 import { AiFillQuestionCircle } from "react-icons/ai";
 import { uploadIcon, venueUploadImage } from "../../Assests";
 import Button from "../Common/Button";
 import * as yup from "yup";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addVenue,
   getSingleVenue,
   updateVenue,
+  getUniqueVenueTags,
 } from "../../redux/Venue/venueActions";
 import { ErrorModal } from "../Common/ErrorModal";
-import { cleanUpError, showError } from "../../redux/Error/errorSlice";
+import { showError } from "../../redux/Error/errorSlice";
 import { SuccessModal } from "../Common/SuccessModal";
-import { cleanUpSuccess, showSuccess } from "../../redux/Success/successSlice";
+import { showSuccess } from "../../redux/Success/successSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import Spinner from "../Common/Spinner";
 import LocationSearchInput from "../Common/LocationSearch";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import { resetVenueState } from "../../redux/Venue/addVenue";
+import Combopopover from "../Common/Combobox";
+import { venueImageSize } from "../../Constant/app";
+import { Switch } from "@headlessui/react";
 
 const requiredVenueFields = (venue) => {
   const {
     name,
-    location,
     handle,
     tags,
     address,
@@ -52,7 +55,6 @@ const requiredVenueFields = (venue) => {
 
   return {
     name,
-    location,
     handle,
     tags,
     address,
@@ -74,7 +76,7 @@ const hasSelectedDays = (days) => {
 
 const validateTimes = (days) => {
   return days.every((day) => {
-    if (day.day) {
+    if (day.day && day.active) {
       return !!day.openingTime && !!day.closingTime;
     }
 
@@ -84,7 +86,7 @@ const validateTimes = (days) => {
 
 const validateOpenAndCloseTime = (days) => {
   return days.every((day) => {
-    if (day.day) {
+    if (day.day && day.active) {
       const openingTime = new Date(`1970-01-01T${day.openingTime}:00`);
       const closingTime = new Date(`1970-01-01T${day.closingTime}:00`);
       return openingTime < closingTime;
@@ -96,33 +98,31 @@ const validateOpenAndCloseTime = (days) => {
 
 const initialValues = {
   name: "",
-  location: {
-    type: "Point",
-    coordinates: [],
-  },
   handle: "",
-  tags: "",
+  tags: [],
   address: {
     line1: "",
     line2: "",
     city: "",
     state: "",
     postalCode: "",
+    location: {
+      type: "Point",
+      coordinates: [],
+    },
   },
   description: "",
   availableDays: [
-    { day: "", openingTime: "", closingTime: "" },
-    { day: "", openingTime: "", closingTime: "" },
-    { day: "", openingTime: "", closingTime: "" },
-    { day: "", openingTime: "", closingTime: "" },
-    { day: "", openingTime: "", closingTime: "" },
-    { day: "", openingTime: "", closingTime: "" },
-    { day: "", openingTime: "", closingTime: "" },
+    { day: "All days", openingTime: "", closingTime: "", active: false },
+    { day: "monday", openingTime: "", closingTime: "", active: false },
+    { day: "tuesday", openingTime: "", closingTime: "", active: false },
+    { day: "wednesday", openingTime: "", closingTime: "", active: false },
+    { day: "thursday", openingTime: "", closingTime: "", active: false },
+    { day: "friday", openingTime: "", closingTime: "", active: false },
+    { day: "saturday", openingTime: "", closingTime: "", active: false },
+    { day: "sunday", openingTime: "", closingTime: "", active: false },
   ],
   amenities: [],
-  allDaysSelected: false,
-  globalOpeningTime: "",
-  globalClosingTime: "",
   equipments: [],
   bannerImages: [],
   layoutImages: [],
@@ -131,76 +131,80 @@ const initialValues = {
 };
 
 const VenueInfo = () => {
-  const [allSelected, setAllSelected] = useState(false);
   const validationSchema = yup.object().shape({
     name: yup
       .string()
       .required("Name is required.")
       .min(3, "Name must be at least 3 characters long.")
       .max(50, "Name cannot exceed 50 characters."),
-    location: yup.object().shape({
-      type: yup
-        .string()
-        .oneOf(["Point"], "Location type must be 'Point'.")
-        .required("Location type is required."),
-      coordinates: yup
-        .array()
-        .of(yup.number().required("Each coordinate must be a number."))
-        .length(2, "Location must be provided.")
-        .required("Location is required."),
-    }),
+    handle: yup.string().required("Venue handle is required."),
     address: yup.object().shape({
-      line1: yup.string().notRequired(),
-      line2: yup.string().notRequired(),
+      line1: yup
+        .string()
+        .notRequired()
+        .max(100, "Line 1 of the address cannot exceed 50 characters."),
+      line2: yup
+        .string()
+        .notRequired()
+        .max(100, "Line 2 of the address cannot exceed 50 characters."),
       city: yup.string().required("City is required."),
       state: yup.string().required("State is required."),
       postalCode: yup
         .string()
         .required("Postal Code is required.")
         .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
+      location: yup.object().shape({
+        type: yup
+          .string()
+          .oneOf(["Point"], "Location type must be 'Point'.")
+          .required("Location type is required."),
+        coordinates: yup
+          .array()
+          .of(yup.number().required("Each coordinate must be a number."))
+          .length(2, "Location must be provided.")
+          .required("Location is required."),
+      }),
     }),
     description: yup
       .string()
       .required("Description is required.")
       .max(500, "Description cannot exceed 500 characters."),
 
-    availableDays:
-      !allSelected &&
-      yup
-        .array()
-        .test(
-          "at-least-one-day",
-          "Please select at least one day",
-          hasSelectedDays
-        )
-        .test(
-          "valid-times",
-          "Opening and closing times are required for selected days",
-          validateTimes
-        )
-        .test(
-          "compare-time",
-          "Closing time should be greater than opening time.",
-          validateOpenAndCloseTime
-        ),
-    allDaysSelected: yup.bool(),
-    globalOpeningTime: allSelected
-      ? yup.string().required("Opening time is required")
-      : yup.string(),
+    availableDays: yup
+      .array()
+      .test(
+        "at-least-one-day",
+        "Please select at least one day",
+        hasSelectedDays
+      )
+      .test(
+        "valid-times",
+        "Opening and closing times are required for selected days",
+        validateTimes
+      )
+      .test(
+        "compare-time",
+        "Closing time should be greater than opening time.",
+        validateOpenAndCloseTime
+      )
+      .test(
+        "unique-days",
+        "Each day must have unique opening and closing times, and no duplicate days are allowed.",
+        function () {
+          const { availableDays } = this.parent;
+          const uniqueDays = new Set();
 
-    globalClosingTime: allSelected
-      ? yup
-          .string()
-          .required("Closing time is required.")
-          .test(
-            "is-after-opening-time",
-            "Closing time must be greater than opening time.",
-            function (value) {
-              const { globalOpeningTime } = this.parent;
-              return globalOpeningTime < value;
+          for (const daySelected of availableDays) {
+            if (daySelected.day) {
+              if (uniqueDays.has(daySelected.day)) {
+                return false;
+              }
+              uniqueDays.add(daySelected.day);
             }
-          )
-      : yup.string(),
+          }
+          return true;
+        }
+      ),
 
     amenities: yup
       .array()
@@ -226,14 +230,20 @@ const VenueInfo = () => {
   const { id } = useParams();
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.Venue);
+  const [selectedTags, setSelectedTags] = useState([]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
 
+    const filteredDays = values.availableDays.filter((days) => days.day);
+
+    const updatedValues = { ...values, availableDays: filteredDays };
+
     try {
       !id
-        ? await dispatch(addVenue(values)).unwrap()
+        ? await dispatch(addVenue(updatedValues)).unwrap()
         : await dispatch(updateVenue({ formData: values, id })).unwrap();
+
       resetForm();
       dispatch(
         showSuccess({
@@ -245,7 +255,7 @@ const VenueInfo = () => {
       );
 
       setTimeout(() => {
-        navigate("/venues");
+        !id ? navigate("/venues") : navigate(`/venues/${id}`);
       }, 2000);
     } catch (error) {
       dispatch(
@@ -266,6 +276,9 @@ const VenueInfo = () => {
     isSuccess,
   } = useSelector((state) => state.getVenues);
 
+  const { isGettingTags, uniqueTags, tagError } = useSelector(
+    (state) => state.getVenues
+  );
   useEffect(() => {
     if (id) {
       dispatch(getSingleVenue(id));
@@ -273,44 +286,23 @@ const VenueInfo = () => {
   }, [id]);
 
   useEffect(() => {
-    if (venue && id && isSuccess) {
-      setInitialState({ ...initialState, ...requiredVenueFields(venue) });
-    }
-  }, [venue, id]);
+    dispatch(getUniqueVenueTags());
+  }, []);
 
   useEffect(() => {
-    const newState = { ...initialState };
+    if (venue && id && isSuccess) {
+      const values = requiredVenueFields(venue);
 
-    if (location.lat && location.lng) {
-      newState.location = {
-        type: "Point",
-        coordinates: [location.lng, location.lat],
-      };
-      setInitialState(newState);
-    }
+      setInitialState({
+        ...initialState,
+        ...values,
+        availableDays: values.availableDays,
+      });
 
-    if (location.city || location.state) {
-      newState.address = {
-        city: location.city,
-        state: location.state,
-        postalCode: location.pin_code,
-        line1: location.address_line1,
-        line2: location.address_line2,
-      };
+      setSelectedTags(values.tags);
     }
+  }, [venue, id, isSuccess]);
 
-    if (Object.keys(newState).length > 1) {
-      setInitialState(newState);
-    }
-  }, [
-    location.lat,
-    location.lng,
-    location.city,
-    location.state,
-    location.pin_code,
-    location.address_line1,
-    location.address_line2,
-  ]);
   const { uplodedData, isUploading, isUploaded } = useSelector(
     (state) => state.upload
   );
@@ -335,11 +327,14 @@ const VenueInfo = () => {
           <ErrorModal />
           <SuccessModal />
           <VenueBasicInfo />
-          <VenueAddress />
-          <VenueMetaData />
+          <VenueAddress location={location} />
+          <VenueMetaData
+            isGettingTags={isGettingTags}
+            uniqueTags={uniqueTags}
+            selectedTags={selectedTags}
+          />
           <VenueDescription />
-          <VenueAvailableDays setAllSelected={setAllSelected} />
-
+          <VenueAvailableDays />
           <VenueAmenities />
           <VenueEquipments />
           <VenueBannerImage
@@ -352,7 +347,6 @@ const VenueInfo = () => {
             uploadData={uplodedData}
             isUploading={isUploading}
           />
-
           <Button
             className="w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
             type="submit"
@@ -367,8 +361,9 @@ const VenueInfo = () => {
 };
 
 const VenueBasicInfo = () => {
+  const { setFieldValue } = useFormikContext();
   return (
-    <div className="grid grid-cols-2 gap-[30px] ">
+    <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -384,22 +379,29 @@ const VenueBasicInfo = () => {
         />
         <ErrorMessage name="name" component={TextError} />
       </div>
-      <div className="flex flex-col items-start gap-2.5">
+      <div className="flex flex-col items-start gap-2.5 w-full">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
-          htmlFor="location"
+          htmlFor="address.location"
         >
           Google Map
         </label>
 
-        <LocationSearchInput id="location" name="location" />
-        <ErrorMessage name="location.coordinates" component={TextError} />
+        <LocationSearchInput
+          id="address.location"
+          name="address.location"
+          setFieldValue={setFieldValue}
+        />
+        <ErrorMessage
+          name="address.location.coordinates"
+          component={TextError}
+        />
       </div>
     </div>
   );
 };
 
-const VenueMetaData = () => {
+const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
   const [venueHandle, setVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
   useEffect(() => {
@@ -416,7 +418,7 @@ const VenueMetaData = () => {
   }, [values.name]);
 
   return (
-    <div className="grid grid-cols-2 gap-[30px] ">
+    <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -429,35 +431,44 @@ const VenueMetaData = () => {
           id="handle"
           name="handle"
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={venueHandle}
+          onChange={(e) => {
+            setFieldValue("handle", e.target.value);
+          }}
         />
         <ErrorMessage name="handle" component={TextError} />
       </div>
-      <div className="flex flex-col items-start gap-2.5">
-        <label
-          className=" text-[#232323] text-base leading-[19.36px]"
-          htmlFor="tags"
-        >
-          Venue Tags
-        </label>
-        <Field
-          placeholder="Enter Venue Tags"
-          id="tags"
-          name="tags"
-          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onChange={(e) => {
-            const tags = e.target.value?.split(",") || "";
 
-            setFieldValue("tags", tags);
-          }}
-        />
-        <ErrorMessage name="tags" component={TextError} />
-      </div>
+      <Combopopover
+        isGettingTags={isGettingTags}
+        uniqueTags={uniqueTags}
+        setFieldValue={setFieldValue}
+        checkedTags={selectedTags}
+      />
+
+      <ErrorMessage name="tags" component={TextError} />
     </div>
   );
 };
 
-const VenueAddress = () => {
+const VenueAddress = ({ location }) => {
+  const { setFieldValue } = useFormikContext();
+  useEffect(() => {
+    if (location.city || location.state) {
+      setFieldValue("address.line1", location?.address_line1);
+      setFieldValue("address.line2", location.address_line2);
+      setFieldValue("address.city", location.city);
+      setFieldValue("address.state", location.state);
+      setFieldValue("address.postalCode", location.pin_code);
+    }
+  }, [
+    location.lat,
+    location.lng,
+    location.city,
+    location.state,
+    location.pin_code,
+    location.address_line1,
+    location.address_line2,
+  ]);
   return (
     <div className="flex flex-col items-start gap-2.5">
       <p className=" text-base leading-[19.36px] text-[#232323]">
@@ -542,17 +553,30 @@ const VenueAddress = () => {
 };
 
 const VenueDescription = () => {
+  const { values, setFieldValue } = useFormikContext();
+
+  useEffect(() => {
+    if (values.description) {
+      setFieldValue("description", values.description);
+    }
+  }, [values.description]);
+
   return (
     <div className="grid grid-cols-1 gap-2 items-start">
       <p className=" text-[#232323] text-base leading-[19.36px] justify-self-start">
         Description
       </p>
-      <Field
+
+      <ReactQuill
+        theme="snow"
         id="description"
         name="description"
-        placeholder="Enter Venue Description"
-        className=" px-[19px] pt-[16px] h-[170px] border-[1px] border-[#DFEAF2] rounded-[15px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-        as="textarea"
+        placeholder="Enter Tournament Description"
+        onChange={(e) => {
+          setFieldValue("description", e);
+        }}
+        className="custom-quill"
+        value={values.description}
       />
       <ErrorMessage
         name="description"
@@ -563,31 +587,80 @@ const VenueDescription = () => {
   );
 };
 
-const VenueAvailableDays = ({ setAllSelected }) => {
-  const { values, setFieldValue, errors } = useFormikContext();
+const VenueAvailableDays = () => {
+  const { values, setFieldValue } = useFormikContext();
+  const handleToggle = useCallback(
+    (day, index) => {
+      if (day === "All days") {
+        const newAllDaysActive = !values.availableDays[index].active;
+        setFieldValue(`availableDays[${index}].active`, newAllDaysActive);
+        console.log(" new All days active", newAllDaysActive);
+
+        if (newAllDaysActive) {
+          const allDaysTimes = {
+            openingTime: values.availableDays[index].openingTime,
+            closingTime: values.availableDays[index].closingTime,
+          };
+
+          values.availableDays.forEach((_, i) => {
+            if (i !== index) {
+              setFieldValue(`availableDays[${i}].active`, true);
+              setFieldValue(
+                `availableDays[${i}].openingTime`,
+                allDaysTimes.openingTime
+              );
+              setFieldValue(
+                `availableDays[${i}].closingTime`,
+                allDaysTimes.closingTime
+              );
+            }
+          });
+        }
+      } else {
+        const newActive = !values.availableDays[index].active;
+        setFieldValue(`availableDays[${index}].active`, newActive);
+      }
+    },
+    [setFieldValue, values.availableDays]
+  );
+
   useEffect(() => {
-    if (
-      values.allDaysSelected &&
-      (values.globalOpeningTime || values.globalClosingTime)
-    ) {
-      updateAllDays();
+    const allDaysIndex = values.availableDays.findIndex(
+      (day) => day.day === "All days"
+    );
+    if (allDaysIndex === -1) return;
+
+    const allDaysEntry = values.availableDays[allDaysIndex];
+    const individualDays = values.availableDays.filter(
+      (day) => day.day !== "All days"
+    );
+
+    const isAnyDayNotActive = individualDays.some((day) => !day.active);
+
+    if (allDaysEntry.active) {
+      values.availableDays.forEach((_, index) => {
+        if (index !== allDaysIndex) {
+          setFieldValue(
+            `availableDays[${index}].openingTime`,
+            allDaysEntry.openingTime
+          );
+          setFieldValue(
+            `availableDays[${index}].closingTime`,
+            allDaysEntry.closingTime
+          );
+        }
+      });
+
+      if (isAnyDayNotActive) {
+        setFieldValue(`availableDays[${allDaysIndex}].active`, false);
+      }
     }
   }, [
-    values.allDaysSelected,
-    values.globalOpeningTime,
-    values.globalClosingTime,
+    values.availableDays[0].openingTime,
+    values.availableDays[0].closingTime,
+    values.availableDays,
   ]);
-  const updateAllDays = () => {
-    if (!values.allDaysSelected) return;
 
-    const updatedDays = values.availableDays.map((day) => ({
-      ...day,
-      openingTime: values.globalOpeningTime,
-      closingTime: values.globalClosingTime,
-    }));
-
-    setFieldValue("availableDays", updatedDays);
-  };
   return (
     <div className="flex flex-col items-start gap-2.5">
       <p className=" text-[#232323] text-base leading-[19.36px]">
@@ -597,124 +670,57 @@ const VenueAvailableDays = ({ setAllSelected }) => {
       <FieldArray name="availableDays">
         {({ form, remove, push }) => {
           return (
-            <>
-              <div className="grid grid-cols-2 w-full">
-                <div className="flex gap-2.5 items-center">
-                  <Field
-                    type="checkbox"
-                    checked={form.values.allDaysSelected}
-                    id="allDaysSelected"
-                    name="allDaysSelected"
-                    className="w-4 h-4 outline-none"
-                    onChange={(e) => {
-                      setAllSelected(e.target.checked);
-                      form.setFieldValue("allDaysSelected", e.target.checked);
-                    }}
-                  ></Field>
-                  <label htmlFor="allDaysSelected">Select All days</label>
-                </div>
-                {form?.values?.allDaysSelected && (
-                  <div className="grid grid-cols-2 w-full gap-2.5">
-                    <label className="flex flex-col items-start gap-2.5">
-                      Opening Time
-                      <Field
-                        type="time"
-                        name="globalOpeningTime"
-                        className="w-full px-3 py-2 border rounded"
-                        onChange={(e) => {
-                          form.setFieldValue(
-                            "globalOpeningTime",
-                            e.target.value
-                          );
-                        }}
-                      />
-                      <ErrorMessage
-                        name="globalOpeningTime"
-                        component={TextError}
-                      />
-                    </label>
-
-                    <label className="flex flex-col items-start gap-2.5">
-                      Closing Time
-                      <Field
-                        type="time"
-                        name="globalClosingTime"
-                        className="w-full px-3 py-2 border rounded"
-                        onChange={(e) => {
-                          form.setFieldValue(
-                            "globalClosingTime",
-                            e.target.value
-                          );
-                        }}
-                      />
-                      <ErrorMessage
-                        name="globalClosingTime"
-                        component={TextError}
-                      />
-                    </label>
-                  </div>
-                )}
-              </div>
-
-              {!form.values.allDaysSelected && (
-                <div className="grid grid-cols-1 gap-2.5 w-full border rounded-[10px] border-[#DFEAF2] p-[20px] ">
-                  {form?.values?.availableDays.map((dayObj, index) => (
-                    <div
-                      key={index}
-                      className="grid md:grid-cols-1 lg:grid-cols-3 gap-[10px] items-start "
+            <div className="grid grid-cols-1 gap-2.5 w-full border rounded-[10px] border-[#DFEAF2] p-[20px] ">
+              {form?.values?.availableDays.map((dayObj, index) => (
+                <div
+                  key={index}
+                  className="grid md:grid-cols-1 lg:grid-cols-3 gap-[10px] items-center "
+                >
+                  <div className="flex gap-2.5">
+                    <Switch
+                      checked={dayObj.active}
+                      onChange={() => {
+                        handleToggle(dayObj.day, index);
+                      }}
+                      className="group relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 data-[checked]:bg-indigo-600"
                     >
-                      <label className="flex flex-col items-start gap-2.5 justify-center">
-                        Day
-                        <Field
-                          as="select"
-                          name={`availableDays[${index}].day`}
-                          className="w-full px-3 py-2 border rounded"
-                        >
-                          <option value="">Select Day</option>
-                          <option value="monday">Monday</option>
-                          <option value="tuesday">Tuesday</option>
-                          <option value="wednesday">Wednesday</option>
-                          <option value="thursday">Thursday</option>
-                          <option value="friday">Friday</option>
-                          <option value="saturday">Saturday</option>
-                          <option value="sunday">Sunday</option>
-                        </Field>
-                        <ErrorMessage
-                          name={`availableDays[${index}].day`}
-                          component={TextError}
-                        />
-                      </label>
-
-                      <label className="flex flex-col items-start gap-2.5 justify-center">
-                        Opening Time
-                        <Field
-                          type="time"
-                          name={`availableDays[${index}].openingTime`}
-                          className="w-full px-3 py-2 border rounded"
-                        />
-                        <ErrorMessage
-                          name={`availableDays[${index}].openingTime`}
-                          component={TextError}
-                        />
-                      </label>
-
-                      <label className="flex flex-col items-start gap-2.5">
-                        Closing Time
-                        <Field
-                          type="time"
-                          name={`availableDays[${index}].closingTime`}
-                          className="w-full px-3 py-2 border rounded"
-                        />
-                        <ErrorMessage
-                          name={`availableDays[${index}].closingTime`}
-                          component={TextError}
-                        />
-                      </label>
-                    </div>
-                  ))}
+                      <span className="sr-only">Use setting</span>
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out group-data-[checked]:translate-x-5"
+                      />
+                    </Switch>
+                    <p>{dayObj.day}</p>
+                  </div>
+                  <label className="flex flex-col items-start gap-2.5 justify-center">
+                    Opening Time
+                    <Field
+                      type="time"
+                      name={`availableDays[${index}].openingTime`}
+                      className="w-full px-3 py-2 border rounded"
+                      disabled={!dayObj.active}
+                    />
+                    <ErrorMessage
+                      name={`availableDays[${index}].openingTime`}
+                      component={TextError}
+                    />
+                  </label>
+                  <label className="flex flex-col items-start gap-2.5">
+                    Closing Time
+                    <Field
+                      type="time"
+                      name={`availableDays[${index}].closingTime`}
+                      className="w-full px-3 py-2 border rounded"
+                      disabled={!dayObj.active}
+                    />
+                    <ErrorMessage
+                      name={`availableDays[${index}].closingTime`}
+                      component={TextError}
+                    />
+                  </label>
                 </div>
-              )}
-            </>
+              ))}
+            </div>
           );
         }}
       </FieldArray>
@@ -835,12 +841,34 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
     const uploadedFile = e.target.files[0];
     if (!uploadedFile.type.startsWith("image/")) {
       setFieldError("bannerImages", "File should be a valid image type.");
+      dispatch(
+        showError({
+          message: "File should be a valid image type.",
+          onClose: "hideError",
+        })
+      );
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    if (values.bannerImages.length === 4) {
+      dispatch(
+        showError({
+          message: "You can add up to 4 images only.",
+          onClose: "hideError",
+        })
+      );
+      return;
+    }
+
+    const maxSize = venueImageSize;
     if (uploadedFile.size > maxSize) {
       setFieldError("bannerImages", "File should be less than 1 MB");
+      dispatch(
+        showError({
+          message: "File should be less than 1 MB.",
+          onClose: "hideError",
+        })
+      );
       return;
     }
     try {
@@ -848,9 +876,9 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
 
       setPreviews((prev) => [
         ...prev,
-        { preview: result.data.uploadedFileUrl },
+        { preview: result?.data?.url },
       ]);
-      const url = result.data.uploadedFileUrl;
+      const url = result?.data?.url;
       setFieldValue("bannerImages", [...values.bannerImages, { url }]);
     } catch (err) {
       setErrorMessage(err.data?.message);
@@ -858,6 +886,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
       setFieldError("bannerImages", err.data.message);
     }
   };
+
   return (
     <div className=" flex flex-col items-start gap-2.5">
       <p className="text-base leading-[19.36px] text-[#232323]">Upload Image</p>
@@ -875,6 +904,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
                 alt={`Venue upload ${index + 1}`}
                 className=" object-scale-down rounded h-full w-[223px]"
               />
+
               {previews[index]?.preview && (
                 <IoIosCloseCircleOutline
                   className="absolute right-0 w-6 h-6 z-100 text-black  cursor-pointer "
@@ -897,6 +927,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
             </p>
 
             <p className="text-xs text-[#353535] mt-1">(Max. File size: 1MB)</p>
+
             <FieldArray name="bannerImages">
               {({ form, field, meta, push }) => (
                 <input
@@ -948,7 +979,17 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading }) => {
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    if (values.layoutImages.length === 4) {
+      dispatch(
+        showError({
+          message: "You can add up to 4 images only.",
+          onClose: "hideError",
+        })
+      );
+      return;
+    }
+
+    const maxSize = venueImageSize;
     if (uploadedFile.size > maxSize) {
       setFieldError("layoutImages", "File should be less than 1 MB");
       return;
@@ -957,9 +998,9 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading }) => {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
       setPreviews((prev) => [
         ...prev,
-        { preview: result.data.uploadedFileUrl },
+        { preview: result?.data?.url },
       ]);
-      const url = result.data.uploadedFileUrl;
+      const url = result?.data?.url;
       setFieldValue("layoutImages", [...values.layoutImages, { url }]);
     } catch (err) {
       setErrorMessage(err.data?.message);
