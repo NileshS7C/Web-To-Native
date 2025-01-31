@@ -1,13 +1,15 @@
-import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import PropTypes from "prop-types";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+
 import Button from "../Common/Button";
 import {
   confirmSubmission,
   setIsConfirmed,
   setRejectionComments,
 } from "../../redux/tournament/addTournament";
-import { useCallback, useEffect, useState } from "react";
-import PropTypes from "prop-types";
 
 export const ConfirmationModalTour = ({
   isOpen,
