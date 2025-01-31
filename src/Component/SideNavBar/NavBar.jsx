@@ -7,34 +7,40 @@ import {
 import { setNavigation } from "../../redux/NavBar/navSlice";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { userLogout } from "../../redux/Authentication/authActions";
+import { useEffect, useState } from "react";
+
+
+
 export const NavBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [cookies] = useCookies("userRole");
-  let naviagtionBar;
+  const [cookies] = useCookies(["userRole"]);
+  const [navigationBar, setNavigationBar] = useState(ADMIN_NAVIGATION);
 
-  const userRole = cookies?.userRole;
-  switch (userRole) {
-    case "SUPER_ADMIN":
-      naviagtionBar = ADMIN_NAVIGATION;
-      break;
-    case "ADMIN":
-      naviagtionBar = ADMIN_NAVIGATION;
-      break;
-    case "TOURNAMENT_OWNER":
-      naviagtionBar = TOURNAMENT_OWNER_NAVIGATION;
-      break;
-    case "VENUE_OWNER":
-      naviagtionBar = VENUE_OWNER_NAVIGATION;
-      break;
-    default:
-      dispatch(userLogout());
-  }
+  useEffect(() => {
+    if (cookies?.userRole) {
+      switch (cookies.userRole) {
+        case "SUPER_ADMIN":
+          setNavigationBar(ADMIN_NAVIGATION);
+          break;
+        case "ADMIN":
+          setNavigationBar(ADMIN_NAVIGATION);
+          break;
+        case "TOURNAMENT_OWNER":
+          setNavigationBar(TOURNAMENT_OWNER_NAVIGATION);
+
+          break;
+        case "VENUE_OWNER":
+          setNavigationBar(VENUE_OWNER_NAVIGATION);
+
+          break;
+      }
+    }
+  }, [cookies?.userRole]);
 
   return (
     <div className="grid grid-rows-6 gap-2 auto-rows-[60px] justify-items-start px-[10px] text-md font-normal text-[#232323] bg-[#FFFFFF]">
-      {naviagtionBar.map((menu, index) => (
+      {navigationBar?.map((menu, index) => (
         <div
           key={menu?.name}
           className={`flex items-center gap-2 py-[15px] px-[16px] ${
@@ -42,7 +48,11 @@ export const NavBar = () => {
           }`}
         >
           <div className="flex items-center gap-2">
-            <img src={menu.icon} alt={menu.name.toLowerCase()} className="fill-black"/>
+            <img
+              src={menu.icon}
+              alt={menu.name.toLowerCase()}
+              className="fill-black"
+            />
             <button
               onClick={() => {
                 dispatch(setNavigation(menu.name));

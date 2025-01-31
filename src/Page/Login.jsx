@@ -8,10 +8,10 @@ import { userLogin } from "../redux/Authentication/authActions";
 import Button from "../Component/Common/Button";
 import TextError from "../Component/Error/formError";
 import { useNavigate } from "react-router-dom";
-import { cleanUpSuccess, showSuccess } from "../redux/Success/successSlice";
 import { ErrorModal } from "../Component/Common/ErrorModal";
 import { SuccessModal } from "../Component/Common/SuccessModal";
 import { cleanUpError, showError } from "../redux/Error/errorSlice";
+import { useCookies } from "react-cookie";
 
 const LogInForm = ({ formData, formError }) => {
   const [email, setEmail] = useState("");
@@ -151,17 +151,17 @@ const LogInForm = ({ formData, formError }) => {
 };
 
 const Login = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
   });
-  const { accessToken, refreshToken, isSuccess } = useSelector(
-    (state) => state.auth
-  );
 
   const [isValidationError, setIsValidationError] = useState(false);
+
   const formError = useCallback((data) => {
     setIsValidationError(data);
   }, []);
@@ -179,18 +179,9 @@ const Login = () => {
     if (isValidationError) return;
     try {
       await dispatch(userLogin(loginData)).unwrap();
-      dispatch(
-        showSuccess({
-          message: "Logged in successfully",
-          onClose: "hideSuccess",
-        })
-      );
-
-      setTimeout(() => {
-        navigate("/venues", {
-          replace: true,
-        });
-      }, 2000);
+      navigate("/", {
+        replace: true,
+      });
     } catch (error) {
       dispatch(
         showError({
@@ -226,4 +217,16 @@ const Login = () => {
   );
 };
 
-export default Login;
+const WrapperLogin = () => {
+  const [cookies] = useCookies(["refreshToken"]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (cookies?.refreshToken) {
+      navigate("/");
+    }
+  }, []);
+
+  return <>{!cookies?.refreshToken && <Login />}</>;
+};
+
+export default WrapperLogin;
