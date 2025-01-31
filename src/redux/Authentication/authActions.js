@@ -93,7 +93,7 @@ export const userLogout = createAsyncThunk(
         },
       };
 
-      await axiosInstance.delete("/users/auth/logout", config);
+      await axiosInstance.post("/users/auth/logout", config);
       cookies.remove("refreshToken", { path: "/" });
       cookies.remove("userRole", { path: "/" });
       cookies.remove("name", { path: "/" });
