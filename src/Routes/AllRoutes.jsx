@@ -28,8 +28,14 @@ const AllRoutes = () => {
         >
           <Route
             index
-            element={<NotCreated message="Welcome to oms of the picklebay" />}
-          ></Route>
+            element={
+              <NotCreated
+                message="Currently Nothing to display. Will update soon!"
+                buttonText=""
+                disable={true}
+              />
+            }
+          />
           <Route path="tournaments">
             <Route index element={<TournamentListing />} />
             <Route path="add">
@@ -61,7 +67,7 @@ const AllRoutes = () => {
               index
               element={
                 <NotCreated
-                  message="Currenlty No venue organisers are present. Please create the venue organisers to get started."
+                  message="Currently No venue organisers are present. Please create the venue organisers to get started."
                   buttonText="Add Venue Organiser"
                   disable={true}
                 />
@@ -73,7 +79,7 @@ const AllRoutes = () => {
               index
               element={
                 <NotCreated
-                  message="Currenlty No tournament organisers are present. Please create the tournament organisers to get started."
+                  message="Currently No tournament organisers are present. Please create the tournament organisers to get started."
                   buttonText="Add Tournament Organiser"
                   disable={true}
                 />
@@ -85,7 +91,7 @@ const AllRoutes = () => {
               index
               element={
                 <NotCreated
-                  message="Currenlty No tournament bookings are present."
+                  message="Currently No tournament bookings are present."
                   buttonText=""
                   disable={true}
                 />
@@ -97,7 +103,7 @@ const AllRoutes = () => {
               index
               element={
                 <NotCreated
-                  message="Currenlty No court bookings are present."
+                  message="Currently No court bookings are present."
                   buttonText=""
                   disable={true}
                 />
@@ -109,21 +115,8 @@ const AllRoutes = () => {
               index
               element={
                 <NotCreated
-                  message="Currenlty No users are present. Please create the users to get started."
+                  message="Currently No users are present. Please create the users to get started."
                   buttonText="Add User"
-                  disable={true}
-                />
-              }
-            />
-          </Route>
-
-          <Route path="dashboard">
-            <Route
-              index
-              element={
-                <NotCreated
-                  message="Currenlty Nothing to display. Will update soon!"
-                  buttonText=""
                   disable={true}
                 />
               }
