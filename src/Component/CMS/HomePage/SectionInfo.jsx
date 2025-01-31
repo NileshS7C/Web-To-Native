@@ -1,18 +1,61 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PencilIcon } from "@heroicons/react/20/solid";
 import SwitchToggle from "./SwitchToggle";
 
 export default function SectionInfo({ sectionInfo }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [sectionTitle, setSectionTitle] = useState(sectionInfo.title);
-  const [showSection, setShowSection] = useState(sectionInfo.showSection);
+  const [sectionDetails, setSectionDetails] = useState([]);
 
-  const handleSave = () => {
+  useEffect(() => {
+    setSectionDetails({
+      sectionTitle: sectionInfo.sectionTitle,
+      isVisible: sectionInfo.isVisible,
+      features: sectionInfo.features || [],
+    });
+  }, [sectionInfo])
+  
+  const handleSave = async () => {
     setIsEditing(false);
+
+    const hasChanged = sectionDetails.sectionTitle !== sectionInfo.sectionTitle || sectionDetails.isVisible !== sectionInfo.isVisible;
+
+    if (!hasChanged) {
+      console.log("No changes detected. API call skipped.");
+      return;
+    }
+
+    const updatedFeatures = sectionDetails.features.map(({ _id, ...rest }) => rest);
+
+    const updatedData = {
+      sectionTitle: sectionDetails.sectionTitle,
+      isVisible: sectionDetails.isVisible,
+      features: updatedFeatures,
+    };
+
+    try {
+      const response = await fetch(
+        "http://localhost:1234/api/admin/homepage-sections/explore",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
+      console.log('updatedData', updatedData)
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const result = await response.json();
+      console.log("Update successful:", result);
+    } catch (error) {
+      console.error("Error updating section:", error);
+    }
   };
 
   return (
-    <div className="px-6 py-4 relative w-[60%] shadow-md rounded-lg border border-gray-300">
+    <div className="px-6 py-4 relative w-[60%] shadow-md rounded-lg border border-gray-300 bg-white">
       <button
         className="absolute top-1 right-1 text-gray-600 hover:text-gray-800"
         onClick={() => setIsEditing(!isEditing)}
@@ -25,27 +68,34 @@ export default function SectionInfo({ sectionInfo }) {
           {isEditing ? (
             <input
               type="text"
-              value={sectionTitle}
-              onChange={(e) => setSectionTitle(e.target.value)}
+              value={sectionDetails?.sectionTitle}
+              onChange={(e) =>
+                setSectionDetails({ ...sectionDetails, sectionTitle: e.target.value })
+              }
               className="w-40 border rounded p-1"
             />
           ) : (
-            <span className="text-gray-900">{sectionTitle}</span>
+            <span className="text-gray-900">{sectionDetails?.sectionTitle}</span>
           )}
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-700 font-semibold">Show Section:</span>
           {isEditing ? (
             <SwitchToggle
-              enabled={showSection} 
-              onChange={setShowSection} 
+              enabled={sectionDetails?.isVisible}
+              onChange={(value) =>
+                setSectionDetails({ ...sectionDetails, isVisible: value })
+              }
             />
           ) : (
-            <span className="text-gray-900">{showSection ? "Yes" : "No"}</span>
+            <span className="text-gray-900">{sectionDetails?.isVisible ? "Yes" : "No"}</span>
           )}
         </div>
         {isEditing && (
-          <button onClick={handleSave} className="w-full mt-2 bg-blue-500 text-white p-2 rounded">
+          <button
+            onClick={handleSave}
+            className="w-full mt-2 bg-blue-500 text-white p-2 rounded"
+          >
             Save
           </button>
         )}

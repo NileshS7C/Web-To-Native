@@ -14,6 +14,8 @@ import Explore from "../Page/CMS/Homepage/Explore";
 import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
 import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
 import FeaturedVenues from "../Page/CMS/Homepage/FeaturedVenues";
+import FAQ from "../Page/CMS/StaticPages/FAQ";
+
 
 const AllRoutes = () => {
   return (
@@ -33,6 +35,7 @@ const AllRoutes = () => {
           <Route path="cms/homepage/featured-tournaments" element={<FeaturedTournaments />} />
           <Route path="cms/homepage/featured-week" element={<FeaturedWeek />} />
           <Route path="cms/homepage/featured-venues" element={<FeaturedVenues />} />
+          <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
 
           <Route path="venues">
             <Route index element={<VenueListing />} />

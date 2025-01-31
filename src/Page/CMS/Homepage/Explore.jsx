@@ -1,22 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AddDataModal from "../../../Component/CMS/HomePage/AddDataModal";
 import ContentTable from "../../../Component/CMS/HomePage/ContentTable";
 import SectionInfo from "../../../Component/CMS/HomePage/SectionInfo";
-
-const people = [
-    { position: "1", title: "Learn", description: "Explore curated Picklebay content", redirect: "https://google.com" },
-    { position: "2", title: "Games", description: "Create and join community games", redirect: "https://google.com" },
-];
+// import SpinnerLoader from "../../../Assests/Spinner";
 
 export default function Explore() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // Create an object to hold section info values
-    const sectionInfo = {
-        title: "Sample Title", // default section title
-        showSection: true, // default state for showing section
+    const [exploreData, setExploreData] = useState([]);
+    const fetchHomepageSections = async () => {
+        try {
+            const response = await fetch("http://localhost:1234/api/admin/homepage-sections?section=explore", { method: "GET" });
+            const result = await response.json();
+            setExploreData(result.data[0])
+            console.log('result', result.data[0].features);
+        } catch (error) {
+            console.error(error);
+        }
     };
-
+    useEffect(() => { fetchHomepageSections() }, [])
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:flex-col gap-4">
@@ -24,7 +25,7 @@ export default function Explore() {
                     <h1 className="text-base font-semibold text-gray-900">Explore Picklebay</h1>
                 </div>
                 <div className="flex items-center gap-4 w-full">
-                    <SectionInfo sectionInfo={sectionInfo} />
+                    <SectionInfo sectionInfo={exploreData} />
                     <div className="w-[40%] flex justify-end">
                         <button
                             type="button"
@@ -38,14 +39,14 @@ export default function Explore() {
             </div>
             <div className="mt-8 flow-root">
                 <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                        <ContentTable data={people} />
+                    <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8 ">
+                        <ContentTable data={exploreData.features} fetchHomepageSections={fetchHomepageSections}/>
                     </div>
                 </div>
             </div>
 
             {/* Pass isOpen and onClose to AddDataModal */}
-            <AddDataModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <AddDataModal data={exploreData} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchHomepageSections}/>
         </div>
     );
 }

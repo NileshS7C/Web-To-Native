@@ -37,16 +37,32 @@ export const ADMIN_NAVIGATION = [
   { name: "User", icon: profileIcon },
   {
     name: "CMS",
-    icon: profileIcon,
+    // icon: profileIcon,
     children: [
       {
         name: "Homepage",
         children: [
-          { name: "Explore", icon: profileIcon },
-          { name: "Featured Tournaments", icon: profileIcon },
-          { name: "Featured Week", icon: profileIcon },
-          { name: "Featured Venues", icon: profileIcon },
-
+          { name: "Explore"},
+          { name: "Featured Tournaments"},
+          { name: "Featured Week"},
+          { name: "Featured Venues"},
+          { name: "Why Choose Picklebay"},
+          { name: "Destination Dink"},
+          { name: "Journal"},
+        ],
+      },
+      {
+        name: "Blogs",
+        children: [
+          { name: "Test"},
+        ],
+      },
+      {
+        name: "Static Pages",
+        children: [
+          { name: "Help & Faqs"},
+          { name: "Terms & Condition"},
+          { name: "Refunds & Cancellation"},
         ],
       },
     ],
