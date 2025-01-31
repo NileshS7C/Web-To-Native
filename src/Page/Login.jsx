@@ -179,7 +179,7 @@ const Login = () => {
     if (isValidationError) return;
     try {
       await dispatch(userLogin(loginData)).unwrap();
-      navigate("/venues", {
+      navigate("/", {
         replace: true,
       });
     } catch (error) {
