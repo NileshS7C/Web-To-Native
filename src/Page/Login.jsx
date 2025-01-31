@@ -12,6 +12,7 @@ import { cleanUpSuccess, showSuccess } from "../redux/Success/successSlice";
 import { ErrorModal } from "../Component/Common/ErrorModal";
 import { SuccessModal } from "../Component/Common/SuccessModal";
 import { cleanUpError, showError } from "../redux/Error/errorSlice";
+import { useCookies } from "react-cookie";
 
 const LogInForm = ({ formData, formError }) => {
   const [email, setEmail] = useState("");
@@ -151,8 +152,11 @@ const LogInForm = ({ formData, formError }) => {
 };
 
 const Login = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [cookies] = useCookies(["refreshToken"]);
+
+  const dispatch = useDispatch();
+
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
@@ -162,6 +166,7 @@ const Login = () => {
   );
 
   const [isValidationError, setIsValidationError] = useState(false);
+
   const formError = useCallback((data) => {
     setIsValidationError(data);
   }, []);
@@ -173,6 +178,12 @@ const Login = () => {
       password,
     }));
   }, []);
+
+  useEffect(() => {
+    if (cookies?.refreshToken) {
+      navigate("/");
+    }
+  }, [cookies?.refreshToken]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -18,7 +18,7 @@ import NotFound from "../Component/Common/NotFound";
 import { useCookies } from "react-cookie";
 
 const AllRoutes = () => {
-  const [cookies] = useCookies(["refreshToken"]);
+  
   return (
     <div>
       <Routes>
@@ -57,7 +57,7 @@ const AllRoutes = () => {
           </Route>
         </Route>
 
-        {!cookies?.refreshToken && <Route path="/login" element={<Login />} />}
+        <Route path="/login" element={<Login />} />
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </div>
