@@ -14,7 +14,7 @@ const authSlice = createSlice({
     errorMessage: "",
     userPermissions: null,
     accessToken: null,
-    refreshToken: cookies.get("refreshToken") || null,
+    refreshToken: cookies?.get("refreshToken"),
     userRole: null,
     isLoggedOut: false,
     isUserAuthenticated: false,

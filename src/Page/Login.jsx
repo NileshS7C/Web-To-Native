@@ -179,18 +179,9 @@ const Login = () => {
     if (isValidationError) return;
     try {
       await dispatch(userLogin(loginData)).unwrap();
-      dispatch(
-        showSuccess({
-          message: "Logged in successfully",
-          onClose: "hideSuccess",
-        })
-      );
-
-      setTimeout(() => {
-        navigate("/venues", {
-          replace: true,
-        });
-      }, 2000);
+      navigate("/venues", {
+        replace: true,
+      });
     } catch (error) {
       dispatch(
         showError({

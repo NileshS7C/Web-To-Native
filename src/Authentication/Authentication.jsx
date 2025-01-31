@@ -6,8 +6,7 @@ import { useSelector } from "react-redux";
 const Authentication = ({ children }) => {
   const [cookies] = useCookies(["refreshToken"]);
   const { accessToken } = useSelector((state) => state.auth);
-
-  if (cookies.refreshToken || accessToken) {
+  if (cookies?.refreshToken || accessToken) {
     return children;
   }
   return <Navigate to="/login" replace />;
