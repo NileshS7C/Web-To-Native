@@ -31,7 +31,6 @@ const Layout = () => {
 
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
-  console.log("pathname", location.pathname);
 
   const currentTitle = getPageTitle(
     location.pathname,

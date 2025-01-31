@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const NotCreated = ({ message, buttonText, type, disable = false }) => {
   const navigate = useNavigate();
-  const handleAddTournament = () => {
+  const handleRoutingThroughButton = () => {
     if (type === "tournament") {
       navigate("/tournaments/add");
     } else if (type === "venue") {
@@ -15,7 +15,7 @@ const NotCreated = ({ message, buttonText, type, disable = false }) => {
       <h1 className="mb-30 text-[22px] font-normal">{message}</h1>
       {buttonText && (
         <Button
-          onClick={handleAddTournament}
+          onClick={handleRoutingThroughButton}
           disable={disable}
           className="px-4 py-2 rounded text-[#FFFFFF] disabled:bg-blue-200"
         >
