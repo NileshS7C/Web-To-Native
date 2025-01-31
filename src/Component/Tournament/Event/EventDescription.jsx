@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { getSingleCategory } from "../../../redux/tournament/tournamentActions";
@@ -205,6 +206,27 @@ const EventLocationAndImage = ({ image, address }) => {
       )}
     </>
   );
+};
+EventNameAndDate.propTypes = {
+  name: PropTypes.string,
+  format: PropTypes.string,
+  maxPlayer: PropTypes.number,
+};
+
+EventFormatAndCategory.propTypes = {
+  date: PropTypes.string,
+  category: PropTypes.string,
+  minPlayer: PropTypes.number,
+};
+
+EventPlayers.propTypes = {
+  fee: PropTypes.number,
+  skillLevel: PropTypes.string,
+};
+
+EventLocationAndImage.propTypes = {
+  image: PropTypes.string,
+  address: PropTypes.object,
 };
 
 export default EventDescription;
