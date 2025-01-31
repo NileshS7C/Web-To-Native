@@ -17,7 +17,7 @@ export { default as loginImage } from "./Login/pickleBay_login.png";
 export { default as venueUploadImage } from "./Venue/uploadIcon.svg";
 export { default as overviewIcon } from "./Tournament/overview.svg";
 export { default as bookingIcon } from "./Tournament/bookings.svg";
-export { default as venueIcon } from "./Tournament/venue.svg";
+export { default as venueIcon } from "./Venue/venues.svg";
 export { default as EditIcon } from "./Venue/edit.svg";
 export { default as ViewIcon } from "./Venue/view.svg";
 export { default as DeleteIcon } from "./Venue/delete.svg";

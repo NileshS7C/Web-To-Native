@@ -28,11 +28,27 @@ export const menus = [
 
 export const ADMIN_NAVIGATION = [
   { name: "DashBoard", icon: overviewIcon },
-  { name: "Tournament Org", icon: tournamentIcon },
-  { name: "Venue Org", icon: eventsIcon },
+  { name: "Tournament Organiser", icon: tournamentIcon },
+  { name: "Venue Organisers", icon: eventsIcon },
   { name: "Tournament Bookings", icon: bookingIcon },
   { name: "Court Bookings", icon: bookingIcon },
   { name: "Tournaments", icon: tournamentIcon },
+  { name: "Venues", icon: venueIcon },
+  { name: "User", icon: profileIcon },
+];
+
+export const TOURNAMENT_OWNER_NAVIGATION = [
+  { name: "DashBoard", icon: overviewIcon },
+  { name: "Tournament Organiser", icon: tournamentIcon },
+  { name: "Tournament Bookings", icon: bookingIcon },
+  { name: "Tournaments", icon: tournamentIcon },
+  { name: "User", icon: profileIcon },
+];
+
+export const VENUE_OWNER_NAVIGATION = [
+  { name: "DashBoard", icon: overviewIcon },
+  { name: "Venue Organisers", icon: eventsIcon },
+  { name: "Court Bookings", icon: bookingIcon },
   { name: "Venues", icon: venueIcon },
   { name: "User", icon: profileIcon },
 ];
