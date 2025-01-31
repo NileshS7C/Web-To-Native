@@ -8,7 +8,6 @@ import { userLogin } from "../redux/Authentication/authActions";
 import Button from "../Component/Common/Button";
 import TextError from "../Component/Error/formError";
 import { useNavigate } from "react-router-dom";
-import { cleanUpSuccess, showSuccess } from "../redux/Success/successSlice";
 import { ErrorModal } from "../Component/Common/ErrorModal";
 import { SuccessModal } from "../Component/Common/SuccessModal";
 import { cleanUpError, showError } from "../redux/Error/errorSlice";
@@ -153,7 +152,6 @@ const LogInForm = ({ formData, formError }) => {
 
 const Login = () => {
   const navigate = useNavigate();
-  const [cookies] = useCookies(["refreshToken"]);
 
   const dispatch = useDispatch();
 
@@ -161,9 +159,6 @@ const Login = () => {
     email: "",
     password: "",
   });
-  const { accessToken, refreshToken, isSuccess } = useSelector(
-    (state) => state.auth
-  );
 
   const [isValidationError, setIsValidationError] = useState(false);
 
@@ -178,12 +173,6 @@ const Login = () => {
       password,
     }));
   }, []);
-
-  useEffect(() => {
-    if (cookies?.refreshToken) {
-      navigate("/");
-    }
-  }, [cookies?.refreshToken]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -228,4 +217,16 @@ const Login = () => {
   );
 };
 
-export default Login;
+const WrapperLogin = () => {
+  const [cookies] = useCookies(["refreshToken"]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (cookies?.refreshToken) {
+      navigate("/");
+    }
+  }, []);
+
+  return <>{!cookies?.refreshToken && <Login />}</>;
+};
+
+export default WrapperLogin;

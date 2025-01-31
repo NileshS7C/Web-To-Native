@@ -14,8 +14,9 @@ import TournamentCreationForm from "../Component/Tournament/TournamentNav";
 import TournamentListing from "../Component/Tournament/TournamentListing";
 import EventDetailPage from "../Component/Tournament/Event/EventDetails";
 import NotFound from "../Component/Common/NotFound";
+import WrapperLogin from "../Page/Login";
 
-import { useCookies } from "react-cookie";
+
 
 const AllRoutes = () => {
   
@@ -57,7 +58,7 @@ const AllRoutes = () => {
           </Route>
         </Route>
 
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<WrapperLogin />} />
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </div>
