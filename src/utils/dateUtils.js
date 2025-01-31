@@ -7,8 +7,16 @@ const formattedDate = (date) => {
 };
 
 const parseDate = (date) => {
-  const [day, month, year] = date.split("/").map(Number);
+  const [day, month, year] = date?.split("/")?.map(Number);
   return new Date(year, month - 1, day);
 };
 
-export { formattedDate, parseDate };
+const formatURL = (params) => {
+  return Object.entries(params)
+    .map(([key, value]) => {
+      return `${key}=${value}`;
+    })
+    .join("&");
+};
+
+export { formattedDate, parseDate, formatURL };

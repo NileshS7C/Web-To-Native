@@ -1,19 +1,24 @@
+import PropTypes from "prop-types";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { getAllCategories } from "../../../redux/tournament/tournamentActions";
+
 import Button from "../../Common/Button";
 import {
   onPageChangeEvent,
   toggleModal,
 } from "../../../redux/tournament/eventSlice";
-import { useEffect } from "react";
-import { getAllCategories } from "../../../redux/tournament/tournamentActions";
+
 import DataTable from "../../Common/DataTable";
 import { eventTableHeaders } from "../../../Constant/tournament";
 import Spinner from "../../Common/Spinner";
-import { useParams } from "react-router-dom";
 
-export const EventTable = () => {
+
+
+export const EventTable = ({ isDisable }) => {
   const dispatch = useDispatch();
-  const { id } = useParams();
+  const { tournamentId } = useParams();
   const { currentPage, categories, totalCategories, isLoading } = useSelector(
     (state) => state.event
   );
@@ -22,7 +27,7 @@ export const EventTable = () => {
       getAllCategories({
         currentPage,
         limit: 10,
-        id,
+        id: tournamentId,
       })
     );
   }, []);
@@ -85,4 +90,8 @@ const NoEventCreated = () => {
       </Button>
     </div>
   );
+};
+
+EventTable.propTypes = {
+  isDisable: PropTypes.bool,
 };

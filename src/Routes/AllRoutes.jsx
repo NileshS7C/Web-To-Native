@@ -10,6 +10,10 @@ import VenueDescription from "../Component/Venue/VenueDetails";
 import { CourtCreation } from "../Component/Venue/CreateCourt";
 import VenueListing from "../Component/Venue/VenueListing";
 import NotCreated from "../Component/Common/NotCreated";
+import TournamentCreationForm from "../Component/Tournament/TournamentNav";
+import TournamentListing from "../Component/Tournament/TournamentListing";
+import EventDetailPage from "../Component/Tournament/Event/EventDetails";
+import NotFound from "../Component/Common/NotFound";
 
 const AllRoutes = () => {
   return (
@@ -23,7 +27,19 @@ const AllRoutes = () => {
             </Authentication>
           }
         >
-          <Route path="tournaments" element={<Tournament />} />
+          <Route path="tournaments">
+            <Route index element={<TournamentListing />} />
+            <Route path="add">
+              <Route index element={<TournamentCreationForm />} />
+            </Route>
+            <Route path=":tournamentId">
+              <Route path="add" element={<TournamentCreationForm />} />
+              <Route path="edit" element={<TournamentCreationForm />} />
+              <Route path="event">
+                <Route path=":eventId" element={<EventDetailPage />} />
+              </Route>
+            </Route>
+          </Route>
           <Route path="home" element={<Home />} />
           <Route path="venues">
             <Route index element={<VenueListing />} />
@@ -49,6 +65,7 @@ const AllRoutes = () => {
         </Route>
 
         <Route path="/login" element={<Login />} />
+        <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </div>
   );

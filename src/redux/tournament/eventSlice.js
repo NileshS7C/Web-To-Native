@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addEventCategory, getAllCategories } from "./tournamentActions";
+import {
+  addEventCategory,
+  getAllCategories,
+  getSingleCategory,
+} from "./tournamentActions";
 
 const initialState = {
   showModal: false,
@@ -9,6 +13,12 @@ const initialState = {
   hasError: false,
   currentPage: 1,
   totalCategories: 0,
+  eventId: "",
+  category: {},
+  loadingSingleCategory: false,
+  singleCategoryError: false,
+  singleCategorySuccess: false,
+  showConfirmBookingModal: false,
 };
 const eventSlice = createSlice({
   name: "event",
@@ -17,8 +27,16 @@ const eventSlice = createSlice({
     toggleModal(state, { payload }) {
       state.showModal = !state.showModal;
     },
+
+    toggleBookingModal(state) {
+      state.showConfirmBookingModal = !state.showConfirmBookingModal;
+    },
     onPageChangeEvent(state, { payload }) {
       state.currentPage = payload;
+    },
+
+    setEventId(state, { payload }) {
+      state.eventId = payload;
     },
   },
 
@@ -42,9 +60,33 @@ const eventSlice = createSlice({
         state.hasError = true;
         state.isLoading = false;
       });
+
+    builder
+      .addCase(getSingleCategory.pending, (state) => {
+        state.loadingSingleCategory = true;
+        state.category = {};
+        state.singleCategorySuccess = false;
+        state.singleCategoryError = false;
+      })
+      .addCase(getSingleCategory.fulfilled, (state, { payload }) => {
+        state.category = payload.data.category;
+        state.loadingSingleCategory = false;
+        state.singleCategorySuccess = true;
+      })
+      .addCase(getSingleCategory.rejected, (state) => {
+        state.singleCategoryError = true;
+        state.category = {};
+        state.loadingSingleCategory = false;
+        state.singleCategorySuccess = false;
+      });
   },
 });
 
-export const { toggleModal, onPageChangeEvent } = eventSlice.actions;
+export const {
+  toggleModal,
+  onPageChangeEvent,
+  setEventId,
+  toggleBookingModal,
+} = eventSlice.actions;
 
 export default eventSlice.reducer;

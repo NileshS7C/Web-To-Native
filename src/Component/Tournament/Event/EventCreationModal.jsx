@@ -1,3 +1,4 @@
+import React from "react";
 import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import { crossIcon, calenderIcon } from "../../../Assests";
@@ -29,11 +30,40 @@ import * as yup from "yup";
 import {
   addEventCategory,
   getAllCategories,
+  getSingleCategory,
+  updateEventCategory,
 } from "../../../redux/tournament/tournamentActions";
 import { showError } from "../../../redux/Error/errorSlice";
 import useDebounce from "../../../Hooks/useDebounce";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
+import ErrorBanner from "../../Common/ErrorBanner";
+
+const requiredCategoryFields = (category) => {
+  const {
+    categoryName,
+    format,
+    type,
+    registrationFee,
+    maxPlayers,
+    minPlayers,
+    skillLevel,
+    categoryLocation,
+    categoryStartDate,
+  } = category;
+
+  return {
+    categoryName,
+    format,
+    type,
+    registrationFee,
+    maxPlayers,
+    minPlayers,
+    skillLevel,
+    categoryLocation,
+    categoryStartDate,
+  };
+};
 
 const initialValues = {
   categoryName: "",
@@ -103,17 +133,29 @@ export const EventCreationModal = () => {
           }),
         }),
       }),
-    categoryStartDate: yup
-      .date()
-      .optional()
-      .min(new Date(), "Tournament start date must be today or later."),
+    categoryStartDate: yup.date().optional(),
   });
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { showModal } = useSelector((state) => state.event);
   const { venues, totalVenues } = useSelector((state) => state.getVenues);
+  const browserLocation = useLocation();
+  const searchParams = new URLSearchParams(browserLocation.search);
+  const categoryId = searchParams.get("category");
   const { location } = useSelector((state) => state.location);
   const [initialState, setInitialState] = useState(initialValues);
-  const { id } = useParams();
+  const [isVenueDecided, setIsVenueDecided] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const { tournamentId } = useParams();
+  const {
+    category,
+    loadingSingleCategory,
+    SingleCategoryError,
+    singleCategorySuccess,
+  } = useSelector((state) => state.event);
 
   const checkVenueOption = (state) => {
     state === "not_decided" ? setIsVenueFinal(false) : setIsVenueFinal(true);
@@ -121,6 +163,7 @@ export const EventCreationModal = () => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
+      setHasError(false);
       !isVenueFinal && delete values["categoryLocation"];
       const updatedValues = {
         ...values,
@@ -128,12 +171,19 @@ export const EventCreationModal = () => {
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
       setSubmitting(true);
-      const result = await dispatch(
-        addEventCategory({
-          formData: updatedValues,
-          id,
-        })
-      ).unwrap();
+      const result = !categoryId
+        ? await dispatch(
+            addEventCategory({
+              formData: updatedValues,
+              id: tournamentId,
+            })
+          ).unwrap()
+        : await dispatch(
+            updateEventCategory({
+              formData: updatedValues,
+              id: tournamentId,
+            })
+          ).unwrap();
 
       if (!result.responseCode) {
         dispatch(toggleModal());
@@ -141,18 +191,18 @@ export const EventCreationModal = () => {
           getAllCategories({
             currentPage: 1,
             limit: 10,
-            id,
+            id: tournamentId,
           })
         );
       }
+
+      resetForm();
     } catch (error) {
-      console.log(" err occured in saving the form", err);
-      dispatch(
-        showError({
-          message: error.data.message || "Something went wrong!",
-          onClose: "hideError",
-        })
-      );
+      if (process.env.NODE_ENV === "development") {
+        console.log(" err occured in saving the form", error);
+      }
+      setHasError(true);
+      setErrorMessage(error?.data?.message || "Something went wrong.");
     } finally {
       setSubmitting(false);
     }
@@ -161,71 +211,114 @@ export const EventCreationModal = () => {
   useEffect(() => {
     if (!showModal) {
       dispatch(resetGlobalLocation());
+      setHasError(false);
     }
-  }, [showModal]);
+    if (categoryId && !showModal) {
+      searchParams.delete("category");
+      navigate(`${browserLocation?.pathname}?${searchParams?.toString()}`, {
+        replace: true,
+      });
+    }
+  }, [showModal, categoryId]);
+
+  useEffect(() => {
+    if (categoryId && tournamentId) {
+      dispatch(
+        getSingleCategory({ tour_Id: tournamentId, eventId: categoryId })
+      );
+    }
+  }, [categoryId, tournamentId]);
+
+  useEffect(() => {
+    if (categoryId && tournamentId && singleCategorySuccess) {
+      const updatedCategory = requiredCategoryFields(category);
+      setInitialState((prevState) => ({
+        ...prevState,
+        ...updatedCategory,
+        categoryStartDate: parseDate(updatedCategory?.categoryStartDate),
+      }));
+
+      updatedCategory?.categoryLocation
+        ? setIsVenueDecided(true)
+        : setIsVenueDecided(false);
+    } else {
+      setInitialState({});
+    }
+  }, [categoryId, tournamentId, singleCategorySuccess]);
+
   return (
     <Dialog
       open={showModal}
-      onClose={() => dispatch(toggleModal())}
+      onClose={() => {
+        setInitialState({});
+        dispatch(toggleModal());
+      }}
       className="relative z-10 "
     >
       <DialogBackdrop
         transition
         className="fixed inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
       />
-
       <div className="fixed  inset-0 z-10 overflow-y-auto">
-        <div className="flex  min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             transition
             className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[70%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <div>
-              <div className="w-full bg-[#FFFFFF] px-[20px] ">
+              <div className="w-full bg-[#FFFFFF] px-[20px] h-full overflow-y-hidden">
                 <AddEventTitle />
-                <Formik
-                  enableReinitialize
-                  initialValues={initialState}
-                  validationSchema={validationSchema}
-                  onSubmit={handleSubmit}
-                >
-                  {({ isSubmitting }) => (
-                    <Form>
-                      <div className="grid grid-col-1 gap-[20px]">
-                        <EventName />
-                        <EventFormat />
-                        <RegistrationFee />
-                        <SelectPlayers />
-                        <SelectSkillLevel />
-                        <VenueSelection
-                          venues={venues}
-                          total={totalVenues}
-                          location={location}
-                          checkVenueOption={checkVenueOption}
-                        />
-                        <EventTimings />
-                        <div className="grid justify-self-end gap-[10px]">
-                          <div className="flex gap-2">
-                            <Button
-                              type="button"
-                              className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-white text-[14px] leading-[17px] text-[#232323] ml-auto"
-                              onClick={() => dispatch(toggleModal())}
-                            >
-                              Close
-                            </Button>
-                            <Button
-                              className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
-                              type="submit"
-                              loading={isSubmitting}
-                            >
-                              Save
-                            </Button>
+                {loadingSingleCategory && (
+                  <ImSpinner8 className="w-[40px] h-[40px] m-auto animate-spin" />
+                )}
+
+                {hasError && <ErrorBanner message={errorMessage} />}
+                {!loadingSingleCategory && (
+                  <Formik
+                    enableReinitialize
+                    initialValues={initialState}
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
+                  >
+                    {({ isSubmitting }) => (
+                      <Form>
+                        <div className="grid grid-col-1 gap-[20px]">
+                          <EventName />
+                          <EventFormat />
+                          <RegistrationFee />
+                          <SelectPlayers />
+                          <SelectSkillLevel />
+                          <VenueSelection
+                            venues={venues}
+                            total={totalVenues}
+                            location={location}
+                            checkVenueOption={checkVenueOption}
+                            isVenueDecided={isVenueDecided}
+                          />
+                          <EventTimings />
+                          <div className="grid justify-self-end gap-[10px]">
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-white text-[14px] leading-[17px] text-[#232323] ml-auto"
+                                onClick={() => dispatch(toggleModal())}
+                              >
+                                Close
+                              </Button>
+                              <Button
+                                className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
+                                type="submit"
+                                loading={isSubmitting}
+                              >
+                                Save
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Form>
-                  )}
-                </Formik>
+                      </Form>
+                    )}
+                  </Formik>
+                )}
               </div>
             </div>
           </DialogPanel>
@@ -389,10 +482,7 @@ const SelectPlayers = () => {
 
 const SelectSkillLevel = () => {
   const { values, errors } = useFormikContext();
-  console.log(
-    " errors and values",
-    JSON.stringify({ values, errors }, null, 2)
-  );
+
   return (
     <div className="flex flex-col items-start gap-2.5">
       <label
@@ -423,13 +513,27 @@ const SelectSkillLevel = () => {
   );
 };
 
-const VenueSelection = ({ venues, total, location, checkVenueOption }) => {
+const VenueSelection = ({
+  venues,
+  total,
+  location,
+  checkVenueOption,
+  isVenueDecided,
+}) => {
   const [isVenueNotAvailable, setIsVenueNotAvailable] = useState(false);
   const [currentCheckBox, setCurrentCheckBox] = useState("");
 
   const handleCheckBox = (e) => {
     setIsVenueNotAvailable(e.target.checked);
   };
+
+  useEffect(() => {
+    if (isVenueDecided) {
+      setCurrentCheckBox("decided");
+    } else {
+      setCurrentCheckBox("not_decided");
+    }
+  }, [isVenueDecided]);
 
   return (
     <div className="grid grid-cols-1 gap-[30px] w-full">
@@ -443,7 +547,7 @@ const VenueSelection = ({ venues, total, location, checkVenueOption }) => {
               type="checkbox"
               id="venue_final"
               name="venue"
-              className="w-4 h-4 border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
+              className="w-4 h-4  border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
               checked={currentCheckBox === "decided"}
               onChange={(e) => {
                 if (e.target.checked) {
@@ -619,7 +723,6 @@ const EventTimings = () => {
 
 const AddVenueAddress = ({ location }) => {
   const { setFieldValue, errors } = useFormikContext();
-  console.log(" location", location)
   useEffect(() => {
     if (location.city || location.state) {
       setFieldValue("categoryLocation.address.line1", location?.address_line1);

@@ -8,7 +8,7 @@ export { default as crossIcon } from "./Tournament/crossIcon.svg";
 export { default as SuccessPopUp } from "./Tournament/successPopUp.gif";
 // export { default as bookingIcon } from "./booking.svg";
 export { default as profileIcon } from "./Tournament/profile.svg";
-export {default as userProfileIcon} from "./Tournament/userProfile.svg"
+export { default as userProfileIcon } from "./Tournament/userProfile.svg";
 export { default as tournamentIcon } from "./Tournament/tournament.svg";
 export { default as eventsIcon } from "./Tournament/events.svg";
 export { default as teamIcon } from "./Tournament/teams.svg";
@@ -24,3 +24,4 @@ export { default as DeleteIcon } from "./Venue/delete.svg";
 export { default as ThreeDotIcon } from "./Venue/threedots.svg";
 export { default as locationIcon } from "./Venue/location.svg";
 export { default as expandIcon } from "./Venue/expand.svg";
+export { default as listingIcon } from "./Tournament/listingIcon.svg";

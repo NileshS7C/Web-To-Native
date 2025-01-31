@@ -72,6 +72,10 @@ export default function Combopopover({
   };
 
   useEffect(() => {
+    setSelectedTags(checkedTags);
+  }, [checkedTags]);
+
+  useEffect(() => {
     document.addEventListener("mousedown", handleClickOutSide);
 
     return () => {

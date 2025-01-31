@@ -1,11 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAll_TO, getAllUniqueTags } from "./tournamentActions";
+import {
+  getAll_TO,
+  getAllUniqueTags,
+  handleTournamentDecision,
+} from "./tournamentActions";
+import { approvalBody } from "../../Constant/tournament";
 
 const addTournamentSteps = ["basic info", "event", "acknowledgement"];
 
 const tournamentSlice = createSlice({
   name: "Tournament",
   initialState: {
+    changingDecision: false,
+    verificationError: false,
+    verificationSuccess: false,
+    verificationErrorMessage: "",
     tounrnaments: [],
     error: null,
     isLoading: false,
@@ -25,9 +34,17 @@ const tournamentSlice = createSlice({
     isGettingTags: false,
     tags: [],
     hasTagError: false,
-    tournamentId: null,
+    tournament_Id: null,
+    rejectionComments: "",
+    isNotEditable: false,
+    isConfirmed: false,
+    approvalBody: { action: "APPROVE", rejectionComments: "" },
   },
+
   reducers: {
+    setRejectionComments(state, { payload }) {
+      state.rejectionComments = payload;
+    },
     setFormOpen(state, action) {
       state.currentStep = action.payload;
     },
@@ -42,9 +59,28 @@ const tournamentSlice = createSlice({
         return;
       }
     },
+    confirmSubmission(state, { payload }) {
+      state.isConfirmed = true;
+    },
 
+    setIsConfirmed(state, { payload }) {
+      state.isConfirmed = payload;
+    },
+    setIsEditable(state, { payload }) {
+      state.isNotEditable = payload;
+    },
     setTournamentId(state, { payload }) {
-      state.tournamentId = payload;
+      state.tournament_Id = payload;
+    },
+
+    setApprovalBody(state, { payload }) {
+      state.approvalBody = payload;
+    },
+
+    resetVerificationState(state) {
+      state.verificationSuccess = false;
+      state.verificationError = false;
+      state.verificationErrorMessage = "  ";
     },
 
     removeFiles: {
@@ -140,6 +176,26 @@ const tournamentSlice = createSlice({
         state.tags = [];
         state.isGettingTags = false;
       });
+
+    builder
+      .addCase(handleTournamentDecision.pending, (state) => {
+        state.changingDecision = true;
+        state.verificationError = false;
+        state.verificationSuccess = false;
+        state.verificationErrorMessage = "";
+      })
+      .addCase(handleTournamentDecision.fulfilled, (state) => {
+        state.verificationSuccess = true;
+        state.changingDecision = false;
+        state.verificationError = false;
+        state.verificationErrorMessage = "";
+      })
+      .addCase(handleTournamentDecision.rejected, (state, { payload }) => {
+        state.verificationSuccess = false;
+        state.changingDecision = false;
+        state.verificationError = true;
+        state.verificationErrorMessage = payload.data.message;
+      });
   },
 });
 export const {
@@ -153,5 +209,11 @@ export const {
   stepReducer,
   setLocation,
   setTournamentId,
+  setRejectionComments,
+  setIsEditable,
+  confirmSubmission,
+  setIsConfirmed,
+  resetVerificationState,
+  setApprovalBody,
 } = tournamentSlice.actions;
 export default tournamentSlice.reducer;

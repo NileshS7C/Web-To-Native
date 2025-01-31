@@ -33,19 +33,6 @@ export const userLogin = createAsyncThunk(
         sameSite: "strict",
         secure: true,
       });
-      cookies.set("name", response.data.data.user.name, {
-        path: "/",
-        maxAge: 24 * 60 * 60,
-        sameSite: "strict",
-        secure: true,
-      });
-
-      cookies.set("userRole", response.data?.data?.user?.roleName, {
-        path: "/",
-        maxAge: 24 * 60 * 60,
-        sameSite: "strict",
-        secure: true,
-      });
 
       cookies.set("name", response.data?.data?.user?.name, {
         path: "/",

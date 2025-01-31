@@ -15,6 +15,7 @@ import deleteVenueReducer from "./Venue/deleteVenue";
 import uploadReducer from "./Upload/uploadImage";
 import locationReducer from "./Location/locationSlice";
 import getTourna_Reducer from "./tournament/getTournament";
+import tourBookingReducer from "./tournament/bookingSlice";
 import axiosInstance, { setupAxiosInterceptors } from "../Services/axios";
 import { refreshTokens } from "./Authentication/authActions";
 
@@ -37,6 +38,7 @@ const rootReducer = combineReducers({
   upload: uploadReducer,
   location: locationReducer,
   GET_TOUR: getTourna_Reducer,
+  tourBookings: tourBookingReducer
 });
 
 const persistConfig = {

@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getSingleTournament } from "./tournamentActions";
+import {
+  getAllBookings,
+  getAllTournaments,
+  getSingleTournament,
+} from "./tournamentActions";
 
 const initialState = {
   isGettingTournament: false,
@@ -7,12 +11,26 @@ const initialState = {
   tournament: {},
   isSuccess: false,
   errorMessage: "",
+  tournaments: [],
+  totalTournaments: 0,
+  tournamentEditMode: true,
+  isGettingBookings: false,
+  bookingError: false,
+  bookings: [],
+  selectedFilter: "all",
 };
 
 const getTournament = createSlice({
   name: "GET_TOUR",
   initialState,
-  reducers: {},
+  reducers: {
+    setTournamentEditMode(state) {
+      state.tournamentEditMode = !state.tournamentEditMode;
+    },
+    onTour_FilterChange(state, { payload }) {
+      state.selectedFilter = payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getSingleTournament.pending, (state) => {
@@ -33,7 +51,48 @@ const getTournament = createSlice({
         state.isSuccess = false;
         state.errorMessage = payload.message;
       });
+
+    builder
+      .addCase(getAllTournaments.pending, (state) => {
+        state.isGettingTournament = true;
+        state.isSuccess = false;
+        state.hasErrorInTournament = false;
+        state.tournaments = [];
+      })
+      .addCase(getAllTournaments.fulfilled, (state, { payload }) => {
+        state.isGettingTournament = false;
+        state.isSuccess = true;
+        state.hasErrorInTournament = false;
+        state.tournaments = payload.data.tournaments;
+        state.totalTournaments = payload.data.total;
+      })
+      .addCase(getAllTournaments.rejected, (state, { payload }) => {
+        state.isGettingTournament = false;
+        state.isSuccess = false;
+        state.hasErrorInTournament = true;
+        state.tournaments = [];
+      });
+
+    builder
+      .addCase(getAllBookings.pending, (state) => {
+        state.isGettingBookings = true;
+        state.bookingError = false;
+        state.bookings = [];
+      })
+      .addCase(getAllBookings.fulfilled, (state, { payload }) => {
+        state.isGettingBookings = false;
+        state.bookings = payload.data;
+        state.bookingError = false;
+      })
+      .addCase(getAllBookings.rejected, (state) => {
+        state.isGettingBookings = false;
+        state.bookings = [];
+        state.bookingError = true;
+      });
   },
 });
+
+export const { setTournamentEditMode, onTour_FilterChange } =
+  getTournament.actions;
 
 export default getTournament.reducer;

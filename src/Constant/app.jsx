@@ -48,3 +48,11 @@ export const rowsInOnePage = 10;
 export const venueImageSize = 1000 * 1024;
 
 export const courtImageSize = 500 * 1024;
+export const notHaveBackButton = ["Tournaments", "Venues", "Bookings"];
+
+export const ROLES = [
+  "SUPER_ADMIN",
+  "ADMIN",
+  "TOURNAMENT_OWNER",
+  "VENUE_OWNER",
+];
