@@ -9,13 +9,11 @@ import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useEffect, useState } from "react";
 
-
-
 export const NavBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [cookies] = useCookies(["userRole"]);
-  const [navigationBar, setNavigationBar] = useState(ADMIN_NAVIGATION);
+  const [navigationBar, setNavigationBar] = useState(null);
 
   useEffect(() => {
     if (cookies?.userRole) {
@@ -28,11 +26,9 @@ export const NavBar = () => {
           break;
         case "TOURNAMENT_OWNER":
           setNavigationBar(TOURNAMENT_OWNER_NAVIGATION);
-
           break;
         case "VENUE_OWNER":
           setNavigationBar(VENUE_OWNER_NAVIGATION);
-
           break;
       }
     }
