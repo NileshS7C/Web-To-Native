@@ -2,8 +2,6 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Home from "../Page/Home";
 import Authentication from "../Authentication/Authentication";
-import Login from "../Page/Login";
-import Tournament from "../Page/Tournament";
 import Layout from "../Component/Layout";
 import VenueInfo from "../Component/Venue/CreateVenue";
 import VenueDescription from "../Component/Venue/VenueDetails";
@@ -16,10 +14,7 @@ import EventDetailPage from "../Component/Tournament/Event/EventDetails";
 import NotFound from "../Component/Common/NotFound";
 import WrapperLogin from "../Page/Login";
 
-
-
 const AllRoutes = () => {
-  
   return (
     <div>
       <Routes>
@@ -31,6 +26,10 @@ const AllRoutes = () => {
             </Authentication>
           }
         >
+          <Route
+            index
+            element={<NotCreated message="Welcome to oms of the picklebay" />}
+          ></Route>
           <Route path="tournaments">
             <Route index element={<TournamentListing />} />
             <Route path="add">
@@ -55,6 +54,80 @@ const AllRoutes = () => {
               <Route path="edit-court" element={<CourtCreation />} />
               <Route path="edit" element={<VenueInfo />} />
             </Route>
+          </Route>
+
+          <Route path="venue-organisers">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currenlty No venue organisers are present. Please create the venue organisers to get started."
+                  buttonText="Add Venue Organiser"
+                  disable={true}
+                />
+              }
+            />
+          </Route>
+          <Route path="tournament-organisers">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currenlty No tournament organisers are present. Please create the tournament organisers to get started."
+                  buttonText="Add Tournament Organiser"
+                  disable={true}
+                />
+              }
+            />
+          </Route>
+          <Route path="tournament-bookings">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currenlty No tournament bookings are present."
+                  buttonText=""
+                  disable={true}
+                />
+              }
+            />
+          </Route>
+          <Route path="court-bookings">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currenlty No court bookings are present."
+                  buttonText=""
+                  disable={true}
+                />
+              }
+            />
+          </Route>
+          <Route path="users">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currenlty No users are present. Please create the users to get started."
+                  buttonText="Add User"
+                  disable={true}
+                />
+              }
+            />
+          </Route>
+
+          <Route path="dashboard">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currenlty Nothing to display. Will update soon!"
+                  buttonText=""
+                  disable={true}
+                />
+              }
+            />
           </Route>
         </Route>
 

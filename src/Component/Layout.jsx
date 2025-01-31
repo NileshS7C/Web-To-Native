@@ -22,7 +22,6 @@ const Layout = () => {
   const location = useLocation();
   const { tournamentId } = useParams();
   const { venue } = useSelector((state) => state.getVenues);
-
   const { tournament } = useSelector((state) => state.GET_TOUR);
   const [approveButtonClicked, setApproveButtonClicked] = useState(false);
   const { changingDecision, verificationSuccess, approvalBody } = useSelector(
@@ -32,6 +31,7 @@ const Layout = () => {
 
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
+  console.log("pathname", location.pathname);
 
   const currentTitle = getPageTitle(
     location.pathname,
