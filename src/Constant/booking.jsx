@@ -217,7 +217,7 @@ const data = [
 
 const ActionButtonBooking = [
   { name: "Refund", action: "refund" },
-  { name: "cancel", action: "cancel" },
+  { name: "Cancel", action: "cancel" },
 ];
 const bookingTableHeaders = [
   {

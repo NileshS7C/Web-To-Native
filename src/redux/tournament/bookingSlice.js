@@ -9,7 +9,7 @@ const initialState = {
 };
 
 const bookingSlice = createSlice({
-  name: "booking",
+  name: "tourBookings",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
