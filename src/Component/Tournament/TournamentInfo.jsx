@@ -1,10 +1,9 @@
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { imageUpload, uploadIcon, calenderIcon } from "../../Assests";
-import "react-datepicker/dist/react-datepicker.css";
-import Button from "../Common/Button";
-import DatePicker from "react-datepicker";
+
 import {
   Formik,
   Form,
@@ -13,44 +12,42 @@ import {
   useFormikContext,
   FieldArray,
 } from "formik";
+import DatePicker from "react-datepicker";
 import * as yup from "yup";
-import TextError from "../Error/formError";
-import { useDispatch, useSelector } from "react-redux";
-import { editRow, setFormOpen } from "../../redux/tournament/addTournament";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { MdOutlineModeEditOutline } from "react-icons/md";
-import { useEffect, useState } from "react";
+import { IoMdTrash } from "react-icons/io";
+import { ImSpinner2 } from "react-icons/im";
+
+import { imageUpload, uploadIcon, calenderIcon } from "../../Assests";
+import "react-datepicker/dist/react-datepicker.css";
+
+import { editRow, setFormOpen } from "../../redux/tournament/addTournament";
 import {
   deleteUploadedImage,
   uploadImage,
 } from "../../redux/Upload/uploadActions";
-import { IoMdTrash } from "react-icons/io";
 import {
   addTournamentStepOne,
   getAll_TO,
   getAllUniqueTags,
-  handleTournamentDecision,
 } from "../../redux/tournament/tournamentActions";
-import Combopopover from "../Common/Combobox";
-import LocationSearchInput from "../Common/LocationSearch";
-import { ImSpinner2 } from "react-icons/im";
-import PropTypes, { object } from "prop-types";
-import { useNavigate, useParams } from "react-router-dom";
-import { ErrorModal } from "../Common/ErrorModal";
-import { SuccessModal } from "../Common/SuccessModal";
+import { userLogout } from "../../redux/Authentication/authActions";
 import { showError } from "../../redux/Error/errorSlice";
 import { showSuccess } from "../../redux/Success/successSlice";
+
+import LocationSearchInput from "../Common/LocationSearch";
+import { ErrorModal } from "../Common/ErrorModal";
+import { SuccessModal } from "../Common/SuccessModal";
 import { formattedDate, parseDate } from "../../utils/dateUtils";
-import { userLogout } from "../../redux/Authentication/authActions";
 import { ROLES } from "../../Constant/app";
-import { ConfirmationModal } from "../Common/ConfirmationModal";
-import {
-  onCancel,
-  onCofirm,
-  resetConfirmationState,
-} from "../../redux/Confirmation/confirmationSlice";
-import { approvalBody } from "../../Constant/tournament";
 import Spinner from "../Common/Spinner";
+import Button from "../Common/Button";
+import TextError from "../Error/formError";
+import Combopopover from "../Common/Combobox";
 
 const requiredTournamentFields = (tournament) => {
   const {
