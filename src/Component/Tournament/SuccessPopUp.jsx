@@ -1,6 +1,8 @@
+import PropTypes from "prop-types";
 import { SuccessPopUp } from "../../Assests";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-export const TournamentSuccessPopUp = ({open}) => {
+
+export const TournamentSuccessPopUp = ({ open }) => {
   const handleClose = () => {};
   return (
     <Dialog open={open} onClose={handleClose} className="relative z-10 ">
@@ -29,4 +31,8 @@ export const TournamentSuccessPopUp = ({open}) => {
       </div>
     </Dialog>
   );
+};
+
+TournamentSuccessPopUp.propTypes = {
+  open: PropTypes.bool,
 };
