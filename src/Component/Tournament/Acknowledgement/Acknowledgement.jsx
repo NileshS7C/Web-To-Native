@@ -1,12 +1,15 @@
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
-import Button from "../../Common/Button";
-import { ConfirmationModalTour } from "../ConfimTournament";
-import { useDispatch, useSelector } from "react-redux";
-import { TournamentSuccessPopUp } from "../SuccessPopUp";
 import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
 import { setIsConfirmed } from "../../../redux/tournament/addTournament";
 import { submitFinalTournament } from "../../../redux/tournament/tournamentActions";
 import { showError } from "../../../redux/Error/errorSlice";
+
+import Button from "../../Common/Button";
+import { ConfirmationModalTour } from "../ConfimTournament";
+import { TournamentSuccessPopUp } from "../SuccessPopUp";
 import { ErrorModal } from "../../Common/ErrorModal";
 
 export const AcknowledgementText = ({ ownerUserId }) => {
@@ -127,4 +130,8 @@ export const AcknowledgementText = ({ ownerUserId }) => {
       </Button>
     </div>
   );
+};
+
+AcknowledgementText.propTypes = {
+  ownerUserId: PropTypes.string,
 };
