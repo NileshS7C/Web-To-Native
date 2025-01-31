@@ -23,8 +23,32 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname.includes("/add-court")) {
       return "Add Court";
     }
-    // match the court and set the page title with the court name
+
+    if (pathname.includes("/court-bookings")) {
+      return "Court Bookings";
+    }
+
+    if (pathname.includes("/tournament-bookings")) {
+      return "Tournament Bookings";
+    }
+
+    if (pathname.includes("/tournament-organisers")) {
+      return "Tournament Organisers";
+    }
+
+    if (pathname.includes("/users")) {
+      return "Users";
+    }
+
+    if (pathname.includes("/dashboard")) {
+      return "DashBoard";
+    }
+
+    if (pathname.includes("/venue-organisers")) {
+      return "Venue Organisers";
+    }
     if (pathname.includes("/edit-court")) {
+      // match the court and set the page title with the court name
       return `Edit Court-${name}`;
     }
 
@@ -47,7 +71,7 @@ export const getPageTitle = (pathname, params, venueData) => {
       }`;
     }
 
-    return STATIC_TITLES[pathname] || "Dashboard";
+    return STATIC_TITLES[pathname] || "DASHBOARD";
   };
 
   return getDynamicTitle();

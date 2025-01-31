@@ -54,7 +54,9 @@ export const setupAxiosInterceptors = (
 
       if (error.response?.status === 403) {
         dispatch(userLogout());
-
+        cookies.remove("refreshToken", { path: "/" });
+        cookies.remove("userRole", { path: "/" });
+        cookies.remove("name", { path: "/" });
         return Promise.reject(error);
       }
 
@@ -105,6 +107,10 @@ export const setupAxiosInterceptors = (
           })
         );
         dispatch(userLogout());
+
+        cookies.remove("refreshToken", { path: "/" });
+        cookies.remove("userRole", { path: "/" });
+        cookies.remove("name", { path: "/" });
 
         // Optionally redirect the user to login
         window.location.href = "/login";

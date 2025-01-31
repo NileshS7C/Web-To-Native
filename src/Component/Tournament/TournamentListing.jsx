@@ -40,8 +40,6 @@ function TournamentListing() {
   const selectedTab = searchParams.get("tab");
   const currentPage = searchParams.get("page");
 
-  console.log(" current page", currentPage);
-
   useEffect(() => {
     switch (selectedTab) {
       case "all":

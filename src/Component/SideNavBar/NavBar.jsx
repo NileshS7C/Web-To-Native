@@ -52,7 +52,7 @@ export const NavBar = () => {
             <button
               onClick={() => {
                 dispatch(setNavigation(menu.name));
-                const routeEndPoint = `/${menu.name}`;
+                const routeEndPoint = `/${menu.path}`;
                 navigate(routeEndPoint.toLowerCase());
               }}
             >
