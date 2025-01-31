@@ -71,7 +71,7 @@ export const getPageTitle = (pathname, params, venueData) => {
       }`;
     }
 
-    return STATIC_TITLES[pathname] || "PICKLEBAY OMS";
+    return STATIC_TITLES[pathname] || "DASHBOARD";
   };
 
   return getDynamicTitle();

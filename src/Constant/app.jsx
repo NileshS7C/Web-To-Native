@@ -27,7 +27,7 @@ export const menus = [
 ];
 
 export const ADMIN_NAVIGATION = [
-  { name: "DashBoard", icon: overviewIcon, path: "dashboard" },
+  { name: "DashBoard", icon: overviewIcon, path: "" },
   {
     name: "Tournament Organiser",
     icon: tournamentIcon,
@@ -46,7 +46,7 @@ export const ADMIN_NAVIGATION = [
 ];
 
 export const TOURNAMENT_OWNER_NAVIGATION = [
-  { name: "DashBoard", icon: overviewIcon, path: "dashboard" },
+  { name: "DashBoard", icon: overviewIcon, path: "" },
   {
     name: "Tournament Organiser",
     icon: tournamentIcon,
@@ -62,7 +62,7 @@ export const TOURNAMENT_OWNER_NAVIGATION = [
 ];
 
 export const VENUE_OWNER_NAVIGATION = [
-  { name: "DashBoard", icon: overviewIcon, path: "dashboard" },
+  { name: "DashBoard", icon: overviewIcon, path: "" },
   { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
   { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Venues", icon: venueIcon, path: "venues" },
@@ -88,9 +88,9 @@ export const notHaveBackButton = [
   "Tournament Bookings",
   "Venue Organisers",
   "Tournament Organisers",
+
   "Users",
-  "DashBoard",
-  "PICKLEBAY OMS",
+  "DASHBOARD",
 ];
 
 export const ROLES = [

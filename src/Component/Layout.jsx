@@ -55,6 +55,8 @@ const Layout = () => {
     }
   }, [approvalBody, tournamentId, approveButtonClicked]);
 
+  console.log(" current title", currentTitle);
+
   return (
     <div className="flex flex-col min-h-screen ">
       <Header />
@@ -76,7 +78,7 @@ const Layout = () => {
 
             <div className="flex items-center justify-between w-full">
               <p className="text-[#343C6A] font-semibold text-[22px]">
-                {currentTitle}{" "}
+                {currentTitle}
               </p>
 
               {currentTitle === "Tournaments" && (
