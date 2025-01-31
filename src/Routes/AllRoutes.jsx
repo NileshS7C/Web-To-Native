@@ -12,6 +12,7 @@ import VenueListing from "../Component/Venue/VenueListing";
 import TournamentCreationForm from "../Component/Tournament/TournamentNav";
 import TournamentListing from "../Component/Tournament/TournamentListing";
 import EventDetailPage from "../Component/Tournament/Event/EventDetails";
+import NotFound from "../Component/Common/NotFound";
 
 const AllRoutes = () => {
   return (
@@ -53,6 +54,7 @@ const AllRoutes = () => {
         </Route>
 
         <Route path="/login" element={<Login />} />
+        <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </div>
   );
