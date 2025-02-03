@@ -8,9 +8,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "jest",
-    "preview": "vite preview --port 3001 --host" 
+    "preview": "vite preview --port 3001 --host"
   },
   "dependencies": {
+    "@ewanmellor/brackets-viewer": "^1.6.911",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@reduxjs/toolkit": "^2.5.0",
