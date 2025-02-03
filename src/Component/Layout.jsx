@@ -13,7 +13,15 @@ const Layout = () => {
   const currentTitle = getPageTitle(location.pathname, { id }, venue);
 
   // Define the custom route where the div should be hidden
-  const hiddenRoutes = ["/cms/homepage/featured-tournaments","/cms/homepage/featured-venues","/cms/homepage/explore","/cms/static-pages/help-&-faqs","/cms/homepage/featured-week"];
+  const hiddenRoutes = [
+    "/cms/homepage/featured-tournaments",
+    "/cms/homepage/featured-venues",
+    "/cms/homepage/explore",
+    "/cms/static-pages/help-&-faqs",
+    "/cms/homepage/featured-week",
+    "/cms/blogs/blog-posts",
+    "/cms/blogs/blog-posts/new"
+  ];
   const shouldHideTitleBar = hiddenRoutes.includes(location.pathname);
 
   return (
@@ -45,4 +53,3 @@ const Layout = () => {
 };
 
 export default Layout;
-

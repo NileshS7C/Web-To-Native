@@ -42,27 +42,25 @@ export const ADMIN_NAVIGATION = [
       {
         name: "Homepage",
         children: [
-          { name: "Explore"},
-          { name: "Featured Tournaments"},
-          { name: "Featured Week"},
-          { name: "Featured Venues"},
-          { name: "Why Choose Picklebay"},
-          { name: "Destination Dink"},
-          { name: "Journal"},
+          { name: "Explore" },
+          { name: "Featured Tournaments" },
+          { name: "Featured Week" },
+          { name: "Featured Venues" },
+          { name: "Why Choose Picklebay" },
+          { name: "Destination Dink" },
+          { name: "Journal" },
         ],
       },
       {
         name: "Blogs",
-        children: [
-          { name: "Test"},
-        ],
+        children: [{ name: "Blog Posts" }],
       },
       {
         name: "Static Pages",
         children: [
-          { name: "Help & Faqs"},
-          { name: "Terms & Condition"},
-          { name: "Refunds & Cancellation"},
+          { name: "Help & Faqs" },
+          { name: "Terms & Condition" },
+          { name: "Refunds & Cancellation" },
         ],
       },
     ],

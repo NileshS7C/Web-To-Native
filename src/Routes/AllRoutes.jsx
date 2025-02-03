@@ -15,7 +15,8 @@ import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
 import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
 import FeaturedVenues from "../Page/CMS/Homepage/FeaturedVenues";
 import FAQ from "../Page/CMS/StaticPages/FAQ";
-
+import BlogPosts from "../Page/CMS/BlogPage/BlogPosts";
+import AddBlogPost from "../Component/CMS/BlogPage/AddBlogPost";
 
 const AllRoutes = () => {
   return (
@@ -32,10 +33,20 @@ const AllRoutes = () => {
           <Route path="tournaments" element={<Tournament />} />
           <Route path="home" element={<Home />} />
           <Route path="cms/homepage/explore" element={<Explore />} />
-          <Route path="cms/homepage/featured-tournaments" element={<FeaturedTournaments />} />
+          <Route
+            path="cms/homepage/featured-tournaments"
+            element={<FeaturedTournaments />}
+          />
           <Route path="cms/homepage/featured-week" element={<FeaturedWeek />} />
-          <Route path="cms/homepage/featured-venues" element={<FeaturedVenues />} />
+          <Route
+            path="cms/homepage/featured-venues"
+            element={<FeaturedVenues />}
+          />
           <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
+          <Route path="cms/blogs/blog-posts">
+            <Route index element={<BlogPosts />} />
+            <Route path="new" element={<AddBlogPost/>} />
+          </Route>
 
           <Route path="venues">
             <Route index element={<VenueListing />} />
