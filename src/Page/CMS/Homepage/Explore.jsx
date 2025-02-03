@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import AddDataModal from "../../../Component/CMS/HomePage/AddDataModal";
-import ContentTable from "../../../Component/CMS/HomePage/ContentTable";
-import SectionInfo from "../../../Component/CMS/HomePage/SectionInfo";
+import ExploreContentTable from "../../../Component/CMS/HomePage/Explore/ExploreContentTable";
+import ExploreSectionInfo from "../../../Component/CMS/HomePage/Explore/ExploreSectionInfo";
+import ExploreAddDataModal from "../../../Component/CMS/HomePage/Explore/ExploreAddDataModal";
 // import SpinnerLoader from "../../../Assests/Spinner";
 
 export default function Explore() {
@@ -25,7 +25,7 @@ export default function Explore() {
                     <h1 className="text-base font-semibold text-gray-900">Explore Picklebay</h1>
                 </div>
                 <div className="flex items-center gap-4 w-full">
-                    <SectionInfo sectionInfo={exploreData} />
+                    <ExploreSectionInfo sectionInfo={exploreData} />
                     <div className="w-[40%] flex justify-end">
                         <button
                             type="button"
@@ -40,13 +40,13 @@ export default function Explore() {
             <div className="mt-8 flow-root">
                 <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8 ">
-                        <ContentTable data={exploreData.features} fetchHomepageSections={fetchHomepageSections}/>
+                        <ExploreContentTable data={exploreData.features} fetchHomepageSections={fetchHomepageSections}/>
                     </div>
                 </div>
             </div>
 
             {/* Pass isOpen and onClose to AddDataModal */}
-            <AddDataModal data={exploreData} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchHomepageSections}/>
+            <ExploreAddDataModal data={exploreData} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchHomepageSections}/>
         </div>
     );
 }

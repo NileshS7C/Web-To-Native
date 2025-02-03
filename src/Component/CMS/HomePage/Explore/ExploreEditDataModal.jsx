@@ -7,9 +7,9 @@ import {
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
+export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
-    console.log('data', data)
+    // console.log('data', data)
     useEffect(() => {
         if (data?.image) {
             setImagePreview(data.image);

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { PencilIcon } from "@heroicons/react/20/solid";
-import SwitchToggle from "./SwitchToggle";
+import SwitchToggle from "../SwitchToggle";
 
-export default function SectionInfo({ sectionInfo }) {
+export default function TournamentSectionInfo({ sectionInfo }) {
   const [isEditing, setIsEditing] = useState(false);
   const [sectionDetails, setSectionDetails] = useState([]);
 
@@ -10,7 +10,7 @@ export default function SectionInfo({ sectionInfo }) {
     setSectionDetails({
       sectionTitle: sectionInfo.sectionTitle,
       isVisible: sectionInfo.isVisible,
-      features: sectionInfo.features || [],
+      tournaments: sectionInfo.tournaments || [],
     });
   }, [sectionInfo])
   
@@ -24,17 +24,17 @@ export default function SectionInfo({ sectionInfo }) {
       return;
     }
 
-    const updatedFeatures = sectionDetails.features.map(({ _id, ...rest }) => rest);
+    const updatedFeatures = sectionDetails.tournaments.map(({ _id, ...rest }) => rest);
 
     const updatedData = {
       sectionTitle: sectionDetails.sectionTitle,
       isVisible: sectionDetails.isVisible,
-      features: updatedFeatures,
+      tournaments: updatedFeatures,
     };
 
     try {
       const response = await fetch(
-        "http://localhost:1234/api/admin/homepage-sections/explore",
+        "http://localhost:1234/api/admin/homepage-sections/tournament",
         {
           method: "PATCH",
           headers: {

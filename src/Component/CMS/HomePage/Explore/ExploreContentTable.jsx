@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import ExploreEditDataModal from "./ExploreEditDataModal";
 
-import EditDataModal from "./EditDataModal";
-
-const ContentTable = ({ data, fetchHomepageSections}) => {
+export default function ExploreContentTable({ data, fetchHomepageSections }) {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState();
   const columns = data?.length > 0 ? Object.keys(data[0]) : [];
@@ -59,9 +58,9 @@ const ContentTable = ({ data, fetchHomepageSections}) => {
           ))}
         </tbody>
       </table>
-      {openEditModal && <EditDataModal data={selectedCard} isOpen={openEditModal} onClose={() => setOpenEditModal(false)} fetchHomepageSections={fetchHomepageSections}/>}
+      {openEditModal && <ExploreEditDataModal data={selectedCard} isOpen={openEditModal} onClose={() => setOpenEditModal(false)} fetchHomepageSections={fetchHomepageSections} />}
     </div>
   );
 };
 
-export default ContentTable;
+

@@ -8,7 +8,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
 
-export default function AddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
+export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
 
     // Validation Schema
