@@ -1,18 +1,15 @@
 import { ActionButtons } from "./ActionButtons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ActionButtonCourt } from "../../Constant/venue";
-import { setEventId, toggleModal } from "../../redux/tournament/eventSlice";
+import { toggleModal } from "../../redux/tournament/eventSlice";
 import { updateQueryString } from "../../utils/urlModification";
 import PropTypes from "prop-types";
 
-
-
-
-
-const EventActions = ({ id, index }) => {
+const EventActions = ({ id, index, eventName }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { tournamentId } = useParams();
   const { isNotEditable } = useSelector((state) => state.Tournament);
   const handlers = {
     edit: (team) => {
@@ -30,7 +27,7 @@ const EventActions = ({ id, index }) => {
       );
     },
     view: () => {
-      dispatch(setEventId(id));
+      navigate(`/tournaments/${tournamentId}/event/${id}?event=${eventName}`);
     },
   };
 
