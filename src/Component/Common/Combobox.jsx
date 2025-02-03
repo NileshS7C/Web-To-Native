@@ -28,6 +28,8 @@ export default function Combopopover({
   uniqueTags,
   setFieldValue,
   checkedTags,
+  placeholder,
+  label,
 }) {
   const [query, setQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState(checkedTags);
@@ -90,7 +92,7 @@ export default function Combopopover({
   return (
     <div className="w-full flex flex-col items-start gap-2.5" ref={inputRef}>
       <label className="text-[#232323] text-base leading-[19.36px]" htmlFor="">
-        Venue Tags
+        {label}
       </label>
       <div className="relative w-full">
         <input
@@ -100,7 +102,7 @@ export default function Combopopover({
             setQuery(event.target.value);
           }}
           onFocus={() => setShowInput(true)}
-          placeholder="Enter Venue Tags"
+          placeholder={placeholder}
         />
 
         {showInput && (
@@ -128,7 +130,9 @@ export default function Combopopover({
             )}
 
             {!uniqueTags.length && (
-              <p className="align-middle">No tags found. Please add tags manually. </p>
+              <p className="align-middle">
+                No tags found. Please add tags manually.{" "}
+              </p>
             )}
 
             {!isGettingTags ? (
