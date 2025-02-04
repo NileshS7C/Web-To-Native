@@ -136,6 +136,7 @@ export const TournamentFixture = ({ tournament }) => {
         </Button>
         <ErrorModal />
         <SuccessModal />
+
         <PlayerSelectionModal
           isOpen={openPlayerSeedingModal}
           onCancel={handlePlayerSeddingModal}
