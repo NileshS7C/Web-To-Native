@@ -16,7 +16,8 @@ import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
 import FeaturedVenues from "../Page/CMS/Homepage/FeaturedVenues";
 import FAQ from "../Page/CMS/StaticPages/FAQ";
 import BlogPosts from "../Page/CMS/BlogPage/BlogPosts";
-import AddBlogPost from "../Component/CMS/BlogPage/AddBlogPost";
+import CreateBlogPost from "../Component/CMS/BlogPage/CreateBlogPost";
+import EditBlogPost from "../Component/CMS/BlogPage/EditBlogPost";
 
 const AllRoutes = () => {
   return (
@@ -45,7 +46,8 @@ const AllRoutes = () => {
           <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
           <Route path="cms/blogs/blog-posts">
             <Route index element={<BlogPosts />} />
-            <Route path="new" element={<AddBlogPost/>} />
+            <Route path="new" element={<CreateBlogPost/>} />
+            <Route path=":id" element={<EditBlogPost/>} />
           </Route>
 
           <Route path="venues">

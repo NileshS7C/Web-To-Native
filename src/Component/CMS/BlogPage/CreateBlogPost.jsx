@@ -1,0 +1,377 @@
+import React, { useState } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../../Services/axios";
+
+export default function CreateBlogPost() {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [handle, setHandle] = useState("");
+  const [isPublished, setIsPublished] = useState(false);
+  const [image, setImage] = useState(null);
+  const [imageError, setImageError] = useState("");
+  const [writerName, setWriterName] = useState("");
+  const [writerShortName, setWriterShortName] = useState("");
+  const [writerImage, setWriterImage] = useState(null);
+  const [writerImageError, setWriterImageError] = useState("");
+  const [tag, setTag] = useState("");
+  const [tags, setTags] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [handleError, setHandleError] = useState("");
+  const [saveError, setSaveError] = useState("");
+
+  const navigate = useNavigate();
+
+  const uploadImageToS3 = async (file) => {
+    const formData = new FormData();
+    formData.append("uploaded-file", file);
+
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/upload-file`,
+        formData,
+        config
+      );
+
+      return { success: true, url: response.data.data.url };
+    } catch (error) {
+      return { success: false, message: error.response.data.message };
+    }
+  };
+
+  // Handle Image Upload
+  const handleImageChange = async (event, setImageFunction, triggerBy) => {
+    const file = event.target.files[0];
+    if (file) {
+      const imageUrl = await uploadImageToS3(file);
+      if (imageUrl.success) {
+        setImageFunction(imageUrl.url);
+        setImageError("");
+        setWriterImageError("");
+      } else {
+        if (triggerBy === "coverImage") {
+          setImageError(imageUrl.message);
+        } else if (triggerBy === "writerImage") {
+          setWriterImageError(imageUrl.message);
+        }
+        console.error("Image upload failed");
+      }
+    }
+  };
+
+  // Handle Tag Addition
+  const handleAddTag = () => {
+    if (tag.trim() && !tags.includes(tag.trim())) {
+      setTags([...tags, tag.trim()]);
+    }
+    setTag("");
+    setShowDropdown(false);
+  };
+
+  // Handle Tag Removal
+  const handleRemoveTag = (index) => {
+    setTags(tags.filter((tag, i) => i !== index));
+  };
+
+  // Handle Image Removal
+  const handleRemoveImage = (setImageFunction) => {
+    setImageFunction(null);
+  };
+
+  const getFormattedDate = () => {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, "0");
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const year = today.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+  // Handle Form Submission
+  const handleSave = async () => {
+    if (!handle.trim()) {
+      setHandleError("Handle is required.");
+      return;
+    }
+    setHandleError(""); // Reset handle error
+
+    const publishDate = getFormattedDate();
+    const formData = {
+      blogName: title,
+      description: content,
+      handle,
+      isVisible: isPublished,
+      featureImage: image,
+      writerName,
+      writerShortname: writerShortName,
+      writerImage,
+      tag: tags,
+      publishDate,
+    };
+
+    try {
+      const response = await fetch("/api/save-blog-post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save blog post");
+      }
+
+      alert("Blog post saved successfully!");
+      navigate("/cms/blogs/blog-posts"); // Navigate on successful save
+    } catch (error) {
+      console.error("Error:", error);
+      setSaveError("Error saving blog post.");
+    }
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
+      {/* Page Title and Save Button */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-semibold text-left">Create Blog Post</h1>
+        <button
+          onClick={handleSave}
+          className="w-full sm:w-auto p-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+        >
+          Create Post
+        </button>
+      </div>
+      {/* Show the save error below the title */}
+      {saveError && (
+        <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded-md mt-2">
+          <p className="text-sm">{saveError}</p>
+        </div>
+      )}
+      <div className="grid grid-cols-3 gap-6">
+        {/* Left Section */}
+        <div className="col-span-2 space-y-6">
+          {/* Title & Content Card */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-6 h-[500px]">
+            {/* Title Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 text-left">
+                Title
+              </label>
+              <input
+                type="text"
+                placeholder="Give your blog post a title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            {/* Content Editor */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 text-left">
+                Content
+              </label>
+              <ReactQuill
+                theme="snow"
+                value={content}
+                onChange={setContent}
+                className="mt-1"
+                style={{ height: "130px" }}
+              />
+            </div>
+          </div>
+
+          {/* Handle Label Card */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
+            <h2 className="text-lg font-medium text-left">Handle</h2>
+            <input
+              type="text"
+              placeholder="Enter handle"
+              value={handle}
+              onChange={(e) => setHandle(e.target.value)}
+              className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+            {handleError && (
+              <p className="text-red-500 text-sm">{handleError}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Right Section */}
+        <div className="space-y-6">
+          {/* Visibility Toggle */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
+            <h2 className="text-lg font-medium text-left">Visibility</h2>
+            <div className="flex items-center justify-between">
+              <span>{isPublished ? "Visible" : "Hidden"}</span>
+              <button
+                onClick={() => setIsPublished(!isPublished)}
+                className={`relative inline-flex items-center h-6 w-12 rounded-full transition ${
+                  isPublished ? "bg-green-500" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`inline-block w-5 h-5 transform bg-white rounded-full transition ${
+                    isPublished ? "translate-x-6" : "translate-x-1"
+                  }`}
+                ></span>
+              </button>
+            </div>
+          </div>
+
+          {/* Image Upload */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
+            <h2 className="text-lg font-medium text-left">Blog Cover Image</h2>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, setImage, "coverImage")}
+            />
+            {image && (
+              <div className="relative">
+                <img
+                  src={image}
+                  alt="Blog Cover"
+                  className="w-20 h-20 object-cover rounded-md"
+                />
+                <button
+                  onClick={() => handleRemoveImage(setImage)}
+                  className="absolute top-0 right-0 bg-gray-500 text-white text-xs rounded-full p-1"
+                >
+                  &times;
+                </button>
+              </div>
+            )}
+
+            {imageError && <p className="text-red-500 text-sm">{imageError}</p>}
+          </div>
+
+          {/* Writer Details */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
+            <h2 className="text-lg font-medium text-left">Writer Details</h2>
+
+            {/* Writer Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 text-left">
+                Writer Name
+              </label>
+              <input
+                type="text"
+                placeholder="Enter writer name"
+                value={writerName}
+                onChange={(e) => setWriterName(e.target.value)}
+                className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            {/* Writer Short Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 text-left">
+                Writer Short Description
+              </label>
+              <input
+                type="text"
+                placeholder="Enter writer short description"
+                value={writerShortName}
+                onChange={(e) => setWriterShortName(e.target.value)}
+                className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            {/* Writer Image */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 text-left">
+                Writer Image
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  handleImageChange(e, setWriterImage, "writerImage")
+                }
+              />
+              {writerImage && (
+                <div className="relative">
+                  <img
+                    src={writerImage}
+                    alt="Writer"
+                    className="w-20 h-20 object-cover rounded-full mt-2"
+                  />
+                  <button
+                    onClick={() => handleRemoveImage(setWriterImage)}
+                    className="absolute top-0 right-0 bg-gray-500 text-white text-xs rounded-full p-1"
+                  >
+                    &times;
+                  </button>
+                </div>
+              )}
+
+              {writerImageError && (
+                <p className="text-red-500 text-sm">{writerImageError}</p>
+              )}
+            </div>
+            {/* Tag Input & Display */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 text-left">
+                Tag
+              </label>
+              <input
+                type="text"
+                placeholder="Enter tag"
+                value={tag}
+                onChange={(e) => {
+                  setTag(e.target.value);
+                  setShowDropdown(e.target.value.trim().length > 0);
+                }}
+                className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+
+              {/* Tag Dropdown */}
+              {showDropdown && (
+                <div className="bg-white border border-gray-300 rounded-md mt-1 shadow-md">
+                  <button
+                    className="w-full text-left p-2 hover:bg-gray-100"
+                    onClick={handleAddTag}
+                  >
+                    Add "{tag}"
+                  </button>
+                </div>
+              )}
+
+              {/* Display Tags */}
+              <div className="mt-2 flex flex-wrap gap-2">
+                {tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="flex items-center px-3 py-1 rounded-full border border-gray-300 bg-gray-100 text-gray-700 text-sm"
+                  >
+                    {tag}
+                    <button
+                      onClick={() => handleRemoveTag(index)}
+                      className="ml-2 text-gray-500 hover:text-gray-700"
+                    >
+                      &times;
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate("/cms/blogs/blog-posts")}
+            className="w-full p-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

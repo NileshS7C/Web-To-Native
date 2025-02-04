@@ -20,7 +20,7 @@ const Layout = () => {
     "/cms/static-pages/help-&-faqs",
     "/cms/homepage/featured-week",
     "/cms/blogs/blog-posts",
-    "/cms/blogs/blog-posts/new"
+    "/cms/blogs/blog-posts/new",
   ];
   const shouldHideTitleBar = hiddenRoutes.includes(location.pathname);
 
