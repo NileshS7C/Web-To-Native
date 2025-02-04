@@ -14,6 +14,7 @@ import Spinner from "../Common/Spinner";
 import { ErrorModal } from "../Common/ErrorModal";
 import { MatchModal } from "../Common/MatchModal";
 import PropTypes from "prop-types";
+import { SuccessModal } from "../Common/SuccessModal";
 
 export const TournamentFixture = ({ tournament }) => {
   const dispatch = useDispatch();
@@ -98,12 +99,16 @@ export const TournamentFixture = ({ tournament }) => {
         Create Fixture
       </Button>
       <ErrorModal />
+      <SuccessModal />
       <MatchModal
         isOpen={openMatchModal}
         onCancel={handleMatchModal}
         tournament={tournament}
         matchDetails={matchDetails}
         participants={stableFixture?.bracketData?.participant}
+        tournamentId={tournamentId}
+        eventId={eventId}
+        fixtureId={fixture?._id}
       />
 
       <div className="flex items-center justify-center w-full h-full text-lg">

@@ -19,4 +19,12 @@ const formatURL = (params) => {
     .join("&");
 };
 
-export { formattedDate, parseDate, formatURL };
+const timeInMins = (value) => {
+  if (!value) return;
+  const parseTime = value.split(":").map((item) => Number(item));
+
+  const totalTime = parseTime[0] * 60 + parseTime[1];
+  return totalTime;
+};
+
+export { formattedDate, parseDate, formatURL, timeInMins };

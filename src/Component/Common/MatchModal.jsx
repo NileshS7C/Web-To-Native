@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
 import DatePicker from "react-datepicker";
 import Button from "./Button";
@@ -8,12 +8,24 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { FaGreaterThan } from "react-icons/fa6";
 import { IoCloseSharp } from "react-icons/io5";
 import { calenderIcon } from "../../Assests";
-import { Field, Formik, Form, useFormikContext, ErrorMessage } from "formik";
+import { Field, Formik, Form, ErrorMessage } from "formik";
 import TextError from "../Error/formError";
+import { updateMatch } from "../../redux/tournament/fixturesActions";
+import { showSuccess } from "../../redux/Success/successSlice";
+import { showError } from "../../redux/Error/errorSlice";
+import { formattedDate, timeInMins } from "../../utils/dateUtils";
 
 const initialValues = {
-  opponent1: {},
-  opponent2: {},
+  id: "",
+  stage_id: "",
+  group_id: "",
+  round_id: "",
+  opponent1: {
+    id: "",
+  },
+  opponent2: {
+    id: "",
+  },
   metaData: {
     location: {
       name: "",
@@ -23,7 +35,7 @@ const initialValues = {
       startTime: "",
       endTime: "",
     },
-    court: 0,
+    court: 1,
   },
 };
 
@@ -33,6 +45,9 @@ export const MatchModal = ({
   tournament,
   matchDetails,
   participants = [],
+  fixtureId,
+  tournamentId,
+  eventId,
 }) => {
   const validationSchema = yup.object().shape({
     metaData: yup.object().shape({
@@ -44,13 +59,31 @@ export const MatchModal = ({
         startTime: yup
           .string()
           .required("Start time of the match is required."),
-        endTime: yup.string().required("End time of the match is required."),
+        endTime: yup
+          .string()
+          .required("End time of the match is required.")
+          .test(
+            "valid-end-time",
+            "End time must be greater than start time.",
+            function (value) {
+              const { startTime } = this.parent;
+              if (!startTime || !value) return true;
+              const startTimeInMin = timeInMins(startTime);
+              const endTimeInMin = timeInMins(value);
+
+              return startTimeInMin < endTimeInMin;
+            }
+          ),
       }),
       court: yup.number().optional(),
     }),
   });
+
+  const dispatch = useDispatch();
   const { category } = useSelector((state) => state.event);
+  const { ErrorMessage } = useSelector((state) => state.fixture);
   const [roundNumber, setRoundNumber] = useState(null);
+  const [initialState, setInitialState] = useState(initialValues);
   const [playersData, setPlayersData] = useState({
     opponent1: "",
     opponent2: "",
@@ -58,7 +91,14 @@ export const MatchModal = ({
 
   useEffect(() => {
     if (participants.length > 0 && matchDetails) {
-      const { opponent1 = {}, opponent2 = {} } = matchDetails;
+      const {
+        opponent1 = {},
+        opponent2 = {},
+        id,
+        stage_id,
+        group_id,
+        round_id,
+      } = matchDetails;
       setPlayersData((prev) => ({ ...prev, opponent1: "", opponent2: "" }));
       const oppenent1Data = participants.find(
         (participant) => participant.id === opponent1?.id
@@ -70,21 +110,82 @@ export const MatchModal = ({
 
       if (oppenent1Data) {
         setPlayersData((prev) => ({ ...prev, opponent1: oppenent1Data.name }));
+        setInitialState((prev) => ({
+          ...prev,
+          opponent1: {
+            id: oppenent1Data.id,
+          },
+        }));
       }
       if (oppenent2Data) {
         setPlayersData((prev) => ({
           ...prev,
           opponent2: oppenent2Data.name,
         }));
+        setInitialState((prev) => ({
+          ...prev,
+          opponent2: {
+            id: oppenent2Data.id,
+          },
+        }));
       }
 
       setRoundNumber(matchDetails?.metadata?.roundNumber);
+      setInitialState((prev) => ({
+        ...prev,
+        id,
+        group_id,
+        stage_id,
+        round_id,
+      }));
     }
   }, [matchDetails]);
 
-  const handleSubmit = (values, { setSubmitting, resetForm }) => {
-    console.log(" values", values);
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      setSubmitting(true);
+      const updatedValues = {
+        ...values,
+        metaData: {
+          ...values.metaData,
+          date: formattedDate(values.metaData.date),
+        },
+      };
+
+      const result = await dispatch(
+        updateMatch({
+          tour_Id: tournamentId,
+          eventId,
+          formData: updatedValues,
+          fixtureId,
+        })
+      ).unwrap();
+
+      if (!result.responseCode) {
+        dispatch(
+          showSuccess({
+            message: "Match Updated Successfully",
+            onClose: "hideSuccess",
+          })
+        );
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.log("Error in updating the match", err);
+      }
+      dispatch(
+        showError({
+          message:
+            ErrorMessage ||
+            "Opps! something went wrong while updating the match.",
+          onClose: "hideError",
+        })
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
+
   return (
     <Dialog
       open={isOpen}
@@ -103,7 +204,8 @@ export const MatchModal = ({
             className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <Formik
-              initialValues={initialValues}
+              enableReinitialize
+              initialValues={initialState}
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
@@ -213,7 +315,7 @@ const MatchDateAndTime = () => {
                   name="metaData.date"
                   placeholderText="Select date"
                   toggleCalendarOnIconClick
-                  className="w-[300px] z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px]  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px]  focus:outline-none focus:ring-2 focus:ring-blue-500"
                   selected={field.value ? new Date(field.value) : null}
                   onChange={(date) => {
                     if (date) {
@@ -323,4 +425,7 @@ MatchModal.propTypes = {
   tournament: PropTypes.object,
   matchDetails: PropTypes.object,
   participants: PropTypes.array,
+  tournamentId: PropTypes.string,
+  eventId: PropTypes.string,
+  fixtureId: PropTypes.string,
 };

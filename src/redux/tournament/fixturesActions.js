@@ -72,7 +72,7 @@ export const getFixture = createAsyncThunk(
 
 export const updateMatch = createAsyncThunk(
   "fixture/updateMatch",
-  async ({ formData }, { rejectWithValue }) => {
+  async (matchData  , { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -80,10 +80,12 @@ export const updateMatch = createAsyncThunk(
         },
       };
       const response = await axiosInstance.patch(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/users/admin/tournaments/${tour_Id}/categories/${eventId}/fixtures`,
-        JSON.stringify(FormData),
+        `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${
+          matchData.tour_Id
+        }/categories/${matchData.eventId}/fixtures/${
+          matchData.fixtureId
+        }/update-Match`,
+        JSON.stringify(matchData?.formData),
         config
       );
 
