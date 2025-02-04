@@ -42,10 +42,10 @@ const AllRoutes = () => {
           <Route path="cms/homepage/featured-venues" element={<FeaturedVenues />} />
           <Route path="cms/homepage/why-choose-picklebay" element={<WhyChoosePickleBay />} />
           <Route path="cms/homepage/destination-dink" element={<DestinationDink />} />
-          <Route path="cms/homepage/why-choose-picklebay" element={<Journal />} />
+          <Route path="cms/homepage/journal" element={<Journal />} />
           <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
           {/* Ends Here */}
-          
+
           <Route path="venues">
             <Route index element={<VenueListing />} />
             <Route path="new" element={<VenueInfo />} />
