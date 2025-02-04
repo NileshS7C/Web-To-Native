@@ -89,7 +89,9 @@ function EventDetailPage() {
         <EventRegistrations tournament={tournament} />
       )}
 
-      {selectedTab === "fixture" && <TournamentFixture />}
+      {selectedTab === "fixture" && (
+        <TournamentFixture tournament={tournament} />
+      )}
     </div>
   );
 }
