@@ -15,6 +15,9 @@ import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
 import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
 import FeaturedVenues from "../Page/CMS/Homepage/FeaturedVenues";
 import FAQ from "../Page/CMS/StaticPages/FAQ";
+import WhyChoosePickleBay from "../Page/CMS/Homepage/WhyChoosePickleBay";
+import DestinationDink from "../Page/CMS/Homepage/DestinationDink";
+import Journal from "../Page/CMS/Homepage/Journal";
 
 
 const AllRoutes = () => {
@@ -31,12 +34,18 @@ const AllRoutes = () => {
         >
           <Route path="tournaments" element={<Tournament />} />
           <Route path="home" element={<Home />} />
+
+          {/* CMS Routes */}
           <Route path="cms/homepage/explore" element={<Explore />} />
           <Route path="cms/homepage/featured-tournaments" element={<FeaturedTournaments />} />
           <Route path="cms/homepage/featured-week" element={<FeaturedWeek />} />
           <Route path="cms/homepage/featured-venues" element={<FeaturedVenues />} />
+          <Route path="cms/homepage/why-choose-picklebay" element={<WhyChoosePickleBay />} />
+          <Route path="cms/homepage/destination-dink" element={<DestinationDink />} />
+          <Route path="cms/homepage/why-choose-picklebay" element={<Journal />} />
           <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
-
+          {/* Ends Here */}
+          
           <Route path="venues">
             <Route index element={<VenueListing />} />
             <Route path="new" element={<VenueInfo />} />

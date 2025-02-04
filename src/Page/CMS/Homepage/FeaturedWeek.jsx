@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import WeekSectionInfo from "../../../Component/CMS/HomePage/FeaturedWeeks/WeekSectionInfo";
 import WeekContentTable from "../../../Component/CMS/HomePage/FeaturedWeeks/WeekContentTable";
+import WeekAddDataModal from "../../../Component/CMS/HomePage/FeaturedWeeks/WeekAddModal";
 
 
 export default function FeaturedWeek() {
@@ -21,7 +22,7 @@ export default function FeaturedWeek() {
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:flex-col gap-4">
                 <div className="sm:flex-auto text-left">
-                    <h1 className="text-base font-semibold text-gray-900">Featured Tournaments</h1>
+                    <h1 className="text-base font-semibold text-gray-900">Featured This Week</h1>
                 </div>
                 <div className="flex items-center gap-4 w-full">
                     <WeekSectionInfo sectionInfo={weeksData} />
@@ -45,7 +46,7 @@ export default function FeaturedWeek() {
             </div>
 
             {/* Pass isOpen and onClose to AddDataModal */}
-            {/* <TournamentListingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchTournamentsData}/> */}
+            <WeekAddDataModal data={weeksData} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchWeekData}/>
         </div>
     );
 }
