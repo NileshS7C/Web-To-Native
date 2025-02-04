@@ -59,7 +59,11 @@ export const TournamentFixture = ({ tournament }) => {
   }, [fixture, isFixtureSuccess, FixtureCreatedSuccess]);
 
   window.bracketsViewer.onMatchClicked = useCallback((match) => {
-    setOpenMatchModal(true);
+    const { opponent1, opponent2 } = match;
+    if (opponent1?.id && opponent2?.id) {
+      setOpenMatchModal(true);
+    }
+
     setMatchDetails(match);
   }, []);
 

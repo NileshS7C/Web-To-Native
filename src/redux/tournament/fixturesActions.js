@@ -69,3 +69,37 @@ export const getFixture = createAsyncThunk(
     }
   }
 );
+
+export const updateMatch = createAsyncThunk(
+  "fixture/updateMatch",
+  async ({ formData }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.patch(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/tournaments/${tour_Id}/categories/${eventId}/fixtures`,
+        JSON.stringify(FormData),
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err?.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);

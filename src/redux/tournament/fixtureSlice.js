@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createFixture, getFixture } from "./fixturesActions";
+import { createFixture, getFixture, updateMatch } from "./fixturesActions";
 
 const initialState = {
   status: "",
@@ -11,6 +11,9 @@ const initialState = {
   FixtureCreationError: false,
   FixtureCreatedSuccess: false,
   ErrorMessage: "",
+  isUpdatingMatch: false,
+  matchUpateSuccess: false,
+  matchUpdateError: false,
 };
 const fixtureSlice = createSlice({
   name: "fixture",
@@ -56,6 +59,26 @@ const fixtureSlice = createSlice({
         state.isCreatingFixture = false;
         state.FixtureCreationError = true;
         state.FixtureCreatedSuccess = false;
+        state.ErrorMessage = payload?.data?.message;
+      });
+
+    builder
+      .addCase(updateMatch.pending, (state) => {
+        state.isUpdatingMatch = true;
+        state.matchUpateSuccess = false;
+        state.matchUpdateError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(updateMatch.fulfilled, (state, { payload }) => {
+        state.isUpdatingMatch = false;
+        state.matchUpateSuccess = true;
+        state.matchUpdateError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(updateMatch.rejected, (state, { payload }) => {
+        state.isUpdatingMatch = false;
+        state.matchUpateSuccess = false;
+        state.matchUpdateError = true;
         state.ErrorMessage = payload?.data?.message;
       });
   },
