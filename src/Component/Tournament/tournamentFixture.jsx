@@ -20,6 +20,22 @@ import { suffleIcon } from "../../Assests";
 import { TbSwipe } from "react-icons/tb";
 import { PlayerSelectionModal } from "../Common/PlayerSeedingModal";
 
+const getRandomArbitrary = (min, max) => {
+  return Math.random() * (max - min) + min;
+};
+
+const playerSuffling = (participants) => {
+  if (!participants?.length) return;
+  const array = [...participants];
+  const totalParticipants = participants?.length - 1;
+  for (let i = 0; i < totalParticipants; i++) {
+    const randomNumber = Math.ceil(getRandomArbitrary(i, totalParticipants));
+    [array[i], array[randomNumber]] = [array[randomNumber], array[i]];
+  }
+
+  return array;
+};
+
 export const TournamentFixture = ({ tournament }) => {
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
@@ -27,6 +43,7 @@ export const TournamentFixture = ({ tournament }) => {
   const [openPlayerSeedingModal, setOpenPlayerSeedingModal] = useState(false);
   const [matchDetails, setMatchDetails] = useState(null);
   const [players, setPlayers] = useState([]);
+  const [suffledPlayers, setSuffledPlayers] = useState([]);
   const {
     fixture,
     isFixtureSuccess,
@@ -41,6 +58,11 @@ export const TournamentFixture = ({ tournament }) => {
 
   const handleCreateFixture = useCallback(() => {
     dispatch(createFixture({ tour_Id: tournamentId, eventId }));
+  }, []);
+
+  const handlePlayerSuffling = useCallback(() => {
+    const result = playerSuffling(stableFixture?.bracketData?.participant);
+    setSuffledPlayers(result);
   }, []);
 
   const handleMatchModal = (value) => {
@@ -67,7 +89,10 @@ export const TournamentFixture = ({ tournament }) => {
         { highlightParticipantOnHover: true }
       );
       const players = stableFixture?.bracketData?.participant.map(
-        (participant) => participant.name
+        (participant) => ({
+          name: participant.name,
+          id: participant.id,
+        })
       );
 
       setPlayers(players);
@@ -118,7 +143,10 @@ export const TournamentFixture = ({ tournament }) => {
         >
           <TbSwipe className="w-[20px] h-[20px]" />
         </button>
-        <button className="bg-[#CAD9FB] border-2 border-[#CAD9FB] p-2 rounded-lg">
+        <button
+          className="bg-[#CAD9FB] border-2 border-[#CAD9FB] p-2 rounded-lg"
+          onClick={handlePlayerSuffling}
+        >
           <img src={suffleIcon} alt="suffle button" />
         </button>
         <Button className="w-[148px]  h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto">
@@ -141,6 +169,7 @@ export const TournamentFixture = ({ tournament }) => {
           isOpen={openPlayerSeedingModal}
           onCancel={handlePlayerSeddingModal}
           players={players}
+          participants={stableFixture?.bracketData?.participant}
         />
         <MatchModal
           isOpen={openMatchModal}
