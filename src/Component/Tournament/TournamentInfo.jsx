@@ -297,14 +297,6 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
     if (!userRole) {
       dispatch(userLogout());
     }
-    if (tournamentOwners?.owners?.length > 0) {
-      setInitialState({
-        ...initialState,
-        ownerUserId: ROLES.slice(0, 2).includes(userRole)
-          ? tournamentOwners.owners[0]?.name
-          : cookies?.name,
-      });
-    }
   }, [tournamentOwners]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -495,6 +487,7 @@ const TournamentBasicInfo = ({
             //   }
             // }}
           >
+            <option>Select Tournament Owner</option>
             {!isGettingALLTO && tournamentOwners?.owners?.length > 0
               ? tournamentOwners.owners.map((owner, index) => {
                   return (
