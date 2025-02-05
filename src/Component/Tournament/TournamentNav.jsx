@@ -11,6 +11,7 @@ import {
   setRejectionComments,
 } from "../../redux/tournament/addTournament";
 import {
+  deleteSingleCategory,
   getSingleTournament,
   handleTournamentDecision,
 } from "../../redux/tournament/tournamentActions";
@@ -47,7 +48,7 @@ const TournamentCreationForm = () => {
     (state) => state.GET_TOUR
   );
 
-  const { isOpen, message, onClose, isConfirmed } = useSelector(
+  const { isOpen, message, onClose, isConfirmed, type } = useSelector(
     (state) => state.confirm
   );
   const [cookies] = useCookies(["name", "userRole"]);
@@ -84,7 +85,7 @@ const TournamentCreationForm = () => {
   }, [tournamentId]);
 
   useEffect(() => {
-    if (isConfirmed && tournamentId) {
+    if (isConfirmed && tournamentId && type === "Tour") {
       const rejectionBody = {
         ...approvalBody,
         action: "REJECT",
@@ -103,17 +104,16 @@ const TournamentCreationForm = () => {
 
   useEffect(() => {
     if (verificationSuccess && tournamentId) {
-      dispatch(
-        showSuccess({
-          message:
-            approvalBody.action === "APPROVE"
-              ? "Tournament approved successfully."
-              : "Tournament rejected successfully.",
-          onClose: "hideSuccess",
-        })
-      );
-
       const timerId = setTimeout(() => {
+        dispatch(
+          showSuccess({
+            message:
+              approvalBody.action === "APPROVE"
+                ? "Tournament approved successfully."
+                : "Tournament rejected successfully.",
+            onClose: "hideSuccess",
+          })
+        );
         dispatch(resetVerificationState());
       }, 300);
 
@@ -187,7 +187,7 @@ const TournamentCreationForm = () => {
           onConfirm={onCofirm}
           isLoading={false}
           message={message}
-          withComments={true}
+          withComments={type !== "Event"}
         />
 
         {currentStep === "basic info" && (

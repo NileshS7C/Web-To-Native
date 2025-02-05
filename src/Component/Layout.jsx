@@ -74,7 +74,7 @@ const Layout = () => {
 
             <ErrorModal />
 
-            {verificationSuccess && <SuccessModal />}
+            <SuccessModal />
 
             <div className="flex items-center justify-between w-full">
               <p className="text-[#343C6A] font-semibold text-[22px]">
