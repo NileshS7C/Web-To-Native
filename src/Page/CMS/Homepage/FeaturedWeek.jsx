@@ -1,52 +1,163 @@
 import React, { useState, useEffect } from "react";
 import WeekSectionInfo from "../../../Component/CMS/HomePage/FeaturedWeeks/WeekSectionInfo";
-import WeekContentTable from "../../../Component/CMS/HomePage/FeaturedWeeks/WeekContentTable";
-import WeekAddDataModal from "../../../Component/CMS/HomePage/FeaturedWeeks/WeekAddModal";
-
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 export default function FeaturedWeek() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [weeksData, setWeeksData] = useState([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [weekData, setWeekData] = useState({});
+    const [heading, setHeading] = useState("");
+    const [subHeading, setSubHeading] = useState("");
+    const [buttonText, setButtonText] = useState("");
+    const [link, setLink] = useState("");
+    const [image, setImage] = useState("");
+
     const fetchWeekData = async () => {
         try {
-            const response = await fetch("http://localhost:1234/api/admin/homepage-sections?section=featuredThisWeek", { method: "GET" });
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=featuredThisWeek`);
             const result = await response.json();
-            setWeeksData(result.data[0])
-            console.log(result)
+            const data = result.data[0];
+            setWeekData(data);
+            setHeading(data.heading);
+            setSubHeading(data.subHeading);
+            setButtonText(data.buttonText);
+            setLink(data.link);
+            setImage(data.image);
         } catch (error) {
             console.error(error);
         }
     };
-    useEffect(() => { fetchWeekData() }, [])
+
+    useEffect(() => { fetchWeekData(); }, []);
+    const uploadImage = async (file) => {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTM2MGNlNTcyMDg4OTk1OThhZTgwMSIsInBob25lIjoiMjIyMjIyMjIyMiIsIm5hbWUiOiJQcmF0aGFtIiwiaWF0IjoxNzM4MzE4MDE1LCJleHAiOjE3Mzg0MDQ0MTV9.gOFdNH3a-xSFUpdiAT8E7SUXcCgGc4caUMtSSrQRF50");
+
+        const formdata = new FormData();
+        formdata.append("uploaded-file", file);
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: formdata,
+            redirect: "follow",
+        };
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/upload-file`, requestOptions);
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            console.error("Error uploading image:", error);
+        }
+    };
+    const handleSave = async () => {
+        try {
+            let uploadImageUrl = image;
+            if (typeof image === 'object' && image instanceof Blob) {
+                const uploadedImage = await uploadImage(image);
+                uploadImageUrl = uploadedImage?.url || image;
+            }
+
+            await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/featuredThisWeek`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ heading, subHeading, buttonText, link, image: uploadImageUrl })
+            });
+
+            setIsEditing(false);
+            fetchWeekData();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:flex-col gap-4">
                 <div className="sm:flex-auto text-left">
-                    <h1 className="text-base font-semibold text-gray-900">Featured This Week</h1>
+                    <h1 className="text-base font-semibold text-left text-gray-900">{weekData.sectionTitle}</h1>
                 </div>
-                <div className="flex items-center gap-4 w-full">
-                    <WeekSectionInfo sectionInfo={weeksData} />
-                    <div className="w-[40%] flex justify-end">
+                <div className="flex items-end justify-between w-full">
+                    <WeekSectionInfo sectionInfo={weekData} />
+                    {!isEditing ? (
                         <button
-                            type="button"
-                            className="block rounded-md bg-[#1570EF] px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-[#1570EF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1570EF]"
-                            onClick={() => setIsModalOpen(true)}
+                            className="bg-blue-500 text-white px-3 py-2 rounded"
+                            onClick={() => setIsEditing(true)}
                         >
-                            Add Card
+                            Edit
                         </button>
-                    </div>
+                    ) : (
+                        <div className="flex gap-2">
+                            <button className="bg-green-500 text-white px-3 py-2 rounded" onClick={handleSave}>Save</button>
+                            <button className="bg-gray-500 text-white px-3 py-2 rounded" onClick={() => setIsEditing(false)}>Discard</button>
+                        </div>
+                    )}
                 </div>
             </div>
-            <div className="mt-8 flow-root">
-                <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                        <WeekContentTable data={weeksData} fetchHomepageSections={fetchWeekData} />
-                    </div>
-                </div>
-            </div>
+            <div className="mt-4 grid grid-cols-2 gap-4 shadow-md rounded-lg border border-gray-300 bg-white py-4 px-4">
+                <div className="flex flex-col gap-2">
+                    <label className="font-semibold text-left">Heading</label>
+                    <input
+                        type="text"
+                        className="border p-2 rounded"
+                        value={heading}
+                        onChange={(e) => setHeading(e.target.value)}
+                        disabled={!isEditing}
+                    />
+                    <label className="font-semibold text-left">Sub Heading</label>
+                    <ReactQuill
+                        value={subHeading}
+                        onChange={setSubHeading}
+                        readOnly={!isEditing}
+                        theme="snow"
+                        style={{
+                            height: '32vh',
+                            cursor: isEditing ? 'text' : 'not-allowed',
+                            borderColor: '#e5e7eb',
+                        }}
+                    />
 
-            {/* Pass isOpen and onClose to AddDataModal */}
-            <WeekAddDataModal data={weeksData} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchWeekData}/>
+                </div>
+                <div className="flex flex-col gap-2">
+                    <label className="font-semibold text-left">Button Text</label>
+                    <input
+                        type="text"
+                        className="border p-2 rounded"
+                        value={buttonText}
+                        onChange={(e) => setButtonText(e.target.value)}
+                        disabled={!isEditing}
+                    />
+                    <label className="font-semibold text-left">Link</label>
+                    <input
+                        type="text"
+                        className="border p-2 rounded"
+                        value={link}
+                        onChange={(e) => setLink(e.target.value)}
+                        disabled={!isEditing}
+                    />
+                    <div className="relative flex items-center gap-2">
+                        {/* Image */}
+                        <img src={image} alt="Preview" className="w-full h-40 object-cover rounded" />
+
+                        {/* Upload Icon and Button */}
+                        {isEditing && (
+                            <div className="absolute right-0 top-0 flex flex-col gap-2">
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    id="imageUpload"
+                                    onChange={(e) => setImage(URL.createObjectURL(e.target.files[0]))}
+                                />
+                                <label htmlFor="imageUpload" className="bg-blue-500 text-white px-3 py-2 rounded cursor-pointer">
+                                    Upload
+                                </label>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

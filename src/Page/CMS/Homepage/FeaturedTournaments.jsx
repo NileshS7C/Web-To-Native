@@ -9,7 +9,7 @@ export default function FeaturedTournaments() {
     const [tournamentData, setTournamentData] = useState([]);
     const fetchTournamentsData = async () => {
         try {
-            const response = await fetch("http://localhost:1234/api/admin/homepage-sections?section=tournament", { method: "GET" });
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=tournament`, { method: "GET" });
             const result = await response.json();
             setTournamentData(result.data[0])
         } catch (error) {
@@ -23,9 +23,9 @@ export default function FeaturedTournaments() {
                 <div className="sm:flex-auto text-left">
                     <h1 className="text-base font-semibold text-gray-900">Featured Tournaments</h1>
                 </div>
-                <div className="flex items-center gap-4 w-full">
+                <div className="flex items-end justify-between w-full">
                     <TournamentSectionInfo sectionInfo={tournamentData} />
-                    <div className="w-[40%] flex justify-end">
+                    <div className="flex justify-end">
                         <button
                             type="button"
                             className="block rounded-md bg-[#1570EF] px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-[#1570EF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1570EF]"
