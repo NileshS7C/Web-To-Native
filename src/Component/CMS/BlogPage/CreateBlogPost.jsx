@@ -9,11 +9,11 @@ export default function CreateBlogPost() {
   const [content, setContent] = useState("");
   const [handle, setHandle] = useState("");
   const [isPublished, setIsPublished] = useState(false);
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState("");
   const [imageError, setImageError] = useState("");
   const [writerName, setWriterName] = useState("");
   const [writerShortName, setWriterShortName] = useState("");
-  const [writerImage, setWriterImage] = useState(null);
+  const [writerImage, setWriterImage] = useState("");
   const [writerImageError, setWriterImageError] = useState("");
   const [tag, setTag] = useState("");
   const [tags, setTags] = useState([]);
@@ -46,12 +46,12 @@ export default function CreateBlogPost() {
   };
 
   // Handle Image Upload
-  const handleImageChange = async (event, setImageFunction, triggerBy) => {
+  const handleImageChange = async (event, setImage, triggerBy) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = await uploadImageToS3(file);
       if (imageUrl.success) {
-        setImageFunction(imageUrl.url);
+        setImage(imageUrl.url);
         setImageError("");
         setWriterImageError("");
       } else {
@@ -80,8 +80,8 @@ export default function CreateBlogPost() {
   };
 
   // Handle Image Removal
-  const handleRemoveImage = (setImageFunction) => {
-    setImageFunction(null);
+  const handleRemoveImage = (setImage) => {
+    setImage(null);
   };
 
   const getFormattedDate = () => {
@@ -125,13 +125,6 @@ export default function CreateBlogPost() {
         config
       );
 
-      console.log(
-        response.status,
-        "gdddddd",
-        response.data.message,
-        "----------------------------->",
-        response
-      );
       if (response.status !== 200) {
         throw new Error("Failed to save blog post.");
       }

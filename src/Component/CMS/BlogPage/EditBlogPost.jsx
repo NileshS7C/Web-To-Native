@@ -17,8 +17,9 @@ export default function EditBlogPost() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [tag, setTag] = useState("");
   const [publishDate, setPublishDate] = useState("");
-  const [handleError, setHandleError] = useState("");
-  const [saveError, setSaveError] = useState("");
+  const [imageError, setImageError] = useState("");
+  const [writerImageError, setWriterImageError] = useState("");
+  const [editSaveError, setEditSaveError] = useState("");
   const [blogFetchError, setBlogFetchError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -58,33 +59,46 @@ export default function EditBlogPost() {
 
   const uploadImageToS3 = async (file) => {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("uploaded-file", file);
 
     try {
-      const response = await fetch("/api/upload-image", {
-        method: "POST",
-        body: formData,
-      });
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/upload-file`,
+        formData,
+        config
+      );
 
-      if (response.ok) {
-        const data = await response.json();
-        return data.url;
-      } else {
-        throw new Error("Image upload failed");
-      }
+      console.log(
+        { success: true, url: response.data.data.url },
+        "{ success: true, url: response.data.data.url };"
+      );
+      return { success: true, url: response.data.data.url };
     } catch (error) {
-      console.error(error);
-      return null;
+      return { success: false, message: error.response.data.message };
     }
   };
 
-  const handleImageChange = async (event, setImageFunction) => {
+  // Handle Image Upload
+  const handleImageChange = async (event, setImage, triggerBy) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = await uploadImageToS3(file);
-      if (imageUrl) {
-        setImageFunction(imageUrl);
+
+      if (imageUrl.success) {
+        setImage(imageUrl.url);
+        setImageError("");
+        setWriterImageError("");
       } else {
+        if (triggerBy === "coverImage") {
+          setImageError(imageUrl.message);
+        } else if (triggerBy === "writerImage") {
+          setWriterImageError(imageUrl.message);
+        }
         console.error("Image upload failed");
       }
     }
@@ -102,25 +116,25 @@ export default function EditBlogPost() {
     setTags(tags.filter((tag, i) => i !== index));
   };
 
-  const handleRemoveImage = (setImageFunction) => {
-    setImageFunction("");
+  const handleRemoveImage = (setImage) => {
+    setImage("");
   };
 
   const handleSave = async () => {
-    const formData = {
-      blogName: title,
-      description: content,
-      handle,
-      isVisible: isPublished,
-      publishDate,
-      featureImage: image,
-      writerName,
-      writerShortname: writerShortName,
-      writerImage,
-      tag: tags,
-    };
-
     try {
+      const formData = {
+        blogName: title,
+        description: content,
+        handle,
+        isVisible: isPublished,
+        publishDate,
+        featureImage: image,
+        writerName,
+        writerShortname: writerShortName,
+        writerImage,
+        tag: tags,
+      };
+
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -136,7 +150,7 @@ export default function EditBlogPost() {
       alert("Blog post updated successfully!");
     } catch (error) {
       console.error("Error:", error);
-      setSaveError("Error saving blog post.");
+      setEditSaveError("Error saving blog post.");
     }
   };
 
@@ -167,9 +181,9 @@ export default function EditBlogPost() {
             )}
           </div>
 
-          {saveError && (
+          {editSaveError && (
             <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded-md mt-2">
-              <p className="text-sm">{saveError}</p>
+              <p className="text-sm">{editSaveError}</p>
             </div>
           )}
 
@@ -244,7 +258,7 @@ export default function EditBlogPost() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleImageChange(e, setImage)}
+                  onChange={(e) => handleImageChange(e, setImage, "coverImage")}
                   disabled={!isEditing}
                 />
                 {image && (
@@ -263,6 +277,9 @@ export default function EditBlogPost() {
                       </button>
                     )}
                   </div>
+                )}
+                {imageError && (
+                  <p className="text-red-500 text-sm">{imageError}</p>
                 )}
               </div>
 
@@ -306,8 +323,11 @@ export default function EditBlogPost() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleImageChange(e, setWriterImage)}
+                    onChange={(e) =>
+                      handleImageChange(e, setWriterImage, "writerImage")
+                    }
                     disabled={!isEditing}
+                    // className="opacity-0"
                   />
                   {writerImage && (
                     <div className="relative">
@@ -325,6 +345,9 @@ export default function EditBlogPost() {
                         </button>
                       )}
                     </div>
+                  )}
+                  {writerImageError && (
+                    <p className="text-red-500 text-sm">{writerImageError}</p>
                   )}
                 </div>
               </div>
