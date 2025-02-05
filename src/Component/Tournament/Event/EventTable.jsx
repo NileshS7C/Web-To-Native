@@ -8,13 +8,12 @@ import Button from "../../Common/Button";
 import {
   onPageChangeEvent,
   toggleModal,
+  resetAllCategories,
 } from "../../../redux/tournament/eventSlice";
 
 import DataTable from "../../Common/DataTable";
 import { eventTableHeaders } from "../../../Constant/tournament";
 import Spinner from "../../Common/Spinner";
-
-
 
 export const EventTable = ({ isDisable }) => {
   const dispatch = useDispatch();
@@ -22,7 +21,9 @@ export const EventTable = ({ isDisable }) => {
   const { currentPage, categories, totalCategories, isLoading } = useSelector(
     (state) => state.event
   );
+
   useEffect(() => {
+    dispatch(resetAllCategories());
     dispatch(
       getAllCategories({
         currentPage,
@@ -42,7 +43,7 @@ export const EventTable = ({ isDisable }) => {
 
   return (
     <div className="grid grid-cols-1  gap-2.5">
-      {!categories?.length && (
+      {!categories.length && (
         <table className="border-[1px] border-[#EAECF0] rounded-[8px] table-auto">
           <tr className="text-sm text-[#667085] bg-[#F9FAFB] font-[500] border-b-[1px] h-[44px] space-x-4">
             <th className="text-left">S.No.</th>
@@ -60,7 +61,7 @@ export const EventTable = ({ isDisable }) => {
         </table>
       )}
 
-      {categories?.length > 0 && (
+      {categories.length > 0 && (
         <DataTable
           columns={eventTableHeaders}
           data={categories}
