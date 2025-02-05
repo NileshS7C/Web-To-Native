@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../Services/axios";
 
 export default function CreateBlogPost() {
+  const navigate = useNavigate();
+  const coverFileInputRef = useRef(null);
+  const writerFileInputRef = useRef(null);
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [handle, setHandle] = useState("");
@@ -21,8 +25,7 @@ export default function CreateBlogPost() {
   const [handleError, setHandleError] = useState("");
   const [saveError, setSaveError] = useState("");
 
-  const navigate = useNavigate();
-
+  console.log(writerFileInputRef.current, "writerFileInputRef.current");
   const uploadImageToS3 = async (file) => {
     const formData = new FormData();
     formData.append("uploaded-file", file);
@@ -46,12 +49,12 @@ export default function CreateBlogPost() {
   };
 
   // Handle Image Upload
-  const handleImageChange = async (event, setImage, triggerBy) => {
+  const handleImageChange = async (event, setImageFunction, triggerBy) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = await uploadImageToS3(file);
       if (imageUrl.success) {
-        setImage(imageUrl.url);
+        setImageFunction(imageUrl.url);
         setImageError("");
         setWriterImageError("");
       } else {
@@ -80,8 +83,13 @@ export default function CreateBlogPost() {
   };
 
   // Handle Image Removal
-  const handleRemoveImage = (setImage) => {
-    setImage(null);
+  const handleRemoveImage = (setImageFunction, triggerBy) => {
+    setImageFunction("");
+    if (triggerBy === "coverImage" && coverFileInputRef.current) {
+      coverFileInputRef.current.value = "";
+    } else if (triggerBy === "writerImage" && writerFileInputRef.current) {
+      writerFileInputRef.current.value = "";
+    }
   };
 
   const getFormattedDate = () => {
@@ -239,7 +247,18 @@ export default function CreateBlogPost() {
               type="file"
               accept="image/*"
               onChange={(e) => handleImageChange(e, setImage, "coverImage")}
+              className="hidden"
+              id="coverImageUpload"
+              ref={coverFileInputRef}
             />
+            <div className="text-left">
+              <label
+                htmlFor="coverImageUpload"
+                className={` inline-block bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium  hover:bg-gray-600 cursor-pointer`}
+              >
+                Choose Image
+              </label>
+            </div>
             {image && (
               <div className="relative">
                 <img
@@ -248,7 +267,7 @@ export default function CreateBlogPost() {
                   className="w-20 h-20 object-cover rounded-md"
                 />
                 <button
-                  onClick={() => handleRemoveImage(setImage)}
+                  onClick={() => handleRemoveImage(setImage, "coverImage")}
                   className="absolute top-0 right-0 bg-gray-500 text-white text-xs rounded-full p-1"
                 >
                   &times;
@@ -302,7 +321,20 @@ export default function CreateBlogPost() {
                 onChange={(e) =>
                   handleImageChange(e, setWriterImage, "writerImage")
                 }
+                className="hidden"
+                id="writerImageUpload"
+                ref={writerFileInputRef}
               />
+              <div className="text-left">
+                <label
+                  htmlFor="writerImageUpload"
+                  className={` inline-block bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium
+                        hover:bg-gray-600 cursor-pointer
+                      `}
+                >
+                  Choose Image
+                </label>
+              </div>
               {writerImage && (
                 <div className="relative">
                   <img
@@ -311,7 +343,9 @@ export default function CreateBlogPost() {
                     className="w-20 h-20 object-cover rounded-full mt-2"
                   />
                   <button
-                    onClick={() => handleRemoveImage(setWriterImage)}
+                    onClick={() =>
+                      handleRemoveImage(setWriterImage, "writerImage")
+                    }
                     className="absolute top-0 right-0 bg-gray-500 text-white text-xs rounded-full p-1"
                   >
                     &times;

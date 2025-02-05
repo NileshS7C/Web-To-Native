@@ -6,6 +6,11 @@ import axiosInstance from "../../../Services/axios";
 
 export default function EditBlogPost() {
   const { handle } = useParams();
+
+  const navigate = useNavigate();
+  const coverFileInputRef = useRef(null);
+  const writerFileInputRef = useRef(null);
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isPublished, setIsPublished] = useState(false);
@@ -84,13 +89,13 @@ export default function EditBlogPost() {
   };
 
   // Handle Image Upload
-  const handleImageChange = async (event, setImage, triggerBy) => {
+  const handleImageChange = async (event, setImageFunction, triggerBy) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = await uploadImageToS3(file);
 
       if (imageUrl.success) {
-        setImage(imageUrl.url);
+        setImageFunction(imageUrl.url);
         setImageError("");
         setWriterImageError("");
       } else {
@@ -116,8 +121,13 @@ export default function EditBlogPost() {
     setTags(tags.filter((tag, i) => i !== index));
   };
 
-  const handleRemoveImage = (setImage) => {
-    setImage("");
+  const handleRemoveImage = (setImageFunction, triggerBy) => {
+    setImageFunction("");
+    if (triggerBy === "coverImage" && coverFileInputRef.current) {
+      coverFileInputRef.current.value = "";
+    } else if (triggerBy === "writerImage" && writerFileInputRef.current) {
+      writerFileInputRef.current.value = "";
+    }
   };
 
   const handleSave = async () => {
@@ -260,7 +270,20 @@ export default function EditBlogPost() {
                   accept="image/*"
                   onChange={(e) => handleImageChange(e, setImage, "coverImage")}
                   disabled={!isEditing}
+                  className="hidden"
+                  id="coverImageUploadEdit"
+                  ref={coverFileInputRef}
                 />
+                <div className="text-left">
+                  <label
+                    htmlFor="coverImageUploadEdit"
+                    className={` inline-block bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium ${
+                      isEditing ? "hover:bg-gray-600 cursor-pointer" : ""
+                    }`}
+                  >
+                    Choose Image
+                  </label>
+                </div>
                 {image && (
                   <div className="relative">
                     <img
@@ -270,7 +293,9 @@ export default function EditBlogPost() {
                     />
                     {isEditing && (
                       <button
-                        onClick={() => handleRemoveImage(setImage)}
+                        onClick={() =>
+                          handleRemoveImage(setImage, "coverImage")
+                        }
                         className="absolute top-0 right-0 bg-gray-500 text-white text-xs rounded-full p-1"
                       >
                         &times;
@@ -327,8 +352,20 @@ export default function EditBlogPost() {
                       handleImageChange(e, setWriterImage, "writerImage")
                     }
                     disabled={!isEditing}
-                    // className="opacity-0"
+                    className="hidden"
+                    id="writerImageUploadEdit"
+                    ref={writerFileInputRef}
                   />
+                  <div className="text-left">
+                    <label
+                      htmlFor="writerImageUploadEdit"
+                      className={` inline-block bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium ${
+                        isEditing ? "hover:bg-gray-600 cursor-pointer" : ""
+                      }`}
+                    >
+                      Choose Image
+                    </label>
+                  </div>
                   {writerImage && (
                     <div className="relative">
                       <img
@@ -338,7 +375,9 @@ export default function EditBlogPost() {
                       />
                       {isEditing && (
                         <button
-                          onClick={() => handleRemoveImage(setWriterImage)}
+                          onClick={() =>
+                            handleRemoveImage(setWriterImage, "writerImage")
+                          }
                           className="absolute top-0 right-0 bg-gray-500 text-white text-xs rounded-full p-1"
                         >
                           &times;
