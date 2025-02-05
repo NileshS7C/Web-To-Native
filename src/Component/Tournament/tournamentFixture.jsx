@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   createFixture,
   getFixture,
+  publishFixture,
+  updateSeeding,
 } from "../../redux/tournament/fixturesActions";
 import { showError } from "../../redux/Error/errorSlice";
 
@@ -19,6 +21,29 @@ import NotificationBanner from "../Common/NotificationBanner";
 import { suffleIcon } from "../../Assests";
 import { TbSwipe } from "react-icons/tb";
 import { PlayerSelectionModal } from "../Common/PlayerSeedingModal";
+import { showSuccess } from "../../redux/Success/successSlice";
+import { resetFixtureSuccess } from "../../redux/tournament/fixtureSlice";
+
+const formateMatchData = (fixture, suffledPlayers) => {
+  if (!fixture || !suffledPlayers?.length) {
+    return;
+  }
+
+  const stageId = fixture?.currentStage;
+  const stageData = fixture?.bracketData?.stage;
+  const stageUpdatingTheSeeding = stageData[stageId]; // to get the current stage which is doing seeding
+
+  const updatedSeedingData = suffledPlayers.map((player) => {
+    // for removing the id and tournament id from the player (API requirement)
+    const { id, tournament_id, ...rest } = player;
+    return rest;
+  });
+
+  return {
+    stageId,
+    stageData: { ...stageUpdatingTheSeeding, seeding: updatedSeedingData },
+  };
+};
 
 const getRandomArbitrary = (min, max) => {
   return Math.random() * (max - min) + min;
@@ -52,6 +77,9 @@ export const TournamentFixture = ({ tournament }) => {
     FixtureCreationError,
     isFetchingFixture,
     ErrorMessage,
+    isPublishing,
+    isPublished,
+    publishError,
   } = useSelector((state) => state.fixture);
 
   const stableFixture = useMemo(() => fixture, [fixture]);
@@ -60,10 +88,20 @@ export const TournamentFixture = ({ tournament }) => {
     dispatch(createFixture({ tour_Id: tournamentId, eventId }));
   }, []);
 
-  const handlePlayerSuffling = useCallback(() => {
+  const handlePlayerSuffling = () => {
     const result = playerSuffling(stableFixture?.bracketData?.participant);
+    const formattedMatchData = formateMatchData(fixture, result);
+    dispatch(
+      updateSeeding({
+        tour_Id: tournamentId,
+        eventId,
+        fixtureId: fixture?._id,
+        formData: formattedMatchData,
+        stageId: fixture?.currentStage,
+      })
+    );
     setSuffledPlayers(result);
-  }, []);
+  };
 
   const handleMatchModal = (value) => {
     setOpenMatchModal(value);
@@ -71,6 +109,16 @@ export const TournamentFixture = ({ tournament }) => {
 
   const handlePlayerSeddingModal = (value) => {
     setOpenPlayerSeedingModal(value);
+  };
+
+  const handlePublishFixture = () => {
+    dispatch(
+      publishFixture({
+        tour_Id: tournamentId,
+        eventId,
+        fixtureId: fixture?._id,
+      })
+    );
   };
 
   useEffect(() => {
@@ -96,6 +144,8 @@ export const TournamentFixture = ({ tournament }) => {
       );
 
       setPlayers(players);
+
+      dispatch(resetFixtureSuccess());
     }
   }, [fixture, isFixtureSuccess, FixtureCreatedSuccess]);
 
@@ -109,7 +159,7 @@ export const TournamentFixture = ({ tournament }) => {
   }, []);
 
   useEffect(() => {
-    if (FixtureCreationError) {
+    if (FixtureCreationError || FixtureCreatedSuccess) {
       dispatch(
         showError({
           message:
@@ -119,7 +169,24 @@ export const TournamentFixture = ({ tournament }) => {
         })
       );
     }
-  }, [FixtureCreationError]);
+
+    if (publishError) {
+      dispatch(
+        showError({
+          message:
+            ErrorMessage ||
+            "Oops! something went wrong while publishing the fixture.",
+          onClose: "hideError",
+        })
+      );
+    }
+  }, [FixtureCreationError, publishError]);
+
+  useEffect(() => {
+    if (isPublished) {
+      dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+    }
+  }, [isPublished]);
 
   if (isFetchingFixture) {
     return (
@@ -138,27 +205,35 @@ export const TournamentFixture = ({ tournament }) => {
           wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
         />
         <button
-          className="bg-[#CAD9FB] border-2 border-[#CAD9FB] p-2 rounded-lg"
+          className="bg-[#CAD9FB] border-2 border-[#CAD9FB] p-2 rounded-lg disabled:bg-slate-300"
           onClick={() => setOpenPlayerSeedingModal(true)}
+          disabled={fixture?.status === "PUBLISHED" || !fixture}
         >
           <TbSwipe className="w-[20px] h-[20px]" />
         </button>
         <button
-          className="bg-[#CAD9FB] border-2 border-[#CAD9FB] p-2 rounded-lg"
+          className="bg-[#CAD9FB] border-2 border-[#CAD9FB] p-2 rounded-lg disabled:bg-slate-300"
           onClick={handlePlayerSuffling}
+          disabled={fixture?.status === "PUBLISHED" || !fixture}
         >
-          <img src={suffleIcon} alt="suffle button" />
+          <img src={suffleIcon} alt="suffle button" className="animate-pulse" />
         </button>
-        <Button className="w-[148px]  h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto">
+        <Button
+          className="w-[148px]  h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400"
+          onClick={handlePublishFixture}
+          loading={isPublishing}
+          disabled={fixture?.status === "PUBLISHED" || !fixture}
+        >
           Publish
         </Button>
       </div>
 
-      <div className="brackets-viewer  w-full flex  flex-col justify-center items-start flex-1">
+      <div className="brackets-viewer  w-full flex  flex-col justify-center items-start flex-1 rounded-md">
         <Button
-          className="w-[250px] h-[50px] ml-auto text-white text-[14px] rounded-lg"
+          className="w-[200px] h-[50px] ml-auto text-white text-[14px] rounded-lg disabled:bg-blue-400"
           onClick={handleCreateFixture}
           loading={isCreatingFixture}
+          disabled={fixture}
         >
           Create Fixture
         </Button>

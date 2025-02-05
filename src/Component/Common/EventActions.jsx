@@ -6,10 +6,6 @@ import { setEventId, toggleModal } from "../../redux/tournament/eventSlice";
 import { updateQueryString } from "../../utils/urlModification";
 import PropTypes from "prop-types";
 
-
-
-
-
 const EventActions = ({ id, index }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();

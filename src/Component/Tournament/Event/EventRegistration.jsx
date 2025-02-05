@@ -27,9 +27,11 @@ function EventRegistrations({ tournament }) {
   const dispatch = useDispatch();
   const location = useLocation();
   const { tournamentId, eventId } = useParams();
-  const { bookings, bookingError, isGettingBookings } = useSelector(
-    (state) => state.GET_TOUR
-  );
+  const {
+    bookings: bookingData,
+    bookingError,
+    isGettingBookings,
+  } = useSelector((state) => state.GET_TOUR);
   const { isOpen, message, onClose, isConfirmed } = useSelector(
     (state) => state.confirm
   );
@@ -63,11 +65,12 @@ function EventRegistrations({ tournament }) {
     );
   }
 
-  // if (bookings.length) {
-  //   return (
-  //     <EmptyBanner message="There are currently no bookings for this event." />
-  //   );
-  // }
+  if (bookingData?.bookings?.length) {
+    return (
+      <EmptyBanner message="There are currently no bookings for this event." />
+    );
+  }
+
   return (
     <div className="flex flex-col gap-5 md:bg-[#FFFFFF] justify-center p-5 rounded-lg">
       <div className="flex justify-end mt-4">
@@ -96,8 +99,8 @@ function EventRegistrations({ tournament }) {
 
       <DataTable
         columns={bookingTableHeaders}
-        data={data}
-        totalPages="20"
+        data={bookingData?.bookings}
+        totalPages={bookingData?.totalCount}
         currentPage={currentPage}
         onPageChange={onPageChangeEvent}
         className="border-[1px] rounded-md"
