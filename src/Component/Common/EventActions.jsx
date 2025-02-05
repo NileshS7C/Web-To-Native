@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { ActionButtons } from "./ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { ActionButtons } from "./ActionButtons";
 import { ActionButtonCourt } from "../../Constant/venue";
 import { toggleModal } from "../../redux/tournament/eventSlice";
 import { updateQueryString } from "../../utils/urlModification";
