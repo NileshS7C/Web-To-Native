@@ -125,7 +125,13 @@ export default function CreateBlogPost() {
         config
       );
 
-      console.log(response.status, "gdddddd", response.data.message,"----------------------------->",response);
+      console.log(
+        response.status,
+        "gdddddd",
+        response.data.message,
+        "----------------------------->",
+        response
+      );
       if (response.status !== 200) {
         throw new Error("Failed to save blog post.");
       }
@@ -154,7 +160,7 @@ export default function CreateBlogPost() {
           Create Post
         </button>
       </div>
-      {/* Show the save error below the title */}
+      {/* Show the error  if save failure */}
       {saveError && (
         <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded-md mt-2">
           <p className="text-sm">{saveError}</p>

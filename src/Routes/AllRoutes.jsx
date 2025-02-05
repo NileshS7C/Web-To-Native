@@ -47,7 +47,7 @@ const AllRoutes = () => {
           <Route path="cms/blogs/blog-posts">
             <Route index element={<BlogPosts />} />
             <Route path="new" element={<CreateBlogPost/>} />
-            <Route path=":id" element={<EditBlogPost/>} />
+            <Route path=":handle" element={<EditBlogPost/>} />
           </Route>
 
           <Route path="venues">

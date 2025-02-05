@@ -55,15 +55,15 @@ export default function BlogPosts() {
   }
 
   const totalPages = Math.ceil(total / limit); // Total pages
-  const paginationGroupSize = 5; // Show 5 pagination buttons at a time
-  const currentGroup = Math.ceil(page / paginationGroupSize); // Determine the group
+  const paginationGroupSize = 5; // Shows 5 pagination buttons at a time
+  const currentGroup = Math.ceil(page / paginationGroupSize); // Determine the pagination group to display
 
   // Calculate range of pages to display
   const startPage = (currentGroup - 1) * paginationGroupSize + 1;
   const endPage = Math.min(startPage + paginationGroupSize - 1, totalPages);
   const pages = Array.from(
     { length: endPage - startPage + 1 },
-    (_, i) => startPage + i
+    (page, i) => startPage + i
   );
 
   return (
