@@ -1,12 +1,12 @@
 import PropTypes from "prop-types";
 import { useEffect } from "react";
+import { ActionButtons } from "./ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ActionButtons } from "./ActionButtons";
 import { ActionButtonCourt } from "../../Constant/venue";
-import { setEventId, toggleModal } from "../../redux/tournament/eventSlice";
+import { toggleModal } from "../../redux/tournament/eventSlice";
 import { updateQueryString } from "../../utils/urlModification";
-
 import {
   resetConfirmationState,
   showConfirmation,
@@ -16,7 +16,8 @@ import {
   getAllCategories,
 } from "../../redux/tournament/tournamentActions";
 
-const EventActions = ({ id, index }) => {
+
+const EventActions = ({ id, index, eventName }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
@@ -40,7 +41,7 @@ const EventActions = ({ id, index }) => {
       );
     },
     view: () => {
-      dispatch(setEventId(id));
+      navigate(`/tournaments/${tournamentId}/event/${id}?event=${eventName}`);
     },
   };
 
