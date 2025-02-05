@@ -1,12 +1,50 @@
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import PropTypes from "prop-types";
+import PropTypes, { element } from "prop-types";
 import { IoCloseSharp } from "react-icons/io5";
 import { TbSwipe } from "react-icons/tb";
 import { IoMdAdd } from "react-icons/io";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RiDeleteBinLine } from "react-icons/ri";
 
-export const PlayerSelectionModal = ({ isOpen, onCancel, players }) => {
+export const PlayerSelectionModal = ({
+  isOpen,
+  onCancel,
+  players,
+  participants,
+}) => {
+  const [seededPlayers, setSeededPlayers] = useState([]);
+  const [selections, setSelections] = useState([]);
+  const handleSeededPlayer = (value) => {
+    setSelections((_) => [...value]);
+  };
+
+  useEffect(() => {
+    if (selections?.length > 0) {
+      const updatedArray = [...participants];
+      selections.forEach((selections) => {
+        const indexOfTheChoosenPlayer = participants.findIndex(
+          (element) => element.id === selections.player1
+        );
+
+        const swappingPlayerIndex = participants.findIndex(
+          (element) => element.id === selections.player2
+        );
+
+        if (indexOfTheChoosenPlayer !== -1 && swappingPlayerIndex !== -1) {
+          [
+            updatedArray[indexOfTheChoosenPlayer],
+            updatedArray[swappingPlayerIndex],
+          ] = [
+            updatedArray[swappingPlayerIndex],
+            updatedArray[indexOfTheChoosenPlayer],
+          ];
+
+          setSeededPlayers(updatedArray);
+        }
+      });
+    }
+  }, [selections]);
+
   return (
     <Dialog
       open={isOpen}
@@ -25,7 +63,11 @@ export const PlayerSelectionModal = ({ isOpen, onCancel, players }) => {
             className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <div className="flex flex-col justify-between flex-1 items-start gap-3 w-full">
-              <PlayerSelectionManager players={players} />
+              <PlayerSwipeTitle onCancel={onCancel}/>
+              <PlayerSelectionManager
+                players={players}
+                handleSeededPlayer={handleSeededPlayer}
+              />
             </div>
           </DialogPanel>
         </div>
@@ -62,10 +104,10 @@ const PlayerRow = ({
 
   const getAvailablePlayers = (currentField) => {
     return players.filter((player) => {
-      if (player === currentRow[currentField]) return true;
+      if (player.id === currentRow[currentField]) return true;
 
       return !allSelections.some(
-        (row) => row.player1 === player || row.player2 === player
+        (row) => row.player1 === player.id || row.player2 === player.id
       );
     });
   };
@@ -90,8 +132,8 @@ const PlayerRow = ({
         >
           <option value="">Select Player</option>
           {getAvailablePlayers("player1").map((player) => (
-            <option key={player} value={player}>
-              {player}
+            <option key={player.name} value={player?.id}>
+              {player.name}
             </option>
           ))}
         </select>
@@ -117,8 +159,8 @@ const PlayerRow = ({
         >
           <option value="">Select Player</option>
           {getAvailablePlayers("player2").map((player) => (
-            <option key={player} value={player}>
-              {player}
+            <option key={player.name} value={player.id}>
+              {player.name}
             </option>
           ))}
         </select>
@@ -135,18 +177,24 @@ const PlayerRow = ({
   );
 };
 
-const PlayerSelectionManager = ({ players }) => {
+const PlayerSelectionManager = ({ players, handleSeededPlayer }) => {
   const [selections, setSelections] = useState([{ player1: "", player2: "" }]);
 
   const handlePlayerChange = (rowIndex, field, value) => {
-    setSelections((prev) => {
-      const newSelections = [...prev];
-      newSelections[rowIndex] = {
-        ...newSelections[rowIndex],
-        [field]: value,
-      };
-      return newSelections;
-    });
+    const playerData = players.find((player) => player.id === Number(value));
+    let name;
+    if (playerData) {
+      name = playerData.id;
+      setSelections((prev) => {
+        const newSelections = [...prev];
+        newSelections[rowIndex] = {
+          ...newSelections[rowIndex],
+          [field]: name,
+        };
+        handleSeededPlayer(newSelections);
+        return newSelections;
+      });
+    }
   };
 
   const handleAddRow = () => {
@@ -192,6 +240,7 @@ PlayerRow.propTypes = {
 
 PlayerSelectionManager.propTypes = {
   players: PropTypes.array,
+  handleSeededPlayer: PropTypes.func,
 };
 
 PlayerSwipeTitle.propTypes = {
@@ -202,5 +251,5 @@ PlayerSelectionModal.propTypes = {
   isOpen: PropTypes.bool,
   onCancel: PropTypes.func,
   players: PropTypes.array,
-  matches: PropTypes.array,
+  participants: PropTypes.array,
 };
