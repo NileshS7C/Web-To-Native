@@ -5,6 +5,7 @@ import { TbSwipe } from "react-icons/tb";
 import { IoMdAdd } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { RiDeleteBinLine } from "react-icons/ri";
+import Button from "./Button";
 
 export const PlayerSelectionModal = ({
   isOpen,
@@ -63,11 +64,19 @@ export const PlayerSelectionModal = ({
             className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <div className="flex flex-col justify-between flex-1 items-start gap-3 w-full">
-              <PlayerSwipeTitle onCancel={onCancel}/>
+              <PlayerSwipeTitle onCancel={onCancel} />
               <PlayerSelectionManager
                 players={players}
                 handleSeededPlayer={handleSeededPlayer}
               />
+
+              <Button
+                className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
+                type="submit"
+                loading=""
+              >
+                Save
+              </Button>
             </div>
           </DialogPanel>
         </div>
@@ -103,13 +112,15 @@ const PlayerRow = ({
   const currentRow = allSelections[rowIndex] || { player1: "", player2: "" };
 
   const getAvailablePlayers = (currentField) => {
-    return players.filter((player) => {
-      if (player.id === currentRow[currentField]) return true;
+    return players?.length > 0
+      ? players.filter((player) => {
+          if (player.id === currentRow[currentField]) return true;
 
-      return !allSelections.some(
-        (row) => row.player1 === player.id || row.player2 === player.id
-      );
-    });
+          return !allSelections.some(
+            (row) => row.player1 === player.id || row.player2 === player.id
+          );
+        })
+      : [];
   };
 
   return (

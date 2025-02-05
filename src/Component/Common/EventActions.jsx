@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ActionButtonCourt } from "../../Constant/venue";
 import { toggleModal } from "../../redux/tournament/eventSlice";
 import { updateQueryString } from "../../utils/urlModification";
+
 import {
   resetConfirmationState,
   showConfirmation,
@@ -17,6 +18,7 @@ import {
 
 
 const EventActions = ({ id, index, eventName }) => {
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { tournamentId } = useParams();

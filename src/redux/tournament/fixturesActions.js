@@ -72,7 +72,7 @@ export const getFixture = createAsyncThunk(
 
 export const updateMatch = createAsyncThunk(
   "fixture/updateMatch",
-  async (matchData  , { rejectWithValue }) => {
+  async (matchData, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -86,6 +86,78 @@ export const updateMatch = createAsyncThunk(
           matchData.fixtureId
         }/update-Match`,
         JSON.stringify(matchData?.formData),
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err?.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const updateSeeding = createAsyncThunk(
+  "fixture/updateSeeding",
+  async (matchData, { rejectWithValue }) => {
+    try {
+      console.log(" match data", matchData);
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.put(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${
+          matchData.tour_Id
+        }/categories/${matchData.eventId}/fixtures/${
+          matchData.fixtureId
+        }/stages/${matchData.stageId}/seeding`,
+        JSON.stringify(matchData?.formData),
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err?.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const publishFixture = createAsyncThunk(
+  "fixture/publishFixture",
+  async (matchData, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.patch(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${
+          matchData.tour_Id
+        }/categories/${matchData.eventId}/fixtures/${
+          matchData.fixtureId
+        }/publish`,
         config
       );
 

@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createFixture, getFixture, updateMatch } from "./fixturesActions";
+import {
+  createFixture,
+  getFixture,
+  publishFixture,
+  updateMatch,
+} from "./fixturesActions";
 
 const initialState = {
   status: "",
@@ -14,11 +19,18 @@ const initialState = {
   isUpdatingMatch: false,
   matchUpateSuccess: false,
   matchUpdateError: false,
+  isPublishing: false,
+  isPublished: false,
+  publishError: false,
 };
 const fixtureSlice = createSlice({
   name: "fixture",
   initialState,
-  reducers: {},
+  reducers: {
+    resetFixtureSuccess(state) {
+      state.isFixtureSuccess = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getFixture.pending, (state) => {
@@ -81,7 +93,29 @@ const fixtureSlice = createSlice({
         state.matchUpdateError = true;
         state.ErrorMessage = payload?.data?.message;
       });
+
+    builder
+      .addCase(publishFixture.pending, (state) => {
+        state.isPublishing = true;
+        state.isPublished = false;
+        state.publishError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(publishFixture.fulfilled, (state) => {
+        state.isPublishing = false;
+        state.isPublished = true;
+        state.publishError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(publishFixture.rejected, (state, { payload }) => {
+        state.isPublishing = false;
+        state.isPublished = false;
+        state.publishError = true;
+        state.ErrorMessage = payload.data.message;
+      });
   },
 });
+
+export const { resetFixtureSuccess } = fixtureSlice.actions;
 
 export default fixtureSlice.reducer;
