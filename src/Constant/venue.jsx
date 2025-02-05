@@ -1,5 +1,5 @@
 import VenueActions from "../Component/Common/VenueActions";
-import { EditIcon, DeleteIcon } from "../Assests";
+import { EditIcon, DeleteIcon, ViewIcon } from "../Assests";
 import CourtActions from "../Component/Common/CourtActions";
 import { Link } from "react-router-dom";
 const Amenities = [
@@ -106,6 +106,7 @@ const courtTableContent = [
 ];
 
 const ActionButtonCourt = [
+  { name: "Veiw", icon: ViewIcon, action: "view" },
   { name: "Edit", icon: EditIcon, action: "edit" },
   { name: "Delete", icon: DeleteIcon, action: "delete" },
 ];
@@ -148,5 +149,5 @@ export {
   ActionButtonCourt,
   fixedDays,
   fixedDaysLower,
-  venueLimit
+  venueLimit,
 };
