@@ -789,20 +789,16 @@ const DesktopBannerImageUpload = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
 
-  console.log(" values", values);
-
   useEffect(() => {
     const previewImages = values?.bannerDesktopImages?.length
-      ? [{ preview: values.bannerDesktopImages[0].url }]
+      ? [{ preview: values.bannerDesktopImages }]
       : [];
-
-    console.log(" preview images", previewImages);
 
     setPreviews(previewImages);
   }, [values?.bannerDesktopImages]);
 
   const handleRemoveImageDesk = (value) => {
-    dispatch(deleteUploadedImage(value));
+    dispatch(deleteUploadedImage(value[0]));
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
@@ -830,7 +826,7 @@ const DesktopBannerImageUpload = ({
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
       setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
       const url = result.data.url;
-      setFieldValue("bannerDesktopImages", [{ url }]);
+      setFieldValue("bannerDesktopImages", [url]);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);
@@ -912,15 +908,14 @@ const MobileBannerImageUpload = ({
 
   useEffect(() => {
     const previewImages = values?.bannerMobileImages?.length
-      ? [{ preview: values.bannerMobileImages[0].url }]
+      ? [{ preview: values.bannerMobileImages }]
       : [];
 
     setPreviews(previewImages);
   }, [values?.bannerMobileImages]);
 
   const handleRemoveImageDesk = (value) => {
-    console.log(" value", value);
-    dispatch(deleteUploadedImage(value));
+    dispatch(deleteUploadedImage(value[0]));
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
@@ -946,7 +941,7 @@ const MobileBannerImageUpload = ({
 
       setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
       const url = result?.data?.url;
-      setFieldValue("bannerMobileImages", [{ url }]);
+      setFieldValue("bannerMobileImages", [url]);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);
