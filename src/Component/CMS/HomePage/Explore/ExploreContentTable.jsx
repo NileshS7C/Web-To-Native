@@ -1,66 +1,88 @@
 import React, { useState } from "react";
 import ExploreEditDataModal from "./ExploreEditDataModal";
+import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
+import ExploreDeleteModal from "./ExploreDeleteModal";
 
 export default function ExploreContentTable({ data, fetchHomepageSections }) {
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [selectedCard, setSelectedCard] = useState();
-  const columns = data?.length > 0 ? Object.keys(data[0]) : [];
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
+
   const handleModifyData = (item) => {
     setOpenEditModal(true);
     setSelectedCard(item);
-  }
+  };
+
+  const handleDelete = (item) => {
+    setDeleteModal(true);
+    setSelectedCard(item);
+  };
+
+  const headers = ["Position", "Title", "Link", "Actions"];
+
   return (
-    <div className="overflow-x-auto  bg-white rounded-lg shadow-lg border border-gray-300">
+    <div className="overflow-x-auto bg-white rounded-lg shadow-lg border border-gray-300">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-200">
           <tr>
-            {columns.map((column) => (
+            {headers.map((header, index) => (
               <th
-                key={column}
-                className="px-3 py-2 text-left text-sm font-semibold text-gray-900"
+                key={index}
+                className={`px-3 py-2 text-left text-sm font-semibold text-gray-900 ${header === "Position" || header === "Actions"
+                    ? "w-[10%]"
+                    : header === "Title"
+                      ? "w-[30%]"
+                      : "w-[50%]"
+                  }`}
               >
-                {column.charAt(0).toUpperCase() + column.slice(1)}
+                {header}
               </th>
             ))}
-            <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
-              Actions
-            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          {data?.map((item, rowIndex) => (
-            <tr key={rowIndex} className="text-left">
-              {columns.map((column) => (
-                <td
-                  key={column}
-                  className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap"
-                >
-                  {column === "redirect" ? (
-                    <a
-                      href={item[column]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#1570EF]"
-                    >
-                      {item[column]}
-                    </a>
-                  ) : (
-                    item[column]
-                  )}
-                </td>
-              ))}
-              <td className="px-3 py-4 text-sm text-[#1570EF] whitespace-nowrap">
-                <a href="#" className="hover:text-[#1570EF]" onClick={() => handleModifyData(item)}>
-                  Edit<span className="sr-only">, {item.title}</span>
-                </a>
+          {data?.features?.map((explore, index) => (
+            <tr key={index} className="text-left">
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%] text-center">
+                {explore.position}
+              </td>
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
+                {explore.title}
+              </td>
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[50%]">
+                {explore.link}
+              </td>
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
+                <div className="flex items-center space-x-3">
+                  <button onClick={() => handleModifyData(explore)} className="hover:text-blue-600">
+                    <PencilIcon className="w-5 h-5" />
+                  </button>
+                  <button onClick={() => handleDelete(explore)} className="hover:text-red-600">
+                    <TrashIcon className="w-5 h-5" />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {openEditModal && <ExploreEditDataModal data={selectedCard} isOpen={openEditModal} onClose={() => setOpenEditModal(false)} fetchHomepageSections={fetchHomepageSections} />}
+      {openEditModal && (
+        <ExploreEditDataModal
+          data={selectedCard}
+          isOpen={openEditModal}
+          onClose={() => setOpenEditModal(false)}
+          fetchHomepageSections={fetchHomepageSections}
+        />
+      )}
+      {deleteModal && (
+        <ExploreDeleteModal
+          data={data}
+          selectedCard={selectedCard}
+          isOpen={deleteModal}
+          onClose={() => setDeleteModal(false)}
+          fetchHomepageSections={fetchHomepageSections}
+        />
+      )}
     </div>
   );
-};
-
-
+}

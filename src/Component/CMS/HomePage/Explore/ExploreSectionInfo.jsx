@@ -55,15 +55,15 @@ export default function ExploreSectionInfo({ sectionInfo }) {
   };
 
   return (
-    <div className="px-6 py-4 relative w-[60%] shadow-md rounded-lg border border-gray-300 bg-white">
+    <div className="px-8 py-4 relative w-fit shadow-md rounded-lg border border-gray-300 bg-white">
       <button
-        className="absolute top-1 right-1 text-gray-600 hover:text-gray-800"
+        className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
         onClick={() => setIsEditing(!isEditing)}
       >
         <PencilIcon className="w-4 h-4" />
       </button>
       <div className="space-y-2">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-20">
           <span className="text-gray-700 font-semibold">Section Title:</span>
           {isEditing ? (
             <input
@@ -78,7 +78,7 @@ export default function ExploreSectionInfo({ sectionInfo }) {
             <span className="text-gray-900">{sectionDetails?.sectionTitle}</span>
           )}
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-20">
           <span className="text-gray-700 font-semibold">Show Section:</span>
           {isEditing ? (
             <SwitchToggle

@@ -6,10 +6,12 @@ import {
 } from "@headlessui/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import Spinner from "../../../../Page/CMS/Spinner";
 
 
 export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     // Validation Schema
     const validationSchema = Yup.object().shape({
@@ -35,7 +37,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
         };
 
         try {
-            const response = await fetch("http://localhost:1234/api/upload-file", requestOptions);
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/upload-file`, requestOptions);
             const result = await response.json();
             return result;
         } catch (error) {
@@ -58,17 +60,16 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                             }}
                             validationSchema={validationSchema}
                             onSubmit={async (values) => {
+                                setLoading(true);
                                 try {
-                                    console.log("Submitted Data:", values);
-                            
                                     // Upload image if provided
                                     const uploadImageUrl = values.image ? await uploadImage(values.image) : null;
-                            
+
                                     if (uploadImageUrl) {
                                         const myHeaders = new Headers({
                                             "Content-Type": "application/json",
                                         });
-                            
+
                                         // Construct the new feature object
                                         const newFeature = {
                                             title: values.title,
@@ -77,46 +78,42 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                             link: values.redirect,
                                             position: data.features.length + 1, // Set next position
                                         };
-                            
+
                                         // Construct the updated features array without `_id`
                                         const updatedFeatures = [...data.features, newFeature].map(({ _id, ...rest }) => rest);
-                            
+
                                         const payload = {
                                             sectionTitle: data.sectionTitle,
                                             isVisible: data.isVisible,
                                             features: updatedFeatures,
                                         };
-                            
-                                        console.log("Payload:", payload);
-                            
+
                                         // Send API request
-                                        const response = await fetch("http://localhost:1234/api/admin/homepage-sections/explore", {
+                                        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/explore`, {
                                             method: "PATCH",
                                             headers: myHeaders,
                                             body: JSON.stringify(payload),
                                         });
-                            
+
                                         const result = await response.json();
-                                        console.log("Response:", result);
                                         fetchHomepageSections();
                                         onClose();
                                     }
                                 } catch (error) {
                                     console.error("Error submitting data:", error);
+                                } finally {
+                                    setLoading(false);
                                 }
                             }}
-                            
+
                         >
                             {({ setFieldValue, values }) => (
                                 <Form>
                                     <div className="space-y-6">
                                         <div className="border-b border-gray-900/10 pb-6">
                                             <h2 className="text-lg font-semibold text-gray-900">
-                                                Add Tournament Details
+                                                Add Card Details
                                             </h2>
-                                            <p className="mt-1 text-sm text-gray-600">
-                                                Provide details about the tournament below.
-                                            </p>
 
                                             <div className="mt-6 grid grid-cols-1 gap-y-6">
                                                 {/* Title Input */}
@@ -132,7 +129,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                                         name="title"
                                                         type="text"
                                                         placeholder="Tournament Title"
-                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none sm:text-sm"
+                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                     />
                                                     <ErrorMessage
                                                         name="title"
@@ -155,7 +152,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                                         name="description"
                                                         rows={4}
                                                         placeholder="Tournament Description"
-                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none sm:text-sm"
+                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                     />
                                                     <ErrorMessage
                                                         name="description"
@@ -177,7 +174,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                                         name="redirect"
                                                         type="url"
                                                         placeholder="https://example.com"
-                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none sm:text-sm"
+                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                     />
                                                     <ErrorMessage
                                                         name="redirect"
@@ -199,7 +196,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                                         name="image"
                                                         type="file"
                                                         accept="image/*"
-                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none sm:text-sm"
+                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                         onChange={(event) => {
                                                             setFieldValue("image", event.currentTarget.files[0]);
                                                             setImagePreview(event.currentTarget.files[0] ? URL.createObjectURL(event.currentTarget.files[0]) : null);
@@ -246,9 +243,11 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                         </button>
                                         <button
                                             type="submit"
-                                            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-indigo-600"
+                                            className="rounded-md bg-[#1570EF] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1570EF] focus:outline-[#1570EF]"
                                         >
-                                            Save
+                                            {loading ?
+                                                <Spinner />
+                                                : 'Save'}
                                         </button>
                                     </div>
                                 </Form>
