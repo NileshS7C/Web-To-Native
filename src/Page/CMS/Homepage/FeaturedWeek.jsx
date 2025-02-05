@@ -113,7 +113,7 @@ export default function FeaturedWeek() {
                         readOnly={!isEditing}
                         theme="snow"
                         style={{
-                            height: '32vh',
+                            height: '170px',
                             cursor: isEditing ? 'text' : 'not-allowed',
                             borderColor: '#e5e7eb',
                         }}
