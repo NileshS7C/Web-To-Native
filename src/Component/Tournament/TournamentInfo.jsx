@@ -156,10 +156,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
     handle: yup.string().required(),
     description: yup.string(),
-    startDate: yup
-      .date()
-      .required("Please provide the tournament start date.")
-      .min(new Date(), "Tournament start date must be today or later."),
+    startDate: yup.date().required("Please provide the tournament start date."),
 
     endDate: yup
       .date()
@@ -179,6 +176,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       desktop: yup
         .mixed()
         .test("file-size", "Desktop banner image is too large", (value) => {
+          console.log("value", value);
           if (!value) return true;
 
           return !value || (value && value?.size <= 1000 * 1024); // 100 KB
@@ -232,7 +230,6 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       .date()
       .nullable()
       .required("Booking end date is required.")
-      .min(new Date(), "Start date should be today or later")
       .test(
         "valid-booking-start-date",
         "Booking start Date must be greater than tournament start date.",
@@ -304,7 +301,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       setSubmitting(true);
 
       const user = tournamentOwners.owners?.find(
-        (owner) => owner.name === values.ownerUserId
+        (owner) => owner.id === values.ownerUserId
       );
 
       const updatedValues = {
@@ -335,6 +332,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
       resetForm();
     } catch (error) {
+      console.log(" error", error);
       dispatch(
         showError({
           message: error.data.message || "Something went wrong!",
@@ -590,6 +588,7 @@ const TournamentMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
 };
 const TournamentAddress = ({ location }) => {
   const { setFieldValue } = useFormikContext();
+
   useEffect(() => {
     if (location.city || location.state || location.lng || location.lat) {
       setFieldValue(
@@ -790,16 +789,20 @@ const DesktopBannerImageUpload = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
 
+  console.log(" values", values);
+
   useEffect(() => {
     const previewImages = values?.bannerDesktopImages?.length
-      ? [{ preview: values.bannerDesktopImages }]
+      ? [{ preview: values.bannerDesktopImages[0].url }]
       : [];
+
+    console.log(" preview images", previewImages);
 
     setPreviews(previewImages);
   }, [values?.bannerDesktopImages]);
 
   const handleRemoveImageDesk = (value) => {
-    dispatch(deleteUploadedImage(value[0]));
+    dispatch(deleteUploadedImage(value));
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
@@ -827,7 +830,7 @@ const DesktopBannerImageUpload = ({
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
       setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
       const url = result.data.url;
-      setFieldValue("bannerDesktopImages", [url]);
+      setFieldValue("bannerDesktopImages", [{ url }]);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);
@@ -909,14 +912,15 @@ const MobileBannerImageUpload = ({
 
   useEffect(() => {
     const previewImages = values?.bannerMobileImages?.length
-      ? [{ preview: values.bannerMobileImages }]
+      ? [{ preview: values.bannerMobileImages[0].url }]
       : [];
 
     setPreviews(previewImages);
   }, [values?.bannerMobileImages]);
 
   const handleRemoveImageDesk = (value) => {
-    dispatch(deleteUploadedImage(value[0]));
+    console.log(" value", value);
+    dispatch(deleteUploadedImage(value));
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
@@ -942,7 +946,7 @@ const MobileBannerImageUpload = ({
 
       setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
       const url = result?.data?.url;
-      setFieldValue("bannerMobileImages", [...values.bannerMobileImages, url]);
+      setFieldValue("bannerMobileImages", [{ url }]);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);

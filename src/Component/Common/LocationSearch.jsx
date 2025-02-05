@@ -48,11 +48,12 @@ const LocationSearchInput = ({ id, name, setFieldValue }) => {
     setQuery(suggestion.description);
     setIsOpen(false);
     const coordinates = await getPlaceDetailsByPlaceId(suggestion.place_id);
-    setFieldValue("address.location.coordinates", [
-      coordinates.lng,
-      coordinates.lat,
-    ]);
-   
+    if (setFieldValue) {
+      setFieldValue("address.location.coordinates", [
+        coordinates.lng,
+        coordinates.lat,
+      ]);
+    }
 
     dispatch(
       setLocation({
@@ -99,7 +100,6 @@ const LocationSearchInput = ({ id, name, setFieldValue }) => {
           }}
           id={id}
           name={name}
-          
         />
         <ImSearch className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400" />
       </div>
