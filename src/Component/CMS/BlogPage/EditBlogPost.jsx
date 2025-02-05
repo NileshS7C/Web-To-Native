@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axiosInstance from "../../../Services/axios";
 
 export default function EditBlogPost() {
   const { handle } = useParams();
-  const params = useParams();
-
-  const navigate = useNavigate();
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isPublished, setIsPublished] = useState(false);
@@ -136,9 +132,8 @@ export default function EditBlogPost() {
         config
       );
 
-      setIsEditing(false)
+      setIsEditing(false);
       alert("Blog post updated successfully!");
-      // navigate("/cms/blogs/blog-posts");
     } catch (error) {
       console.error("Error:", error);
       setSaveError("Error saving blog post.");
@@ -376,6 +371,14 @@ export default function EditBlogPost() {
                   </div>
                 </div>
               </div>
+              {isEditing && (
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="w-full p-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+                >
+                  Cancel
+                </button>
+              )}
             </div>
           </div>
         </div>

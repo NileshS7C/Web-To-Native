@@ -21,6 +21,7 @@ const Layout = () => {
     "/cms/homepage/featured-week",
     "/cms/blogs/blog-posts",
     "/cms/blogs/blog-posts/new",
+    "/cms/blogs/blog-posts/:hanlde",
   ];
   const shouldHideTitleBar = hiddenRoutes.includes(location.pathname);
 
