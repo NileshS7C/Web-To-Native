@@ -5,6 +5,7 @@ import { getSingleTournament } from "../../../redux/tournament/tournamentActions
 import Tabs from "../../Common/Tabs";
 import EventDescription from "./EventDescription";
 import EventRegistrations from "./EventRegistration";
+import { TournamentFixture } from "../tournamentFixture";
 
 const options = (tournamentId, eventId) => {
   return [
@@ -86,6 +87,10 @@ function EventDetailPage() {
       {(!selectedTab || selectedTab === "overview") && <EventDescription />}
       {selectedTab === "players" && (
         <EventRegistrations tournament={tournament} />
+      )}
+
+      {selectedTab === "fixture" && (
+        <TournamentFixture tournament={tournament} />
       )}
     </div>
   );
