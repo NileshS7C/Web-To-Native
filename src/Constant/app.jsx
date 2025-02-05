@@ -48,6 +48,7 @@ export const ADMIN_NAVIGATION = [
           { name: "Featured Venues"},
           { name: "Why Choose Picklebay"},
           { name: "Destination Dink"},
+          { name: "Build Courts"},
           { name: "Journal"},
         ],
       },

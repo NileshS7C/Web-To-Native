@@ -94,7 +94,7 @@ export default function ExploreSectionInfo({ sectionInfo }) {
         {isEditing && (
           <button
             onClick={handleSave}
-            className="w-full mt-2 bg-blue-500 text-white p-2 rounded"
+            className="w-full mt-2 bg-[#1570EF] text-white p-2 rounded"
           >
             Save
           </button>

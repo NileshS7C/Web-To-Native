@@ -1,52 +1,200 @@
 import React, { useState, useEffect } from "react";
-import DestinationDinkSectionInfo from "../../../Component/CMS/HomePage/DestinationDink/DestinationDinkSectionInfo";
-import DestinationDinkContentTable from "../../../Component/CMS/HomePage/DestinationDink/DestinationDinkContentTable";
-import DestinationDinkAddDataModal from "../../../Component/CMS/HomePage/DestinationDink/DestinationDinkAddDataModal";
-
+import { PencilIcon } from "@heroicons/react/20/solid";
+import SwitchToggle from "../../../Component/CMS/HomePage/SwitchToggle";
 
 export default function DestinationDink() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [destinationDinkData, setDestinationDinkData] = useState([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [sectionDetails, setSectionDetails] = useState(null);
+    const [desktopImage, setDesktopImage] = useState(null);
+    const [mobileImage, setMobileImage] = useState(null);
+
     const fetchDestinationDinkData = async () => {
         try {
-            const response = await fetch("http://localhost:1234/api/admin/homepage-sections?section=destinationDink", { method: "GET" });
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=destinationDink`);
             const result = await response.json();
-            setDestinationDinkData(result.data[0])
-            console.log(result)
+            if (result.data && result.data.length > 0) {
+                setSectionDetails(result.data[0]);
+            }
         } catch (error) {
             console.error(error);
         }
     };
-    useEffect(() => { fetchDestinationDinkData() }, [])
-    return (
-        <div className="px-4 sm:px-6 lg:px-8">
-            <div className="sm:flex sm:flex-col gap-4">
-                <div className="sm:flex-auto text-left">
-                    <h1 className="text-base font-semibold text-gray-900">Destination Dink</h1>
-                </div>
-                <div className="flex items-center gap-4 w-full">
-                    <DestinationDinkSectionInfo sectionInfo={destinationDinkData} />
-                    <div className="w-[40%] flex justify-end">
-                        <button
-                            type="button"
-                            className="block rounded-md bg-[#1570EF] px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-[#1570EF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1570EF]"
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            Add Card
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div className="mt-8 flow-root">
-                <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                        <DestinationDinkContentTable data={destinationDinkData} fetchHomepageSections={fetchDestinationDinkData} />
-                    </div>
-                </div>
-            </div>
 
-            {/* Pass isOpen and onClose to AddDataModal */}
-            <DestinationDinkAddDataModal data={destinationDinkData} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchDestinationDinkData}/>
+    useEffect(() => {
+        fetchDestinationDinkData();
+    }, []);
+
+    const uploadImage = async (file) => {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWNjZjc2N2Y4MmRjOTI5MjkxMzdmNSIsInBob25lIjoiOTk1MzA1MDc2OSIsIm5hbWUiOiJQaWNrbGViYXkgUGxheWVyIiwiaWF0IjoxNzM4NzgwODM3LCJleHAiOjE3Mzg3OTE2Mzd9.MFXN5Qam0AmARuN2_u72D0umGa2YeLNcVZn6KVlcik0");
+
+        const formdata = new FormData();
+        formdata.append("uploaded-file", file);
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: formdata,
+            redirect: "follow",
+        };
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/upload-file`, requestOptions);
+            const result = await response.json();
+            return result?.data?.url;
+        } catch (error) {
+            console.error("Error uploading image:", error);
+        }
+    };
+    const handleSave = async () => {
+        setIsEditing(false);
+        try {
+          let updatedDetails = { ...sectionDetails };
+          console.log(desktopImage,mobileImage)
+          if (desktopImage) {
+            const uploadedDesktopUrl = await uploadImage(desktopImage);
+            if (uploadedDesktopUrl) {
+              updatedDetails.DesktopBannerImage = uploadedDesktopUrl;
+            }
+          }
+    
+          if (mobileImage) {
+            const uploadedMobileUrl = await uploadImage(mobileImage);
+            if (uploadedMobileUrl) {
+              updatedDetails.MobileBannerImage = uploadedMobileUrl;
+            }
+          }
+          const { _id, updatedAt, sectionType, ...finalPayload } = updatedDetails;
+    
+          // Send updated details to API
+          const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/destinationDink`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(finalPayload),
+          });
+    
+          if (!response.ok) throw new Error("Failed to update");
+          await response.json();
+          fetchDestinationDinkData(); // Refresh data after update
+        } catch (error) {
+          console.error("Error updating section:", error);
+        }
+      };
+
+    if (!sectionDetails) return <p>Loading...</p>;
+
+    return (
+        <div className="flex flex-col gap-2">
+            <div className="bg-white rounded-lg border border-gray-300 p-4 mx-auto relative w-full">
+                Destination Dink Section
+            </div>
+            <div className="bg-white rounded-lg shadow-lg border border-gray-300 p-4 mx-auto relative w-full">
+                {/* Top Section */}
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2 w-[40%]">
+                        <label className="text-gray-700 font-semibold">Visibility:</label>
+                        {isEditing ? (
+                            <SwitchToggle
+                                enabled={sectionDetails.isVisible}
+                                onChange={(value) => setSectionDetails({ ...sectionDetails, isVisible: value })}
+                                disabled={!isEditing}
+                            />
+                        ) : (
+                            <span className="text-gray-900">{sectionDetails?.isVisible ? "Yes" : "No"}</span>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-2 w-[20%]">
+                        <label className="text-gray-700 font-semibold">Link:</label>
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                className="border border-gray-300 p-1 rounded w-full"
+                                value={sectionDetails.link}
+                                onChange={(e) => setSectionDetails({ ...sectionDetails, link: e.target.value })}
+                            />
+                        ) : (
+                            <a href={sectionDetails.link} className="text-blue-600 hover:underline truncate max-w-sm">
+                                {sectionDetails.link}
+                            </a>
+                        )}
+                    </div>
+                    <div className="flex justify-end space-x-2 w-[40%]">
+                        {!isEditing ? (
+                            <button className="text-gray-600 hover:text-gray-800" onClick={() => setIsEditing(true)}>
+                                <PencilIcon className="w-5 h-5" />
+                            </button>
+                        ) : (
+                            <>
+                                <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => setIsEditing(false)}>
+                                    Discard
+                                </button>
+                                <button className="bg-[#1570EF] text-white px-3 py-1 rounded" onClick={handleSave}>
+                                    Save
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+               {/* Images Section */}
+        <div className="grid grid-cols-2 gap-4 mt-8">
+          {/* Desktop Image */}
+          <div className="relative border border-gray-300 px-2 pt-4 pb-2 rounded-md">
+            {isEditing && (
+              <div className="absolute top-4 right-2">
+                <input
+                  type="file"
+                  className="hidden"
+                  id="desktopUpload"
+                  onChange={(event) => {
+                    const file = event.currentTarget.files[0];
+                    if (file) {
+                      setDesktopImage(file);
+                    }
+                  }}
+                />
+                <label htmlFor="desktopUpload" className="bg-blue-500 text-white px-3 py-2 rounded cursor-pointer">
+                  Upload
+                </label>
+              </div>
+            )}
+            <label className="text-gray-700 font-semibold block text-center">Desktop Image</label>
+            <img
+              src={desktopImage ? URL.createObjectURL(desktopImage) : sectionDetails.DesktopBannerImage}
+              alt="Desktop"
+              className="w-full h-60 object-cover rounded-md mt-4"
+            />
+          </div>
+
+          {/* Mobile Image */}
+          <div className="relative border border-gray-300 px-2 pt-4 pb-2 rounded-md">
+            {isEditing && (
+              <div className="absolute top-4 right-2">
+                <input
+                  type="file"
+                  className="hidden"
+                  id="mobileUpload"
+                  onChange={(event) => {
+                    const file = event.currentTarget.files[0];
+                    if (file) {
+                      setMobileImage(file);
+                    }
+                  }}
+                />
+                <label htmlFor="mobileUpload" className="bg-blue-500 text-white px-3 py-2 rounded cursor-pointer">
+                  Upload
+                </label>
+              </div>
+            )}
+            <label className="text-gray-700 font-semibold block text-center">Mobile Image</label>
+            <img
+              src={mobileImage ? URL.createObjectURL(mobileImage) : sectionDetails.MobileBannerImage}
+              alt="Mobile"
+              className="w-full h-60 object-cover rounded-md mt-4"
+            />
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
