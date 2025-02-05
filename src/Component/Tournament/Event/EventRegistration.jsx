@@ -99,8 +99,8 @@ function EventRegistrations({ tournament }) {
 
       <DataTable
         columns={bookingTableHeaders}
-        data={bookingData?.bookings}
-        totalPages={bookingData?.totalCount}
+        data={bookingData.bookings}
+        totalPages={bookingData.totalCount}
         currentPage={currentPage}
         onPageChange={onPageChangeEvent}
         className="border-[1px] rounded-md"

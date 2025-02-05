@@ -49,7 +49,7 @@ const getRandomArbitrary = (min, max) => {
   return Math.random() * (max - min) + min;
 };
 
-const playerSuffling = (participants) => {
+const playerShuffling = (participants) => {
   if (!participants?.length) return;
   const array = [...participants];
   const totalParticipants = participants?.length - 1;
@@ -88,8 +88,8 @@ export const TournamentFixture = ({ tournament }) => {
     dispatch(createFixture({ tour_Id: tournamentId, eventId }));
   }, []);
 
-  const handlePlayerSuffling = () => {
-    const result = playerSuffling(stableFixture?.bracketData?.participant);
+  const handleplayerShuffling = () => {
+    const result = playerShuffling(stableFixture?.bracketData?.participant);
     const formattedMatchData = formateMatchData(fixture, result);
     dispatch(
       updateSeeding({
@@ -127,23 +127,25 @@ export const TournamentFixture = ({ tournament }) => {
 
   useEffect(() => {
     if (FixtureCreatedSuccess || isFixtureSuccess) {
-      window?.bracketsViewer?.render(
-        {
-          stages: stableFixture?.bracketData?.stage,
-          matches: stableFixture?.bracketData?.match,
-          matchGames: stableFixture?.bracketData?.match_game,
-          participants: stableFixture?.bracketData?.participant,
-        },
-        { highlightParticipantOnHover: true }
-      );
-      const players = stableFixture?.bracketData?.participant.map(
-        (participant) => ({
-          name: participant.name,
-          id: participant.id,
-        })
-      );
+      if (fixture) {
+        window?.bracketsViewer?.render(
+          {
+            stages: stableFixture?.bracketData?.stage,
+            matches: stableFixture?.bracketData?.match,
+            matchGames: stableFixture?.bracketData?.match_game,
+            participants: stableFixture?.bracketData?.participant,
+          },
+          { highlightParticipantOnHover: true }
+        );
+        const players = stableFixture?.bracketData?.participant.map(
+          (participant) => ({
+            name: participant.name,
+            id: participant.id,
+          })
+        );
 
-      setPlayers(players);
+        setPlayers(players);
+      }
 
       dispatch(resetFixtureSuccess());
     }
@@ -213,7 +215,7 @@ export const TournamentFixture = ({ tournament }) => {
         </button>
         <button
           className="bg-[#CAD9FB] border-2 border-[#CAD9FB] p-2 rounded-lg disabled:bg-slate-300"
-          onClick={handlePlayerSuffling}
+          onClick={handleplayerShuffling}
           disabled={fixture?.status === "PUBLISHED" || !fixture}
         >
           <img src={suffleIcon} alt="suffle button" className="animate-pulse" />
