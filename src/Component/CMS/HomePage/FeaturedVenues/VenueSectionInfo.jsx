@@ -13,7 +13,7 @@ export default function VenueSectionInfo({ sectionInfo }) {
       venues: sectionInfo.venues || [],
     });
   }, [sectionInfo])
-  
+
   const handleSave = async () => {
     setIsEditing(false);
 
@@ -23,14 +23,14 @@ export default function VenueSectionInfo({ sectionInfo }) {
       return;
     }
 
-    const updatedFeatures = sectionDetails.venues.map((venue,index) => ({ venueID: venue.venueID._id , position: venue.position}));
+    const updatedFeatures = sectionDetails.venues.map((venue, index) => ({ venueID: venue.venueID._id, position: venue.position }));
 
     const updatedData = {
       sectionTitle: sectionDetails.sectionTitle,
       isVisible: sectionDetails.isVisible,
       venues: updatedFeatures,
     };
-    
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/venues`,

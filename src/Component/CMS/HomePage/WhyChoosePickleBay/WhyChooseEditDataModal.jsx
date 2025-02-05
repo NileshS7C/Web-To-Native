@@ -1,43 +1,36 @@
 import { useState } from "react";
-import {
-    Dialog,
-    DialogBackdrop,
-    DialogPanel
-} from "@headlessui/react";
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-export default function WhyChooseAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
-    const [imagePreview, setImagePreview] = useState(null);
+export default function WhyChooseEditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
+    const [imagePreview, setImagePreview] = useState(data.image || null);
 
     // Validation Schema
     const validationSchema = Yup.object().shape({
         heading: Yup.string().required("Heading is required"),
-        subheading: Yup.string().required("Subheading is required"),
-        image: Yup.mixed().required("Image is required")
+        subHeading: Yup.string().required("Subheading is required"),
+        image: Yup.mixed().required("Image is required"),
     });
+
     const uploadImage = async (file) => {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWNjZjc2N2Y4MmRjOTI5MjkxMzdmNSIsInBob25lIjoiOTk1MzA1MDc2OSIsIm5hbWUiOiJQaWNrbGViYXkgUGxheWVyIiwiaWF0IjoxNzM4NjQ3ODM2LCJleHAiOjE3Mzg2NTg2MzZ9.ASxFRKMr2OpFrbkn88_Q7-kmQOLa-5SSkEch8hY9KVs");
-
-        const formdata = new FormData();
-        formdata.append("uploaded-file", file);
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: formdata,
-            redirect: "follow",
-        };
+        const formData = new FormData();
+        formData.append("uploaded-file", file);
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/upload-file`, requestOptions);
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/upload-file`, {
+                method: "POST",
+                body: formData,
+            });
+
             const result = await response.json();
             return result;
         } catch (error) {
             console.error("Error uploading image:", error);
+            return null;
         }
     };
+
     return (
         <Dialog open={isOpen} onClose={onClose} className="relative z-10">
             <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
@@ -46,75 +39,70 @@ export default function WhyChooseAddDataModal({ data, isOpen, onClose, fetchHome
                     <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                         <Formik
                             initialValues={{
-                                heading: "",
-                                subheading: "",
-                                image: null
+                                heading: data.heading || "",
+                                subHeading: data.subHeading || "",
+                                image: null,
                             }}
                             validationSchema={validationSchema}
                             onSubmit={async (values) => {
                                 try {
-                                    // Upload image if provided
-                                    const uploadImageUrl = values.image ? await uploadImage(values.image) : null;
+                                    let uploadedImageUrl = imagePreview;
 
-                                    if (uploadImageUrl) {
-                                        const myHeaders = new Headers({
-                                            "Content-Type": "application/json",
-                                        });
-
-                                        // Construct the new feature object
-                                        const newStep = {
-                                            heading: values.heading,
-                                            subHeading: values.subheading,
-                                            image: uploadImageUrl.data.url,
-                                            position: data.steps.length + 1, // Set next position
-                                        };
-
-                                        // Construct the updated features array without `_id`
-                                        const updatedFeatures = [...data.steps, newStep].map(({ _id, ...rest }) => rest);
-
-                                        const payload = {
-                                            sectionTitle: data.sectionTitle,
-                                            isVisible: data.isVisible,
-                                            steps: updatedFeatures,
-                                        };
-
-                                        // Send API request
-                                        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/whyChoosePicklebay`, {
-                                            method: "PATCH",
-                                            headers: myHeaders,
-                                            body: JSON.stringify(payload),
-                                        });
-
-                                        const result = await response.json();
-                                        fetchHomepageSections();
-                                        onClose();
+                                    if (values.image) {
+                                        const uploadResponse = await uploadImage(values.image);
+                                        if (uploadResponse?.data?.url) {
+                                            uploadedImageUrl = uploadResponse.data.url;
+                                        }
                                     }
+
+                                    const updatedSteps = [
+                                        {
+                                            heading: values.heading,
+                                            subHeading: values.subHeading,
+                                            image: uploadedImageUrl,
+                                            position: data.position,
+                                        }
+                                    ]
+
+                                    const payload = {
+                                        sectionTitle: data.sectionTitle,
+                                        isVisible: data.isVisible,
+                                        steps: updatedSteps,
+                                    };
+
+                                    await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/whyChoosePicklebay`, {
+                                        method: "PATCH",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify(payload),
+                                    });
+
+                                    fetchHomepageSections();
+                                    onClose();
                                 } catch (error) {
                                     console.error("Error submitting data:", error);
                                 }
                             }}
-
                         >
                             {({ setFieldValue }) => (
                                 <Form>
                                     <div className="space-y-6">
                                         <div className="border-b border-gray-900/10 pb-6">
-                                            <h2 className="text-lg font-semibold text-gray-900">Add Data</h2>
-                                            <p className="mt-1 text-sm text-gray-600">Provide the details below.</p>
+                                            <h2 className="text-lg font-semibold text-gray-900">Edit Data</h2>
+                                            <p className="mt-1 text-sm text-gray-600">Modify the details below.</p>
 
                                             <div className="mt-6 grid grid-cols-1 gap-y-6">
                                                 {/* Heading Input */}
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-900">Heading</label>
-                                                    <Field name="heading" type="text" placeholder="Enter heading" className="block w-full rounded-md border-2 border-gray-300 px-3 py-2 text-base" />
+                                                    <Field name="heading" type="text" className="block w-full rounded-md border-2 border-gray-300 px-3 py-2 text-base" />
                                                     <ErrorMessage name="heading" component="p" className="mt-1 text-sm text-red-600" />
                                                 </div>
 
                                                 {/* Subheading Input */}
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-900">Subheading</label>
-                                                    <Field name="subheading" type="text" placeholder="Enter subheading" className="block w-full rounded-md border-2 border-gray-300 px-3 py-2 text-base" />
-                                                    <ErrorMessage name="subheading" component="p" className="mt-1 text-sm text-red-600" />
+                                                    <Field name="subHeading" type="text" className="block w-full rounded-md border-2 border-gray-300 px-3 py-2 text-base" />
+                                                    <ErrorMessage name="subHeading" component="p" className="mt-1 text-sm text-red-600" />
                                                 </div>
 
                                                 {/* Image Upload */}
@@ -125,8 +113,11 @@ export default function WhyChooseAddDataModal({ data, isOpen, onClose, fetchHome
                                                         accept="image/*"
                                                         className="block w-full rounded-md border-2 border-gray-300 px-3 py-2 text-base"
                                                         onChange={(event) => {
-                                                            setFieldValue("image", event.currentTarget.files[0]);
-                                                            setImagePreview(event.currentTarget.files[0] ? URL.createObjectURL(event.currentTarget.files[0]) : null);
+                                                            const file = event.currentTarget.files[0];
+                                                            setFieldValue("image", file);
+                                                            if (file) {
+                                                                setImagePreview(URL.createObjectURL(file));
+                                                            }
                                                         }}
                                                     />
                                                     <ErrorMessage name="image" component="p" className="mt-1 text-sm text-red-600" />

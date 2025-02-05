@@ -28,11 +28,11 @@ export default function VenueContentTable({ data, fetchHomepageSections }) {
                 <thead className="bg-gray-200">
                     <tr>
                         {headers.map((header, index) => (
-                            <th key={index} className={`px-3 py-2 text-left text-sm font-semibold text-gray-900"${header === "Position" || header === "Actions"
+                            <th key={index} className={`px-3 py-2 text-left text-sm font-semibold text-gray-900" ${header === "Position" || header === "Actions"
                                 ? "w-[10%]"
                                 : header === "Name" || header === "Handle"
                                     ? "w-[30%]"
-                                    : "w-[10%]"
+                                    : "w-[20%]"
                                 }`}>
                                 {header}
                             </th>
@@ -42,19 +42,19 @@ export default function VenueContentTable({ data, fetchHomepageSections }) {
                 <tbody className="divide-y divide-gray-200 bg-white">
                     {data?.venues?.map((venue, index) => (
                         <tr key={index} className="text-left">
-                            <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
+                            <td className="px-3 py-4 text-sm text-gray-500 w-[10%]">
                                 {index + 1}
                             </td>
-                            <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
+                            <td className="px-3 py-4 text-sm text-gray-500 w-[30%]">
                                 {venue.venueID.name}
                             </td>
-                            <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
+                            <td className="px-3 py-4 text-sm text-gray-500 w-[30%]">
                                 {venue.venueID.handle}
                             </td>
-                            <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
+                            <td className="px-3 py-4 text-sm text-gray-500 w-[20%]">
                                 {venue.venueID.address.city}
                             </td>
-                            <td className="px-3 py-4 text-sm text-[#1570EF] whitespace-nowrap">
+                            <td className="px-3 py-4 text-sm text-[#1570EF] w-[10%]">
                                 <div className="flex items-center space-x-3">
                                     {/* <button onClick={() => handleModifyData(tournament)} className="hover:text-blue-600">
                                         <PencilIcon className="w-5 h-5" />
