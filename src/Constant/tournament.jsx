@@ -8,6 +8,7 @@ const tournamentDetails = {
   steps: ["basic info", "event", "acknowledgement"],
 };
 
+const rolesWithTournamentOwnerAccess = ["SUPER_ADMIN", "ADMIN"];
 const bookingLimit = 10;
 
 const tournamentEvent = {
@@ -266,4 +267,5 @@ export {
   approvalBody,
   bookingLimit,
   tournamentStatusFilters,
+  rolesWithTournamentOwnerAccess,
 };
