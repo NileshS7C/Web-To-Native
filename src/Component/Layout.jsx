@@ -15,6 +15,7 @@ import { SuccessModal } from "./Common/SuccessModal";
 import { setApprovalBody } from "../redux/tournament/addTournament";
 import { ErrorModal } from "./Common/ErrorModal";
 import { useEffect, useState } from "react";
+import { hideActionButtons } from "../Constant/tournament";
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ const Layout = () => {
     (state) => state.Tournament
   );
   const { category } = useSelector((state) => state.event);
+  const isTournament = window.location.pathname.includes("tournaments");
 
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
@@ -54,8 +56,6 @@ const Layout = () => {
       setApproveButtonClicked(false);
     }
   }, [approvalBody, tournamentId, approveButtonClicked]);
-
-  console.log(" current title", currentTitle);
 
   return (
     <div className="flex flex-col min-h-screen ">
@@ -93,66 +93,90 @@ const Layout = () => {
                 </Button>
               )}
 
-              {currentTitle?.startsWith("Edit Tournament") && (
-                <div className="flex items-center gap-2 justify-end ml-auto">
-                  <button
-                    className="flex items-center justify-center gap-3 w-[200px] h-[60px] bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700"
-                    type="button"
-                    onClick={() => dispatch(setTournamentEditMode())}
-                  >
-                    <span>Edit Tournament</span>
-                    <FiEdit3 />
-                  </button>
-
-                  {ROLES.slice(0, 2).includes(userRole) && (
-                    <div className="flex items-center gap-2">
-                      <Button
-                        className={`flex items-center justify-center gap-3 w-[200px] h-[60px] bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
-                        type="button"
-                        onClick={() => {
-                          setApproveButtonClicked(true);
-                          const updatedBody = {
-                            ...approvalBody,
-                            action: "APPROVE",
-                            rejectionComments: "",
-                          };
-                          dispatch(setApprovalBody(updatedBody));
-                        }}
-                        loading={
-                          changingDecision && approvalBody.action === "APPROVE"
-                        }
-                        disabled={tournament?.status === "PUBLISHED"}
-                      >
-                        Accept Tournament
-                      </Button>
-                      <Button
-                        className={`flex items-center justify-center gap-3 w-[200px] h-[60px] bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
-                        type="button"
-                        onClick={() => {
-                          dispatch(
-                            showConfirmation({
-                              message:
-                                "Are you sure you want to reject this tournament? This action cannot be undone.",
-                              type: "Tour",
-                            })
-                          );
-                        }}
-                        loading={
-                          changingDecision && approvalBody.action !== "APPROVE"
-                        }
-                        disabled={tournament?.status === "PUBLISHED"}
-                      >
-                        Reject Tournament
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
+              {isTournament &&
+                tournament?.status !== "DRAFT" &&
+                !hideActionButtons.includes(currentTitle) && (
+                  <TournamentActionButton
+                    dispatch={dispatch}
+                    ROLES={ROLES}
+                    userRole={userRole}
+                    approvalBody={approvalBody}
+                    tournament={tournament}
+                    changingDecision={changingDecision}
+                    setApproveButtonClicked={setApproveButtonClicked}
+                  />
+                )}
             </div>
           </div>
           <Outlet />
         </div>
       </div>
+    </div>
+  );
+};
+
+const TournamentActionButton = ({
+  dispatch,
+  ROLES,
+  userRole,
+  approvalBody,
+  tournament,
+  changingDecision,
+  setApproveButtonClicked,
+}) => {
+  return (
+    <div className="flex items-center gap-2 justify-end ml-auto">
+      <button
+        className="flex items-center justify-center gap-3 w-[200px] h-[60px] bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+        type="button"
+        onClick={() => dispatch(setTournamentEditMode())}
+        disabled={
+          !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
+          tournament?.status !== "REJECTED"
+        }
+      >
+        <span>Edit Tournament</span>
+        <FiEdit3 />
+      </button>
+
+      {ROLES.slice(0, 2).includes(userRole) && (
+        <div className="flex items-center gap-2">
+          <Button
+            className={`flex items-center justify-center gap-3 w-[200px] h-[60px] bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+            type="button"
+            onClick={() => {
+              setApproveButtonClicked(true);
+              const updatedBody = {
+                ...approvalBody,
+                action: "APPROVE",
+                rejectionComments: "",
+              };
+              dispatch(setApprovalBody(updatedBody));
+            }}
+            loading={changingDecision && approvalBody.action === "APPROVE"}
+            disabled={tournament?.status === "PUBLISHED"}
+          >
+            Accept Tournament
+          </Button>
+          <Button
+            className={`flex items-center justify-center gap-3 w-[200px] h-[60px] bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+            type="button"
+            onClick={() => {
+              dispatch(
+                showConfirmation({
+                  message:
+                    "Are you sure you want to reject this tournament? This action cannot be undone.",
+                  type: "Tour",
+                })
+              );
+            }}
+            loading={changingDecision && approvalBody.action !== "APPROVE"}
+            disabled={tournament?.status === "PUBLISHED"}
+          >
+            Reject Tournament
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

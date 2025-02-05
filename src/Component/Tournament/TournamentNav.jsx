@@ -60,7 +60,8 @@ const TournamentCreationForm = () => {
       tournamentId,
       tournamentEditMode,
       isAddInThePath,
-      cookies?.userRole
+      cookies?.userRole,
+      tournament?._id
     );
 
     dispatch(setIsEditable(isDisable));
@@ -144,7 +145,7 @@ const TournamentCreationForm = () => {
 
   return (
     <div>
-      {tournament?.status && tournament?.status === "REJECTED" && (
+      {tournament?.status === "REJECTED" && tournamentId && (
         <RejectionBanner
           message={tournament?.rejectionComments}
           title="Rejection comments:"
@@ -165,7 +166,8 @@ const TournamentCreationForm = () => {
             <button
               className={`tab-button ${
                 currentStep === "event" ? "active" : ""
-              } `}
+              } disabled:cursor-not-allowed disabled:opacity-50`}
+              disabled={!tournamentId}
               onClick={() => dispatch(setFormOpen("event"))}
             >
               Events
@@ -173,7 +175,8 @@ const TournamentCreationForm = () => {
             <button
               className={`tab-button ${
                 currentStep === "acknowledgement" ? "active" : ""
-              } `}
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              disabled={!tournamentId}
               onClick={() => dispatch(setFormOpen("acknowledgement"))}
             >
               Acknowledgement

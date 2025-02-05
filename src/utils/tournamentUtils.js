@@ -4,19 +4,26 @@ const findFormatName = (tournamentEvent, item) => {
   );
 };
 
-const shouldBeDisable = (status, id, editClicked, addPath, role) => {
+const shouldBeDisable = (
+  status,
+  id,
+  editClicked,
+  addPath,
+  role,
+  editTournamentId
+) => {
   const isStatusEligible = status === "DARFT" || status === "REJECTED";
+
   if (!role) {
     return false;
+  }
+  if (addPath) {
+    return true;
   }
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     return editClicked;
   } else {
-    if (addPath) {
-      return isStatusEligible;
-    } else {
-      return id && editClicked && isStatusEligible;
-    }
+    return id && editClicked && isStatusEligible;
   }
 };
 export { findFormatName, shouldBeDisable };

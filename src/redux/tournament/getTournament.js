@@ -13,7 +13,7 @@ const initialState = {
   errorMessage: "",
   tournaments: [],
   totalTournaments: 0,
-  tournamentEditMode: true,
+  tournamentEditMode: false,
   isGettingBookings: false,
   bookingError: false,
   bookings: [],
@@ -29,6 +29,10 @@ const getTournament = createSlice({
     },
     onTour_FilterChange(state, { payload }) {
       state.selectedFilter = payload;
+    },
+
+    resetEditMode(state) {
+      state.tournamentEditMode = false;
     },
   },
   extraReducers: (builder) => {
@@ -92,7 +96,7 @@ const getTournament = createSlice({
   },
 });
 
-export const { setTournamentEditMode, onTour_FilterChange } =
+export const { setTournamentEditMode, onTour_FilterChange, resetEditMode } =
   getTournament.actions;
 
 export default getTournament.reducer;

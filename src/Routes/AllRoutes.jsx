@@ -42,8 +42,8 @@ const AllRoutes = () => {
               <Route index element={<TournamentCreationForm />} />
             </Route>
             <Route path=":tournamentId">
+              <Route index element={<TournamentCreationForm />} />
               <Route path="add" element={<TournamentCreationForm />} />
-              <Route path="edit" element={<TournamentCreationForm />} />
               <Route path="event">
                 <Route path=":eventId" element={<EventDetailPage />} />
               </Route>
