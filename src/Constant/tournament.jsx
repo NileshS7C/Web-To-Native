@@ -232,7 +232,7 @@ const TournamentTableHeaders = [
 
       const navigateToRoute =
         status !== "DRAFT"
-          ? `/tournaments/${item?._id || ""}/edit`
+          ? `/tournaments/${item?._id || ""}`
           : `/tournaments/${item?._id || ""}/add`;
       return (
         <Link
@@ -257,6 +257,8 @@ const approvalBody = {
   rejectionComments: "",
 };
 
+const hideActionButtons = ["Tournaments", "Add Tournament"];
+
 export {
   tournamentDetails,
   tournamentEvent,
@@ -268,4 +270,5 @@ export {
   bookingLimit,
   tournamentStatusFilters,
   rolesWithTournamentOwnerAccess,
+  hideActionButtons,
 };

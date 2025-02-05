@@ -52,15 +52,15 @@ export const getPageTitle = (pathname, params, venueData) => {
       return `Edit Court-${name}`;
     }
 
-    if (pathname.match(/^\/tournaments\/\w+\/edit$/)) {
-      return `Edit Tournament - ${venueData?.tournament?.tournamentName || ""}`;
-    }
-
     if (
       pathname.match(/^\/tournaments\/\w+\/add$/) ||
       pathname.match(/^\/tournaments\/add$/)
     ) {
       return "Add Tournament";
+    }
+
+    if (pathname.match(/^\/tournaments\/\w+$/)) {
+      return `${venueData?.tournament?.tournamentName || ""}`;
     }
 
     //for matching /tournaments/:id/event/:id

@@ -13,7 +13,10 @@ import { useSearchParams } from "react-router-dom";
 import { CreateTournamentTable } from "./tournamentTable";
 import { searchIcon } from "../../Assests";
 import FilterGroup from "../Common/FilterGroup";
-import { onTour_FilterChange } from "../../redux/tournament/getTournament";
+import {
+  onTour_FilterChange,
+  resetEditMode,
+} from "../../redux/tournament/getTournament";
 import { formattedDate } from "../../utils/dateUtils";
 
 const SearchEvents = () => {
@@ -39,6 +42,9 @@ function TournamentListing() {
     useSelector((state) => state.GET_TOUR);
   const selectedTab = searchParams.get("tab");
   const currentPage = searchParams.get("page");
+  useEffect(() => {
+    dispatch(resetEditMode());
+  }, []);
 
   useEffect(() => {
     switch (selectedTab) {

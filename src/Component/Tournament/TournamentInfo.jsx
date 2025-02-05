@@ -412,7 +412,9 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
               <TournamentSponserTable isDisable={isDisable} />
               <TournamentBookingDates />
               <Button
-                className="w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px]"
+                className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
+                  !isDisable ? "hidden" : ""
+                }`}
                 type="submit"
                 loading={isSubmitting}
                 disabled={tournamentId && !isDisable}
