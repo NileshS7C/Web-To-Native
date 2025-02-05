@@ -114,23 +114,31 @@ export default function CreateBlogPost() {
     };
 
     try {
-      const response = await fetch("/api/save-blog-post", {
-        method: "POST",
+      const config = {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
-      });
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/admin/blogs`,
+        JSON.stringify(formData),
+        config
+      );
 
-      if (!response.ok) {
-        throw new Error("Failed to save blog post");
+      console.log(response.status, "gdddddd", response.data.message,"----------------------------->",response);
+      if (response.status !== 200) {
+        throw new Error("Failed to save blog post.");
       }
 
-      alert("Blog post saved successfully!");
-      navigate("/cms/blogs/blog-posts"); // Navigate on successful save
+      alert(response.data.message);
+      navigate("/cms/blogs/blog-posts");
     } catch (error) {
       console.error("Error:", error);
-      setSaveError("Error saving blog post.");
+      if (error?.response?.data?.errors.length > 0) {
+        setSaveError(error?.response?.data?.errors[0]?.message);
+      } else {
+        setSaveError(error.message);
+      }
     }
   };
 
