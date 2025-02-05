@@ -11,19 +11,19 @@ export default function BlogTable({ blogs }) {
   ];
 
   return (
-    <div className="overflow-hidden shadow-xl rounded-lg">
+    <div className="overflow-hidden shadow-xl rounded-lg  border border-gray-300">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-100">
           <tr>
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="px-6 py-3 text-sm font-medium text-gray-700 text-left"
+                className="px-6 py-3 text-sm font-medium text-gray-700 text-left font-semibold "
               >
                 {col.label}
               </th>
             ))}
-            <th className="px-6 py-3 text-sm font-medium text-gray-700 text-left">
+            <th className="px-6 py-3 text-sm font-medium text-gray-700 text-left font-semibold ">
               Actions
             </th>
           </tr>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useParams } from "react-router-dom";
@@ -6,8 +6,6 @@ import axiosInstance from "../../../Services/axios";
 
 export default function EditBlogPost() {
   const { handle } = useParams();
-
-  const navigate = useNavigate();
   const coverFileInputRef = useRef(null);
   const writerFileInputRef = useRef(null);
 
@@ -223,7 +221,7 @@ export default function EditBlogPost() {
                     value={content}
                     onChange={setContent}
                     className="mt-1"
-                    style={{ height: "130px" }}
+                    style={{ height: "16em" }}
                     readOnly={!isEditing}
                   />
                 </div>
@@ -274,18 +272,23 @@ export default function EditBlogPost() {
                   id="coverImageUploadEdit"
                   ref={coverFileInputRef}
                 />
+
                 <div className="text-left">
                   <label
                     htmlFor="coverImageUploadEdit"
-                    className={` inline-block bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium ${
-                      isEditing ? "hover:bg-gray-600 cursor-pointer" : ""
-                    }`}
+                    className={`inline-block bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium shadow-sm 
+             ${
+               isEditing
+                 ? "hover:bg-gray-900 hover:text-white cursor-pointer transition duration-200"
+                 : ""
+             } `}
                   >
                     Choose Image
                   </label>
                 </div>
+
                 {image && (
-                  <div className="relative">
+                  <div className="relative w-fit">
                     <img
                       src={image}
                       alt="Blog Cover"
@@ -296,7 +299,7 @@ export default function EditBlogPost() {
                         onClick={() =>
                           handleRemoveImage(setImage, "coverImage")
                         }
-                        className="absolute top-0 right-0 bg-gray-500 text-white text-xs rounded-full p-1"
+                        className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-gray-500 text-white text-xs rounded-full p-1 shadow-md"
                       >
                         &times;
                       </button>
@@ -356,18 +359,22 @@ export default function EditBlogPost() {
                     id="writerImageUploadEdit"
                     ref={writerFileInputRef}
                   />
+
                   <div className="text-left">
                     <label
                       htmlFor="writerImageUploadEdit"
-                      className={` inline-block bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium ${
-                        isEditing ? "hover:bg-gray-600 cursor-pointer" : ""
+                      className={`inline-block bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium shadow-sm ${
+                        isEditing
+                          ? "hover:bg-gray-900 hover:text-white cursor-pointer transition duration-200"
+                          : ""
                       }`}
                     >
                       Choose Image
                     </label>
                   </div>
+
                   {writerImage && (
-                    <div className="relative">
+                    <div className="relative w-fit mt-4">
                       <img
                         src={writerImage}
                         alt="Writer"
@@ -378,7 +385,7 @@ export default function EditBlogPost() {
                           onClick={() =>
                             handleRemoveImage(setWriterImage, "writerImage")
                           }
-                          className="absolute top-0 right-0 bg-gray-500 text-white text-xs rounded-full p-1"
+                          className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-gray-500 text-white text-xs rounded-full p-1 shadow-md"
                         >
                           &times;
                         </button>
@@ -403,13 +410,17 @@ export default function EditBlogPost() {
                     className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     disabled={!isEditing}
                   />
-                  {showDropdown && tag && (
-                    <button
-                      onClick={handleAddTag}
-                      className="w-full mt-2 p-2 bg-blue-500 text-white rounded-md"
-                    >
-                      Add Tag
-                    </button>
+
+                  {/* Tag Dropdown */}
+                  {showDropdown && (
+                    <div className="bg-white border border-gray-300 rounded-md mt-1 shadow-md">
+                      <button
+                        className="w-full text-left p-2 hover:bg-gray-100"
+                        onClick={handleAddTag}
+                      >
+                        Add "{tag}"
+                      </button>
+                    </div>
                   )}
                   <div className="space-y-2 mt-4">
                     <div className="mt-2 flex flex-wrap gap-2">

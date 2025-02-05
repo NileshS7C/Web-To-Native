@@ -21,9 +21,10 @@ const Layout = () => {
     "/cms/homepage/featured-week",
     "/cms/blogs/blog-posts",
     "/cms/blogs/blog-posts/new",
-    "/cms/blogs/blog-posts/:handle",
   ];
-  const shouldHideTitleBar = hiddenRoutes.includes(location.pathname);
+  const shouldHideTitleBar =
+    hiddenRoutes.includes(location.pathname) ||
+    location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
 
   return (
     <div className="flex flex-col min-h-screen ">

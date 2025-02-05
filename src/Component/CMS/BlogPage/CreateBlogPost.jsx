@@ -25,7 +25,11 @@ export default function CreateBlogPost() {
   const [handleError, setHandleError] = useState("");
   const [saveError, setSaveError] = useState("");
 
-  console.log(writerFileInputRef.current, "writerFileInputRef.current");
+  console.log(
+    writerFileInputRef.current,
+    "writerFileInputRef.current",
+    writerImage
+  );
   const uploadImageToS3 = async (file) => {
     const formData = new FormData();
     formData.append("uploaded-file", file);
@@ -95,7 +99,7 @@ export default function CreateBlogPost() {
   const getFormattedDate = () => {
     const today = new Date();
     const day = String(today.getDate()).padStart(2, "0");
-    const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const month = String(today.getMonth() + 1).padStart(2, "0");
     const year = today.getFullYear();
     return `${day}-${month}-${year}`;
   };
@@ -105,7 +109,7 @@ export default function CreateBlogPost() {
       setHandleError("Handle is required.");
       return;
     }
-    setHandleError(""); // Reset handle error
+    setHandleError("");
 
     const publishDate = getFormattedDate();
     const formData = {
@@ -185,7 +189,7 @@ export default function CreateBlogPost() {
                 className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-
+            ReactQuill
             {/* Content Editor */}
             <div>
               <label className="block text-sm font-medium text-gray-700 text-left">
@@ -196,7 +200,7 @@ export default function CreateBlogPost() {
                 value={content}
                 onChange={setContent}
                 className="mt-1"
-                style={{ height: "130px" }}
+                style={{ height: "16em" }}
               />
             </div>
           </div>
@@ -251,24 +255,28 @@ export default function CreateBlogPost() {
               id="coverImageUpload"
               ref={coverFileInputRef}
             />
+
             <div className="text-left">
               <label
                 htmlFor="coverImageUpload"
-                className={` inline-block bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium  hover:bg-gray-600 cursor-pointer`}
+                className="inline-block bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium shadow-sm 
+              hover:bg-gray-900 hover:text-white cursor-pointer transition duration-200"
               >
                 Choose Image
               </label>
             </div>
+
             {image && (
-              <div className="relative">
+              <div className="relative w-fit">
                 <img
                   src={image}
                   alt="Blog Cover"
                   className="w-20 h-20 object-cover rounded-md"
                 />
+
                 <button
                   onClick={() => handleRemoveImage(setImage, "coverImage")}
-                  className="absolute top-0 right-0 bg-gray-500 text-white text-xs rounded-full p-1"
+                  className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-gray-500 text-white text-xs rounded-full p-1 shadow-md"
                 >
                   &times;
                 </button>
@@ -328,15 +336,15 @@ export default function CreateBlogPost() {
               <div className="text-left">
                 <label
                   htmlFor="writerImageUpload"
-                  className={` inline-block bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium
-                        hover:bg-gray-600 cursor-pointer
-                      `}
+                  className="inline-block bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium shadow-sm 
+              hover:bg-gray-900 hover:text-white cursor-pointer transition duration-200"
                 >
                   Choose Image
                 </label>
               </div>
+
               {writerImage && (
-                <div className="relative">
+                <div className="relative w-fit mt-4">
                   <img
                     src={writerImage}
                     alt="Writer"
@@ -346,7 +354,7 @@ export default function CreateBlogPost() {
                     onClick={() =>
                       handleRemoveImage(setWriterImage, "writerImage")
                     }
-                    className="absolute top-0 right-0 bg-gray-500 text-white text-xs rounded-full p-1"
+                    className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-gray-500 text-white text-xs rounded-full p-1 shadow-md"
                   >
                     &times;
                   </button>
@@ -366,10 +374,9 @@ export default function CreateBlogPost() {
                 type="text"
                 placeholder="Enter tag"
                 value={tag}
-                onChange={(e) => {
-                  setTag(e.target.value);
-                  setShowDropdown(e.target.value.trim().length > 0);
-                }}
+                onChange={(e) => setTag(e.target.value)}
+                onFocus={() => setShowDropdown(true)}
+                onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                 className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
 
