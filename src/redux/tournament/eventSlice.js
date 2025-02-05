@@ -38,6 +38,10 @@ const eventSlice = createSlice({
     setEventId(state, { payload }) {
       state.eventId = payload;
     },
+
+    resetAllCategories(state) {
+      state.categories = [];
+    },
   },
 
   extraReducers: (builder) => {
@@ -87,6 +91,7 @@ export const {
   onPageChangeEvent,
   setEventId,
   toggleBookingModal,
+  resetAllCategories,
 } = eventSlice.actions;
 
 export default eventSlice.reducer;
