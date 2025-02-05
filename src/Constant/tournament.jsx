@@ -8,6 +8,7 @@ const tournamentDetails = {
   steps: ["basic info", "event", "acknowledgement"],
 };
 
+const rolesWithTournamentOwnerAccess = ["SUPER_ADMIN", "ADMIN"];
 const bookingLimit = 10;
 
 const tournamentEvent = {
@@ -67,7 +68,7 @@ const eventTableHeaders = [
       return (
         <Link
           to={`/tournaments/${tournamentId}/event/${item?._id}?event=${formatName?.name}`}
-          className=":hover-bg-indigo-600"
+          className="hover:text-blue-500"
         >
           {item?.categoryName}
         </Link>
@@ -100,7 +101,13 @@ const eventTableHeaders = [
   {
     key: "actions",
     header: "Actions",
-    render: (item, index) => <EventActions id={item?._id} index={index} />,
+    render: (item, index) => (
+      <EventActions
+        id={item?._id}
+        index={index}
+        eventName={item?.categoryName}
+      />
+    ),
   },
 ];
 
@@ -260,4 +267,5 @@ export {
   approvalBody,
   bookingLimit,
   tournamentStatusFilters,
+  rolesWithTournamentOwnerAccess,
 };

@@ -48,6 +48,7 @@ import Spinner from "../Common/Spinner";
 import Button from "../Common/Button";
 import TextError from "../Error/formError";
 import Combopopover from "../Common/Combobox";
+import { rolesWithTournamentOwnerAccess } from "../../Constant/tournament";
 
 const requiredTournamentFields = (tournament) => {
   const {
@@ -292,17 +293,9 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   }, []);
 
   useEffect(() => {
-    const userRole = cookies.userRole;
+    const userRole = cookies?.userRole;
     if (!userRole) {
       dispatch(userLogout());
-    }
-    if (tournamentOwners?.owners?.length > 0) {
-      setInitialState({
-        ...initialState,
-        ownerUserId: ROLES.slice(0, 2).includes(userRole)
-          ? tournamentOwners.owners[0].name
-          : cookies.name,
-      });
     }
   }, [tournamentOwners]);
 
@@ -404,7 +397,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
               <TournamentBasicInfo
                 userName={cookies?.name || ""}
-                userRole={userRole}
+                userRole={cookies?.userRole || userRole}
                 tournamentOwners={tournamentOwners}
                 isGettingALLTO={isGettingALLTO}
                 hasError={err_IN_TO}
@@ -443,7 +436,7 @@ const TournamentBasicInfo = ({
   isGettingALLTO,
   hasError,
 }) => {
-  const { setFieldError, values } = useFormikContext();
+  const { setFieldError } = useFormikContext();
   useEffect(() => {
     if (hasError) {
       setFieldError("ownerUserId", "Error in getting the owners.");
@@ -454,65 +447,62 @@ const TournamentBasicInfo = ({
 
   return (
     <div className="grid grid-cols-2 gap-[30px]">
-      {userRole !== "SUPER_ADMIN" ||
-        (userRole !== "ADMIN" && (
-          <div className="flex flex-col items-start gap-2.5">
-            <label
-              className="text-base leading-[19.36px]"
-              htmlFor="ownerUserId"
-            >
-              Tournament Organizer Name
-            </label>
-            <Field
-              placeholder="Organizer Name"
-              id="ownerUserId"
-              name="ownerUserId"
-              disabled
-              className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={userName}
-            />
+      {!rolesWithTournamentOwnerAccess.includes(userRole) ? (
+        <div className="flex flex-col items-start gap-2.5">
+          <label className="text-base leading-[19.36px]" htmlFor="ownerUserId">
+            Tournament Organizer Name
+          </label>
+          <Field
+            placeholder="Organizer Name"
+            id="ownerUserId"
+            name="ownerUserId"
+            disabled
+            className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={userName}
+          />
 
-            <ErrorMessage name="ownerUserId" component={TextError} />
-          </div>
-        ))}
-
-      <div className="flex flex-col items-start gap-2.5">
-        <label className="text-base leading-[19.36px]" htmlFor="ownerUserId">
-          Tournament Organizer Name
-        </label>
-        <Field
-          as="select"
-          placeholder="Organizer Name"
-          id="ownerUserId"
-          name="ownerUserId"
-          className="w-full px-[19px] border-[1px]
+          <ErrorMessage name="ownerUserId" component={TextError} />
+        </div>
+      ) : (
+        <div className="flex flex-col items-start gap-2.5">
+          <label className="text-base leading-[19.36px]" htmlFor="ownerUserId">
+            Tournament Organizer Name
+          </label>
+          <Field
+            as="select"
+            placeholder="Organizer Name"
+            id="ownerUserId"
+            name="ownerUserId"
+            className="w-full px-[19px] border-[1px]
           border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none
           focus:ring-2 focus:ring-blue-500"
-          // onChange={(e) => {
-          //   if (tournamentOwners.owners?.length > 0) {
-          //     const selectedOwner = tournamentOwners.owners.find(
-          //       (owner) => owner.name === e.target.value
-          //     );
-          //     if (selectedOwner) {
-          //       setFieldValue("ownerUserId", selectedOwner.id);
-          //     }
-          //   }
-          // }}
-        >
-          {!isGettingALLTO && tournamentOwners?.owners?.length > 0
-            ? tournamentOwners.owners.map((owner, index) => {
-                return (
-                  <option key={owner.name} value={owner.id}>
-                    {owner.name}
-                  </option>
-                );
-              })
-            : []}
+            // onChange={(e) => {
+            //   if (tournamentOwners.owners?.length > 0) {
+            //     const selectedOwner = tournamentOwners.owners.find(
+            //       (owner) => owner.name === e.target.value
+            //     );
+            //     if (selectedOwner) {
+            //       setFieldValue("ownerUserId", selectedOwner.id);
+            //     }
+            //   }
+            // }}
+          >
+            <option>Select Tournament Owner</option>
+            {!isGettingALLTO && tournamentOwners?.owners?.length > 0
+              ? tournamentOwners.owners.map((owner, index) => {
+                  return (
+                    <option key={owner.name} value={owner.id}>
+                      {owner.name}
+                    </option>
+                  );
+                })
+              : []}
 
-          {isGettingALLTO && <ImSpinner2 width="20px" height="20px" />}
-        </Field>
-        <ErrorMessage name="ownerUserId" component={TextError} />
-      </div>
+            {isGettingALLTO && <ImSpinner2 width="20px" height="20px" />}
+          </Field>
+          <ErrorMessage name="ownerUserId" component={TextError} />
+        </div>
+      )}
 
       <div className="flex flex-col items-start gap-2.5">
         <label className="text-base leading-[19.36px]" htmlFor="tournamentName">
@@ -572,6 +562,8 @@ const TournamentMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         uniqueTags={[]}
         setFieldValue={setFieldValue}
         checkedTags={selectedTags}
+        placeholder="Enter Tournament Tags"
+        label="Tournament Tags"
       />
 
       <ErrorMessage name="tags" component={TextError} />
