@@ -24,7 +24,7 @@ import { PlayerSelectionModal } from "../Common/PlayerSeedingModal";
 import { showSuccess } from "../../redux/Success/successSlice";
 import { resetFixtureSuccess } from "../../redux/tournament/fixtureSlice";
 
-const formateMatchData = (fixture, suffledPlayers) => {
+const formatMatchData = (fixture, suffledPlayers) => {
   if (!fixture || !suffledPlayers?.length) {
     return;
   }
@@ -90,7 +90,7 @@ export const TournamentFixture = ({ tournament }) => {
 
   const handleplayerShuffling = () => {
     const result = playerShuffling(stableFixture?.bracketData?.participant);
-    const formattedMatchData = formateMatchData(fixture, result);
+    const formattedMatchData = formatMatchData(fixture, result);
     dispatch(
       updateSeeding({
         tour_Id: tournamentId,
