@@ -153,7 +153,7 @@ export const TournamentFixture = ({ tournament }) => {
 
   window.bracketsViewer.onMatchClicked = useCallback((match) => {
     const { opponent1, opponent2 } = match;
-    if (opponent1?.id && opponent2?.id) {
+    if (opponent1?.id?.toString() && opponent2?.id?.toString()) {
       setOpenMatchModal(true);
     }
 
@@ -185,10 +185,10 @@ export const TournamentFixture = ({ tournament }) => {
   }, [FixtureCreationError, publishError]);
 
   useEffect(() => {
-    if (isPublished) {
+    if (isPublished || FixtureCreatedSuccess) {
       dispatch(getFixture({ tour_Id: tournamentId, eventId }));
     }
-  }, [isPublished]);
+  }, [isPublished, FixtureCreatedSuccess]);
 
   if (isFetchingFixture) {
     return (
@@ -201,27 +201,29 @@ export const TournamentFixture = ({ tournament }) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
-        <NotificationBanner
-          message="Fill Match Details Before Publishing"
-          messageStyle="text-sm text-[#E82B00]"
-          wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
-        />
+        {fixture?.status !== "PUBLISHED" && (
+          <NotificationBanner
+            message="Fill Match Details Before Publishing"
+            messageStyle="text-sm text-[#E82B00]"
+            wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
+          />
+        )}
         <button
-          className="bg-[#CAD9FB] border-2 border-[#CAD9FB] p-2 rounded-lg disabled:bg-slate-300"
+          className="bg-white border-2 border-[#CAD9FB] p-2 rounded-lg disabled:bg-slate-300"
           onClick={() => setOpenPlayerSeedingModal(true)}
           disabled={fixture?.status === "PUBLISHED" || !fixture}
         >
           <TbSwipe className="w-[20px] h-[20px]" />
         </button>
         <button
-          className="bg-[#CAD9FB] border-2 border-[#CAD9FB] p-2 rounded-lg disabled:bg-slate-300"
+          className="bg-white border-2 border-[#CAD9FB] p-2 rounded-lg disabled:bg-slate-300 disabled:cursor-not-allowed"
           onClick={handleplayerShuffling}
           disabled={fixture?.status === "PUBLISHED" || !fixture}
         >
           <img src={suffleIcon} alt="suffle button" className="animate-pulse" />
         </button>
         <Button
-          className="w-[148px]  h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400"
+          className="w-[148px]  h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
           onClick={handlePublishFixture}
           loading={isPublishing}
           disabled={fixture?.status === "PUBLISHED" || !fixture}

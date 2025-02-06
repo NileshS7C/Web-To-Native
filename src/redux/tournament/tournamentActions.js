@@ -99,6 +99,37 @@ export const getAll_TO = createAsyncThunk(
   }
 );
 
+export const getSingle_TO = createAsyncThunk(
+  "Tournament/getSingle_TO",
+  async (_, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BASE_URL}/users/tournament-owner/get-details`,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
 export const getAllUniqueTags = createAsyncThunk(
   "Tournament/getAllUniqueTags",
   async (_, { rejectWithValue }) => {
@@ -111,7 +142,7 @@ export const getAllUniqueTags = createAsyncThunk(
       const response = await axiosInstance.get(
         `${
           import.meta.env.VITE_BASE_URL
-        }/users/tournament-owners/tournaments/tournament-tags`,
+        }/users/admin/tournaments/tournament-tags`,
         config
       );
 

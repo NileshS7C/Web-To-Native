@@ -34,6 +34,7 @@ import {
   addTournamentStepOne,
   getAll_TO,
   getAllUniqueTags,
+  getSingle_TO,
 } from "../../redux/tournament/tournamentActions";
 import { userLogout } from "../../redux/Authentication/authActions";
 import { showError } from "../../redux/Error/errorSlice";
@@ -277,6 +278,8 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   const { isGettingALLTO, err_IN_TO, tournamentOwners, isGettingTags, tags } =
     useSelector((state) => state.Tournament);
 
+  const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
+
   const { userRole } = useSelector((state) => state.auth);
 
   const { isSuccess, isGettingTournament } = useSelector(
@@ -285,25 +288,35 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
   const currentPage = 1;
   const limit = 100;
-  useEffect(() => {
-    dispatch(getAll_TO({ currentPage, limit }));
-    dispatch(getAllUniqueTags());
-  }, []);
 
   useEffect(() => {
     const userRole = cookies?.userRole;
     if (!userRole) {
       dispatch(userLogout());
     }
-  }, [tournamentOwners]);
+    if (rolesWithTournamentOwnerAccess.includes(userRole)) {
+      dispatch(getAll_TO({ currentPage, limit }));
+    } else if (userRole === "TOURNAMENT_OWNER") {
+      dispatch(getSingle_TO());
+    }
+    dispatch(getAllUniqueTags());
+  }, []);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setSubmitting(true);
 
-      const user = tournamentOwners.owners?.find(
-        (owner) => owner.id === values.ownerUserId
-      );
+      let user;
+
+      if (rolesWithTournamentOwnerAccess.includes(cookies?.userRole)) {
+        user = tournamentOwners.owners?.find(
+          (owner) => owner.name === values.ownerUserId
+        );
+      } else if (cookies?.userRole === "TOURNAMENT_OWNER") {
+        user = singleTournamentOwner
+          ? { id: singleTournamentOwner.id }
+          : { id: "" };
+      }
 
       const updatedValues = {
         ...values,
@@ -334,6 +347,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       resetForm();
     } catch (error) {
       console.log(" error", error);
+
       dispatch(
         showError({
           message: error.data.message || "Something went wrong!",
@@ -354,7 +368,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
         ) ?? null;
 
       if (owner) {
-        const ownerName = owner.id;
+        const ownerName = owner.name;
 
         setInitialState((prevState) => ({
           ...prevState,
@@ -389,7 +403,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
     >
       {({ isSubmitting, submitForm }) => {
         setSubmitForm(() => submitForm);
-        setIsSubmitting(isSubmitting)
+        setIsSubmitting(isSubmitting);
         return (
           <Form>
             <fieldset disabled={!isDisable}>
@@ -444,7 +458,7 @@ const TournamentBasicInfo = ({
   isGettingALLTO,
   hasError,
 }) => {
-  const { setFieldError } = useFormikContext();
+  const { setFieldError, values, setFieldValue } = useFormikContext();
   useEffect(() => {
     if (hasError) {
       setFieldError("ownerUserId", "Error in getting the owners.");
@@ -452,6 +466,12 @@ const TournamentBasicInfo = ({
       setFieldError("ownerUserId", "");
     }
   }, [hasError, tournamentOwners]);
+
+  useEffect(() => {
+    if (userName && userRole === "TOURNAMENT_OWNER") {
+      setFieldValue("ownerUserId", userName);
+    }
+  }, [userName]);
 
   return (
     <div className="grid grid-cols-2 gap-[30px]">
@@ -484,22 +504,12 @@ const TournamentBasicInfo = ({
             className="w-full px-[19px] border-[1px]
           border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none
           focus:ring-2 focus:ring-blue-500"
-            // onChange={(e) => {
-            //   if (tournamentOwners.owners?.length > 0) {
-            //     const selectedOwner = tournamentOwners.owners.find(
-            //       (owner) => owner.name === e.target.value
-            //     );
-            //     if (selectedOwner) {
-            //       setFieldValue("ownerUserId", selectedOwner.id);
-            //     }
-            //   }
-            // }}
           >
             <option>Select Tournament Owner</option>
             {!isGettingALLTO && tournamentOwners?.owners?.length > 0
               ? tournamentOwners.owners.map((owner, index) => {
                   return (
-                    <option key={owner.name} value={owner.id}>
+                    <option key={`${owner.name}_${index}`} value={owner.name}>
                       {owner.name}
                     </option>
                   );
@@ -566,8 +576,8 @@ const TournamentMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
       </div>
 
       <Combopopover
-        isGettingTags={false}
-        uniqueTags={[]}
+        isGettingTags={isGettingTags}
+        uniqueTags={uniqueTags}
         setFieldValue={setFieldValue}
         checkedTags={selectedTags}
         placeholder="Enter Tournament Tags"

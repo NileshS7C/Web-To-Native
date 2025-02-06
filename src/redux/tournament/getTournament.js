@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   getAllBookings,
   getAllTournaments,
+  getSingle_TO,
   getSingleTournament,
 } from "./tournamentActions";
 
@@ -18,6 +19,9 @@ const initialState = {
   bookingError: false,
   bookings: [],
   selectedFilter: "all",
+  GettingSingleOwner: false,
+  SingleOwnerError: false,
+  singleTournamentOwner: null,
 };
 
 const getTournament = createSlice({
@@ -92,6 +96,23 @@ const getTournament = createSlice({
         state.isGettingBookings = false;
         state.bookings = [];
         state.bookingError = true;
+      });
+
+    builder
+      .addCase(getSingle_TO.pending, (state) => {
+        state.GettingSingleOwner = true;
+        state.singleTournamentOwner = null;
+        state.SingleOwnerError = false;
+      })
+      .addCase(getSingle_TO.fulfilled, (state, { payload }) => {
+        state.GettingSingleOwner = false;
+        state.singleTournamentOwner = payload.data;
+        state.SingleOwnerError = false;
+      })
+      .addCase(getSingle_TO.rejected, (state) => {
+        state.GettingSingleOwner = false;
+        state.singleTournamentOwner = null;
+        state.SingleOwnerError = true;
       });
   },
 });
