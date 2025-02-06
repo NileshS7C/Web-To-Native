@@ -346,9 +346,8 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
       resetForm();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.log(" error", error);
-      }
+      console.log(" error", error);
+
       dispatch(
         showError({
           message: error.data.message || "Something went wrong!",

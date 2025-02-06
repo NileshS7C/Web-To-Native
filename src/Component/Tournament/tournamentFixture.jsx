@@ -153,8 +153,7 @@ export const TournamentFixture = ({ tournament }) => {
 
   window.bracketsViewer.onMatchClicked = useCallback((match) => {
     const { opponent1, opponent2 } = match;
-    console.log(" match details", match);
-    if (opponent1?.id?.toString() && String(opponent2?.id)?.toString()) {
+    if (opponent1?.id?.toString() && opponent2?.id?.toString()) {
       setOpenMatchModal(true);
     }
 
