@@ -188,7 +188,7 @@ export default function EditBlogPost() {
                 </svg>
               </button>
               <h1 className="text-2xl font-semibold text-left w-64">
-                Blog Post
+                {title}
               </h1>
             </div>
 
