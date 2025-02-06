@@ -32,7 +32,6 @@ const Layout = () => {
   const { venue } = useSelector((state) => state.getVenues);
   const { tournament } = useSelector((state) => state.GET_TOUR);
   const [approveButtonClicked, setApproveButtonClicked] = useState(false);
-  const [currentURL, setCurrentURL] = useState("");
   const { changingDecision, verificationSuccess, approvalBody } = useSelector(
     (state) => state.Tournament
   );
@@ -41,12 +40,6 @@ const Layout = () => {
 
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
-
-  useEffect(() => {
-    if (location.pathname) {
-      setCurrentURL(location.pathname);
-    }
-  }, [location]);
 
   const currentTitle = getPageTitle(
     location.pathname,
