@@ -19,6 +19,7 @@ import WhyChoosePickleBay from "../Page/CMS/Homepage/WhyChoosePickleBay";
 import DestinationDink from "../Page/CMS/Homepage/DestinationDink";
 import Journal from "../Page/CMS/Homepage/Journal";
 import BuildCourts from "../Page/CMS/Homepage/BuildCourts";
+import NewsUpdates from "../Page/CMS/Homepage/NewsUpdates";
 
 
 const AllRoutes = () => {
@@ -45,6 +46,7 @@ const AllRoutes = () => {
           <Route path="cms/homepage/destination-dink" element={<DestinationDink />} />
           <Route path="cms/homepage/build-courts" element={<BuildCourts />} />
           <Route path="cms/homepage/journal" element={<Journal />} />
+          <Route path="cms/homepage/news-&-update" element={<NewsUpdates />} />
           <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
           {/* Ends Here */}
 

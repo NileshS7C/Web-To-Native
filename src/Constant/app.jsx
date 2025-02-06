@@ -50,6 +50,7 @@ export const ADMIN_NAVIGATION = [
           { name: "Destination Dink"},
           { name: "Build Courts"},
           { name: "Journal"},
+          { name: "News & Update"},
         ],
       },
       {

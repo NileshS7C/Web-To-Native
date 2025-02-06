@@ -9,10 +9,9 @@ export default function Journal() {
     const [journalData, setJournalData] = useState([]);
     const fetchJournalSection = async () => {
         try {
-            const response = await fetch("http://localhost:1234/api/admin/homepage-sections?section=journal", { method: "GET" });
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=journal`, { method: "GET" });
             const result = await response.json();
             setJournalData(result.data[0])
-            console.log('result', result.data[0]);
         } catch (error) {
             console.error(error);
         }
@@ -22,17 +21,17 @@ export default function Journal() {
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:flex-col gap-4">
                 <div className="sm:flex-auto text-left">
-                    <h1 className="text-base font-semibold text-gray-900">Explore Picklebay</h1>
+                    <h1 className="text-base font-semibold text-gray-900">The Picklebay Journal</h1>
                 </div>
-                <div className="flex items-center gap-4 w-full">
+                <div className="flex items-end justify-between w-full">
                     <JournalSectionInfo sectionInfo={journalData} />
-                    <div className="w-[40%] flex justify-end">
+                    <div className="flex justify-end">
                         <button
                             type="button"
                             className="block rounded-md bg-[#1570EF] px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-[#1570EF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1570EF]"
                             onClick={() => setIsModalOpen(true)}
                         >
-                            Add Card
+                            Add Journal
                         </button>
                     </div>
                 </div>
