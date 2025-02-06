@@ -26,10 +26,10 @@ export default function CreateBlogPost() {
   const [saveError, setSaveError] = useState("");
 
   const uploadImageToS3 = async (file) => {
-    const formData = new FormData();
-    formData.append("uploaded-file", file);
-
     try {
+      const formData = new FormData();
+      formData.append("uploaded-file", file);
+
       const config = {
         headers: {
           "Content-Type": "multipart/form-data",
