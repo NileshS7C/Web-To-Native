@@ -66,7 +66,7 @@ const TournamentCreationForm = () => {
 
     dispatch(setIsEditable(isDisable));
 
-    if (tournament?.status === "DRAFT") {
+    if (tournament?.status === "DRAFT" && tournamentId) {
       dispatch(setFormOpen("event"));
     } else {
       dispatch(setFormOpen("basic info"));

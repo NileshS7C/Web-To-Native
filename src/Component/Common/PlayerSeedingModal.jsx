@@ -142,8 +142,8 @@ const PlayerRow = ({
           }
         >
           <option value="">Select Player</option>
-          {getAvailablePlayers("player1").map((player) => (
-            <option key={player.name} value={player?.id}>
+          {getAvailablePlayers("player1").map((player, index) => (
+            <option key={`${player.name}_${index}`} value={player?.id}>
               {player.name}
             </option>
           ))}
@@ -169,8 +169,8 @@ const PlayerRow = ({
           }
         >
           <option value="">Select Player</option>
-          {getAvailablePlayers("player2").map((player) => (
-            <option key={player.name} value={player.id}>
+          {getAvailablePlayers("player2").map((player, index) => (
+            <option key={`${player.name}_${index}`} value={player.id}>
               {player.name}
             </option>
           ))}
