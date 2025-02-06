@@ -120,6 +120,7 @@ const AddParticipants = () => {
       ).unwrap();
       if (!result?.responseCode) {
         resetForm();
+        dispatch(toggleBookingModal());
         dispatch(
           getAllBookings({
             currentPage: currentPage || 1,

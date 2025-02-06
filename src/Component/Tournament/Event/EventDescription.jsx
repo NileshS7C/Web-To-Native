@@ -135,7 +135,7 @@ const EventPlayers = ({ fee, skillLevel }) => {
 
       <div className="flex flex-wrap flex-col items-start gap-2.5">
         <p className="text-tour_List_Color text-xs sm:text-sm md:text-md lg:text-lg">
-          Skill level
+          Skill Level
         </p>
         <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
           {skillLevel}
