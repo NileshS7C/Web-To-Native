@@ -151,7 +151,6 @@ export default function EditBlogPost() {
       );
 
       setIsEditing(false);
-      alert("Blog post updated successfully!");
     } catch (error) {
       setEditSaveError("Error saving blog post.");
     }
@@ -189,7 +188,7 @@ export default function EditBlogPost() {
                 </svg>
               </button>
               <h1 className="text-2xl font-semibold text-left w-64">
-                Edit Blog Post
+                Blog Post
               </h1>
             </div>
 
