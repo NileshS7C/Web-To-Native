@@ -16,6 +16,7 @@ import { setApprovalBody } from "../redux/tournament/addTournament";
 import { ErrorModal } from "./Common/ErrorModal";
 import { useEffect, useState } from "react";
 import { hideActionButtons } from "../Constant/tournament";
+import { useFormikContextFunction } from "../Providers/formikContext";
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -23,7 +24,9 @@ const Layout = () => {
   const location = useLocation();
   const { tournamentId } = useParams();
   const { venue } = useSelector((state) => state.getVenues);
-  const { tournament } = useSelector((state) => state.GET_TOUR);
+  const { tournament, tournamentEditMode } = useSelector(
+    (state) => state.GET_TOUR
+  );
   const [approveButtonClicked, setApproveButtonClicked] = useState(false);
   const { changingDecision, verificationSuccess, approvalBody } = useSelector(
     (state) => state.Tournament
@@ -104,6 +107,7 @@ const Layout = () => {
                     tournament={tournament}
                     changingDecision={changingDecision}
                     setApproveButtonClicked={setApproveButtonClicked}
+                    tournamentEditMode={tournamentEditMode}
                   />
                 )}
             </div>
@@ -123,26 +127,36 @@ const TournamentActionButton = ({
   tournament,
   changingDecision,
   setApproveButtonClicked,
+  tournamentEditMode,
 }) => {
   return (
     <div className="flex items-center gap-2 justify-end ml-auto">
-      <button
-        className="flex items-center justify-center gap-3 w-[200px] h-[60px] bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
-        type="button"
-        onClick={() => dispatch(setTournamentEditMode())}
-        disabled={
-          !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
-          tournament?.status !== "REJECTED"
-        }
-      >
-        <span>Edit Tournament</span>
-        <FiEdit3 />
-      </button>
+      {!tournamentEditMode ? (
+        <button
+          className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+          type="button"
+          onClick={() => dispatch(setTournamentEditMode())}
+          disabled={
+            !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
+            tournament?.status !== "REJECTED"
+          }
+        >
+          <span>Edit Tournament</span>
+          <FiEdit3 />
+        </button>
+      ) : (
+        <SaveAndCancelButton
+          dispatch={dispatch}
+          setTournamentEditMode={setTournamentEditMode}
+        />
+      )}
 
       {ROLES.slice(0, 2).includes(userRole) && (
         <div className="flex items-center gap-2">
           <Button
-            className={`flex items-center justify-center gap-3 w-[200px] h-[60px] bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+            className={`${
+              tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+            } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
             type="button"
             onClick={() => {
               setApproveButtonClicked(true);
@@ -154,12 +168,13 @@ const TournamentActionButton = ({
               dispatch(setApprovalBody(updatedBody));
             }}
             loading={changingDecision && approvalBody.action === "APPROVE"}
-            disabled={tournament?.status === "PUBLISHED"}
           >
             Accept Tournament
           </Button>
           <Button
-            className={`flex items-center justify-center gap-3 w-[200px] h-[60px] bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+            className={`${
+              tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+            } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
             type="button"
             onClick={() => {
               dispatch(
@@ -171,12 +186,37 @@ const TournamentActionButton = ({
               );
             }}
             loading={changingDecision && approvalBody.action !== "APPROVE"}
-            disabled={tournament?.status === "PUBLISHED"}
           >
             Reject Tournament
           </Button>
         </div>
       )}
+    </div>
+  );
+};
+
+const SaveAndCancelButton = ({ dispatch, setTournamentEditMode }) => {
+  const { submitForm, isSubmitting } = useFormikContextFunction();
+
+  const { isLoading } = useSelector((state) => state.Tournament);
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <button
+        className="flex items-center justify-center gap-3 px-4 py-2 bg-white shadow-lg text-black ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+        type="button"
+        onClick={() => dispatch(setTournamentEditMode())}
+      >
+        <span>Cancel</span>
+      </button>
+
+      <Button
+        className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+        type="button"
+        onClick={() => submitForm && submitForm()}
+        loading={isSubmitting}
+      >
+        <span>Save</span>
+      </Button>
     </div>
   );
 };

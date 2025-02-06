@@ -13,6 +13,7 @@ import TournamentListing from "../Component/Tournament/TournamentListing";
 import EventDetailPage from "../Component/Tournament/Event/EventDetails";
 import NotFound from "../Component/Common/NotFound";
 import WrapperLogin from "../Page/Login";
+import { FormikContextProvider } from "../Providers/formikContext";
 
 const AllRoutes = () => {
   return (
@@ -22,7 +23,9 @@ const AllRoutes = () => {
           path="/"
           element={
             <Authentication>
-              <Layout />
+              <FormikContextProvider>
+                <Layout />
+              </FormikContextProvider>
             </Authentication>
           }
         >
