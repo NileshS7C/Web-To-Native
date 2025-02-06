@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../../../Services/axios";
 
 export default function EditBlogPost() {
   const { handle } = useParams();
+  const navigate = useNavigate();
   const coverFileInputRef = useRef(null);
   const writerFileInputRef = useRef(null);
 
@@ -76,10 +77,6 @@ export default function EditBlogPost() {
         config
       );
 
-      console.log(
-        { success: true, url: response.data.data.url },
-        "{ success: true, url: response.data.data.url };"
-      );
       return { success: true, url: response.data.data.url };
     } catch (error) {
       return { success: false, message: error.response.data.message };
@@ -102,7 +99,6 @@ export default function EditBlogPost() {
         } else if (triggerBy === "writerImage") {
           setWriterImageError(imageUrl.message);
         }
-        console.error("Image upload failed");
       }
     }
   };
@@ -157,7 +153,6 @@ export default function EditBlogPost() {
       setIsEditing(false);
       alert("Blog post updated successfully!");
     } catch (error) {
-      console.error("Error:", error);
       setEditSaveError("Error saving blog post.");
     }
   };
@@ -171,7 +166,33 @@ export default function EditBlogPost() {
       ) : (
         <div className="max-w-5xl mx-auto p-6 space-y-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-semibold text-left">Edit Blog Post</h1>
+            <div className="flex items-center gap-x-4">
+              <button
+                onClick={() => {
+                  navigate("/cms/blogs/blog-posts");
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  width="24px"
+                  height="24px"
+                  color="#343C6A"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+              <h1 className="text-2xl font-semibold text-left w-64">
+                Edit Blog Post
+              </h1>
+            </div>
+
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}

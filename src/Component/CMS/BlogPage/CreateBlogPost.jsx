@@ -25,11 +25,6 @@ export default function CreateBlogPost() {
   const [handleError, setHandleError] = useState("");
   const [saveError, setSaveError] = useState("");
 
-  console.log(
-    writerFileInputRef.current,
-    "writerFileInputRef.current",
-    writerImage
-  );
   const uploadImageToS3 = async (file) => {
     const formData = new FormData();
     formData.append("uploaded-file", file);
@@ -67,7 +62,6 @@ export default function CreateBlogPost() {
         } else if (triggerBy === "writerImage") {
           setWriterImageError(imageUrl.message);
         }
-        console.error("Image upload failed");
       }
     }
   };
@@ -144,7 +138,6 @@ export default function CreateBlogPost() {
       alert(response.data.message);
       navigate("/cms/blogs/blog-posts");
     } catch (error) {
-      console.error("Error:", error);
       if (error?.response?.data?.errors.length > 0) {
         setSaveError(error?.response?.data?.errors[0]?.message);
       } else {
@@ -189,7 +182,6 @@ export default function CreateBlogPost() {
                 className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-            ReactQuill
             {/* Content Editor */}
             <div>
               <label className="block text-sm font-medium text-gray-700 text-left">

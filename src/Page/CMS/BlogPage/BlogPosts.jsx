@@ -54,9 +54,9 @@ export default function BlogPosts() {
     );
   }
 
-  const totalPages = Math.ceil(total / limit); // Total pages
+  const totalPages = Math.ceil(total / limit); // Total pages.12/5 total=3page
   const paginationGroupSize = 5; // Shows 5 pagination buttons at a time
-  const currentGroup = Math.ceil(page / paginationGroupSize); // Determine the pagination group to display
+  const currentGroup = Math.ceil(page / paginationGroupSize); // Determine the pagination group to display 11/5=page3
 
   // Calculate range of pages to display
   const startPage = (currentGroup - 1) * paginationGroupSize + 1;
