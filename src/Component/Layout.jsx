@@ -1,21 +1,28 @@
-import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
-import Header from "./Header/header";
-import { NavBar } from "./SideNavBar/NavBar";
-import { ArrowLeftIcon } from "@heroicons/react/20/solid";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPageTitle } from "../Constant/titles";
-import { notHaveBackButton, ROLES } from "../Constant/app";
+import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { FiEdit3 } from "react-icons/fi";
+
 import { setTournamentEditMode } from "../redux/tournament/getTournament";
 import { handleTournamentDecision } from "../redux/tournament/tournamentActions";
+import { setApprovalBody } from "../redux/tournament/addTournament";
+
+import { FiEdit3 } from "react-icons/fi";
+import { ArrowLeftIcon } from "@heroicons/react/20/solid";
+
+import Header from "./Header/header";
+import { NavBar } from "./SideNavBar/NavBar";
+
+import { getPageTitle } from "../Constant/titles";
+import { notHaveBackButton, ROLES } from "../Constant/app";
+import { backRoute } from "../utils/tournamentUtils";
+
 import { showConfirmation } from "../redux/Confirmation/confirmationSlice";
 import Button from "./Common/Button";
 import { SuccessModal } from "./Common/SuccessModal";
-import { setApprovalBody } from "../redux/tournament/addTournament";
 import { ErrorModal } from "./Common/ErrorModal";
-import { useEffect, useState } from "react";
-import { hideActionButtons } from "../Constant/tournament";
+import { approvalBody, hideActionButtons } from "../Constant/tournament";
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -29,7 +36,7 @@ const Layout = () => {
     (state) => state.Tournament
   );
   const { category } = useSelector((state) => state.event);
-  const isTournament = window.location.pathname.includes("tournaments");
+  const isTournament = window.location.pathname.includes("/tournaments");
 
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
@@ -67,7 +74,9 @@ const Layout = () => {
         <div className="flex-1 p-[50px] overflow-auto">
           <div className="flex gap-2.5 items-center mb-4 ">
             {!notHaveBackButton.includes(currentTitle) && (
-              <button onClick={() => navigate(-1)}>
+              <button
+                onClick={() => navigate(backRoute(location, { tournamentId }))}
+              >
                 <ArrowLeftIcon width="24px" height="24px" color="#343C6A" />
               </button>
             )}
@@ -179,6 +188,16 @@ const TournamentActionButton = ({
       )}
     </div>
   );
+};
+
+TournamentActionButton.propTypes = {
+  dispatch: PropTypes.func,
+  ROLES: PropTypes.array,
+  userRole: PropTypes.string,
+  approvalBody: PropTypes.object,
+  tournament: PropTypes.object,
+  changingDecision: PropTypes.bool,
+  setApproveButtonClicked: PropTypes.func,
 };
 
 export default Layout;

@@ -10,3 +10,19 @@ export const ROUTES = {
   },
   TOURNAMENTS: "/tournaments",
 };
+
+export const backButtonRoutes = [
+  {
+    path: "/tournaments",
+    children: ["/event"],
+    id: "tournamentId",
+  },
+
+  {
+    path: "/venues",
+    children: ["/add-court", "/edit-court", "/edit"],
+    id: "id",
+  },
+];
+
+export const parentRoutes = ["Tournaments", "Venues", "Users"];
