@@ -90,7 +90,7 @@ export default function NewsEditDataModal({ data, selectedCard, isOpen, onClose,
                                         };
                                         
                                         // Send API request
-                                        const response = await fetch("http://localhost:1234/api/admin/homepage-sections/news", {
+                                        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/news`, {
                                             method: "PATCH",
                                             headers: myHeaders,
                                             body: JSON.stringify(payload),

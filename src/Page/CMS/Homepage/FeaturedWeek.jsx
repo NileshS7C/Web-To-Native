@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import WeekSectionInfo from "../../../Component/CMS/HomePage/FeaturedWeeks/WeekSectionInfo";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import axiosInstance from "../../../Services/axios";
 
 export default function FeaturedWeek() {
     const [isEditing, setIsEditing] = useState(false);
@@ -30,25 +31,22 @@ export default function FeaturedWeek() {
 
     useEffect(() => { fetchWeekData(); }, []);
     const uploadImage = async (file) => {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTM2MGNlNTcyMDg4OTk1OThhZTgwMSIsInBob25lIjoiMjIyMjIyMjIyMiIsIm5hbWUiOiJQcmF0aGFtIiwiaWF0IjoxNzM4MzE4MDE1LCJleHAiOjE3Mzg0MDQ0MTV9.gOFdNH3a-xSFUpdiAT8E7SUXcCgGc4caUMtSSrQRF50");
-
-        const formdata = new FormData();
-        formdata.append("uploaded-file", file);
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: formdata,
-            redirect: "follow",
-        };
-
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/upload-file`, requestOptions);
-            const result = await response.json();
-            return result;
+            const formData = new FormData();
+            formData.append("uploaded-file", file);
+            const config = {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            };
+            const response = await axiosInstance.post(
+                `${import.meta.env.VITE_BASE_URL}/upload-file`,
+                formData,
+                config
+            );
+            return { success: true, url: response.data.data.url };
         } catch (error) {
-            console.error("Error uploading image:", error);
+            return { success: false, message: error.response.data.message };
         }
     };
     const handleSave = async () => {

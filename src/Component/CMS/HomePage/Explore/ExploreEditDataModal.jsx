@@ -7,6 +7,7 @@ import {
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Spinner from "../../../../Page/CMS/Spinner";
+import axiosInstance from "../../../../Services/axios";
 
 export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
@@ -25,25 +26,22 @@ export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomep
     });
 
     const uploadImage = async (file) => {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWNjZjc2N2Y4MmRjOTI5MjkxMzdmNSIsInBob25lIjoiOTk1MzA1MDc2OSIsIm5hbWUiOiJQaWNrbGViYXkgUGxheWVyIiwiaWF0IjoxNzM4MzI5OTc1LCJleHAiOjE3MzgzNDA3NzV9.FUCwl6NXPMwkonZiURcOrNsXvI5fxlZCIC6pRlcU7dU");
-
-        const formdata = new FormData();
-        formdata.append("uploaded-file", file);
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: formdata,
-            redirect: "follow",
-        };
-
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/upload-file`, requestOptions);
-            const result = await response.json();
-            return result?.data?.url;
+            const formData = new FormData();
+            formData.append("uploaded-file", file);
+            const config = {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            };
+            const response = await axiosInstance.post(
+                `${import.meta.env.VITE_BASE_URL}/upload-file`,
+                formData,
+                config
+            );
+            return { success: true, url: response.data.data.url };
         } catch (error) {
-            console.error("Error uploading image:", error);
+            return { success: false, message: error.response.data.message };
         }
     };
 
@@ -67,7 +65,8 @@ export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomep
                                     let finalImageUrl = values.image;
 
                                     if (values.image instanceof File) {
-                                        finalImageUrl = await uploadImage(values.image);
+                                        let image  = await uploadImage(values.image);
+                                        finalImageUrl = image.url
                                     }
 
                                     console.log("Final Submitted Data:", {

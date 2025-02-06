@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { PencilIcon } from "@heroicons/react/20/solid";
 import SwitchToggle from "../../../Component/CMS/HomePage/SwitchToggle";
+import axiosInstance from "../../../Services/axios";
 
 export default function DestinationDink() {
     const [isEditing, setIsEditing] = useState(false);
@@ -25,27 +26,24 @@ export default function DestinationDink() {
     }, []);
 
     const uploadImage = async (file) => {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWNjZjc2N2Y4MmRjOTI5MjkxMzdmNSIsInBob25lIjoiOTk1MzA1MDc2OSIsIm5hbWUiOiJQaWNrbGViYXkgUGxheWVyIiwiaWF0IjoxNzM4NzgwODM3LCJleHAiOjE3Mzg3OTE2Mzd9.MFXN5Qam0AmARuN2_u72D0umGa2YeLNcVZn6KVlcik0");
-
-        const formdata = new FormData();
-        formdata.append("uploaded-file", file);
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: formdata,
-            redirect: "follow",
-        };
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/upload-file`, requestOptions);
-            const result = await response.json();
-            return result?.data?.url;
-        } catch (error) {
-            console.error("Error uploading image:", error);
-        }
-    };
+      try {
+          const formData = new FormData();
+          formData.append("uploaded-file", file);
+          const config = {
+              headers: {
+                  "Content-Type": "multipart/form-data",
+              },
+          };
+          const response = await axiosInstance.post(
+              `${import.meta.env.VITE_BASE_URL}/upload-file`,
+              formData,
+              config
+          );
+          return { success: true, url: response.data.data.url };
+      } catch (error) {
+          return { success: false, message: error.response.data.message };
+      }
+  };
     const handleSave = async () => {
         setIsEditing(false);
         try {
@@ -53,15 +51,15 @@ export default function DestinationDink() {
           console.log(desktopImage,mobileImage)
           if (desktopImage) {
             const uploadedDesktopUrl = await uploadImage(desktopImage);
-            if (uploadedDesktopUrl) {
-              updatedDetails.DesktopBannerImage = uploadedDesktopUrl;
+            if (uploadedDesktopUrl.success) {
+              updatedDetails.DesktopBannerImage = uploadedDesktopUrl.url;
             }
           }
     
           if (mobileImage) {
             const uploadedMobileUrl = await uploadImage(mobileImage);
-            if (uploadedMobileUrl) {
-              updatedDetails.MobileBannerImage = uploadedMobileUrl;
+            if (uploadedMobileUrl.success) {
+              updatedDetails.MobileBannerImage = uploadedMobileUrl.url;
             }
           }
           const { _id, updatedAt, sectionType, ...finalPayload } = updatedDetails;

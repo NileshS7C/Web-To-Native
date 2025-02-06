@@ -6,6 +6,7 @@ import {
 } from "@headlessui/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import axiosInstance from "../../../../Services/axios";
 
 export default function WeekAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
@@ -20,25 +21,22 @@ export default function WeekAddDataModal({ data, isOpen, onClose, fetchHomepageS
     });
 
     const uploadImage = async (file) => {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWNjZjc2N2Y4MmRjOTI5MjkxMzdmNSIsInBob25lIjoiOTk1MzA1MDc2OSIsIm5hbWUiOiJQaWNrbGViYXkgUGxheWVyIiwiaWF0IjoxNzM4NjQ3ODM2LCJleHAiOjE3Mzg2NTg2MzZ9.ASxFRKMr2OpFrbkn88_Q7-kmQOLa-5SSkEch8hY9KVs");
-
-        const formdata = new FormData();
-        formdata.append("uploaded-file", file);
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: formdata,
-            redirect: "follow",
-        };
-
         try {
-            const response = await fetch("http://localhost:1234/api/upload-file", requestOptions);
-            const result = await response.json();
-            return result;
+            const formData = new FormData();
+            formData.append("uploaded-file", file);
+            const config = {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            };
+            const response = await axiosInstance.post(
+                `${import.meta.env.VITE_BASE_URL}/upload-file`,
+                formData,
+                config
+            );
+            return { success: true, url: response.data.data.url };
         } catch (error) {
-            console.error("Error uploading image:", error);
+            return { success: false, message: error.response.data.message };
         }
     };
     return (
@@ -63,7 +61,7 @@ export default function WeekAddDataModal({ data, isOpen, onClose, fetchHomepageS
                                     // Upload image if provided
                                     const uploadImageUrl = values.image ? await uploadImage(values.image) : null;
 
-                                    if (uploadImageUrl) {
+                                    if (uploadImageUrl.success) {
                                         const myHeaders = new Headers({
                                             "Content-Type": "application/json",
                                         });
@@ -72,13 +70,13 @@ export default function WeekAddDataModal({ data, isOpen, onClose, fetchHomepageS
                                             "isVisible": data.isVisible,
                                             "heading": values.heading,
                                             "subHeading": values.subheading,
-                                            "image": uploadImageUrl.data.url,
+                                            "image": uploadImageUrl.url,
                                             "link": values.link,
                                             "buttonText": values.buttonText, 
                                         };
 
                                         // Send API request
-                                        const response = await fetch("http://localhost:1234/api/admin/homepage-sections/featuredThisWeek", {
+                                        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/featuredThisWeek`, {
                                             method: "PATCH",
                                             headers: myHeaders,
                                             body: JSON.stringify(payload),

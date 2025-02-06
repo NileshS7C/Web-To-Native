@@ -7,7 +7,7 @@ import {
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Spinner from "../../../../Page/CMS/Spinner";
-
+import axiosInstance from "../../../../Services/axios";
 
 export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
@@ -23,25 +23,22 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
 
 
     const uploadImage = async (file) => {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTM2MGNlNTcyMDg4OTk1OThhZTgwMSIsInBob25lIjoiMjIyMjIyMjIyMiIsIm5hbWUiOiJQcmF0aGFtIiwiaWF0IjoxNzM4MzE4MDE1LCJleHAiOjE3Mzg0MDQ0MTV9.gOFdNH3a-xSFUpdiAT8E7SUXcCgGc4caUMtSSrQRF50");
-
-        const formdata = new FormData();
-        formdata.append("uploaded-file", file);
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: formdata,
-            redirect: "follow",
-        };
-
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/upload-file`, requestOptions);
-            const result = await response.json();
-            return result;
+            const formData = new FormData();
+            formData.append("uploaded-file", file);
+            const config = {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            };
+            const response = await axiosInstance.post(
+                `${import.meta.env.VITE_BASE_URL}/upload-file`,
+                formData,
+                config
+            );
+            return { success: true, url: response.data.data.url };
         } catch (error) {
-            console.error("Error uploading image:", error);
+            return { success: false, message: error.response.data.message };
         }
     };
 
@@ -65,7 +62,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                     // Upload image if provided
                                     const uploadImageUrl = values.image ? await uploadImage(values.image) : null;
 
-                                    if (uploadImageUrl) {
+                                    if (uploadImageUrl.success) {
                                         const myHeaders = new Headers({
                                             "Content-Type": "application/json",
                                         });
@@ -74,7 +71,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                         const newFeature = {
                                             title: values.title,
                                             subtitle: values.description,
-                                            image: uploadImageUrl.data.url,
+                                            image: uploadImageUrl.url,
                                             link: values.redirect,
                                             position: data.features.length + 1, // Set next position
                                         };
