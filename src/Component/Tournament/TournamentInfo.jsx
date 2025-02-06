@@ -49,6 +49,7 @@ import Button from "../Common/Button";
 import TextError from "../Error/formError";
 import Combopopover from "../Common/Combobox";
 import { rolesWithTournamentOwnerAccess } from "../../Constant/tournament";
+import { useFormikContextFunction } from "../../Providers/formikContext";
 
 const requiredTournamentFields = (tournament) => {
   const {
@@ -176,7 +177,6 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       desktop: yup
         .mixed()
         .test("file-size", "Desktop banner image is too large", (value) => {
-          console.log("value", value);
           if (!value) return true;
 
           return !value || (value && value?.size <= 1000 * 1024); // 100 KB
@@ -268,6 +268,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { tournamentId } = useParams();
+  const { setSubmitForm, setIsSubmitting } = useFormikContextFunction();
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.location);
   const [cookies] = useCookies(["name", "userRole"]);
@@ -353,7 +354,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
         ) ?? null;
 
       if (owner) {
-        const ownerName = owner.name;
+        const ownerName = owner.id;
 
         setInitialState((prevState) => ({
           ...prevState,
@@ -386,45 +387,52 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      {({ isSubmitting }) => (
-        <Form>
-          <fieldset disabled={!isDisable}>
-            <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323]">
-              <ErrorModal />
-              <SuccessModal />
+      {({ isSubmitting, submitForm }) => {
+        setSubmitForm(() => submitForm);
+        setIsSubmitting(isSubmitting)
+        return (
+          <Form>
+            <fieldset disabled={!isDisable}>
+              <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323]">
+                <ErrorModal />
+                <SuccessModal />
 
-              <TournamentBasicInfo
-                userName={cookies?.name || ""}
-                userRole={cookies?.userRole || userRole}
-                tournamentOwners={tournamentOwners}
-                isGettingALLTO={isGettingALLTO}
-                hasError={err_IN_TO}
-              />
-              <TournamentMetaData
-                isGettingTags={isGettingTags}
-                uniqueTags={tags}
-                selectedTags={selectedTags}
-              />
-              <TournamentAddress location={location} />
-              <TournamentDescription isDisable={isDisable} />
-              <TournamentDates />
-              <TournamentFileUpload dispatch={dispatch} isDisable={isDisable} />
-              <TournamentSponserTable isDisable={isDisable} />
-              <TournamentBookingDates />
-              <Button
-                className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
-                  !isDisable ? "hidden" : ""
-                }`}
-                type="submit"
-                loading={isSubmitting}
-                disabled={tournamentId && !isDisable}
-              >
-                Save and Continue
-              </Button>
-            </div>
-          </fieldset>
-        </Form>
-      )}
+                <TournamentBasicInfo
+                  userName={cookies?.name || ""}
+                  userRole={cookies?.userRole || userRole}
+                  tournamentOwners={tournamentOwners}
+                  isGettingALLTO={isGettingALLTO}
+                  hasError={err_IN_TO}
+                />
+                <TournamentMetaData
+                  isGettingTags={isGettingTags}
+                  uniqueTags={tags}
+                  selectedTags={selectedTags}
+                />
+                <TournamentAddress location={location} />
+                <TournamentDescription isDisable={isDisable} />
+                <TournamentDates />
+                <TournamentFileUpload
+                  dispatch={dispatch}
+                  isDisable={isDisable}
+                />
+                <TournamentSponserTable isDisable={isDisable} />
+                <TournamentBookingDates />
+                <Button
+                  className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
+                    !isDisable ? "hidden" : ""
+                  }`}
+                  type="submit"
+                  loading={isSubmitting}
+                  disabled={tournamentId && !isDisable}
+                >
+                  Save and Continue
+                </Button>
+              </div>
+            </fieldset>
+          </Form>
+        );
+      }}
     </Formik>
   );
 };
