@@ -37,7 +37,7 @@ const Layout = () => {
     (state) => state.Tournament
   );
   const { category } = useSelector((state) => state.event);
-  const isTournament = window.location.pathname.includes("tournaments");
+  const isTournament = window.location.pathname.includes("/tournaments");
 
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
