@@ -27,3 +27,6 @@ export { default as expandIcon } from "./Venue/expand.svg";
 export { default as listingIcon } from "./Tournament/listingIcon.svg";
 export { default as infoIcon } from "./Venue/info.svg";
 export { default as suffleIcon } from "./Tournament/suffleIcon.svg";
+export { default as dummyImage } from "./header/dummyPlayerImage.svg";
+export { default as backIcon } from "./Tournament/backIcon.svg";
+export { default as forwardIcon } from "./Tournament/forwardIcon.svg";

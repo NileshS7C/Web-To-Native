@@ -54,6 +54,8 @@ const AddParticipants = () => {
   const { showConfirmBookingModal, category } = useSelector(
     (state) => state.event
   );
+  const { tournament } = useSelector((state) => state.GET_TOUR);
+  console.log(" tournament", tournament);
   const { bookingErrorMessage } = useSelector((state) => state.tourBookings);
 
   const [initialState, setInitialState] = useState(initialValues);
@@ -116,7 +118,10 @@ const AddParticipants = () => {
       }
 
       const result = await dispatch(
-        createConfirmBooking({ data: updatedValues })
+        createConfirmBooking({
+          data: updatedValues,
+          ownerId: tournament?.ownerUserId,
+        })
       ).unwrap();
       if (!result?.responseCode) {
         resetForm();
