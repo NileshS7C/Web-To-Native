@@ -204,8 +204,9 @@ export const publishVenue = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}/users/admin/venues/${id}/publish`,
+        {},
         config
       );
 
