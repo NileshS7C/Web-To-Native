@@ -260,15 +260,9 @@ const CourtFileUpload = ({ dispatch }) => {
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
 
-      setPreviews((prev) => [
-        ...prev,
-        { preview: result.data.uploadedFileUrl },
-      ]);
-      const url = result.data.uploadedFileUrl;
-      setFieldValue("desktopBannerImages", [
-        ...values.desktopBannerImages,
-        { url },
-      ]);
+      setPreviews((prev) => [{ preview: result.data.url }]);
+      const url = result.data.url;
+      setFieldValue("desktopBannerImages", [{ url }]);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);
@@ -392,15 +386,9 @@ const MobileBannerImage = ({ dispatch }) => {
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
 
-      setPreviews((prev) => [
-        ...prev,
-        { preview: result.data.uploadedFileUrl },
-      ]);
-      const url = result.data.uploadedFileUrl;
-      setFieldValue("mobileBannerImages", [
-        ...values.desktopBannerImages,
-        { url },
-      ]);
+      setPreviews((prev) => [{ preview: result.data.url }]);
+      const url = result.data.url;
+      setFieldValue("mobileBannerImages", [{ url }]);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);

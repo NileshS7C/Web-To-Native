@@ -17,7 +17,7 @@ export const ActionButtons = ({
   return (
     <Popover className="relative">
       <PopoverButton className="inline-flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900">
-        {isNotEditable && <img src={ThreeDotIcon} alt="three dot icon" />}
+        {!isNotEditable && <img src={ThreeDotIcon} alt="three dot icon" />}
       </PopoverButton>
 
       <PopoverPanel
