@@ -6,6 +6,7 @@ import Tabs from "../../Common/Tabs";
 import EventDescription from "./EventDescription";
 import EventRegistrations from "./EventRegistration";
 import { TournamentFixture } from "../tournamentFixture";
+import { MatchesListing } from "../MatchListing";
 
 const options = (tournamentId, eventId) => {
   return [
@@ -92,6 +93,8 @@ function EventDetailPage() {
       {selectedTab === "fixture" && (
         <TournamentFixture tournament={tournament} />
       )}
+
+      {selectedTab === "matches" && <MatchesListing />}
     </div>
   );
 }

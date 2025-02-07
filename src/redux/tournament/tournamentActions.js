@@ -495,7 +495,7 @@ export const getAllBookings = createAsyncThunk(
 
 export const createConfirmBooking = createAsyncThunk(
   "GET_TOUR/createConfirmBooking",
-  async ({ data }, { rejectWithValue }) => {
+  async ({ data, ownerId }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -505,7 +505,7 @@ export const createConfirmBooking = createAsyncThunk(
       const response = await axiosInstance.post(
         `${
           import.meta.env.VITE_BASE_URL
-        }/users/admin/bookings/owner/67921bf3026dcfaa04c326f0`,
+        }/users/admin/bookings/owner/${ownerId}`,
         JSON.stringify(data),
         config
       );

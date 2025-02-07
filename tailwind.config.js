@@ -13,6 +13,7 @@ module.exports = {
         customColor: "#232323",
         tour_List_Color: "#718EBF",
         player_table: "#667085",
+        matchTextColor: "#343C6A",
       },
       backgroundColor: {
         customColor: "#FFFFFF",
