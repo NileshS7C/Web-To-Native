@@ -9,6 +9,7 @@ import Spinner from "../Common/Spinner";
 import DataTable from "../Common/DataTable";
 import EmptyBanner from "../Common/EmptyStateBanner";
 import { backIcon, dummyImage, forwardIcon } from "../../Assests";
+import { ScoreUpdateModal } from "../Common/ScoreUpdateModal";
 
 const MatchListingHeaders = [
   {
@@ -30,13 +31,16 @@ const MatchListingHeaders = [
   {
     key: "match",
     header: "Match",
-    render: (item) => {
+    render: (item, index, currentPage, handleClick) => {
       return (
         <div className="flex flex-col items-center gap-2">
           <p className="text-matchTextColor font-semibold">
             Match <span>{item?.match}</span>
           </p>
-          <Button className="px-2 py-2 w-[100px] text-white rounded-md">
+          <Button
+            className="px-2 py-2 w-[100px] text-white rounded-md"
+            onClick={() => handleClick(item)}
+          >
             Edit
           </Button>
         </div>
@@ -64,12 +68,12 @@ const MatchListingHeaders = [
 export const MatchesListing = () => {
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
-  const { fixture, isFixtureSuccess, isFetchingFixture } = useSelector(
-    (state) => state.fixture
-  );
+  const { fixture, isFetchingFixture } = useSelector((state) => state.fixture);
   const [currentRound, setCurrentRound] = useState(1);
   const [playerData, setPlayerData] = useState([]);
   const [totalRounds, setTotalRounds] = useState(0);
+  const [showScoreUpdateModal, setShowScoreUpdateModal] = useState(false);
+  const [currentMatchClicked, setCurrentMatchClicked] = useState(null);
 
   const handleChangeRounds = (type) => {
     if (type === "back") {
@@ -77,6 +81,11 @@ export const MatchesListing = () => {
     } else {
       setCurrentRound((prev) => (prev !== totalRounds ? prev + 1 : 1));
     }
+  };
+
+  const handleMatchUpdateButton = (data) => {
+    setShowScoreUpdateModal(true);
+    setCurrentMatchClicked(data);
   };
 
   useEffect(() => {
@@ -99,23 +108,34 @@ export const MatchesListing = () => {
 
       const playerData =
         currentRoundMatches.length > 0 &&
-        currentRoundMatches.flatMap(({ opponent1, opponent2, number }) => {
-          const participantsById = new Map(
-            fixture?.bracketData?.participant.map((p) => [p.id, p])
-          );
+        currentRoundMatches.flatMap(
+          ({ opponent1, opponent2, number, metaData = {}, id }) => {
+            const participantsById = new Map(
+              fixture?.bracketData?.participant.map((p) => [p.id, p])
+            );
 
-          const players = [opponent1?.id, opponent2?.id]
-            .map((id) => participantsById.get(id))
-            .filter(Boolean);
+            const matchGames = fixture?.bracketData?.match_game.filter(
+              (game) => game?.parent_id?.toString() === id?.toString()
+            );
 
-          return players.length
-            ? players.map(({ name }) => ({
-                match: number,
-                player1: name,
-                player2: name,
-              }))
-            : [];
-        });
+            const players = [opponent1?.id, opponent2?.id]
+              .map((id) => participantsById.get(id))
+              .filter(Boolean);
+
+            return players.length
+              ? players.map(({ name }) => ({
+                  match: number,
+                  player1: name,
+                  player2: name,
+                  location: metaData.location || {},
+                  date: metaData.date || "",
+                  time: metaData.time || "",
+                  court: metaData.court || "",
+                  matchGames,
+                }))
+              : [];
+          }
+        );
 
       setPlayerData(playerData);
 
@@ -134,46 +154,60 @@ export const MatchesListing = () => {
   return (
     <div>
       {!fixture && <NoMatchExist />}
-      <div className="flex items-center justify-center gap-4 basis-sm">
-        <button
-          onClick={() => handleChangeRounds("back")}
-          className="disabled:bg-red disabled:cursor-not-allowed"
-          disabled={currentRound === 1}
-        >
-          <img
-            src={backIcon}
-            alt="back button for round"
-            className={`${currentRound === 1 && "opacity-50"}`}
+      {fixture && (
+        <>
+          <div className="flex items-center justify-center gap-4 basis-sm">
+            <button
+              onClick={() => handleChangeRounds("back")}
+              className="disabled:bg-red disabled:cursor-not-allowed"
+              disabled={currentRound === 1}
+            >
+              <img
+                src={backIcon}
+                alt="back button for round"
+                className={`${currentRound === 1 && "opacity-50"}`}
+              />
+            </button>
+
+            <p className="text-matchTextColor font-bold text-sm sm:text-md:text-xl lg:text-2xl">
+              Round <span>{currentRound}</span>
+            </p>
+
+            <button
+              onClick={() => handleChangeRounds("forward")}
+              className="disabled:bg-red disabled:cursor-not-allowed"
+              disabled={currentRound === totalRounds}
+            >
+              <img
+                src={forwardIcon}
+                alt="forward button for round"
+                className={`${currentRound === totalRounds && "opacity-50"}`}
+              />
+            </button>
+          </div>
+
+          <DataTable
+            data={playerData}
+            columns={MatchListingHeaders}
+            className=""
+            headerTextAlign="middle"
+            rowPaddingY="4"
+            alternateRowColors={true}
+            evenRowColor="[#FFFFFF]"
+            oddRowColor="blue-400"
+            onClick={handleMatchUpdateButton}
           />
-        </button>
 
-        <p className="text-matchTextColor font-bold text-sm sm:text-md:text-xl lg:text-2xl">
-          Round <span>{currentRound}</span>
-        </p>
-
-        <button
-          onClick={() => handleChangeRounds("forward")}
-          className="disabled:bg-red disabled:cursor-not-allowed"
-          disabled={currentRound === totalRounds}
-        >
-          <img
-            src={forwardIcon}
-            alt="forward button for round"
-            className={`${currentRound === totalRounds && "opacity-50"}`}
+          <ScoreUpdateModal
+            isOpen={showScoreUpdateModal}
+            onCancel={setShowScoreUpdateModal}
+            players={currentMatchClicked}
+            fixtureId={fixture?._id}
+            tournamentId={tournamentId}
+            eventId={eventId}
           />
-        </button>
-      </div>
-
-      <DataTable
-        data={playerData}
-        columns={MatchListingHeaders}
-        className=""
-        headerTextAlign="middle"
-        rowPaddingY="4"
-        alternateRowColors={true}
-        evenRowColor="[#FFFFFF]"
-        oddRowColor="blue-400"
-      />
+        </>
+      )}
     </div>
   );
 };

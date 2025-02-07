@@ -55,7 +55,6 @@ const AddParticipants = () => {
     (state) => state.event
   );
   const { tournament } = useSelector((state) => state.GET_TOUR);
-  console.log(" tournament", tournament);
   const { bookingErrorMessage } = useSelector((state) => state.tourBookings);
 
   const [initialState, setInitialState] = useState(initialValues);

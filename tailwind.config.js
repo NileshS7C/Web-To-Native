@@ -14,6 +14,7 @@ module.exports = {
         tour_List_Color: "#718EBF",
         player_table: "#667085",
         matchTextColor: "#343C6A",
+        matchModalTextColor: "#8D8D8D",
       },
       backgroundColor: {
         customColor: "#FFFFFF",
