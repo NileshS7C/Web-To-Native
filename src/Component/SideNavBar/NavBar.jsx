@@ -99,7 +99,7 @@ const toggleMenu = (menuName) => {
 
   return (
     <div className="grid grid-rows-6 gap-2 auto-rows-[60px] justify-items-start px-[10px] text-md font-normal text-[#232323] bg-[#FFFFFF]">
-      {renderMenuItems(navigationBar)}
+      {navigationBar && renderMenuItems(navigationBar)}
     </div>
   );
 };
