@@ -7,7 +7,7 @@ import {
   useFormikContext,
 } from "formik";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+
 import TextError from "../Error/formError";
 import { Amenities, Equipment } from "../../Constant/venue";
 import { AiFillQuestionCircle } from "react-icons/ai";
@@ -362,6 +362,7 @@ const VenueInfo = () => {
 
 const VenueBasicInfo = () => {
   const { setFieldValue } = useFormikContext();
+
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
@@ -404,7 +405,6 @@ const VenueBasicInfo = () => {
 const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
   const [venueHandle, setVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
-
   useEffect(() => {
     if (values.name) {
       const { name } = values;
@@ -444,6 +444,8 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         uniqueTags={uniqueTags}
         setFieldValue={setFieldValue}
         checkedTags={selectedTags}
+        placeholder="Enter Venue Tags"
+        label="Venue Tags"
       />
 
       <ErrorMessage name="tags" component={TextError} />
@@ -875,11 +877,8 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
 
-      setPreviews((prev) => [
-        ...prev,
-        { preview: result.data.uploadedFileUrl },
-      ]);
-      const url = result.data.uploadedFileUrl;
+      setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
+      const url = result?.data?.url;
       setFieldValue("bannerImages", [...values.bannerImages, { url }]);
     } catch (err) {
       setErrorMessage(err.data?.message);
@@ -997,11 +996,8 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading }) => {
     }
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
-      setPreviews((prev) => [
-        ...prev,
-        { preview: result.data.uploadedFileUrl },
-      ]);
-      const url = result.data.uploadedFileUrl;
+      setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
+      const url = result?.data?.url;
       setFieldValue("layoutImages", [...values.layoutImages, { url }]);
     } catch (err) {
       setErrorMessage(err.data?.message);

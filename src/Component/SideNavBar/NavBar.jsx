@@ -1,21 +1,50 @@
 import { useDispatch } from "react-redux";
-import { ADMIN_NAVIGATION, menus } from "../../Constant/app";
+import {
+  ADMIN_NAVIGATION,
+  TOURNAMENT_OWNER_NAVIGATION,
+  VENUE_OWNER_NAVIGATION,
+} from "../../Constant/app";
 import { setNavigation } from "../../redux/NavBar/navSlice";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
+
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
-import { useState } from "react";
+
+
+import { useEffect, useState } from "react";
+
 
 export const NavBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [cookies] = useCookies(["userRole"]);
+
   const [expandedMenus, setExpandedMenus] = useState({});
 
-  const navigationBar =
-    cookies.userRole === "SUPER_ADMIN" ? ADMIN_NAVIGATION : menus;
+ 
+  
+   const [navigationBar, setNavigationBar] = useState(null);
 
-  const toggleMenu = (menuName) => {
+  useEffect(() => {
+    if (cookies?.userRole) {
+      switch (cookies.userRole) {
+        case "SUPER_ADMIN":
+          setNavigationBar(ADMIN_NAVIGATION);
+          break;
+        case "ADMIN":
+          setNavigationBar(ADMIN_NAVIGATION);
+          break;
+        case "TOURNAMENT_OWNER":
+          setNavigationBar(TOURNAMENT_OWNER_NAVIGATION);
+          break;
+        case "VENUE_OWNER":
+          setNavigationBar(VENUE_OWNER_NAVIGATION);
+          break;
+      }
+    }
+  }, [cookies?.userRole]);
+  
+const toggleMenu = (menuName) => {
     setExpandedMenus((prev) => ({
       ...prev,
       [menuName]: !prev[menuName],

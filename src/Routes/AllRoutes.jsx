@@ -2,14 +2,13 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Home from "../Page/Home";
 import Authentication from "../Authentication/Authentication";
-import Login from "../Page/Login";
-import Tournament from "../Page/Tournament";
 import Layout from "../Component/Layout";
 import VenueInfo from "../Component/Venue/CreateVenue";
 import VenueDescription from "../Component/Venue/VenueDetails";
 import { CourtCreation } from "../Component/Venue/CreateCourt";
 import VenueListing from "../Component/Venue/VenueListing";
 import NotCreated from "../Component/Common/NotCreated";
+
 import Explore from "../Page/CMS/Homepage/Explore";
 import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
 import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
@@ -22,6 +21,14 @@ import BuildCourts from "../Page/CMS/Homepage/BuildCourts";
 import NewsUpdates from "../Page/CMS/Homepage/NewsUpdates";
 
 
+import TournamentCreationForm from "../Component/Tournament/TournamentNav";
+import TournamentListing from "../Component/Tournament/TournamentListing";
+import EventDetailPage from "../Component/Tournament/Event/EventDetails";
+import NotFound from "../Component/Common/NotFound";
+import WrapperLogin from "../Page/Login";
+import { FormikContextProvider } from "../Providers/formikContext";
+
+
 const AllRoutes = () => {
   return (
     <div>
@@ -30,11 +37,35 @@ const AllRoutes = () => {
           path="/"
           element={
             <Authentication>
-              <Layout />
+              <FormikContextProvider>
+                <Layout />
+              </FormikContextProvider>
             </Authentication>
           }
         >
-          <Route path="tournaments" element={<Tournament />} />
+          <Route
+            index
+            element={
+              <NotCreated
+                message="Currently Nothing to display. Will update soon!"
+                buttonText=""
+                disable={true}
+              />
+            }
+          />
+          <Route path="tournaments">
+            <Route index element={<TournamentListing />} />
+            <Route path="add">
+              <Route index element={<TournamentCreationForm />} />
+            </Route>
+            <Route path=":tournamentId">
+              <Route index element={<TournamentCreationForm />} />
+              <Route path="add" element={<TournamentCreationForm />} />
+              <Route path="event">
+                <Route path=":eventId" element={<EventDetailPage />} />
+              </Route>
+            </Route>
+          </Route>
           <Route path="home" element={<Home />} />
 
           {/* CMS Routes */}
@@ -61,19 +92,71 @@ const AllRoutes = () => {
               <Route path="edit" element={<VenueInfo />} />
             </Route>
           </Route>
-          <Route
-            path="*"
-            element={
-              <NotCreated
-                message="You have not created any tournaments yet. Create the tournament to get started."
-                buttonText="Add Tournament"
-                type="text"
-              />
-            }
-          />
+
+          <Route path="venue-organisers">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currently No venue organisers are present. Please create the venue organisers to get started."
+                  buttonText="Add Venue Organiser"
+                  disable={true}
+                />
+              }
+            />
+          </Route>
+          <Route path="tournament-organisers">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currently No tournament organisers are present. Please create the tournament organisers to get started."
+                  buttonText="Add Tournament Organiser"
+                  disable={true}
+                />
+              }
+            />
+          </Route>
+          <Route path="tournament-bookings">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currently No tournament bookings are present."
+                  buttonText=""
+                  disable={true}
+                />
+              }
+            />
+          </Route>
+          <Route path="court-bookings">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currently No court bookings are present."
+                  buttonText=""
+                  disable={true}
+                />
+              }
+            />
+          </Route>
+          <Route path="users">
+            <Route
+              index
+              element={
+                <NotCreated
+                  message="Currently No users are present. Please create the users to get started."
+                  buttonText="Add User"
+                  disable={true}
+                />
+              }
+            />
+          </Route>
         </Route>
 
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<WrapperLogin />} />
+        <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </div>
   );

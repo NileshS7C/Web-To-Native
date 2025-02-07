@@ -1,7 +1,13 @@
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { ThreeDotIcon } from "../../Assests";
 
-export const ActionButtons = ({ actions, actionHandlers, data, index }) => {
+export const ActionButtons = ({
+  actions,
+  actionHandlers,
+  data,
+  index,
+  isNotEditable = false,
+}) => {
   const handleAction = (actionType) => {
     const handler = actionHandlers[actionType];
     if (handler) {
@@ -11,7 +17,7 @@ export const ActionButtons = ({ actions, actionHandlers, data, index }) => {
   return (
     <Popover className="relative">
       <PopoverButton className="inline-flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900">
-        <img src={ThreeDotIcon} alt="three dot icon" />
+        {isNotEditable && <img src={ThreeDotIcon} alt="three dot icon" />}
       </PopoverButton>
 
       <PopoverPanel

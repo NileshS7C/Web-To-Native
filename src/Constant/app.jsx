@@ -27,14 +27,23 @@ export const menus = [
 ];
 
 export const ADMIN_NAVIGATION = [
-  { name: "DashBoard", icon: overviewIcon },
-  { name: "Tournament Org", icon: tournamentIcon },
-  { name: "Venue Org", icon: eventsIcon },
-  { name: "Tournament Bookings", icon: bookingIcon },
-  { name: "Court Bookings", icon: bookingIcon },
-  { name: "Tournaments", icon: tournamentIcon },
-  { name: "Venues", icon: venueIcon },
-  { name: "User", icon: profileIcon },
+
+  { name: "DashBoard", icon: overviewIcon, path: "" },
+  {
+    name: "Tournament Organiser",
+    icon: tournamentIcon,
+    path: "tournament-organisers",
+  },
+  { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
+  {
+    name: "Tournament Bookings",
+    icon: bookingIcon,
+    path: "tournament-bookings",
+  },
+  { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
+  { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
+  { name: "Venues", icon: venueIcon, path: "venues" },
+  { name: "User", icon: profileIcon, path: "users" },
   {
     name: "CMS",
     // icon: profileIcon,
@@ -71,6 +80,31 @@ export const ADMIN_NAVIGATION = [
   },
 ];
 
+export const TOURNAMENT_OWNER_NAVIGATION = [
+  { name: "DashBoard", icon: overviewIcon, path: "" },
+  {
+    name: "Tournament Organiser",
+    icon: tournamentIcon,
+    path: "tournament-organisers",
+  },
+  {
+    name: "Tournament Bookings",
+    icon: bookingIcon,
+    path: "tournament-bookings",
+  },
+  { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
+  { name: "User", icon: profileIcon, path: "users" },
+];
+
+export const VENUE_OWNER_NAVIGATION = [
+  { name: "DashBoard", icon: overviewIcon, path: "" },
+  { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
+  { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
+  { name: "Venues", icon: venueIcon, path: "venues" },
+  { name: "User", icon: profileIcon, path: "users" },
+
+];
+
 export const ActionButtonGroup = [
   { name: "Edit", icon: EditIcon, action: "edit" },
   { name: "Delete", icon: DeleteIcon, action: "delete" },
@@ -82,3 +116,22 @@ export const rowsInOnePage = 10;
 export const venueImageSize = 1000 * 1024;
 
 export const courtImageSize = 500 * 1024;
+export const notHaveBackButton = [
+  "Tournaments",
+  "Venues",
+  "Bookings",
+  "Court Bookings",
+  "Tournament Bookings",
+  "Venue Organisers",
+  "Tournament Organisers",
+
+  "Users",
+  "DASHBOARD",
+];
+
+export const ROLES = [
+  "SUPER_ADMIN",
+  "ADMIN",
+  "TOURNAMENT_OWNER",
+  "VENUE_OWNER",
+];

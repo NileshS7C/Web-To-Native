@@ -5,6 +5,7 @@ import { ImSearch } from "react-icons/im";
 import { setLocation } from "../../redux/Venue/addVenue";
 import debounce from "../../Services/debounce";
 import getPlaceDetailsByPlaceId from "../../Services/getPlaceIds";
+import { setGlobalLocation } from "../../redux/Location/locationSlice";
 
 const LocationSearchInput = ({ id, name, setFieldValue }) => {
   const { location } = useSelector((state) => state.Venue);
@@ -47,14 +48,30 @@ const LocationSearchInput = ({ id, name, setFieldValue }) => {
     setQuery(suggestion.description);
     setIsOpen(false);
     const coordinates = await getPlaceDetailsByPlaceId(suggestion.place_id);
-    setFieldValue("address.location.coordinates", [
-      coordinates.lng,
-      coordinates.lat,
-    ]);
-   
+    if (setFieldValue) {
+      setFieldValue("address.location.coordinates", [
+        coordinates.lng,
+        coordinates.lat,
+      ]);
+    }
 
     dispatch(
       setLocation({
+        formatted_address: coordinates.formatted_address,
+        lat: coordinates.lat,
+        lng: coordinates.lng,
+        name: coordinates.name,
+        place_id: coordinates.place_id,
+        address_line1: coordinates.address_line1,
+        address_line2: coordinates.address_line2,
+        city: coordinates.city,
+        state: coordinates.state,
+        pin_code: coordinates.pin_code,
+        country: coordinates.country,
+      })
+    );
+    dispatch(
+      setGlobalLocation({
         formatted_address: coordinates.formatted_address,
         lat: coordinates.lat,
         lng: coordinates.lng,
