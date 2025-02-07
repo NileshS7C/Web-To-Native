@@ -101,8 +101,15 @@ const courtTableContent = [
   {
     key: "actions",
     header: "Actions",
-    render: (item) => <CourtActions id={item?._id} name={item?.courtName} />,
+    render: (item, index) => (
+      <CourtActions id={item?._id} name={item?.courtName} index={index} />
+    ),
   },
+];
+
+export const CourtActionButtonGroup = [
+  { name: "Edit", icon: EditIcon, action: "edit" },
+  { name: "Delete", icon: DeleteIcon, action: "delete" },
 ];
 
 const ActionButtonCourt = [

@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { ActionButtonCourt } from "../../Constant/venue";
+import { CourtActionButtonGroup } from "../../Constant/venue";
 import { ActionButtons } from "./ActionButtons";
 import { useNavigate } from "react-router-dom";
 import {
@@ -8,7 +8,8 @@ import {
 } from "../../redux/Confirmation/confirmationSlice";
 import { deleteCourt } from "../../redux/Venue/venueActions";
 import { useEffect } from "react";
-const CourtActions = ({ id, name }) => {
+
+const CourtActions = ({ id, name, index }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -26,14 +27,17 @@ const CourtActions = ({ id, name }) => {
         })
       );
     },
-    view: (id) => {},
+    view: (id) => {
+      navigate(`/venues/${id}/edit-court?name=${name}`);
+    },
   };
 
   return (
     <ActionButtons
-      actions={ActionButtonCourt}
+      actions={CourtActionButtonGroup}
       actionHandlers={handlers}
       data={id}
+      index={index}
     />
   );
 };
