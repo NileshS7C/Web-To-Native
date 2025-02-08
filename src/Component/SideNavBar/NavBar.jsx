@@ -57,7 +57,7 @@ const toggleMenu = (menuName) => {
       return (
         <div key={index} className="w-full">
           <div
-            className={`flex items-center gap-2 py-[15px] px-[12px] w-full ${
+            className={`flex items-center gap-2 py-[15px] px-[10px] w-full ${
               menu.children ? "justify-between" : ""
             }`}
           >

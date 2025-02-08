@@ -20,7 +20,6 @@ export default function ExploreSectionInfo({ sectionInfo }) {
     const hasChanged = sectionDetails.sectionTitle !== sectionInfo.sectionTitle || sectionDetails.isVisible !== sectionInfo.isVisible;
 
     if (!hasChanged) {
-      console.log("No changes detected. API call skipped.");
       return;
     }
 
@@ -43,12 +42,10 @@ export default function ExploreSectionInfo({ sectionInfo }) {
           body: JSON.stringify(updatedData),
         }
       );
-      console.log('updatedData', updatedData)
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const result = await response.json();
-      console.log("Update successful:", result);
     } catch (error) {
       console.error("Error updating section:", error);
     }

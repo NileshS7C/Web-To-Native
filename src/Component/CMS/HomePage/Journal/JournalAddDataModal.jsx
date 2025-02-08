@@ -68,7 +68,6 @@ export default function JournalAddDataModal({ isOpen, onClose, fetchHomepageSect
         fetchHomepageSections();
         onClose();
     };
-    console.log(journalsData)
 
     const handleDiscard = () => {
         setSelectedItems([]);

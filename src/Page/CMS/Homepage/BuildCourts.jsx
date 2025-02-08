@@ -29,7 +29,6 @@ export default function BuildCourts() {
     setIsEditing(false);
     try {
       let updatedDetails = { ...sectionDetails };
-      console.log(desktopImage, mobileImage)
       if (desktopImage) {
         const uploadedDesktopUrl = await uploadImage(desktopImage);
         if (uploadedDesktopUrl.success) {

@@ -74,6 +74,8 @@ export const ADMIN_NAVIGATION = [
           { name: "Help & Faqs"},
           { name: "Terms & Condition"},
           { name: "Refunds & Cancellation"},
+          { name: "Privacy Policy"},
+          { name: "Picklebay Guidelines"},
         ],
       },
     ],

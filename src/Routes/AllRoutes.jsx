@@ -27,6 +27,10 @@ import EventDetailPage from "../Component/Tournament/Event/EventDetails";
 import NotFound from "../Component/Common/NotFound";
 import WrapperLogin from "../Page/Login";
 import { FormikContextProvider } from "../Providers/formikContext";
+import TermsCondition from "../Page/CMS/StaticPages/TermsCondition";
+import RefundCancellation from "../Page/CMS/StaticPages/RefundCancellation";
+import PrivacyPolicy from "../Page/CMS/StaticPages/PrivacyPolicy";
+import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
 
 
 const AllRoutes = () => {
@@ -79,6 +83,11 @@ const AllRoutes = () => {
           <Route path="cms/homepage/journal" element={<Journal />} />
           <Route path="cms/homepage/news-&-update" element={<NewsUpdates />} />
           <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
+          <Route path="cms/static-pages/terms-&-condition" element={<TermsCondition />} />
+          <Route path="cms/static-pages/refunds-&-cancellation" element={<RefundCancellation />} />
+          <Route path="cms/static-pages/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="cms/static-pages/picklebay-guidelines" element={<Guidelines />} />
+
           {/* Ends Here */}
 
           <Route path="venues">

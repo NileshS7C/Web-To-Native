@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import StaticPage from '../../../Component/CMS/StaticPages/StaticPage'
 
-export default function FAQ() {
-  const [FAQData, setFAQData] = useState({});
-  const getFAQData = async () => {
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/static-pages/helpFaqs`, { method: "GET" })
+export default function Guidelines() {
+  const [GuidelinesData, setGuidelinesData] = useState({});
+  const getGuidelinesData = async () => {
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/static-pages/guidelines`, { method: "GET" })
     const result = await response.json();
-    setFAQData(result.data)
+    setGuidelinesData(result.data)
   }
   const handleSavePage = async (data) => {
     const filterData = {
@@ -22,10 +22,10 @@ export default function FAQ() {
       body: JSON.stringify(filterData),
       redirect: "follow"
     };
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/static-pages/helpFaqs`, requestOptions)
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/static-pages/guidelines`, requestOptions)
   }
-  useEffect(() => { getFAQData() }, [])
+  useEffect(() => { getGuidelinesData() }, [])
   return (
-    <StaticPage PageData={FAQData} handleSavePage={handleSavePage} getPageData={getFAQData} />
+    <StaticPage PageData={GuidelinesData}  handleSavePage={handleSavePage} getPageData={getGuidelinesData}/>
   )
 }
