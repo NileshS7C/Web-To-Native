@@ -1,45 +1,21 @@
-import { useState } from 'react'
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
-import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import Spinner from '../../../../Page/CMS/Spinner';
+import { useState } from "react";
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
+import { ExclamationTriangleIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import Spinner from "../../../Page/CMS/Spinner";
 
-export default function VenueDeleteModal({ data, selectedCard, isOpen, onClose, fetchHomepageSections }) {
+export default function DeleteModal({ 
+    title, 
+    isOpen, 
+    onClose, 
+    handleDeleteItem 
+}) {
     const [loading, setLoading] = useState(false);
-    const handleDeleteItem = async () => {
-        try {
-            setLoading(true);
-            const updatedFeatures = data.venues
-                .filter(venue => venue.venueID.name !== selectedCard.venueID.name);
 
-            const reindexedFeatures = updatedFeatures.map((venue, index) => ({
-                venueID: venue.venueID._id,
-                position: venue.position,
-            }));
-
-            const payload = {
-                sectionTitle: data.sectionTitle,
-                isVisible: data.isVisible,
-                venues: reindexedFeatures,
-            };
-            
-            const myHeaders = new Headers({
-                "Content-Type": "application/json",
-            });
-            // Send API request
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/venues`, {
-                method: "PATCH",
-                headers: myHeaders,
-                body: JSON.stringify(payload),
-            });
-
-            const result = await response.json();
-            fetchHomepageSections();
-            onClose();
-        } catch (error) {
-            console.error("Error submitting data:", error);
-        } finally {
-            setLoading(false);
-        }
+    const handleDelete = async () => {
+        setLoading(true);
+        await handleDeleteItem(); // Call the delete function passed as a prop
+        setLoading(false);
+        onClose();
     };
 
     return (
@@ -58,7 +34,7 @@ export default function VenueDeleteModal({ data, selectedCard, isOpen, onClose, 
                         <div className="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
                             <button
                                 type="button"
-                                onClick={() => onClose()}
+                                onClick={onClose}
                                 className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden"
                             >
                                 <span className="sr-only">Close</span>
@@ -71,11 +47,11 @@ export default function VenueDeleteModal({ data, selectedCard, isOpen, onClose, 
                             </div>
                             <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                 <DialogTitle as="h3" className="text-base font-semibold text-gray-900">
-                                    Delete Venue
+                                    {title}
                                 </DialogTitle>
                                 <div className="mt-2">
                                     <p className="text-sm text-gray-500">
-                                        Are you sure you want to delete this Venue from the list?
+                                        Are you sure you want to delete this item from the list?
                                     </p>
                                 </div>
                             </div>
@@ -83,16 +59,14 @@ export default function VenueDeleteModal({ data, selectedCard, isOpen, onClose, 
                         <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                             <button
                                 type="button"
-                                onClick={() => handleDeleteItem()}
+                                onClick={handleDelete}
                                 className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 sm:ml-3 sm:w-auto"
                             >
-                                {loading ?
-                                    <Spinner />
-                                    : 'Delete'}
+                                {loading ? <Spinner /> : "Delete"}
                             </button>
                             <button
                                 type="button"
-                                onClick={() => onClose()}
+                                onClick={onClose}
                                 className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
                             >
                                 Cancel
@@ -102,5 +76,5 @@ export default function VenueDeleteModal({ data, selectedCard, isOpen, onClose, 
                 </div>
             </div>
         </Dialog>
-    )
+    );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ExploreEditDataModal from "./ExploreEditDataModal";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
-import ExploreDeleteModal from "./ExploreDeleteModal";
+import DeleteModal from "../DeleteModal";
 
 export default function ExploreContentTable({ data, fetchHomepageSections }) {
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -18,6 +18,36 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
     setSelectedCard(item);
   };
 
+  const handleDeleteItem = async () => {
+    const updatedFeatures = data.features
+      .filter(feature => feature.title !== selectedCard.title)
+      .map(({ _id, ...rest }) => rest);
+
+    const reindexedFeatures = updatedFeatures.map((feature, index) => ({
+      ...feature,
+      position: index + 1,
+    }));
+    const myHeaders = new Headers({
+      "Content-Type": "application/json",
+    });
+
+    const payload = {
+      sectionTitle: data.sectionTitle,
+      isVisible: data.isVisible,
+      features: reindexedFeatures,
+    };
+
+    // Send API request
+    await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/explore`, {
+      method: "PATCH",
+      headers: myHeaders,
+      body: JSON.stringify(payload),
+    });
+
+    fetchHomepageSections();
+  };
+
+
   const headers = ["Position", "Title", "Link", "Actions"];
 
   return (
@@ -29,10 +59,10 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
               <th
                 key={index}
                 className={`px-3 py-2 text-left text-sm font-semibold text-gray-900 ${header === "Position" || header === "Actions"
-                    ? "w-[10%]"
-                    : header === "Title"
-                      ? "w-[30%]"
-                      : "w-[50%]"
+                  ? "w-[10%]"
+                  : header === "Title"
+                    ? "w-[30%]"
+                    : "w-[50%]"
                   }`}
               >
                 {header}
@@ -75,12 +105,11 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
         />
       )}
       {deleteModal && (
-        <ExploreDeleteModal
-          data={data}
-          selectedCard={selectedCard}
+        <DeleteModal
+          title="Delete Card"
           isOpen={deleteModal}
           onClose={() => setDeleteModal(false)}
-          fetchHomepageSections={fetchHomepageSections}
+          handleDeleteItem={handleDeleteItem}
         />
       )}
     </div>

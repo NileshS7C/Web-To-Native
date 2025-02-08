@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
-import NewsDeleteModal from "./NewsDeleteModal";
 import NewsEditDataModal from "./NewsEditDataModal";
+import DeleteModal from "../DeleteModal";
 
 export default function NewsContentTable({ data, fetchHomepageSections }) {
     const [openEditModal, setOpenEditModal] = useState(false);
@@ -15,6 +15,23 @@ export default function NewsContentTable({ data, fetchHomepageSections }) {
     const handleDelete = (item) => {
         setDeleteModal(true);
         setSelectedCard(item);
+    };
+    const handleDeleteItem = async () => {
+        const updatedFeatures = data.news.filter(item => item.title !== selectedCard.title);
+
+        const payload = {
+            sectionTitle: data.sectionTitle,
+            isVisible: data.isVisible,
+            news: updatedFeatures,
+        };
+
+        await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/news`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        fetchHomepageSections();
     };
     const headers = [
         "Position",
@@ -79,13 +96,7 @@ export default function NewsContentTable({ data, fetchHomepageSections }) {
                 />
             )}
             {deleteModal && (
-                <NewsDeleteModal
-                    data={data}
-                    selectedCard={selectedCard}
-                    isOpen={deleteModal}
-                    onClose={() => setDeleteModal(false)}
-                    fetchHomepageSections={fetchHomepageSections}
-                />
+                <DeleteModal title="Delete News" isOpen={deleteModal} onClose={() => setDeleteModal(false)} handleDeleteItem={handleDeleteItem} />
             )}
         </div>
     );

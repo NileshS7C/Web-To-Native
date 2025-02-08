@@ -1,20 +1,42 @@
 import React, { useState } from "react";
-import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
-import TournamentDeleteModal from "./TournamentDeleteModal";
+import { TrashIcon } from "@heroicons/react/20/solid";
+import DeleteModal from "../DeleteModal";
 
 export default function TournamentContentTable({ data, fetchHomepageSections }) {
-    // const [openEditModal, setOpenEditModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
 
-    // const handleModifyData = (item) => {
-    //     setOpenEditModal(true);
-    //     setSelectedCard(item);
-    // };
     const handleDelete = (item) => {
         setDeleteModal(true);
         setSelectedCard(item);
     };
+
+    const handleDeleteItem = async () => {
+        const updatedFeatures = data.tournaments
+            .filter(tournament => tournament.tournamentID.tournamentName !== selectedCard.tournamentID.tournamentName);
+
+        const reindexedFeatures = updatedFeatures.map((tournament, index) => ({
+            tournamentID: tournament.tournamentID._id, // Fixed key assignment
+            position: index + 1, // Assign new position starting from 1
+        }));
+        const payload = {
+            sectionTitle: data.sectionTitle,
+            isVisible: data.isVisible,
+            tournaments: reindexedFeatures,
+        };
+
+        const myHeaders = new Headers({
+            "Content-Type": "application/json",
+        });
+        // Send API request
+        await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/tournament`, {
+            method: "PATCH",
+            headers: myHeaders,
+            body: JSON.stringify(payload),
+        });
+        fetchHomepageSections();
+    };
+
     const headers = [
         "Position",
         "Tournament Name",
@@ -74,12 +96,11 @@ export default function TournamentContentTable({ data, fetchHomepageSections }) 
                 </tbody>
             </table>
             {deleteModal && (
-                <TournamentDeleteModal
-                    data={data}
-                    selectedCard={selectedCard}
+                <DeleteModal
+                    title="Delete Tournament"
                     isOpen={deleteModal}
                     onClose={() => setDeleteModal(false)}
-                    fetchHomepageSections={fetchHomepageSections}
+                    handleDeleteItem={handleDeleteItem}
                 />
             )}
         </div>

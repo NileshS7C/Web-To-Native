@@ -1,22 +1,34 @@
 import React, { useState } from "react";
-// import ExploreEditDataModal from "./ExploreEditDataModal";
-import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
-import JournalDeleteModal from "./JournalDeleteModal";
-// import ExploreDeleteModal from "./ExploreDeleteModal";
+import { TrashIcon } from "@heroicons/react/20/solid";
+import DeleteModal from "../DeleteModal";
 
 export default function JournalContentTable({ data, fetchHomepageSections }) {
-    // const [openEditModal, setOpenEditModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
-
-    // const handleModifyData = (item) => {
-    //     setOpenEditModal(true);
-    //     setSelectedCard(item);
-    // };
 
     const handleDelete = (item) => {
         setDeleteModal(true);
         setSelectedCard(item);
+    };
+    const handleDeleteItem = async () => {
+        const updatedFeatures = data.filter(journal => journal.blogID._id !== selectedCard.blogID._id)
+            .map(event => ({
+                blogID: event.blogID._id,
+                position: event.position
+            }));
+
+        const payload = {
+            isVisible: data[0].blogID.isVisible,
+            journals: updatedFeatures,
+        };
+
+        await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/journal`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        fetchHomepageSections();
     };
 
     const headers = ["Position", "Blog Name", "Description", "Image", "Actions"];
@@ -57,9 +69,6 @@ export default function JournalContentTable({ data, fetchHomepageSections }) {
                             </td>
                             <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
                                 <div className="flex items-center space-x-3">
-                                    {/* <button onClick={() => handleModifyData(explore)} className="hover:text-blue-600">
-                                        <PencilIcon className="w-5 h-5" />
-                                    </button> */}
                                     <button onClick={() => handleDelete(journal)} className="hover:text-red-600">
                                         <TrashIcon className="w-5 h-5" />
                                     </button>
@@ -69,23 +78,9 @@ export default function JournalContentTable({ data, fetchHomepageSections }) {
                     ))}
                 </tbody>
             </table>
-           {/* {openEditModal && (
-        <ExploreEditDataModal
-          data={selectedCard}
-          isOpen={openEditModal}
-          onClose={() => setOpenEditModal(false)}
-          fetchHomepageSections={fetchHomepageSections}
-        />
-      )} */}
-      {deleteModal && (
-        <JournalDeleteModal
-          data={data}
-          selectedCard={selectedCard}
-          isOpen={deleteModal}
-          onClose={() => setDeleteModal(false)}
-          fetchHomepageSections={fetchHomepageSections}
-        />
-      )} 
+            {deleteModal && (
+                <DeleteModal title="Delete Journal" isOpen={deleteModal} onClose={() => setDeleteModal(false)} handleDeleteItem={handleDeleteItem} />
+            )}
         </div>
     );
 }

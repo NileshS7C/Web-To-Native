@@ -1,19 +1,44 @@
 import React, { useState } from "react";
-import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
-import VenueDeleteModal from "./VenueDeleteModal";
+import { TrashIcon } from "@heroicons/react/20/solid";
+import DeleteModal from "../DeleteModal";
 
 export default function VenueContentTable({ data, fetchHomepageSections }) {
-    // const [openEditModal, setOpenEditModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
-    // const handleModifyData = (item) => {
-    //     setOpenEditModal(true);
-    //     setSelectedCard(item);
-    // };
+
     const handleDelete = (item) => {
         setDeleteModal(true);
         setSelectedCard(item);
     };
+
+    const handleDeleteItem = async () => {
+        const updatedFeatures = data.venues
+            .filter(venue => venue.venueID.name !== selectedCard.venueID.name);
+
+        const reindexedFeatures = updatedFeatures.map((venue, index) => ({
+            venueID: venue.venueID._id,
+            position: venue.position,
+        }));
+
+        const payload = {
+            sectionTitle: data.sectionTitle,
+            isVisible: data.isVisible,
+            venues: reindexedFeatures,
+        };
+
+        const myHeaders = new Headers({
+            "Content-Type": "application/json",
+        });
+        // Send API request
+        await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/venues`, {
+            method: "PATCH",
+            headers: myHeaders,
+            body: JSON.stringify(payload),
+        });
+        fetchHomepageSections();
+
+    };
+
     const headers = [
         "Position",
         "Name",
@@ -69,12 +94,11 @@ export default function VenueContentTable({ data, fetchHomepageSections }) {
                 </tbody>
             </table>
             {deleteModal && (
-                <VenueDeleteModal
-                    data={data}
-                    selectedCard={selectedCard}
+                <DeleteModal
+                    title="Delete Venue"
                     isOpen={deleteModal}
                     onClose={() => setDeleteModal(false)}
-                    fetchHomepageSections={fetchHomepageSections}
+                    handleDeleteItem={handleDeleteItem}
                 />
             )}
         </div>

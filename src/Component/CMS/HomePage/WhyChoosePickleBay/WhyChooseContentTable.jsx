@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import WhyChooseEditDataModal from "./WhyChooseEditDataModal";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
-import WhyChooseDeleteModal from "./WhyChooseDeleteModal";
+import DeleteModal from "../DeleteModal";
 
 export default function WhyChooseContentTable({ data, fetchHomepageSections }) {
     const [openEditModal, setOpenEditModal] = useState(false);
@@ -16,6 +16,24 @@ export default function WhyChooseContentTable({ data, fetchHomepageSections }) {
     const handleDelete = (item) => {
         setDeleteModal(true);
         setSelectedCard(item);
+    };
+
+    const handleDeleteItem = async () => {
+        const updatedFeatures = data.features.filter(item => item._id !== selectedCard._id);
+
+        const payload = {
+            sectionTitle: data.sectionTitle,
+            isVisible: data.isVisible,
+            features: updatedFeatures,
+        };
+
+        await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/why-choose`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        fetchHomepageSections();
     };
 
     const headers = [
@@ -81,13 +99,7 @@ export default function WhyChooseContentTable({ data, fetchHomepageSections }) {
                 />
             )}
             {deleteModal && (
-                <WhyChooseDeleteModal
-                    data={data}
-                    selectedCard={selectedCard}
-                    isOpen={deleteModal}
-                    onClose={() => setDeleteModal(false)}
-                    fetchHomepageSections={fetchHomepageSections}
-                />
+                <DeleteModal title="Delete Card" isOpen={deleteModal} onClose={() => setDeleteModal(false)} handleDeleteItem={handleDeleteItem} />
             )}
         </div>
     );
