@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { uploadImage } from "../../../../utils/uploadImage";
 
 export default function WhyChooseEditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(data.image || null);
@@ -12,24 +13,6 @@ export default function WhyChooseEditDataModal({ data, isOpen, onClose, fetchHom
         subHeading: Yup.string().required("Subheading is required"),
         image: Yup.mixed().required("Image is required"),
     });
-
-    const uploadImage = async (file) => {
-        const formData = new FormData();
-        formData.append("uploaded-file", file);
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/upload-file`, {
-                method: "POST",
-                body: formData,
-            });
-
-            const result = await response.json();
-            return result;
-        } catch (error) {
-            console.error("Error uploading image:", error);
-            return null;
-        }
-    };
 
     return (
         <Dialog open={isOpen} onClose={onClose} className="relative z-10">

@@ -6,7 +6,7 @@ import {
 } from "@headlessui/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import axiosInstance from "../../../../Services/axios";
+import { uploadImage } from "../../../../utils/uploadImage";
 
 export default function WhyChooseAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
@@ -17,25 +17,7 @@ export default function WhyChooseAddDataModal({ data, isOpen, onClose, fetchHome
         subheading: Yup.string().required("Subheading is required"),
         image: Yup.mixed().required("Image is required")
     });
-    const uploadImage = async (file) => {
-        try {
-            const formData = new FormData();
-            formData.append("uploaded-file", file);
-            const config = {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            };
-            const response = await axiosInstance.post(
-                `${import.meta.env.VITE_BASE_URL}/upload-file`,
-                formData,
-                config
-            );
-            return { success: true, url: response.data.data.url };
-        } catch (error) {
-            return { success: false, message: error.response.data.message };
-        }
-    };
+
     return (
         <Dialog open={isOpen} onClose={onClose} className="relative z-10">
             <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />

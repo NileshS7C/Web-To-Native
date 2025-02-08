@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import WeekSectionInfo from "../../../Component/CMS/HomePage/FeaturedWeeks/WeekSectionInfo";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import axiosInstance from "../../../Services/axios";
-
+import { uploadImage } from "../../../utils/uploadImage";
 export default function FeaturedWeek() {
     const [isEditing, setIsEditing] = useState(false);
     const [weekData, setWeekData] = useState({});
@@ -30,25 +29,7 @@ export default function FeaturedWeek() {
     };
 
     useEffect(() => { fetchWeekData(); }, []);
-    const uploadImage = async (file) => {
-        try {
-            const formData = new FormData();
-            formData.append("uploaded-file", file);
-            const config = {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            };
-            const response = await axiosInstance.post(
-                `${import.meta.env.VITE_BASE_URL}/upload-file`,
-                formData,
-                config
-            );
-            return { success: true, url: response.data.data.url };
-        } catch (error) {
-            return { success: false, message: error.response.data.message };
-        }
-    };
+    
     const handleSave = async () => {
         try {
             let uploadImageUrl = image;
