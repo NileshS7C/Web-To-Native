@@ -37,8 +37,6 @@ export default function WeekAddDataModal({ data, isOpen, onClose, fetchHomepageS
                             validationSchema={validationSchema}
                             onSubmit={async (values) => {
                                 try {
-                                    console.log("Submitted Data:", values);
-
                                     // Upload image if provided
                                     const uploadImageUrl = values.image ? await uploadImage(values.image) : null;
 
@@ -64,7 +62,6 @@ export default function WeekAddDataModal({ data, isOpen, onClose, fetchHomepageS
                                         });
 
                                         const result = await response.json();
-                                        console.log("Response:", result);
                                         fetchHomepageSections();
                                         onClose();
                                     }

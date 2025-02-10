@@ -49,10 +49,6 @@ export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomep
                                         finalImageUrl = image.url
                                     }
 
-                                    console.log("Final Submitted Data:", {
-                                        ...values,
-                                        image: finalImageUrl,
-                                    });
                                     const myHeaders = new Headers({
                                         "Content-Type": "application/json",
                                     });
@@ -63,15 +59,12 @@ export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomep
                                         link: values.redirect,
                                         position: data.position,
                                     };
-                                    console.log(newFeature, 'newFeature')
 
                                     const payload = {
                                         sectionTitle: data.sectionTitle,
                                         isVisible: data.isVisible,
                                         features: newFeature,
                                     };
-
-                                    console.log("Payload:", payload);
 
                                     // Send API request
                                     const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/explore`, {

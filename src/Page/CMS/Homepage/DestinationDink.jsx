@@ -30,7 +30,6 @@ export default function DestinationDink() {
         setIsEditing(false);
         try {
           let updatedDetails = { ...sectionDetails };
-          console.log(desktopImage,mobileImage)
           if (desktopImage) {
             const uploadedDesktopUrl = await uploadImage(desktopImage);
             if (uploadedDesktopUrl.success) {

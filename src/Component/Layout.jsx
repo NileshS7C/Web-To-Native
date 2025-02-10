@@ -68,7 +68,22 @@ const Layout = () => {
   }, [approvalBody, tournamentId, approveButtonClicked]);
 
   // Define the custom route where the div should be hidden
-  const hiddenRoutes = ["/cms/homepage/featured-tournaments","/cms/homepage/featured-venues","/cms/homepage/explore","/cms/static-pages/help-&-faqs","/cms/homepage/featured-week","/cms/homepage/why-choose-picklebay","/cms/homepage/destination-dink","/cms/homepage/build-courts","/cms/homepage/journal","/cms/homepage/news-&-update"];
+  const hiddenRoutes = [
+    "/cms/homepage/featured-tournaments",
+    "/cms/homepage/featured-venues",
+    "/cms/homepage/explore",
+    "/cms/static-pages/help-&-faqs",
+    "/cms/homepage/featured-week",
+    "/cms/homepage/why-choose-picklebay",
+    "/cms/homepage/destination-dink",
+    "/cms/homepage/build-courts",
+    "/cms/homepage/journal",
+    "/cms/homepage/news-&-update",
+    "/cms/static-pages/picklebay-guidelines",
+    "/cms/static-pages/privacy-policy",
+    "/cms/static-pages/refunds-&-cancellation",
+    "/cms/static-pages/terms-&-condition"
+  ];
   const shouldHideTitleBar = hiddenRoutes.includes(location.pathname);
 
   return (
@@ -94,38 +109,41 @@ const Layout = () => {
 
             <SuccessModal />
 
-            <div className="flex items-center justify-between w-full">
-              <p className="text-[#343C6A] font-semibold text-[22px]">
-                {currentTitle}
-              </p>
+            {!shouldHideTitleBar && (
+              <div className="flex items-center justify-between w-full">
+                <p className="text-[#343C6A] font-semibold text-[22px]">
+                  {currentTitle}
+                </p>
 
-              {currentTitle === "Tournaments" && (
-                <Button
-                  onClick={() => {
-                    navigate("/tournaments/add");
-                  }}
-                  disable={false}
-                  className=" flex px-4 py-2 rounded-lg text-[#FFFFFF] "
-                >
-                  Add New Tournament
-                </Button>
-              )}
-
-              {isTournament &&
-                tournament?.status !== "DRAFT" &&
-                !hideActionButtons.includes(currentTitle) && (
-                  <TournamentActionButton
-                    dispatch={dispatch}
-                    ROLES={ROLES}
-                    userRole={userRole}
-                    approvalBody={approvalBody}
-                    tournament={tournament}
-                    changingDecision={changingDecision}
-                    setApproveButtonClicked={setApproveButtonClicked}
-                    tournamentEditMode={tournamentEditMode}
-                  />
+                {currentTitle === "Tournaments" && (
+                  <Button
+                    onClick={() => {
+                      navigate("/tournaments/add");
+                    }}
+                    disable={false}
+                    className=" flex px-4 py-2 rounded-lg text-[#FFFFFF] "
+                  >
+                    Add New Tournament
+                  </Button>
                 )}
-            </div>
+
+                {isTournament &&
+                  tournament?.status !== "DRAFT" &&
+                  !hideActionButtons.includes(currentTitle) && (
+                    <TournamentActionButton
+                      dispatch={dispatch}
+                      ROLES={ROLES}
+                      userRole={userRole}
+                      approvalBody={approvalBody}
+                      tournament={tournament}
+                      changingDecision={changingDecision}
+                      setApproveButtonClicked={setApproveButtonClicked}
+                      tournamentEditMode={tournamentEditMode}
+                    />
+                  )}
+              </div>
+            )}
+
           </div>
 
           <Outlet />
@@ -170,9 +188,8 @@ const TournamentActionButton = ({
       {ROLES.slice(0, 2).includes(userRole) && (
         <div className="flex items-center gap-2">
           <Button
-            className={`${
-              tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-            } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+            className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+              } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
             type="button"
             onClick={() => {
               setApproveButtonClicked(true);
@@ -188,9 +205,8 @@ const TournamentActionButton = ({
             Accept Tournament
           </Button>
           <Button
-            className={`${
-              tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-            } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+            className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+              } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
             type="button"
             onClick={() => {
               dispatch(

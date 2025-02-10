@@ -14,7 +14,6 @@ export default function WeekSectionInfo({ sectionInfo }) {
         setIsEditing(false);
         const hasChanged = sectionDetails.sectionTitle !== sectionInfo.sectionTitle || sectionDetails.isVisible !== sectionInfo.isVisible;
         if (!hasChanged) {
-            console.log("No changes detected. API call skipped.");
             return;
         }
         const { _id, updatedAt, sectionType, ...updatedSectionDetails } = sectionDetails;
@@ -32,7 +31,6 @@ export default function WeekSectionInfo({ sectionInfo }) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const result = await response.json();
-            console.log("Update successful:", result);
         } catch (error) {
             console.error("Error updating section:", error);
         }
