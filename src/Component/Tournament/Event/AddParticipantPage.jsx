@@ -74,18 +74,21 @@ const AddParticipants = () => {
       .required("Phone number is required."),
     bookingItems:
       isChecked &&
-      yup.object().shape({
-        partnerDetails: yup.object().shape({
-          name: yup.string().required("Partner Name is required."),
-          phone: yup
-            .string()
-            .matches(
-              /^[0-9]{10}$/,
-              "Phone number must be exactly 10 digits and contain only numbers."
-            )
-            .required("Partner Phone number is required."),
-        }),
-      }),
+      yup.array().of(
+        yup.object().shape({
+          partnerDetails: yup.object().shape({
+            name: yup.string().required("Partner Name is required."),
+
+            phone: yup
+              .string()
+              .matches(
+                /^[0-9]{10}$/,
+                "Phone number must be exactly 10 digits and contain only numbers."
+              )
+              .required("Partner Phone number is required."),
+          }),
+        })
+      ),
   });
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -95,12 +98,12 @@ const AddParticipants = () => {
       let updatedValues;
 
       if (isChecked && initialState?.bookingItems?.length) {
-        const updatedBookingItems = initialState?.bookingItems.map((item) => ({
+        const updatedBookingItems = values?.bookingItems.map((item) => ({
           ...item,
           categoryId: eventId,
         }));
         updatedValues = {
-          ...initialState,
+          ...values,
           tournamentId,
           bookingItems: updatedBookingItems,
         };
@@ -149,6 +152,7 @@ const AddParticipants = () => {
       setInitialState((prevState) => {
         return { ...initialValues, ...prevState };
       });
+      setHasError(false);
     }
   }, [showConfirmBookingModal]);
 
@@ -189,7 +193,7 @@ const AddParticipants = () => {
                           className="text-base leading-[19.36px]"
                           htmlFor="name"
                         >
-                          User Name
+                          Name
                         </label>
                         <Field
                           name="name"
@@ -220,7 +224,7 @@ const AddParticipants = () => {
                           className="text-base leading-[19.36px]"
                           htmlFor="phone"
                         >
-                          Phone Number
+                          Phone
                         </label>
                         <Field
                           id="phone"
@@ -258,38 +262,38 @@ const AddParticipants = () => {
                               <div className="flex flex-col items-start gap-2.5">
                                 <label
                                   className="text-base leading-[19.36px]"
-                                  htmlFor="bookingItems.partnerDetails.name"
+                                  htmlFor="bookingItems[0].partnerDetails.name"
                                 >
                                   Name
                                 </label>
                                 <Field
-                                  id="bookingItems.partnerDetails.name"
-                                  name="bookingItems.partnerDetails.name"
+                                  id="bookingItems[0].partnerDetails.name"
+                                  name="bookingItems[0].partnerDetails.name"
                                   type="phone"
                                   className="w-full min-w-fit max-w-full sm:max-w-full md:max-w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Enter your partner phone"
+                                  placeholder="Enter your partner name"
                                 />
                                 <ErrorMessage
-                                  name="bookingItems.partnerDetails.name"
+                                  name="bookingItems[0].partnerDetails.name"
                                   component={TextError}
                                 />
                               </div>
                               <div className="flex flex-col items-start gap-2.5">
                                 <label
                                   className="text-base leading-[19.36px]"
-                                  htmlFor="bookingItems.partnerDetails.phone"
+                                  htmlFor="bookingItems[0].partnerDetails.phone"
                                 >
                                   Phone Number
                                 </label>
                                 <Field
-                                  id="bookingItems.partnerDetails.phone"
-                                  name="bookingItems.partnerDetails.phone"
-                                  type="bookingItems.partnerDetails.phone"
+                                  id="bookingItems[0].partnerDetails.phone"
+                                  name="bookingItems[0].partnerDetails.phone"
+                                  type="bookingItems[0].partnerDetails.phone"
                                   className="w-full min-w-fit max-w-full sm:max-w-full md:max-w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                                   placeholder="Enter your partner phone"
                                 />
                                 <ErrorMessage
-                                  name="bookingItems.partnerDetails.phone"
+                                  name="bookingItems[0].partnerDetails.phone"
                                   component={TextError}
                                 />
                               </div>
