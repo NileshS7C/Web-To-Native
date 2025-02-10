@@ -110,7 +110,6 @@ export const updateSeeding = createAsyncThunk(
   "fixture/updateSeeding",
   async (matchData, { rejectWithValue }) => {
     try {
-      console.log(" match data", matchData);
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -147,7 +146,6 @@ export const updateMatchSet = createAsyncThunk(
   "fixture/updateMatchSet",
   async (matchData, { rejectWithValue }) => {
     try {
-      console.log(" match data", matchData);
       const config = {
         headers: {
           "Content-Type": "application/json",
