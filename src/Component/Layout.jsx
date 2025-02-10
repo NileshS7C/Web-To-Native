@@ -82,7 +82,7 @@ const Layout = () => {
     "/cms/static-pages/picklebay-guidelines",
     "/cms/static-pages/privacy-policy",
     "/cms/static-pages/refunds-&-cancellation",
-    "/cms/static-pages/terms-&-condition"
+    "/cms/static-pages/terms-&-condition",
   ];
   const shouldHideTitleBar = hiddenRoutes.includes(location.pathname);
 
@@ -90,8 +90,6 @@ const Layout = () => {
     <div className="flex flex-col min-h-screen ">
       <Header />
       <div className="flex flex-1 bg-[#F5F7FA]">
-
-
         <div className="w-[250px] hidden lg:block h-auto bg-[#FFFFFF]">
           <NavBar />
         </div>
@@ -127,6 +125,10 @@ const Layout = () => {
                   </Button>
                 )}
 
+                {currentTitle === "Tournament Organisers" && (
+                  <TournamentOrganiserButtons />
+                )}
+
                 {isTournament &&
                   tournament?.status !== "DRAFT" &&
                   !hideActionButtons.includes(currentTitle) && (
@@ -143,13 +145,26 @@ const Layout = () => {
                   )}
               </div>
             )}
-
           </div>
 
           <Outlet />
         </div>
       </div>
     </div>
+  );
+};
+
+const TournamentOrganiserButtons = () => {
+  const { tournamentOwners } = useSelector((state) => state.Tournament);
+
+  return (
+    <>
+      {tournamentOwners?.owners?.length > 0 && (
+        <Button className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400">
+          Create
+        </Button>
+      )}
+    </>
   );
 };
 
@@ -188,8 +203,9 @@ const TournamentActionButton = ({
       {ROLES.slice(0, 2).includes(userRole) && (
         <div className="flex items-center gap-2">
           <Button
-            className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-              } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+            className={`${
+              tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+            } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
             type="button"
             onClick={() => {
               setApproveButtonClicked(true);
@@ -205,8 +221,9 @@ const TournamentActionButton = ({
             Accept Tournament
           </Button>
           <Button
-            className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-              } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+            className={`${
+              tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+            } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
             type="button"
             onClick={() => {
               dispatch(
@@ -268,4 +285,3 @@ TournamentActionButton.propTypes = {
 };
 
 export default Layout;
-

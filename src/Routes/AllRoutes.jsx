@@ -20,7 +20,6 @@ import Journal from "../Page/CMS/Homepage/Journal";
 import BuildCourts from "../Page/CMS/Homepage/BuildCourts";
 import NewsUpdates from "../Page/CMS/Homepage/NewsUpdates";
 
-
 import TournamentCreationForm from "../Component/Tournament/TournamentNav";
 import TournamentListing from "../Component/Tournament/TournamentListing";
 import EventDetailPage from "../Component/Tournament/Event/EventDetails";
@@ -31,7 +30,7 @@ import TermsCondition from "../Page/CMS/StaticPages/TermsCondition";
 import RefundCancellation from "../Page/CMS/StaticPages/RefundCancellation";
 import PrivacyPolicy from "../Page/CMS/StaticPages/PrivacyPolicy";
 import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
-
+import TournamentOrganisersPage from "../Page/TournamentOrganisers";
 
 const AllRoutes = () => {
   return (
@@ -74,19 +73,43 @@ const AllRoutes = () => {
 
           {/* CMS Routes */}
           <Route path="cms/homepage/explore" element={<Explore />} />
-          <Route path="cms/homepage/featured-tournaments" element={<FeaturedTournaments />} />
+          <Route
+            path="cms/homepage/featured-tournaments"
+            element={<FeaturedTournaments />}
+          />
           <Route path="cms/homepage/featured-week" element={<FeaturedWeek />} />
-          <Route path="cms/homepage/featured-venues" element={<FeaturedVenues />} />
-          <Route path="cms/homepage/why-choose-picklebay" element={<WhyChoosePickleBay />} />
-          <Route path="cms/homepage/destination-dink" element={<DestinationDink />} />
+          <Route
+            path="cms/homepage/featured-venues"
+            element={<FeaturedVenues />}
+          />
+          <Route
+            path="cms/homepage/why-choose-picklebay"
+            element={<WhyChoosePickleBay />}
+          />
+          <Route
+            path="cms/homepage/destination-dink"
+            element={<DestinationDink />}
+          />
           <Route path="cms/homepage/build-courts" element={<BuildCourts />} />
           <Route path="cms/homepage/journal" element={<Journal />} />
           <Route path="cms/homepage/news-&-update" element={<NewsUpdates />} />
           <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
-          <Route path="cms/static-pages/terms-&-condition" element={<TermsCondition />} />
-          <Route path="cms/static-pages/refunds-&-cancellation" element={<RefundCancellation />} />
-          <Route path="cms/static-pages/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="cms/static-pages/picklebay-guidelines" element={<Guidelines />} />
+          <Route
+            path="cms/static-pages/terms-&-condition"
+            element={<TermsCondition />}
+          />
+          <Route
+            path="cms/static-pages/refunds-&-cancellation"
+            element={<RefundCancellation />}
+          />
+          <Route
+            path="cms/static-pages/privacy-policy"
+            element={<PrivacyPolicy />}
+          />
+          <Route
+            path="cms/static-pages/picklebay-guidelines"
+            element={<Guidelines />}
+          />
 
           {/* Ends Here */}
 
@@ -115,16 +138,7 @@ const AllRoutes = () => {
             />
           </Route>
           <Route path="tournament-organisers">
-            <Route
-              index
-              element={
-                <NotCreated
-                  message="Currently No tournament organisers are present. Please create the tournament organisers to get started."
-                  buttonText="Add Tournament Organiser"
-                  disable={true}
-                />
-              }
-            />
+            <Route index element={<TournamentOrganisersPage />} />
           </Route>
           <Route path="tournament-bookings">
             <Route
