@@ -109,7 +109,16 @@ export const MatchesListing = () => {
       const playerData =
         currentRoundMatches.length > 0 &&
         currentRoundMatches.flatMap(
-          ({ opponent1, opponent2, number, metaData = {}, id }) => {
+          ({
+            opponent1,
+            opponent2,
+            number,
+            metaData = {},
+            id,
+            group_id,
+            round_id,
+            stage_id,
+          }) => {
             const participantsById = new Map(
               fixture?.bracketData?.participant.map((p) => [p.id, p])
             );
@@ -123,16 +132,25 @@ export const MatchesListing = () => {
               .filter(Boolean);
 
             return players.length
-              ? players.map(({ name }) => ({
-                  match: number,
-                  player1: name,
-                  player2: name,
-                  location: metaData.location || {},
-                  date: metaData.date || "",
-                  time: metaData.time || "",
-                  court: metaData.court || "",
-                  matchGames,
-                }))
+              ? [
+                  {
+                    match: number,
+                    group_id,
+                    round_id,
+                    stage_id,
+                    opponent1,
+                    opponent2,
+                    player1_id: players[0]?.id,
+                    player2_id: players[1]?.id,
+                    player1: players[0]?.name || "Unknown",
+                    player2: players[1]?.name || "Unknown",
+                    location: metaData.location || {},
+                    date: metaData.date || "",
+                    time: metaData.time || "",
+                    court: metaData.court || "",
+                    matchGames,
+                  },
+                ]
               : [];
           }
         );

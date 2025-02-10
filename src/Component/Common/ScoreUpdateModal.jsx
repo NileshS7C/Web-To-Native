@@ -1,16 +1,23 @@
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
+
+import {
+  updateMatchSet,
+  updateMatch,
+} from "../../redux/tournament/fixturesActions";
+
+import { showSuccess } from "../../redux/Success/successSlice";
+
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { MatchModalTitle } from "./MatchModal";
-import PropTypes from "prop-types";
 import { dummyImage } from "../../Assests";
+import Button from "./Button";
+import ErrorBanner from "./ErrorBanner";
+
+import { RiDeleteBin2Line } from "react-icons/ri";
 import { CiLocationOn } from "react-icons/ci";
 import { IoMdAdd } from "react-icons/io";
-import Button from "./Button";
-import { useState, useEffect } from "react";
-import { RiDeleteBin2Line } from "react-icons/ri";
-import { updateMatchSet } from "../../redux/tournament/fixturesActions";
-import { showSuccess } from "../../redux/Success/successSlice";
-import ErrorBanner from "./ErrorBanner";
 
 const checkAllField = (scoreData, onValidationError, setDisableButton) => {
   if (!scoreData.length) {
@@ -47,6 +54,19 @@ const formattedMatchData = (scoreData, players) => {
   });
 };
 
+const formattedMatchDataForForfiet = (forfietPlayerId, players) => {
+  const { player1_id, player2_id, stage_id, group_id, round_id } = players;
+
+  return {
+    id: players.match,
+    stage_id,
+    group_id,
+    round_id,
+    opponent1: { id: player1_id, forfeit: player1_id === forfietPlayerId },
+    opponent2: { id: player2_id, forfeit: player2_id === forfietPlayerId },
+  };
+};
+
 export const ScoreUpdateModal = ({
   isOpen,
   onCancel,
@@ -64,9 +84,19 @@ export const ScoreUpdateModal = ({
   const [finalScoreData, setFinalScoreData] = useState([]);
   const [validationError, setValidationError] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
+  const [showPlayerSelections, setShowPlayerSelections] = useState(false);
+  const [selectedPlayerId, setSelectedPlayerId] = useState("");
 
   const getScoreData = (data) => {
     setFinalScoreData(data);
+  };
+
+  const handlePlayerSelection = (checked) => {
+    setShowPlayerSelections(checked);
+  };
+
+  const handleSelectedPlayer = (value) => {
+    setSelectedPlayerId(value);
   };
 
   const handleValidationError = (data) => {
@@ -83,6 +113,7 @@ export const ScoreUpdateModal = ({
       setValidationError(false);
       setUpdateError(false);
       setFinalScoreData([]);
+      setShowPlayerSelections(false);
     }
   }, [isOpen]);
 
@@ -90,21 +121,41 @@ export const ScoreUpdateModal = ({
     e.preventDefault();
     setUpdateError(false);
     setValidationError(false);
-    const currentSetUpdated = formattedMatchData(finalScoreData, players);
+    let currentSetUpdated;
+    if (!showPlayerSelections) {
+      currentSetUpdated = formattedMatchData(finalScoreData, players);
+    } else {
+      currentSetUpdated = formattedMatchDataForForfiet(
+        selectedPlayerId,
+        players
+      );
+    }
 
     if (validationError) return;
 
     try {
       setIsUpdating(true);
       setErrorMessage("");
-      const result = await dispatch(
-        updateMatchSet({
-          formData: currentSetUpdated[0],
-          tour_Id: tournamentId,
-          eventId,
-          fixtureId,
-        })
-      ).unwrap();
+      let result;
+      if (!showPlayerSelections) {
+        result = await dispatch(
+          updateMatchSet({
+            formData: currentSetUpdated[0],
+            tour_Id: tournamentId,
+            eventId,
+            fixtureId,
+          })
+        ).unwrap();
+      } else {
+        result = await dispatch(
+          updateMatch({
+            formData: currentSetUpdated,
+            tour_Id: tournamentId,
+            eventId,
+            fixtureId,
+          })
+        ).unwrap();
+      }
 
       if (!result.responseCode) {
         dispatch(
@@ -123,8 +174,10 @@ export const ScoreUpdateModal = ({
       );
     } finally {
       setIsUpdating(false);
+      onCancel(false);
     }
   };
+
   return (
     <Dialog
       open={isOpen}
@@ -157,23 +210,77 @@ export const ScoreUpdateModal = ({
               )}
 
               <PlayerDetails players={players} />
+
+              <ForfietCheckBox handlePlayerSelection={handlePlayerSelection} />
+
+              {showPlayerSelections && (
+                <PlayerSelector
+                  players={players}
+                  handleSelectedPlayer={handleSelectedPlayer}
+                />
+              )}
               <MatchScoreUpdateSet getScoreData={getScoreData} />
-              <div className="mr-0 mt-3 flex items-end justify-end">
+              <div className="mr-0 mt-3 flex items-end justify-between">
                 <Button
                   className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
                   type="submit"
                   onClick={(e) => handleScoreUpdate(e)}
-                  loading={isUpdating}
-                  disabled={validationError || disableButton}
+                  disabled={!showPlayerSelections}
                 >
-                  Update
+                  Forfiet
                 </Button>
+                {!showPlayerSelections && (
+                  <Button
+                    className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
+                    type="submit"
+                    onClick={(e) => handleScoreUpdate(e)}
+                    loading={isUpdating}
+                    disabled={validationError || disableButton}
+                  >
+                    Update
+                  </Button>
+                )}
               </div>
             </div>
           </DialogPanel>
         </div>
       </div>
     </Dialog>
+  );
+};
+
+const ForfietCheckBox = ({ handlePlayerSelection }) => {
+  return (
+    <div className="flex flex-1 gap-2">
+      <input
+        type="checkbox"
+        name="forfiet"
+        id="forfiet"
+        onChange={(e) => {
+          handlePlayerSelection(e.target.checked);
+        }}
+      />
+      <label htmlFor="forfiet">Do you want to forfiet any player?</label>
+    </div>
+  );
+};
+
+const PlayerSelector = ({ players, handleSelectedPlayer }) => {
+  const {
+    player1 = "",
+    player2 = "",
+    player1_id = "",
+    player2_id = "",
+  } = players;
+  return (
+    <select
+      className="h-[5vh] min-w-full border-[1px] px-[10px] border-[#DFEAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      onChange={(e) => handleSelectedPlayer(e.target.value)}
+    >
+      <option value="">Select Player</option>
+      <option value={player1_id}>{player1}</option>
+      <option value={player2_id}>{player2}</option>
+    </select>
   );
 };
 
@@ -326,6 +433,15 @@ const MatchLocationDetails = ({ match, location, date, time, court }) => {
       </div>
     </div>
   );
+};
+
+ForfietCheckBox.propTypes = {
+  handlePlayerSelection: PropTypes.func,
+};
+
+PlayerSelector.propTypes = {
+  players: PropTypes.object,
+  handleSelectedPlayer: PropTypes.func,
 };
 
 InputSet.propTypes = {
