@@ -18,7 +18,6 @@ export const Pagination = ({
   const dispatch = useDispatch();
   const totalPages = Math.ceil(total / rowsInOnePage);
   const updateQueryString = (value) => {
-    console.log(" value inside the query string", value);
     const searchParams = new URLSearchParams(window.location.search);
     Object.entries(value).forEach(([key, value]) => {
       searchParams.set(key, value);
@@ -50,9 +49,6 @@ export const Pagination = ({
   };
 
   const pages = generatePages();
-
-  console.log(" total", totalPages);
-  console.log(" current page", typeof currentPage);
 
   return (
     <nav className="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">

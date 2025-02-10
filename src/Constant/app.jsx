@@ -30,7 +30,7 @@ export const ADMIN_NAVIGATION = [
 
   { name: "DashBoard", icon: overviewIcon, path: "" },
   {
-    name: "Tournament Organiser",
+    name: "Tournament Organisers",
     icon: tournamentIcon,
     path: "tournament-organisers",
   },
