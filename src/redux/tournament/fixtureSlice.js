@@ -30,6 +30,10 @@ const fixtureSlice = createSlice({
     resetFixtureSuccess(state) {
       state.isFixtureSuccess = false;
     },
+
+    setFixture(state, { payload }) {
+      state.fixture = payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -116,6 +120,6 @@ const fixtureSlice = createSlice({
   },
 });
 
-export const { resetFixtureSuccess } = fixtureSlice.actions;
+export const { resetFixtureSuccess, setFixture } = fixtureSlice.actions;
 
 export default fixtureSlice.reducer;

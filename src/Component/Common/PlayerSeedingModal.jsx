@@ -1,20 +1,100 @@
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import PropTypes, { element } from "prop-types";
+import PropTypes from "prop-types";
 import { IoCloseSharp } from "react-icons/io5";
 import { TbSwipe } from "react-icons/tb";
 import { IoMdAdd } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { RiDeleteBinLine } from "react-icons/ri";
 import Button from "./Button";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getFixture,
+  updateSeeding,
+} from "../../redux/tournament/fixturesActions";
+import { showSuccess } from "../../redux/Success/successSlice";
+import ErrorBanner from "./ErrorBanner";
+import { useParams } from "react-router-dom";
+import { setFixture } from "../../redux/tournament/fixtureSlice";
+
+const seededPlayerData = (selections, participants) => {
+  if (selections?.length > 0) {
+    const updatedArray = [...participants];
+    selections.forEach((selections) => {
+      const indexOfTheChoosenPlayer = participants.findIndex(
+        (element) => element.id === selections.player1
+      );
+
+      const swappingPlayerIndex = participants.findIndex(
+        (element) => element.id === selections.player2
+      );
+
+      if (indexOfTheChoosenPlayer !== -1 && swappingPlayerIndex !== -1) {
+        [
+          updatedArray[indexOfTheChoosenPlayer],
+          updatedArray[swappingPlayerIndex],
+        ] = [
+          updatedArray[swappingPlayerIndex],
+          updatedArray[indexOfTheChoosenPlayer],
+        ];
+      }
+    });
+
+    return updatedArray;
+  }
+};
+
+const formattedPlayerDataForSeeding = (
+  fixture,
+
+  seededData,
+  tournamentId
+) => {
+  if (!fixture || !tournamentId || !seededData?.length) {
+    return;
+  }
+
+  const stageId = fixture?.currentStage;
+  const stageData = fixture?.bracketData?.stage;
+  const currentStage =
+    stageData?.length > 0 && stageData.find((stage) => stage.id === stageId);
+  const type = currentStage?.type;
+  const name = currentStage?.name;
+  const settings = currentStage?.settings;
+  const categoryId = currentStage?.tournament_id;
+
+  const { seedOrdering, tournament_id, ...requiredKeys } = settings;
+
+  const updatedSeedingData = seededData.map((player) => {
+    const { id, tournament_id, number, ...rest } = player;
+    return rest;
+  });
+
+  return {
+    stageData: {
+      seeding: updatedSeedingData,
+      settings: requiredKeys,
+      tournamentId: categoryId,
+      type,
+      name,
+    },
+  };
+};
 
 export const PlayerSelectionModal = ({
   isOpen,
   onCancel,
   players,
   participants,
+  fixture,
 }) => {
+  const dispatch = useDispatch();
+  const { eventId, tournamentId } = useParams();
   const [seededPlayers, setSeededPlayers] = useState([]);
   const [selections, setSelections] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(false);
+
   const handleSeededPlayer = (value) => {
     setSelections((_) => [...value]);
   };
@@ -46,6 +126,62 @@ export const PlayerSelectionModal = ({
     }
   }, [selections]);
 
+  const handlePlayerSeeding = async () => {
+    try {
+      setIsSubmitting(true);
+      setHasError(false);
+      setErrorMessage("");
+
+      const seededData = seededPlayerData(selections, participants);
+
+      const formattedData = formattedPlayerDataForSeeding(
+        fixture,
+        seededData,
+        tournamentId
+      );
+
+      const result = await dispatch(
+        updateSeeding({
+          tour_Id: tournamentId,
+          eventId,
+          formData: formattedData,
+          fixtureId: fixture?._id,
+          stageId: fixture?.currentStage,
+        })
+      ).unwrap();
+      if (!result.responseCode) {
+        dispatch(
+          showSuccess({
+            message: "Player seeded successfully.",
+            onClose: "hideSuccess",
+          })
+        );
+
+        dispatch(setFixture(result?.data?.updatedFixture));
+        dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+      }
+    } catch (err) {
+      console.log(" Error occured while doing player seeding", err);
+      setHasError(true);
+      setErrorMessage(
+        err.data.message ||
+          "Oops! something went wrong while seeding the players. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+      onCancel(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      setHasError(false);
+      setIsSubmitting(false);
+      setErrorMessage("");
+      setSeededPlayers([]);
+    }
+  }, [isOpen]);
+
   return (
     <Dialog
       open={isOpen}
@@ -65,6 +201,9 @@ export const PlayerSelectionModal = ({
           >
             <div className="flex flex-col justify-between flex-1 items-start gap-3 w-full">
               <PlayerSwipeTitle onCancel={onCancel} />
+
+              {hasError && <ErrorBanner message={errorMessage} />}
+
               <PlayerSelectionManager
                 players={players}
                 handleSeededPlayer={handleSeededPlayer}
@@ -73,7 +212,9 @@ export const PlayerSelectionModal = ({
               <Button
                 className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
                 type="submit"
-                loading=""
+                loading={isSubmitting}
+                onClick={handlePlayerSeeding}
+                disabled={!seededPlayers?.length}
               >
                 Save
               </Button>
@@ -263,4 +404,5 @@ PlayerSelectionModal.propTypes = {
   onCancel: PropTypes.func,
   players: PropTypes.array,
   participants: PropTypes.array,
+  fixture: PropTypes.object,
 };

@@ -11,6 +11,14 @@ const tournamentDetails = {
 const rolesWithTournamentOwnerAccess = ["SUPER_ADMIN", "ADMIN"];
 const bookingLimit = 10;
 
+const tournamentEventTypes = {
+  format: [
+    { type: "single_elimination", shortName: "SE" },
+    { type: "double_elimination", shortName: "DE" },
+    { type: "round_robin", shortName: "RR" },
+  ],
+};
+
 const tournamentEvent = {
   format: [
     { name: "Select Event Format", shortName: "" },
@@ -271,4 +279,5 @@ export {
   tournamentStatusFilters,
   rolesWithTournamentOwnerAccess,
   hideActionButtons,
+  tournamentEventTypes,
 };
