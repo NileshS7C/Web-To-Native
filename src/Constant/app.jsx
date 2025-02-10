@@ -27,6 +27,7 @@ export const menus = [
 ];
 
 export const ADMIN_NAVIGATION = [
+
   { name: "DashBoard", icon: overviewIcon, path: "" },
   {
     name: "Tournament Organiser",
@@ -43,6 +44,40 @@ export const ADMIN_NAVIGATION = [
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
   { name: "Venues", icon: venueIcon, path: "venues" },
   { name: "User", icon: profileIcon, path: "users" },
+  {
+    name: "CMS",
+    // icon: profileIcon,
+    children: [
+      {
+        name: "Homepage",
+        children: [
+          { name: "Explore"},
+          { name: "Featured Tournaments"},
+          { name: "Featured Week"},
+          { name: "Featured Venues"},
+          { name: "Why Choose Picklebay"},
+          { name: "Destination Dink"},
+          { name: "Build Courts"},
+          { name: "Journal"},
+          { name: "News & Update"},
+        ],
+      },
+      {
+        name: "Blogs",
+        children: [
+          { name: "Test"},
+        ],
+      },
+      {
+        name: "Static Pages",
+        children: [
+          { name: "Help & Faqs"},
+          { name: "Terms & Condition"},
+          { name: "Refunds & Cancellation"},
+        ],
+      },
+    ],
+  },
 ];
 
 export const TOURNAMENT_OWNER_NAVIGATION = [
@@ -67,6 +102,7 @@ export const VENUE_OWNER_NAVIGATION = [
   { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Venues", icon: venueIcon, path: "venues" },
   { name: "User", icon: profileIcon, path: "users" },
+
 ];
 
 

@@ -8,12 +8,26 @@ import VenueDescription from "../Component/Venue/VenueDetails";
 import { CourtCreation } from "../Component/Venue/CreateCourt";
 import VenueListing from "../Component/Venue/VenueListing";
 import NotCreated from "../Component/Common/NotCreated";
+
+import Explore from "../Page/CMS/Homepage/Explore";
+import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
+import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
+import FeaturedVenues from "../Page/CMS/Homepage/FeaturedVenues";
+import FAQ from "../Page/CMS/StaticPages/FAQ";
+import WhyChoosePickleBay from "../Page/CMS/Homepage/WhyChoosePickleBay";
+import DestinationDink from "../Page/CMS/Homepage/DestinationDink";
+import Journal from "../Page/CMS/Homepage/Journal";
+import BuildCourts from "../Page/CMS/Homepage/BuildCourts";
+import NewsUpdates from "../Page/CMS/Homepage/NewsUpdates";
+
+
 import TournamentCreationForm from "../Component/Tournament/TournamentNav";
 import TournamentListing from "../Component/Tournament/TournamentListing";
 import EventDetailPage from "../Component/Tournament/Event/EventDetails";
 import NotFound from "../Component/Common/NotFound";
 import WrapperLogin from "../Page/Login";
 import { FormikContextProvider } from "../Providers/formikContext";
+
 
 const AllRoutes = () => {
   return (
@@ -53,6 +67,20 @@ const AllRoutes = () => {
             </Route>
           </Route>
           <Route path="home" element={<Home />} />
+
+          {/* CMS Routes */}
+          <Route path="cms/homepage/explore" element={<Explore />} />
+          <Route path="cms/homepage/featured-tournaments" element={<FeaturedTournaments />} />
+          <Route path="cms/homepage/featured-week" element={<FeaturedWeek />} />
+          <Route path="cms/homepage/featured-venues" element={<FeaturedVenues />} />
+          <Route path="cms/homepage/why-choose-picklebay" element={<WhyChoosePickleBay />} />
+          <Route path="cms/homepage/destination-dink" element={<DestinationDink />} />
+          <Route path="cms/homepage/build-courts" element={<BuildCourts />} />
+          <Route path="cms/homepage/journal" element={<Journal />} />
+          <Route path="cms/homepage/news-&-update" element={<NewsUpdates />} />
+          <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
+          {/* Ends Here */}
+
           <Route path="venues">
             <Route index element={<VenueListing />} />
             <Route path="new" element={<VenueInfo />} />

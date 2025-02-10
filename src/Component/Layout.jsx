@@ -67,10 +67,16 @@ const Layout = () => {
     }
   }, [approvalBody, tournamentId, approveButtonClicked]);
 
+  // Define the custom route where the div should be hidden
+  const hiddenRoutes = ["/cms/homepage/featured-tournaments","/cms/homepage/featured-venues","/cms/homepage/explore","/cms/static-pages/help-&-faqs","/cms/homepage/featured-week","/cms/homepage/why-choose-picklebay","/cms/homepage/destination-dink","/cms/homepage/build-courts","/cms/homepage/journal","/cms/homepage/news-&-update"];
+  const shouldHideTitleBar = hiddenRoutes.includes(location.pathname);
+
   return (
     <div className="flex flex-col min-h-screen ">
       <Header />
       <div className="flex flex-1 bg-[#F5F7FA]">
+
+
         <div className="w-[250px] hidden lg:block h-auto bg-[#FFFFFF]">
           <NavBar />
         </div>
@@ -121,6 +127,7 @@ const Layout = () => {
                 )}
             </div>
           </div>
+
           <Outlet />
         </div>
       </div>
@@ -245,3 +252,4 @@ TournamentActionButton.propTypes = {
 };
 
 export default Layout;
+
