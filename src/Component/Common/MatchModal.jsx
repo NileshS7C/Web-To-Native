@@ -170,9 +170,8 @@ export const MatchModal = ({
         );
       }
     } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("Error in updating the match", err);
-      }
+      console.log("Error in updating the match", err);
+
       dispatch(
         showError({
           message:
@@ -240,7 +239,7 @@ export const MatchModal = ({
   );
 };
 
-const MatchModalTitle = ({ tournamentName, eventName, onCancel }) => {
+export const MatchModalTitle = ({ tournamentName, eventName, onCancel }) => {
   return (
     <div className="flex justify-between items-center w-full">
       <div className="flex gap-3">

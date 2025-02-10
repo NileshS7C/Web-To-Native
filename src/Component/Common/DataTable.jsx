@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import { Pagination } from "./Pagination";
 
-
-
 const DataTable = ({
   columns = [],
   data = [],
@@ -16,6 +14,7 @@ const DataTable = ({
   alternateRowColors = false,
   evenRowColor = "none",
   oddRowColor = "none",
+  onClick = null,
 }) => {
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
@@ -66,7 +65,7 @@ const DataTable = ({
                       <div className="md:hidden flex flex-col bg-white rounded-xl">
                         {columns.map((column, colIndex) => {
                           const cellContent = column.render
-                            ? column.render(item, index)
+                            ? column.render(item, index, currentPage, onClick)
                             : item?.[column.key];
 
                           return (
@@ -94,7 +93,7 @@ const DataTable = ({
                       </div>
                       {columns.map((column, colIndex) => {
                         const cellContent = column.render
-                          ? column.render(item, index, currentPage)
+                          ? column.render(item, index, currentPage, onClick)
                           : item?.[column.key];
 
                         return (
@@ -155,6 +154,7 @@ DataTable.propTypes = {
   alternateRowColors: PropTypes.bool,
   evenRowColor: PropTypes.string,
   oddRowColor: PropTypes.string,
+  onClick: PropTypes.func,
 };
 
 export default DataTable;
