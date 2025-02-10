@@ -91,6 +91,7 @@ export const TournamentFixture = ({ tournament }) => {
   const handleplayerShuffling = () => {
     const result = playerShuffling(stableFixture?.bracketData?.participant);
     const formattedMatchData = formatMatchData(fixture, result);
+
     dispatch(
       updateSeeding({
         tour_Id: tournamentId,
@@ -249,6 +250,7 @@ export const TournamentFixture = ({ tournament }) => {
           onCancel={handlePlayerSeddingModal}
           players={players}
           participants={stableFixture?.bracketData?.participant}
+          fixture={fixture}
         />
         <MatchModal
           isOpen={openMatchModal}
