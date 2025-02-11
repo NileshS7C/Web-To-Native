@@ -111,8 +111,8 @@ export const TournamentOrganiserCreation = ({
                 {({ isSubmitting }) => (
                   <Form>
                     <div className="flex flex-col justify-between w-full gap-4 flex-1">
-                      <OwnerBasicDetails />
-                      <OwnerPhoneAndPassword />
+                      <OrganiserBasicDetails />
+                      <OrganiserPhoneAndPassword />
                       <BrandEmailAndPhone />
                       <BrandPhoneAndLocation />
                       <OrganiserAddress location={location} />
@@ -152,7 +152,7 @@ export const OrganiserModalTitle = ({ onCancel }) => {
   );
 };
 
-const OwnerBasicDetails = () => {
+const OrganiserBasicDetails = () => {
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5 w-full">
@@ -190,7 +190,7 @@ const OwnerBasicDetails = () => {
   );
 };
 
-const OwnerPhoneAndPassword = () => {
+const OrganiserPhoneAndPassword = () => {
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
