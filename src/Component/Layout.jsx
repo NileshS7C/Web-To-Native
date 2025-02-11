@@ -30,7 +30,7 @@ const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const { tournamentId } = useParams();
+  const { tournamentId, eventId } = useParams();
   const { venue } = useSelector((state) => state.getVenues);
   const { tournament, tournamentEditMode } = useSelector(
     (state) => state.GET_TOUR
@@ -142,6 +142,7 @@ const Layout = () => {
                       changingDecision={changingDecision}
                       setApproveButtonClicked={setApproveButtonClicked}
                       tournamentEditMode={tournamentEditMode}
+                      eventId={eventId}
                     />
                   )}
               </div>
@@ -181,28 +182,30 @@ const TournamentActionButton = ({
   changingDecision,
   setApproveButtonClicked,
   tournamentEditMode,
+  eventId,
 }) => {
   return (
     <div className="flex items-center gap-2 justify-end ml-auto">
-      {!tournamentEditMode ? (
-        <button
-          className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
-          type="button"
-          onClick={() => dispatch(setTournamentEditMode())}
-          disabled={
-            !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
-            tournament?.status !== "REJECTED"
-          }
-        >
-          <span>Edit Tournament</span>
-          <FiEdit3 />
-        </button>
-      ) : (
-        <SaveAndCancelButton
-          dispatch={dispatch}
-          setTournamentEditMode={setTournamentEditMode}
-        />
-      )}
+      {!eventId &&
+        (!tournamentEditMode ? (
+          <button
+            className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+            type="button"
+            onClick={() => dispatch(setTournamentEditMode())}
+            disabled={
+              !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
+              tournament?.status !== "REJECTED"
+            }
+          >
+            <span>Edit Tournament</span>
+            <FiEdit3 />
+          </button>
+        ) : (
+          <SaveAndCancelButton
+            dispatch={dispatch}
+            setTournamentEditMode={setTournamentEditMode}
+          />
+        ))}
 
       {ROLES.slice(0, 2).includes(userRole) && (
         <div className="flex items-center gap-2">
@@ -286,6 +289,7 @@ TournamentActionButton.propTypes = {
   changingDecision: PropTypes.bool,
   setApproveButtonClicked: PropTypes.func,
   tournamentEditMode: PropTypes.bool,
+  eventId: PropTypes.string,
 };
 
 export default Layout;
