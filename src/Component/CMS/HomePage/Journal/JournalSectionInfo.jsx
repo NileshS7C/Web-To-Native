@@ -33,7 +33,7 @@ export default function JournalSectionInfo({ sectionInfo }) {
     };
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/journal`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/journal`,
         {
           method: "PATCH",
           headers: {

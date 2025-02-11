@@ -33,7 +33,7 @@ export default function VenueSectionInfo({ sectionInfo }) {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/venues`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/venues`,
         {
           method: "PATCH",
           headers: {

@@ -9,6 +9,7 @@ import * as Yup from "yup";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { uploadImage } from "../../../../utils/uploadImage";
+import axiosInstance from "../../../../Services/axios";
 
 export default function NewsAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
@@ -42,9 +43,6 @@ export default function NewsAddDataModal({ data, isOpen, onClose, fetchHomepageS
                                     // Upload image if provided
                                     const uploadImageUrl = values.image ? await uploadImage(values.image) : null;
                                     if (uploadImageUrl.success) {
-                                        const myHeaders = new Headers({
-                                            "Content-Type": "application/json",
-                                        });
                                         const options = { year: 'numeric', month: 'short', day: 'numeric' };
                                         const formattedDate = values.date.toLocaleDateString('en-GB', options);
 
@@ -65,15 +63,13 @@ export default function NewsAddDataModal({ data, isOpen, onClose, fetchHomepageS
                                             "isVisible": data.isVisible,
                                             "news": data.news
                                         };
-                                        
+                                        const config = {
+                                            headers: {
+                                              "Content-Type": "application/json",
+                                            },
+                                          };
                                         // Send API request
-                                        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/news`, {
-                                            method: "PATCH",
-                                            headers: myHeaders,
-                                            body: JSON.stringify(payload),
-                                        });
-
-                                        const result = await response.json();
+                                        const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/news`, JSON.stringify(payload),config);
                                         fetchHomepageSections();
                                         onClose();
                                     }

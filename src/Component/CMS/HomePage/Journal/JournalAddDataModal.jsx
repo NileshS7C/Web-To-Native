@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import axiosInstance from '../../../../Services/axios';
 
 export default function JournalAddDataModal({ isOpen, onClose, fetchHomepageSections }) {
     const [selectedItems, setSelectedItems] = useState([]);
@@ -8,11 +9,15 @@ export default function JournalAddDataModal({ isOpen, onClose, fetchHomepageSect
 
     const GetAllJournals = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=journal`, { method: "GET" });
-            const result = await response.json();
-            setJournalSectionData(result);
-            if (result.data?.length) {
-                const allJournals = result.data.flatMap(section => section.journals);
+            const config = {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=journal`, config);
+            setJournalSectionData(response);
+            if (response.data?.data?.length) {
+                const allJournals = response.data.data.flatMap(section => section.journals);
                 setJournalsData(allJournals);
             }
         } catch (error) {
@@ -49,17 +54,14 @@ export default function JournalAddDataModal({ isOpen, onClose, fetchHomepageSect
         };
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/journal`, {
-                method: "PATCH",
+            const config = {
                 headers: {
-                    "Content-Type": "application/json"
+                  "Content-Type": "application/json",
                 },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-            if (result.data?.length) {
-                const allJournals = result.data.flatMap(section => section.journals);
+              };
+            const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/journal`, JSON.stringify(payload),config);
+            if (response.data?.data?.length) {
+                const allJournals = result.data.data.flatMap(section => section.journals);
                 setJournalsData(allJournals);
             }
         } catch (error) {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import TournamentSectionInfo from "../../../Component/CMS/HomePage/FeaturedTournaments/TournamentSectionInfo";
 import TournamentContentTable from "../../../Component/CMS/HomePage/FeaturedTournaments/TournamentContentTable";
 import TournamentListingModal from "../../../Component/CMS/HomePage/FeaturedTournaments/TournamentListingModal";
+import axiosInstance from "../../../Services/axios";
 
 
 export default function FeaturedTournaments() {
@@ -9,9 +10,13 @@ export default function FeaturedTournaments() {
     const [tournamentData, setTournamentData] = useState([]);
     const fetchTournamentsData = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=tournament`, { method: "GET" });
-            const result = await response.json();
-            setTournamentData(result.data[0])
+            const config = {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=tournament`, config);
+            setTournamentData(response.data.data[0])
         } catch (error) {
             console.error(error);
         }

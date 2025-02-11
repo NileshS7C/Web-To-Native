@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import StaticPage from '../../../Component/CMS/StaticPages/StaticPage'
+import axiosInstance from '../../../Services/axios';
 
 export default function RefundCancellation() {
   const [RedundCancellationData, setRedundCancellationData] = useState({});
   const getRedundCancellationData = async () => {
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/static-pages/refundsCancellations`, { method: "GET" })
-    const result = await response.json();
-    setRedundCancellationData(result.data)
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/public/static-pages/refundsCancellations`, config)
+    setRedundCancellationData(response.data.data)
   }
   const handleSavePage = async (data) => {
     const filterData = {
@@ -14,18 +19,15 @@ export default function RefundCancellation() {
       description: data.description
     };
 
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    const requestOptions = {
-      method: "PATCH",
-      headers: myHeaders,
-      body: JSON.stringify(filterData),
-      redirect: "follow"
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
     };
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/static-pages/refundsCancellations`, requestOptions)
+    const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/static-pages/refundsCancellations`, JSON.stringify(filterData), config)
   }
   useEffect(() => { getRedundCancellationData() }, [])
   return (
-    <StaticPage PageData={RedundCancellationData} handleSavePage={handleSavePage} getPageData={getRedundCancellationData}/>
+    <StaticPage PageData={RedundCancellationData} handleSavePage={handleSavePage} getPageData={getRedundCancellationData} />
   )
 }

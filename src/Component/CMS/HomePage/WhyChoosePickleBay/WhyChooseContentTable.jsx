@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import WhyChooseEditDataModal from "./WhyChooseEditDataModal";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
 import DeleteModal from "../DeleteModal";
+import axiosInstance from "../../../../Services/axios";
 
 export default function WhyChooseContentTable({ data, fetchHomepageSections }) {
     const [openEditModal, setOpenEditModal] = useState(false);
@@ -26,13 +27,12 @@ export default function WhyChooseContentTable({ data, fetchHomepageSections }) {
             isVisible: data.isVisible,
             features: updatedFeatures,
         };
-
-        await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/why-choose`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-        });
-
+        const config = {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
+        await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/why-choose`, JSON.stringify(payload),config);
         fetchHomepageSections();
     };
 

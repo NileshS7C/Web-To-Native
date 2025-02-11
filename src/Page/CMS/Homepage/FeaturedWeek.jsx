@@ -3,6 +3,7 @@ import WeekSectionInfo from "../../../Component/CMS/HomePage/FeaturedWeeks/WeekS
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { uploadImage } from "../../../utils/uploadImage";
+import axiosInstance from "../../../Services/axios";
 export default function FeaturedWeek() {
     const [isEditing, setIsEditing] = useState(false);
     const [weekData, setWeekData] = useState({});
@@ -14,9 +15,13 @@ export default function FeaturedWeek() {
 
     const fetchWeekData = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=featuredThisWeek`);
-            const result = await response.json();
-            const data = result.data[0];
+            const config = {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=featuredThisWeek`, config);
+            const data = response.data.data[0];
             setWeekData(data);
             setHeading(data.heading);
             setSubHeading(data.subHeading);
@@ -29,7 +34,7 @@ export default function FeaturedWeek() {
     };
 
     useEffect(() => { fetchWeekData(); }, []);
-    
+
     const handleSave = async () => {
         try {
             let uploadImageUrl = image;
@@ -37,13 +42,12 @@ export default function FeaturedWeek() {
                 const uploadedImage = await uploadImage(image);
                 uploadImageUrl = uploadedImage?.url || image;
             }
-
-            await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/featuredThisWeek`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ heading, subHeading, buttonText, link, image: uploadImageUrl })
-            });
-
+            const config = {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            };
+            await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/featuredThisWeek`, JSON.stringify({ heading, subHeading, buttonText, link, image: uploadImageUrl }), config);
             setIsEditing(false);
             fetchWeekData();
         } catch (error) {

@@ -33,7 +33,7 @@ export default function TournamentSectionInfo({ sectionInfo }) {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/tournament`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/tournament`,
         {
           method: "PATCH",
           headers: {

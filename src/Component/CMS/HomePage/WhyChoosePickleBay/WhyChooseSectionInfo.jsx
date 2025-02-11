@@ -32,7 +32,7 @@ export default function WhyChooseSectionInfo({ sectionInfo }) {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/whyChoosePicklebay`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/whyChoosePicklebay`,
         {
           method: "PATCH",
           headers: {

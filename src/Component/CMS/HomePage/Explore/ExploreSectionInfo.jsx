@@ -33,7 +33,7 @@ export default function ExploreSectionInfo({ sectionInfo }) {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/explore`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/explore`,
         {
           method: "PATCH",
           headers: {

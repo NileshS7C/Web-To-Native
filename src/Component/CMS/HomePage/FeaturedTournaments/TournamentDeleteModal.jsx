@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Spinner from '../../../../Page/CMS/Spinner';
+import axiosInstance from '../../../../Services/axios';
 
 export default function TournamentDeleteModal({ data, selectedCard, isOpen, onClose, fetchHomepageSections }) {
     const [loading, setLoading] = useState(false);
@@ -20,18 +21,13 @@ export default function TournamentDeleteModal({ data, selectedCard, isOpen, onCl
             isVisible: data.isVisible,
             tournaments: reindexedFeatures,
         };
-
-            const myHeaders = new Headers({
-                "Content-Type": "application/json",
-            });
+            const config = {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              };
             // Send API request
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/tournament`, {
-                method: "PATCH",
-                headers: myHeaders,
-                body: JSON.stringify(payload),
-            });
-
-            const result = await response.json();
+            const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/tournament`, JSON.stringify(payload), config);
             fetchHomepageSections();
             onClose();
         } catch (error) {

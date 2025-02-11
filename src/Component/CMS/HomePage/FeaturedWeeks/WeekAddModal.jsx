@@ -7,6 +7,7 @@ import {
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { uploadImage } from "../../../../utils/uploadImage";
+import axiosInstance from "../../../../Services/axios";
 
 export default function WeekAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
@@ -41,9 +42,6 @@ export default function WeekAddDataModal({ data, isOpen, onClose, fetchHomepageS
                                     const uploadImageUrl = values.image ? await uploadImage(values.image) : null;
 
                                     if (uploadImageUrl.success) {
-                                        const myHeaders = new Headers({
-                                            "Content-Type": "application/json",
-                                        });
                                         const payload = {
                                             "sectionTitle": data.sectionTitle,
                                             "isVisible": data.isVisible,
@@ -54,14 +52,13 @@ export default function WeekAddDataModal({ data, isOpen, onClose, fetchHomepageS
                                             "buttonText": values.buttonText, 
                                         };
 
+                                        const config = {
+                                            headers: {
+                                              "Content-Type": "application/json",
+                                            },
+                                          };
                                         // Send API request
-                                        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/featuredThisWeek`, {
-                                            method: "PATCH",
-                                            headers: myHeaders,
-                                            body: JSON.stringify(payload),
-                                        });
-
-                                        const result = await response.json();
+                                        const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/featuredThisWeek`, JSON.stringify(payload),config);
                                         fetchHomepageSections();
                                         onClose();
                                     }

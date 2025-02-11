@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { TrashIcon } from "@heroicons/react/20/solid";
 import DeleteModal from "../DeleteModal";
+import axiosInstance from "../../../../Services/axios";
 
 export default function JournalContentTable({ data, fetchHomepageSections }) {
     const [deleteModal, setDeleteModal] = useState(false);
@@ -21,13 +22,12 @@ export default function JournalContentTable({ data, fetchHomepageSections }) {
             isVisible: data[0].blogID.isVisible,
             journals: updatedFeatures,
         };
-
-        await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/journal`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-        });
-
+        const config = {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
+        await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/journal`, JSON.stringify(payload),config);
         fetchHomepageSections();
     };
 
