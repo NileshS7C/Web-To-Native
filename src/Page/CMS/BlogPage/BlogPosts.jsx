@@ -20,7 +20,7 @@ export default function BlogPosts() {
         const response = await axiosInstance.get(
           `${
             import.meta.env.VITE_BASE_URL
-          }/admin/blogs?page=${page}&limit=${limit}`
+          }/users/admin/blogs?page=${page}&limit=${limit}`
         );
 
         if (response.status !== 200) {

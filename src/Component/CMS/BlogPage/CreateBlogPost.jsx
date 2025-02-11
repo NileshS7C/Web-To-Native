@@ -126,7 +126,7 @@ export default function CreateBlogPost() {
         },
       };
       const response = await axiosInstance.post(
-        `${import.meta.env.VITE_BASE_URL}/admin/blogs`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/blogs`,
         JSON.stringify(formData),
         config
       );

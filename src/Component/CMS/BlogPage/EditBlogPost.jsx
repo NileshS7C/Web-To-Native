@@ -33,7 +33,7 @@ export default function EditBlogPost() {
     const fetchBlogDetails = async () => {
       try {
         const response = await axiosInstance.get(
-          `${import.meta.env.VITE_BASE_URL}/admin/blogs/${handle}`
+          `${import.meta.env.VITE_BASE_URL}/users/admin/blogs/${handle}`
         );
 
         if (response.data.data.length <= 0) {
@@ -145,7 +145,7 @@ export default function EditBlogPost() {
         },
       };
       const response = await axiosInstance.put(
-        `${import.meta.env.VITE_BASE_URL}/admin/blogs`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/blogs`,
         JSON.stringify(formData),
         config
       );
