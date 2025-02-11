@@ -24,6 +24,7 @@ import Button from "./Common/Button";
 import { SuccessModal } from "./Common/SuccessModal";
 import { ErrorModal } from "./Common/ErrorModal";
 import { approvalBody, hideActionButtons } from "../Constant/tournament";
+import { toggleOrganiserModal } from "../redux/tournament/tournamentOrganiserSlice";
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -126,7 +127,7 @@ const Layout = () => {
                 )}
 
                 {currentTitle === "Tournament Organisers" && (
-                  <TournamentOrganiserButtons />
+                  <TournamentOrganiserButtons dispatch={dispatch} />
                 )}
 
                 {isTournament &&
@@ -154,13 +155,16 @@ const Layout = () => {
   );
 };
 
-const TournamentOrganiserButtons = () => {
+const TournamentOrganiserButtons = ({ dispatch }) => {
   const { tournamentOwners } = useSelector((state) => state.Tournament);
 
   return (
     <>
       {tournamentOwners?.owners?.length > 0 && (
-        <Button className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400">
+        <Button
+          className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+          onClick={() => dispatch(toggleOrganiserModal())}
+        >
           Create
         </Button>
       )}
