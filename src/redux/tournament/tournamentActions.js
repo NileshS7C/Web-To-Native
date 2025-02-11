@@ -539,7 +539,7 @@ export const cancelAndRefundBooking = createAsyncThunk(
       const response = await axiosInstance.post(
         `${
           import.meta.env.VITE_BASE_URL
-        }/users/admin/bookings/${bookingId}/owner/67921bf3026dcfaa04c326f0/${type}`,
+        }/users/admin/bookings/${bookingId}/owner/6792048c03154bddd4c92206/${type}`,
         JSON.stringify(data),
         config
       );

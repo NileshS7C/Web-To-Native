@@ -15,6 +15,7 @@ const DataTable = ({
   evenRowColor = "none",
   oddRowColor = "none",
   onClick = null,
+  rowTextAlignment = "left",
 }) => {
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
@@ -101,7 +102,7 @@ const DataTable = ({
                             key={`${item?.id || item?._id || index}-${
                               column.key || colIndex
                             }`}
-                            className={`text-left py-${rowPaddingY}  hidden md:table-cell ${
+                            className={`text-${rowTextAlignment} py-${rowPaddingY}  hidden md:table-cell ${
                               column.key === "serialNumber"
                                 ? "text-[#2B2F38]"
                                 : "text-[#5D6679]"
@@ -155,6 +156,7 @@ DataTable.propTypes = {
   evenRowColor: PropTypes.string,
   oddRowColor: PropTypes.string,
   onClick: PropTypes.func,
+  rowTextAlignment: PropTypes.string,
 };
 
 export default DataTable;

@@ -15,7 +15,7 @@ import Spinner from "../../Common/Spinner";
 import { bookingLimit } from "../../../Constant/tournament";
 import EmptyBanner from "../../Common/EmptyStateBanner";
 import DataTable from "../../Common/DataTable";
-import { bookingTableHeaders, data } from "../../../Constant/booking";
+import { bookingTableHeaders } from "../../../Constant/booking";
 import { Button } from "@headlessui/react";
 import AddParticipants from "./AddParticipantPage";
 import { ConfirmationModal } from "../../Common/ConfirmationModal";
@@ -32,6 +32,7 @@ function EventRegistrations({ tournament }) {
     bookingError,
     isGettingBookings,
   } = useSelector((state) => state.GET_TOUR);
+  const { actionType } = useSelector((state) => state.tourBookings);
   const { isOpen, message, onClose, isConfirmed } = useSelector(
     (state) => state.confirm
   );
@@ -49,7 +50,7 @@ function EventRegistrations({ tournament }) {
         })
       );
     }
-  }, []);
+  }, [currentPage, tournamentId, eventId]);
 
   if (isGettingBookings) {
     return (
@@ -65,7 +66,7 @@ function EventRegistrations({ tournament }) {
     );
   }
 
-  if (bookingData?.bookings?.length) {
+  if (!bookingData?.bookings?.length) {
     return (
       <EmptyBanner message="There are currently no bookings for this event." />
     );
@@ -94,17 +95,19 @@ function EventRegistrations({ tournament }) {
         onConfirm={onCofirm}
         isLoading={false}
         message={message}
-        withComments={true}
+        withComments={actionType === "cancel"}
       />
 
       <DataTable
         columns={bookingTableHeaders}
         data={bookingData.bookings}
-        totalPages={bookingData.totalCount}
+        totalPages={bookingData?.total}
         currentPage={currentPage}
         onPageChange={onPageChangeEvent}
         className="border-[1px] rounded-md"
         pathName={currentPath}
+        headerTextAlign="middle"
+        rowTextAlignment="middle"
       />
     </div>
   );

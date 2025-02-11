@@ -6,12 +6,20 @@ const initialState = {
   isBookingCreating: false,
   bookingCreationError: false,
   bookingErrorMessage: "",
+  actionType: "",
 };
 
 const bookingSlice = createSlice({
   name: "tourBookings",
   initialState,
-  reducers: {},
+  reducers: {
+    resetActionType(state) {
+      state.actionType = "";
+    },
+    setAction(state, action) {
+      state.actionType = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createConfirmBooking.pending, (state) => {
@@ -34,5 +42,7 @@ const bookingSlice = createSlice({
       });
   },
 });
+
+export const { resetActionType, setAction } = bookingSlice.actions;
 
 export default bookingSlice.reducer;
