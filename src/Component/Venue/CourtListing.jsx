@@ -1,19 +1,21 @@
-import { Button } from "@headlessui/react";
-import { courtTableContent } from "../../Constant/venue";
-import DataTable from "../Common/DataTable";
-import { useDispatch, useSelector } from "react-redux";
-import { showForm } from "../../redux/Venue/addVenue";
-import { useNavigate, useParams } from "react-router-dom";
-import { SuccessModal } from "../Common/SuccessModal";
-import { ErrorModal } from "../Common/ErrorModal";
-import { ConfirmationModal } from "../Common/ConfirmationModal";
+import PropTypes from "prop-types";
 import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button } from "@headlessui/react";
+
 import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
 import { cleanUpSuccess, showSuccess } from "../../redux/Success/successSlice";
 import { cleanUpError, showError } from "../../redux/Error/errorSlice";
 import { resetDeleteState, resetErrorState } from "../../redux/Venue/addCourt";
 import { deleteCourt } from "../../redux/Venue/venueActions";
 import { resetConfirmationState } from "../../redux/Confirmation/confirmationSlice";
+
+import { courtTableContent } from "../../Constant/venue";
+import DataTable from "../Common/DataTable";
+import { SuccessModal } from "../Common/SuccessModal";
+import { ErrorModal } from "../Common/ErrorModal";
+import { ConfirmationModal } from "../Common/ConfirmationModal";
 
 export const CourtListing = ({
   courts,
@@ -99,4 +101,11 @@ export const CourtListing = ({
       />
     </div>
   );
+};
+
+CourtListing.propTypes = {
+  courts: PropTypes.array,
+  currentPage: PropTypes.number,
+  totalVenues: PropTypes.number,
+  onPageChange: PropTypes.func,
 };

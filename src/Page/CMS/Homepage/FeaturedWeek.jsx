@@ -1,73 +1,142 @@
-
-const people = [
-    { position: '1', title: 'Learn', description: 'Explore curated picklybay content', redirect: 'https"//google.com' },
-    { position: '2', title: 'Games', description: 'Create and join community games', redirect: 'https"//google.com' },
-    // More people...
-]
-
+import React, { useState, useEffect } from "react";
+import WeekSectionInfo from "../../../Component/CMS/HomePage/FeaturedWeeks/WeekSectionInfo";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { uploadImage } from "../../../utils/uploadImage";
 export default function FeaturedWeek() {
+    const [isEditing, setIsEditing] = useState(false);
+    const [weekData, setWeekData] = useState({});
+    const [heading, setHeading] = useState("");
+    const [subHeading, setSubHeading] = useState("");
+    const [buttonText, setButtonText] = useState("");
+    const [link, setLink] = useState("");
+    const [image, setImage] = useState("");
+
+    const fetchWeekData = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=featuredThisWeek`);
+            const result = await response.json();
+            const data = result.data[0];
+            setWeekData(data);
+            setHeading(data.heading);
+            setSubHeading(data.subHeading);
+            setButtonText(data.buttonText);
+            setLink(data.link);
+            setImage(data.image);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => { fetchWeekData(); }, []);
+    
+    const handleSave = async () => {
+        try {
+            let uploadImageUrl = image;
+            if (typeof image === 'object' && image instanceof Blob) {
+                const uploadedImage = await uploadImage(image);
+                uploadImageUrl = uploadedImage?.url || image;
+            }
+
+            await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/featuredThisWeek`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ heading, subHeading, buttonText, link, image: uploadImageUrl })
+            });
+
+            setIsEditing(false);
+            fetchWeekData();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
     return (
         <div className="px-4 sm:px-6 lg:px-8">
-            <div className="sm:flex sm:items-center">
+            <div className="sm:flex sm:flex-col gap-4">
                 <div className="sm:flex-auto text-left">
-                    <h1 className="text-base font-semibold text-gray-900">Explore Picklebay</h1>
-                    {/* <p className="mt-2 text-sm text-gray-700">
-              A list of all the users in your account including their name, title, email and role.
-            </p> */}
+                    <h1 className="text-base font-semibold text-left text-gray-900">{weekData.sectionTitle}</h1>
                 </div>
-                <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-                    <button
-                        type="button"
-                        className="block rounded-md bg-[#1570EF] px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-[#1570EF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1570EF]"
-                    >
-                        Add user
-                    </button>
+                <div className="flex items-end justify-between w-full">
+                    <WeekSectionInfo sectionInfo={weekData} />
+                    {!isEditing ? (
+                        <button
+                            className="bg-blue-500 text-white px-3 py-2 rounded"
+                            onClick={() => setIsEditing(true)}
+                        >
+                            Edit
+                        </button>
+                    ) : (
+                        <div className="flex gap-2">
+                            <button className="bg-green-500 text-white px-3 py-2 rounded" onClick={handleSave}>Save</button>
+                            <button className="bg-gray-500 text-white px-3 py-2 rounded" onClick={() => setIsEditing(false)}>Discard</button>
+                        </div>
+                    )}
                 </div>
             </div>
-            <div className="mt-8 flow-root">
-                <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                        <table className="min-w-full divide-y divide-gray-300">
-                            <thead>
-                                <tr className="text-left">
-                                    <th scope="col" className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                                        Position
-                                    </th>
-                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                        Title
-                                    </th>
-                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                        Description
-                                    </th>
-                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                        Redirect
-                                    </th>
-                                    <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
-                                        <span className="sr-only">Edit</span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {people.map((person) => (
-                                    <tr key={person.email} className="text-left">
-                                        <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-0">
-                                            {person.position}
-                                        </td>
-                                        <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">{person.title}</td>
-                                        <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">{person.description}</td>
-                                        <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">{person.redirect}</td>
-                                        <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
-                                            <a href="#" className="text-[#1570EF] hover:text-indigo-900">
-                                                Edit<span className="sr-only">, {person.name}</span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+            <div className="mt-4 grid grid-cols-2 gap-4 shadow-md rounded-lg border border-gray-300 bg-white py-4 px-4">
+                <div className="flex flex-col gap-2">
+                    <label className="font-semibold text-left">Heading</label>
+                    <input
+                        type="text"
+                        className="border p-2 rounded"
+                        value={heading}
+                        onChange={(e) => setHeading(e.target.value)}
+                        disabled={!isEditing}
+                    />
+                    <label className="font-semibold text-left">Sub Heading</label>
+                    <ReactQuill
+                        value={subHeading}
+                        onChange={setSubHeading}
+                        readOnly={!isEditing}
+                        theme="snow"
+                        style={{
+                            height: '170px',
+                            cursor: isEditing ? 'text' : 'not-allowed',
+                            borderColor: '#e5e7eb',
+                        }}
+                    />
+
+                </div>
+                <div className="flex flex-col gap-2">
+                    <label className="font-semibold text-left">Button Text</label>
+                    <input
+                        type="text"
+                        className="border p-2 rounded"
+                        value={buttonText}
+                        onChange={(e) => setButtonText(e.target.value)}
+                        disabled={!isEditing}
+                    />
+                    <label className="font-semibold text-left">Link</label>
+                    <input
+                        type="text"
+                        className="border p-2 rounded"
+                        value={link}
+                        onChange={(e) => setLink(e.target.value)}
+                        disabled={!isEditing}
+                    />
+                    <div className="relative flex items-center gap-2">
+                        {/* Image */}
+                        <img src={image} alt="Preview" className="w-full h-40 object-cover rounded" />
+
+                        {/* Upload Icon and Button */}
+                        {isEditing && (
+                            <div className="absolute right-0 top-0 flex flex-col gap-2">
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    id="imageUpload"
+                                    onChange={(e) => setImage(URL.createObjectURL(e.target.files[0]))}
+                                />
+                                <label htmlFor="imageUpload" className="bg-blue-500 text-white px-3 py-2 rounded cursor-pointer">
+                                    Upload
+                                </label>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
         </div>
-    )
+    );
 }

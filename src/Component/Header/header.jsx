@@ -1,36 +1,14 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { userProfileIcon, pickleBayLogo } from "../../Assests";
 import { userLogout } from "../../redux/Authentication/authActions";
-import { useEffect } from "react";
-import { showSuccess } from "../../redux/Success/successSlice";
 import { useCookies } from "react-cookie";
 
 const Header = () => {
   const dispatch = useDispatch();
   const [cookies] = useCookies();
-  const { isLoggedOut, isLoading } = useSelector((state) => state.auth);
   const handleUserLogout = () => {
     dispatch(userLogout());
   };
-
-  useEffect(() => {
-    if (isLoggedOut) {
-      dispatch(
-        showSuccess({
-          message: "Logged out successfully",
-          onClose: "hideSuccess",
-        })
-      );
-      const timerId = setTimeout(() => {
-        window.location.href = "/login";
-      }, 1000);
-      return () => {
-        if (timerId) {
-          clearTimeout(timerId);
-        }
-      };
-    }
-  }, [isLoggedOut]);
 
   return (
     <div className="flex items-center justify-between  pt-[20px] pb-[31px] px-[32px]">

@@ -6,10 +6,12 @@ import {
 } from "@headlessui/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import Spinner from "../../../../Page/CMS/Spinner";
+import { uploadImage } from "../../../../utils/uploadImage";
 
-export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
+export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
-    console.log('data', data)
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         if (data?.image) {
             setImagePreview(data.image);
@@ -23,35 +25,12 @@ export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSect
         image: Yup.mixed().required("Image is required"),
     });
 
-    const uploadImage = async (file) => {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWNjZjc2N2Y4MmRjOTI5MjkxMzdmNSIsInBob25lIjoiOTk1MzA1MDc2OSIsIm5hbWUiOiJQaWNrbGViYXkgUGxheWVyIiwiaWF0IjoxNzM4MzI5OTc1LCJleHAiOjE3MzgzNDA3NzV9.FUCwl6NXPMwkonZiURcOrNsXvI5fxlZCIC6pRlcU7dU");
-
-        const formdata = new FormData();
-        formdata.append("uploaded-file", file);
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: formdata,
-            redirect: "follow",
-        };
-
-        try {
-            const response = await fetch("http://localhost:1234/api/upload-file", requestOptions);
-            const result = await response.json();
-            return result?.data?.url; 
-        } catch (error) {
-            console.error("Error uploading image:", error);
-        }
-    };
-
     return (
         <Dialog open={isOpen} onClose={onClose} className="relative z-10">
             <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
             <div className="fixed inset-0 z-10 w-screen">
                 <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                    <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                    <DialogPanel className="relative transform overflow-auto max-h-[90vh] rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                         <Formik
                             initialValues={{
                                 title: data?.title || "",
@@ -61,17 +40,15 @@ export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSect
                             }}
                             validationSchema={validationSchema}
                             onSubmit={async (values) => {
+                                setLoading(true);
                                 try {
                                     let finalImageUrl = values.image;
 
                                     if (values.image instanceof File) {
-                                        finalImageUrl = await uploadImage(values.image);
+                                        let image  = await uploadImage(values.image);
+                                        finalImageUrl = image.url
                                     }
 
-                                    console.log("Final Submitted Data:", {
-                                        ...values,
-                                        image: finalImageUrl,
-                                    });
                                     const myHeaders = new Headers({
                                         "Content-Type": "application/json",
                                     });
@@ -82,18 +59,15 @@ export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSect
                                         link: values.redirect,
                                         position: data.position,
                                     };
-                                    console.log(newFeature,'newFeature')
-                                   
+
                                     const payload = {
                                         sectionTitle: data.sectionTitle,
                                         isVisible: data.isVisible,
                                         features: newFeature,
                                     };
 
-                                    console.log("Payload:", payload);
-
                                     // Send API request
-                                    const response = await fetch("http://localhost:1234/api/admin/homepage-sections/explore", {
+                                    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/explore`, {
                                         method: "PATCH",
                                         headers: myHeaders,
                                         body: JSON.stringify(payload),
@@ -101,10 +75,11 @@ export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSect
 
                                     const result = await response.json();
                                     fetchHomepageSections();
-                                    // Perform your API update logic here
                                     onClose();
                                 } catch (error) {
                                     console.error("Error submitting data:", error);
+                                } finally {
+                                    setLoading(false);
                                 }
                             }}
                         >
@@ -113,11 +88,11 @@ export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSect
                                     <div className="space-y-6">
                                         <div className="border-b border-gray-900/10 pb-6">
                                             <h2 className="text-lg font-semibold text-gray-900">
-                                                Edit Tournament Details
+                                                Edit Card Details
                                             </h2>
-                                            <p className="mt-1 text-sm text-gray-600">
+                                            {/* <p className="mt-1 text-sm text-gray-600">
                                                 Provide details about the tournament below.
-                                            </p>
+                                            </p> */}
 
                                             <div className="mt-6 grid grid-cols-1 gap-y-6">
                                                 {/* Title Input */}
@@ -130,7 +105,7 @@ export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSect
                                                         name="title"
                                                         type="text"
                                                         placeholder="Tournament Title"
-                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none sm:text-sm"
+                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                     />
                                                     <ErrorMessage name="title" component="p" className="mt-1 text-sm text-red-600" />
                                                 </div>
@@ -146,7 +121,7 @@ export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSect
                                                         name="description"
                                                         rows={4}
                                                         placeholder="Tournament Description"
-                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none sm:text-sm"
+                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                     />
                                                     <ErrorMessage name="description" component="p" className="mt-1 text-sm text-red-600" />
                                                 </div>
@@ -161,7 +136,7 @@ export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSect
                                                         name="redirect"
                                                         type="url"
                                                         placeholder="https://example.com"
-                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none sm:text-sm"
+                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                     />
                                                     <ErrorMessage name="redirect" component="p" className="mt-1 text-sm text-red-600" />
                                                 </div>
@@ -176,7 +151,7 @@ export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSect
                                                         name="image"
                                                         type="file"
                                                         accept="image/*"
-                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none sm:text-sm"
+                                                        className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                         onChange={(event) => {
                                                             const file = event.currentTarget.files[0];
                                                             setFieldValue("image", file);
@@ -217,9 +192,11 @@ export default function EditDataModal({ data, isOpen, onClose, fetchHomepageSect
                                         </button>
                                         <button
                                             type="submit"
-                                            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none"
+                                            className="rounded-md bg-[#1570EF] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1570EF] focus:outline-none"
                                         >
-                                            Save
+                                            {loading ?
+                                                <Spinner />
+                                                : 'Save'}
                                         </button>
                                     </div>
                                 </Form>

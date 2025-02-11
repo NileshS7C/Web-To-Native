@@ -1,31 +1,31 @@
-import React, { useState } from "react";
-import ListingModal from "../../../Component/CMS/HomePage/ListingModal";
-import ContentTable from "../../../Component/CMS/HomePage/ContentTable";
-import SectionInfo from "../../../Component/CMS/HomePage/SectionInfo";
+import React, { useState, useEffect } from "react";
+import TournamentSectionInfo from "../../../Component/CMS/HomePage/FeaturedTournaments/TournamentSectionInfo";
+import TournamentContentTable from "../../../Component/CMS/HomePage/FeaturedTournaments/TournamentContentTable";
+import TournamentListingModal from "../../../Component/CMS/HomePage/FeaturedTournaments/TournamentListingModal";
 
-const people = [
-    { position: "1", title: "Learn", description: "Explore curated Picklebay content", redirect: "https://google.com" },
-    { position: "2", title: "Games", description: "Create and join community games", redirect: "https://google.com" },
-];
 
 export default function FeaturedTournaments() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // Create an object to hold section info values
-    const sectionInfo = {
-        title: "Sample Title", // default section title
-        showSection: true, // default state for showing section
+    const [tournamentData, setTournamentData] = useState([]);
+    const fetchTournamentsData = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=tournament`, { method: "GET" });
+            const result = await response.json();
+            setTournamentData(result.data[0])
+        } catch (error) {
+            console.error(error);
+        }
     };
-
+    useEffect(() => { fetchTournamentsData() }, [])
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:flex-col gap-4">
                 <div className="sm:flex-auto text-left">
                     <h1 className="text-base font-semibold text-gray-900">Featured Tournaments</h1>
                 </div>
-                <div className="flex items-center gap-4 w-full">
-                    <SectionInfo sectionInfo={sectionInfo} />
-                    <div className="w-[40%] flex justify-end">
+                <div className="flex items-end justify-between w-full">
+                    <TournamentSectionInfo sectionInfo={tournamentData} />
+                    <div className="flex justify-end">
                         <button
                             type="button"
                             className="block rounded-md bg-[#1570EF] px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-[#1570EF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1570EF]"
@@ -39,13 +39,13 @@ export default function FeaturedTournaments() {
             <div className="mt-8 flow-root">
                 <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                        <ContentTable data={people} />
+                        <TournamentContentTable data={tournamentData} fetchHomepageSections={fetchTournamentsData} />
                     </div>
                 </div>
             </div>
 
             {/* Pass isOpen and onClose to AddDataModal */}
-            <ListingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <TournamentListingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchTournamentsData}/>
         </div>
     );
 }

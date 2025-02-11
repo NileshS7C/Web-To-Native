@@ -1,14 +1,14 @@
 import React from "react";
 import NotCreated from "../Component/Common/NotCreated";
 import { NavBar } from "../Component/SideNavBar/NavBar";
-import TournamentNavBar from "../Component/Tournament/TournamentNav";
+import TournamentCreationForm from "../Component/Tournament/TournamentNav";
 import VenueNavBar from "../Component/Venue/VenueNavBar";
 import { useDispatch, useSelector } from "react-redux";
 const renderSelectedComponent = (selected, tounrnaments) => {
   switch (selected) {
     case "Tournaments":
       return tounrnaments.length > 0 ? (
-        <TournamentNavBar />
+        <TournamentCreationForm />
       ) : (
         <NotCreated
           message="You haven't created any tournaments yet! Start by adding a new tournament."
