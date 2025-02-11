@@ -151,7 +151,7 @@ export const updateMatchSet = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${
           matchData.tour_Id
         }/categories/${matchData.eventId}/fixtures/${
