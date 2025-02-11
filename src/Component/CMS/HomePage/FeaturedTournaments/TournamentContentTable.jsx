@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { TrashIcon } from "@heroicons/react/20/solid";
 import DeleteModal from "../DeleteModal";
+import axiosInstance from "../../../../Services/axios";
 
 export default function TournamentContentTable({ data, fetchHomepageSections }) {
     const [deleteModal, setDeleteModal] = useState(false);
@@ -24,16 +25,13 @@ export default function TournamentContentTable({ data, fetchHomepageSections }) 
             isVisible: data.isVisible,
             tournaments: reindexedFeatures,
         };
-
-        const myHeaders = new Headers({
-            "Content-Type": "application/json",
-        });
+        const config = {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
         // Send API request
-        await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/tournament`, {
-            method: "PATCH",
-            headers: myHeaders,
-            body: JSON.stringify(payload),
-        });
+        await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/tournament`, JSON.stringify(payload),config);
         fetchHomepageSections();
     };
 

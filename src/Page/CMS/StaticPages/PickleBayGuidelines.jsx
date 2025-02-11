@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import StaticPage from '../../../Component/CMS/StaticPages/StaticPage'
+import axiosInstance from '../../../Services/axios';
 
 export default function Guidelines() {
   const [GuidelinesData, setGuidelinesData] = useState({});
   const getGuidelinesData = async () => {
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/static-pages/guidelines`, { method: "GET" })
-    const result = await response.json();
-    setGuidelinesData(result.data)
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/public/static-pages/guidelines`, config)
+    setGuidelinesData(response.data.data)
   }
   const handleSavePage = async (data) => {
     const filterData = {
@@ -14,18 +19,15 @@ export default function Guidelines() {
       description: data.description
     };
 
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    const requestOptions = {
-      method: "PATCH",
-      headers: myHeaders,
-      body: JSON.stringify(filterData),
-      redirect: "follow"
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
     };
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/static-pages/guidelines`, requestOptions)
+    const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/static-pages/guidelines`, JSON.stringify(filterData), config)
   }
   useEffect(() => { getGuidelinesData() }, [])
   return (
-    <StaticPage PageData={GuidelinesData}  handleSavePage={handleSavePage} getPageData={getGuidelinesData}/>
+    <StaticPage PageData={GuidelinesData} handleSavePage={handleSavePage} getPageData={getGuidelinesData} />
   )
 }

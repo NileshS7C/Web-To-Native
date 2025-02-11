@@ -2,20 +2,26 @@ import React, { useEffect, useState } from "react";
 import ExploreContentTable from "../../../Component/CMS/HomePage/Explore/ExploreContentTable";
 import ExploreSectionInfo from "../../../Component/CMS/HomePage/Explore/ExploreSectionInfo";
 import ExploreAddDataModal from "../../../Component/CMS/HomePage/Explore/ExploreAddDataModal";
+import axiosInstance from "../../../Services/axios";
 
 export default function Explore() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [exploreData, setExploreData] = useState([]);
     const fetchExploreSection = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=explore`, { method: "GET" });
-            const result = await response.json();
-            setExploreData(result.data[0]);
+            const config = {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/users/admin/homepage-sections?section=explore`,config);
+            setExploreData(response.data.data[0]);
         } catch (error) {
             console.error(error);
         }
     };
     useEffect(() => { fetchExploreSection() }, [])
+ 
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:flex-col gap-4">

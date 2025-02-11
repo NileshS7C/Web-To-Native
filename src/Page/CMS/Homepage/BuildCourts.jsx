@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { PencilIcon } from "@heroicons/react/20/solid";
 import SwitchToggle from "../../../Component/CMS/HomePage/SwitchToggle";
 import { uploadImage } from "../../../utils/uploadImage";
+import axiosInstance from "../../../Services/axios";
 
 export default function BuildCourts() {
   const [isEditing, setIsEditing] = useState(false);
@@ -11,10 +12,14 @@ export default function BuildCourts() {
 
   const fetchBuildCourtsData = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=buildCourt`);
-      const result = await response.json();
-      if (result.data && result.data.length > 0) {
-        setSectionDetails(result.data[0]);
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=buildCourt`,config);
+      if (response.data.data && response.data.data.length > 0) {
+        setSectionDetails(response.data.data[0]);
       }
     } catch (error) {
       console.error(error);
@@ -43,17 +48,14 @@ export default function BuildCourts() {
         }
       }
       const { _id, updatedAt, sectionType, ...finalPayload } = updatedDetails;
-
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
       // Send updated details to API
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/buildCourt`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalPayload),
-      });
-
-      if (!response.ok) throw new Error("Failed to update");
-      await response.json();
-      fetchBuildCourtsData(); // Refresh data after update
+      const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/buildCourt`, JSON.stringify(finalPayload),config);
+      fetchBuildCourtsData(); 
     } catch (error) {
       console.error("Error updating section:", error);
     }

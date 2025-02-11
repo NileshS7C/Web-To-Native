@@ -3,6 +3,7 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { uploadImage } from "../../../../utils/uploadImage";
+import axiosInstance from "../../../../Services/axios";
 
 export default function WhyChooseEditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(data.image || null);
@@ -52,13 +53,12 @@ export default function WhyChooseEditDataModal({ data, isOpen, onClose, fetchHom
                                         isVisible: data.isVisible,
                                         steps: updatedSteps,
                                     };
-
-                                    await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/whyChoosePicklebay`, {
-                                        method: "PATCH",
-                                        headers: { "Content-Type": "application/json" },
-                                        body: JSON.stringify(payload),
-                                    });
-
+                                    const config = {
+                                        headers: {
+                                          "Content-Type": "application/json",
+                                        },
+                                      };
+                                    await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/whyChoosePicklebay`, JSON.stringify(payload),config);
                                     fetchHomepageSections();
                                     onClose();
                                 } catch (error) {
