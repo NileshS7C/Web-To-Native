@@ -14,6 +14,10 @@ import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
 import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
 import FeaturedVenues from "../Page/CMS/Homepage/FeaturedVenues";
 import FAQ from "../Page/CMS/StaticPages/FAQ";
+
+import BlogPosts from "../Page/CMS/BlogPage/BlogPosts";
+import CreateBlogPost from "../Component/CMS/BlogPage/CreateBlogPost";
+import EditBlogPost from "../Component/CMS/BlogPage/EditBlogPost";
 import WhyChoosePickleBay from "../Page/CMS/Homepage/WhyChoosePickleBay";
 import DestinationDink from "../Page/CMS/Homepage/DestinationDink";
 import Journal from "../Page/CMS/Homepage/Journal";
@@ -31,6 +35,7 @@ import RefundCancellation from "../Page/CMS/StaticPages/RefundCancellation";
 import PrivacyPolicy from "../Page/CMS/StaticPages/PrivacyPolicy";
 import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
 import TournamentOrganisersPage from "../Page/TournamentOrganisers";
+
 
 const AllRoutes = () => {
   return (
@@ -82,6 +87,14 @@ const AllRoutes = () => {
             path="cms/homepage/featured-venues"
             element={<FeaturedVenues />}
           />
+
+          <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
+          <Route path="cms/blogs/blog-posts">
+            <Route index element={<BlogPosts />} />
+            <Route path="new" element={<CreateBlogPost/>} />
+            <Route path=":handle" element={<EditBlogPost/>} />
+          </Route>
+
           <Route
             path="cms/homepage/why-choose-picklebay"
             element={<WhyChoosePickleBay />}
@@ -112,6 +125,7 @@ const AllRoutes = () => {
           />
 
           {/* Ends Here */}
+
 
           <Route path="venues">
             <Route index element={<VenueListing />} />
