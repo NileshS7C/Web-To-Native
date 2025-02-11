@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
-import { getSingleTournament } from "../../../redux/tournament/tournamentActions";
+import { useCookies } from "react-cookie";
+import {
+  getSingleTournament,
+  getSingle_TO,
+} from "../../../redux/tournament/tournamentActions";
 import Tabs from "../../Common/Tabs";
 import EventDescription from "./EventDescription";
 import EventRegistrations from "./EventRegistration";
@@ -66,14 +70,36 @@ function EventDetailPage() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const { tournamentId, eventId } = useParams();
+  const [cookies] = useCookies(["name", "userRole"]);
   const [selectedTab, setSelectedTab] = useState("");
   const eventTabOptions = options(tournamentId, eventId);
   const currentTab = searchParams.get("tab");
-  const { tournament } = useSelector((state) => state.GET_TOUR);
+  const { tournament, singleTournamentOwner } = useSelector(
+    (state) => state.GET_TOUR
+  );
 
   useEffect(() => {
-    if (tournamentId) {
-      dispatch(getSingleTournament(tournamentId));
+    const userRole = cookies.userRole;
+
+    if (!userRole) {
+      dispatch(userLogout());
+    } else if (userRole === "TOURNAMENT_OWNER") {
+      dispatch(getSingle_TO("TOURNAMENT_OWNER"));
+    } else if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
+      dispatch(getSingle_TO("ADMIN"));
+    }
+  }, []);
+
+  console.log(" single tournament owner", singleTournamentOwner);
+
+  useEffect(() => {
+    if (tournamentId && singleTournamentOwner) {
+      dispatch(
+        getSingleTournament({
+          tournamentId,
+          ownerId: singleTournamentOwner?.id,
+        })
+      );
     }
   }, [tournamentId]);
 

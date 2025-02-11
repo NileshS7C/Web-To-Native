@@ -11,7 +11,7 @@ import {
   setRejectionComments,
 } from "../../redux/tournament/addTournament";
 import {
-  deleteSingleCategory,
+  getSingle_TO,
   getSingleTournament,
   handleTournamentDecision,
 } from "../../redux/tournament/tournamentActions";
@@ -31,10 +31,12 @@ import { AcknowledgementText } from "./Acknowledgement/Acknowledgement";
 import { EventCreationModal } from "./Event/EventCreationModal";
 import EventInfo from "./Event/EventInfo";
 import { TournamentInfo } from "./TournamentInfo";
+import { userLogout } from "../../redux/Authentication/authActions";
 
 const TournamentCreationForm = () => {
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
+
   const {
     currentStep,
     isNotEditable,
@@ -44,7 +46,7 @@ const TournamentCreationForm = () => {
     approvalBody,
     verificationErrorMessage,
   } = useSelector((state) => state.Tournament);
-  const { tournament, tournamentEditMode } = useSelector(
+  const { tournament, tournamentEditMode, singleTournamentOwner } = useSelector(
     (state) => state.GET_TOUR
   );
 
@@ -80,10 +82,27 @@ const TournamentCreationForm = () => {
   ]);
 
   useEffect(() => {
-    if (tournamentId) {
-      dispatch(getSingleTournament(tournamentId));
+    const userRole = cookies.userRole;
+
+    if (!userRole) {
+      dispatch(userLogout());
+    } else if (userRole === "TOURNAMENT_OWNER") {
+      dispatch(getSingle_TO("TOURNAMENT_OWNER"));
+    } else if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
+      dispatch(getSingle_TO("ADMIN"));
     }
-  }, [tournamentId]);
+  }, []);
+
+  useEffect(() => {
+    if (tournamentId && singleTournamentOwner) {
+      dispatch(
+        getSingleTournament({
+          tournamentId,
+          ownerId: singleTournamentOwner?.id,
+        })
+      );
+    }
+  }, [tournamentId, singleTournamentOwner]);
 
   useEffect(() => {
     if (isConfirmed && tournamentId && type === "Tour") {
@@ -117,6 +136,13 @@ const TournamentCreationForm = () => {
         );
         dispatch(resetVerificationState());
       }, 300);
+
+      dispatch(
+        getSingleTournament({
+          tournamentId,
+          ownerId: singleTournamentOwner?.id,
+        })
+      );
 
       return () => {
         clearTimeout(timerId);
