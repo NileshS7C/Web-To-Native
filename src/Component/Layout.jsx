@@ -84,8 +84,13 @@ const Layout = () => {
     "/cms/static-pages/privacy-policy",
     "/cms/static-pages/refunds-&-cancellation",
     "/cms/static-pages/terms-&-condition",
+    "/cms/blogs/blog-posts",
+    "/cms/blogs/blog-posts/new",
   ];
-  const shouldHideTitleBar = hiddenRoutes.includes(location.pathname);
+   const shouldHideTitleBar =
+    hiddenRoutes.includes(location.pathname) ||
+    location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
+
 
   return (
     <div className="flex flex-col min-h-screen ">
@@ -154,6 +159,7 @@ const Layout = () => {
     </div>
   );
 };
+
 
 const TournamentOrganiserButtons = ({ dispatch }) => {
   const { tournamentOwners } = useSelector((state) => state.Tournament);
@@ -287,5 +293,6 @@ TournamentActionButton.propTypes = {
   setApproveButtonClicked: PropTypes.func,
   tournamentEditMode: PropTypes.bool,
 };
+
 
 export default Layout;
