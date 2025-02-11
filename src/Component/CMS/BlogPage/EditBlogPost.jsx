@@ -129,7 +129,6 @@ export default function EditBlogPost() {
       const formData = {
         blogName: title,
         description: content,
-        handle,
         isVisible: isPublished,
         publishDate,
         featureImage: image,
@@ -144,8 +143,8 @@ export default function EditBlogPost() {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.put(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/blogs`,
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/blogs/${handle}`,
         JSON.stringify(formData),
         config
       );

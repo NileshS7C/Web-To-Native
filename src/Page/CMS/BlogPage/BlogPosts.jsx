@@ -8,9 +8,11 @@ export default function BlogPosts() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
   const [page, setPage] = useState(1);
   const [limit] = useState(5);
   const [total, setTotal] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0); //after delete blog
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -41,7 +43,22 @@ export default function BlogPosts() {
     };
 
     fetchBlogs();
-  }, [page, limit]);
+  }, [page, limit, refreshKey]);
+
+  const deleteBlogHandler = async (handle) => {
+    try {
+      setDeleteError(null);
+
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/blogs-delete/${handle}`
+      );
+
+      //Trigger a refresh after delete
+      setRefreshKey((prev) => prev + 1);
+    } catch (error) {
+      setDeleteError(`Failed to delete blog: ${handle}`);
+    }
+  };
 
   const addNewBlogHandler = () => {
     navigate(`/cms/blogs/blog-posts/new`);
@@ -89,7 +106,18 @@ export default function BlogPosts() {
         </div>
       ) : (
         <>
-          <BlogTable blogs={blogs} />
+          {deleteError && (
+            <div className="mb-4 p-3 flex justify-between items-center text-red-700 bg-red-200 border border-red-500 rounded">
+              <span>{deleteError}</span>
+              <button
+                className="ml-4 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700"
+                onClick={() => setDeleteError(null)} // 👈 Close error when clicked
+              >
+                ✖
+              </button>
+            </div>
+          )}
+          <BlogTable blogs={blogs} deleteBlogHandler={deleteBlogHandler} />
 
           {/* Pagination Controls */}
           <div className="flex justify-center items-center mt-4 space-x-2">

@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import DeleteIcon from "../../../Assests/Venue/delete.svg";
 
-export default function BlogTable({ blogs }) {
+export default function BlogTable({ blogs, deleteBlogHandler }) {
   const navigate = useNavigate();
 
   const columns = [
@@ -39,7 +40,7 @@ export default function BlogTable({ blogs }) {
                   {blog[col.key]}
                 </td>
               ))}
-              <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-700 text-left">
+              <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-700 text-left gap-3 flex">
                 <button
                   onClick={() =>
                     navigate(`/cms/blogs/blog-posts/${blog.handle}`)
@@ -47,6 +48,12 @@ export default function BlogTable({ blogs }) {
                   className="font-medium"
                 >
                   Edit
+                </button>
+                <button
+                  onClick={() => deleteBlogHandler(blog.handle)}
+                  className="font-medium"
+                >
+                  <img src={DeleteIcon} alt="delete blog" />
                 </button>
               </td>
             </tr>
