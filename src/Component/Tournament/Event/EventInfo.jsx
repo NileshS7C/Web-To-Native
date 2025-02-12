@@ -5,11 +5,17 @@ import { toggleModal } from "../../../redux/tournament/eventSlice";
 import { searchIcon } from "../../../Assests";
 import Button from "../../Common/Button";
 import { EventTable } from "./EventTable";
+import { useEffect } from "react";
+import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
 
 function EventInfo({ isDisable }) {
   const dispatch = useDispatch();
   const { currentStep } = useSelector((state) => state.Tournament);
   const { categories } = useSelector((state) => state.event);
+
+  useEffect(() => {
+    dispatch(resetGlobalLocation());
+  }, []);
   return (
     <div className="grid grid-cols-1 gap-[50px] pb-20">
       <div className="flex items-center">

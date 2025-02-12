@@ -90,8 +90,6 @@ function EventDetailPage() {
     }
   }, []);
 
-  console.log(" single tournament owner", singleTournamentOwner);
-
   useEffect(() => {
     if (tournamentId && singleTournamentOwner) {
       dispatch(

@@ -13,6 +13,7 @@ import LocationSearchInput from "../../Common/LocationSearch";
 import { useEffect, useRef, useState } from "react";
 import { getAllVenues } from "../../../redux/Venue/venueActions";
 import PropTypes from "prop-types";
+import { RxCrossCircled } from "react-icons/rx";
 import {
   ComboboxOptions,
   ComboboxOption,
@@ -872,6 +873,10 @@ function ComboboxForVenuesList({ isVenueNotAvailable }) {
   const { setFieldValue } = useFormikContext();
   const debounceCalls = useDebounce(query, 300);
 
+  const handleRemoveVenue = () => {
+    setSelectedPerson(null);
+  };
+
   useEffect(() => {
     if (selectedPerson && Object.keys(selectedPerson).length > 0) {
       setVenueLocation({
@@ -998,6 +1003,7 @@ function ComboboxForVenuesList({ isVenueNotAvailable }) {
           displayValue={selectedPerson?.name ?? ""}
           disabled={isVenueNotAvailable}
         />
+
         <ComboboxButton className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-hidden">
           <ChevronUpDownIcon
             className="size-5 text-gray-400"
@@ -1069,6 +1075,35 @@ function ComboboxForVenuesList({ isVenueNotAvailable }) {
           )}
         </ComboboxOptions>
       </div>
+
+      {selectedPerson && (
+        <div className="flex items-center justify-between bg-gray-200 mt-3 w-auto max-w-fit rounded-lg p-2">
+          <img
+            src={selectedPerson?.bannerImages[0]?.url}
+            alt="Selected Venue logo"
+            className="w-[40px] h-[40px]"
+          />
+          <div className="flex flex-col items-center justify-between gap-2  text-xs">
+            <p>{selectedPerson?.name}</p>
+            <div className="flex  items-center divide-x divide-black">
+              <span className="pl-1 pr-1">
+                {selectedPerson?.address?.line1}
+              </span>
+              <span className="pl-1 pr-1">{selectedPerson?.address?.city}</span>
+              <span className="pl-1 pr-1">
+                {selectedPerson?.address?.state}
+              </span>
+              <span className="pl-1 pr-1">
+                {selectedPerson?.address?.postalCode}
+              </span>
+            </div>
+          </div>
+          <RxCrossCircled
+            className="cursor-pointer"
+            onClick={handleRemoveVenue}
+          />
+        </div>
+      )}
     </Combobox>
   );
 }
