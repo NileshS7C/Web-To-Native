@@ -8,6 +8,7 @@ import {
 } from "../../redux/tournament/fixturesActions";
 
 import { showSuccess } from "../../redux/Success/successSlice";
+import { getFixture } from "../../redux/tournament/fixturesActions";
 
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { MatchModalTitle } from "./MatchModal";
@@ -38,13 +39,20 @@ const checkAllField = (scoreData, onValidationError, setDisableButton) => {
 };
 
 const formattedMatchData = (scoreData, players) => {
-  return scoreData.map((set, index) => {
+  const { stage_id = "", parent_id = "" } = players;
+
+  if (!stage_id?.toString() || !parent_id?.toString()) {
+    return;
+  }
+
+  const playersData = scoreData.map((set, index) => {
     const currentMatch = players.matchGames.find(
-      (game) => game?.id?.toString() === index.toString()
+      (game) => game?.number === index + 1
     );
 
     if (currentMatch) {
-      const { status, number, ...rest } = currentMatch;
+      const { status, number, stage_id, parent_id, ...rest } = currentMatch;
+
       return {
         ...rest,
         opponent1: { ...currentMatch.opponent1, score: Number(set.set1) },
@@ -52,6 +60,12 @@ const formattedMatchData = (scoreData, players) => {
       };
     }
   });
+
+  return {
+    stage_id,
+    parent_id,
+    matchSets: playersData,
+  };
 };
 
 const formattedMatchDataForForfiet = (forfietPlayerId, players) => {
@@ -86,9 +100,31 @@ export const ScoreUpdateModal = ({
   const [disableButton, setDisableButton] = useState(false);
   const [showPlayerSelections, setShowPlayerSelections] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
+  const [scoreUpdateArray, setScoreUpdateArray] = useState([]);
 
-  const getScoreData = (data) => {
+  useEffect(() => {
+    const filteredArray = players?.matchGames.filter(
+      (game) => game.opponent1?.score && game.opponent2?.score
+    );
+
+    const scoreUpdates = filteredArray?.map((game) => {
+      if (game.opponent1?.score && game.opponent2?.score) {
+        return {
+          set1: game?.opponent1?.score,
+          set2: game?.opponent2?.score,
+        };
+      }
+    });
+    setScoreUpdateArray(scoreUpdates);
+  }, [players]);
+
+  const getScoreData = (data, index, type, value) => {
     setFinalScoreData(data);
+    setScoreUpdateArray((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [type]: value };
+      return updated;
+    });
   };
 
   const handlePlayerSelection = (checked) => {
@@ -104,7 +140,7 @@ export const ScoreUpdateModal = ({
   };
 
   useEffect(() => {
-    checkAllField(finalScoreData, handleValidationError, setDisableButton);
+    checkAllField(scoreUpdateArray, handleValidationError, setDisableButton);
   }, [finalScoreData]);
 
   useEffect(() => {
@@ -123,7 +159,7 @@ export const ScoreUpdateModal = ({
     setValidationError(false);
     let currentSetUpdated;
     if (!showPlayerSelections) {
-      currentSetUpdated = formattedMatchData(finalScoreData, players);
+      currentSetUpdated = formattedMatchData(scoreUpdateArray, players);
     } else {
       currentSetUpdated = formattedMatchDataForForfiet(
         selectedPlayerId,
@@ -140,7 +176,7 @@ export const ScoreUpdateModal = ({
       if (!showPlayerSelections) {
         result = await dispatch(
           updateMatchSet({
-            formData: currentSetUpdated[0],
+            formData: currentSetUpdated,
             tour_Id: tournamentId,
             eventId,
             fixtureId,
@@ -164,6 +200,8 @@ export const ScoreUpdateModal = ({
             onClose: "hideSuccess",
           })
         );
+        dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+        onCancel(false);
       }
     } catch (err) {
       console.log(" error in updating the score", err);
@@ -174,7 +212,7 @@ export const ScoreUpdateModal = ({
       );
     } finally {
       setIsUpdating(false);
-      onCancel(false);
+      
     }
   };
 
@@ -219,7 +257,10 @@ export const ScoreUpdateModal = ({
                   handleSelectedPlayer={handleSelectedPlayer}
                 />
               )}
-              <MatchScoreUpdateSet getScoreData={getScoreData} />
+              <MatchScoreUpdateSet
+                getScoreData={getScoreData}
+                scoreUpdateArray={scoreUpdateArray}
+              />
               <div className="mr-0 mt-3 flex items-end justify-between">
                 <Button
                   className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
@@ -284,13 +325,14 @@ const PlayerSelector = ({ players, handleSelectedPlayer }) => {
   );
 };
 
-const InputSet = ({ index, handleScoreChange }) => {
+const InputSet = ({ index, handleScoreChange, scoreUpdateArray }) => {
   return (
     <div className="flex flex-col  gap-2  lg:flex-row items-center justify-between py-2">
       <input
         className="pl-2 border-[1px] border-[#718EBF] h-[5vh] rounded-md bg-[#F7F9FC] focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none"
         type="number"
         onWheel={(e) => e.target.blur()}
+        value={(scoreUpdateArray && scoreUpdateArray[index]?.set1) || ""}
         onChange={(e) => {
           const value = e.target.value;
           handleScoreChange(value, "set1", index);
@@ -303,6 +345,7 @@ const InputSet = ({ index, handleScoreChange }) => {
         className="pl-2 border-[1px] border-[#718EBF] h-[5vh] rounded-md bg-[#F7F9FC] focus:outline-none focus:ring-1 focus:ring-blue-500"
         type="number"
         onWheel={(e) => e.target.blur()}
+        value={(scoreUpdateArray && scoreUpdateArray[index]?.set2) || ""}
         onChange={(e) => {
           const value = e.target.value;
           handleScoreChange(value, "set2", index);
@@ -311,7 +354,7 @@ const InputSet = ({ index, handleScoreChange }) => {
     </div>
   );
 };
-const MatchScoreUpdateSet = ({ getScoreData }) => {
+const MatchScoreUpdateSet = ({ getScoreData, scoreUpdateArray }) => {
   const [scoreSet, setScoreSet] = useState([{ set1: "", set2: "" }]);
   const handleRow = () => {
     setScoreSet((prev) => [...prev, { set1: "", set2: "" }]);
@@ -324,7 +367,7 @@ const MatchScoreUpdateSet = ({ getScoreData }) => {
         ...newSet[index],
         [type]: value,
       };
-      getScoreData(newSet);
+      getScoreData(newSet, index, type, value);
       return newSet;
     });
   };
@@ -333,6 +376,14 @@ const MatchScoreUpdateSet = ({ getScoreData }) => {
     const updatedRows = [...scoreSet].splice(0, scoreSet.length - 1);
     setScoreSet(updatedRows);
   };
+
+  useEffect(() => {
+    if (scoreUpdateArray?.length > 0) {
+      setScoreSet(scoreUpdateArray);
+    } else {
+      setScoreSet([{ set1: "", set2: "" }]);
+    }
+  }, [scoreUpdateArray]);
   return (
     <div>
       <div className="flex flex-col gap-4 justify-between border-[1px] border-[#696CFF29] p-6 mt-2 rounded-lg divide-y divide-[#718EBF] lg:divide-none">
@@ -342,6 +393,7 @@ const MatchScoreUpdateSet = ({ getScoreData }) => {
               key={`score_${index}`}
               index={index}
               handleScoreChange={handleScoreChange}
+              scoreUpdateArray={scoreUpdateArray}
             />
           );
         })}
@@ -419,7 +471,7 @@ const MatchLocationDetails = ({ match, location, date, time, court }) => {
       </p>
 
       <div className="flex items-center justify-between divide-x divide-[#232323]">
-        <p className="text-matchTextColor pr-2">{time || "1:00"}</p>
+        <p className="text-matchTextColor pr-2">{time?.startTime || "1:00"}</p>
         <p className="text-matchTextColor pl-2 pr-2">{date || "20 December"}</p>
         <p className="text-matchTextColor pl-2">{date || "20 December"}</p>
       </div>
@@ -427,7 +479,7 @@ const MatchLocationDetails = ({ match, location, date, time, court }) => {
       <div className="flex items-center justify-between gap-2">
         <CiLocationOn color="#1570EF" className="w-[24px] h-[24px]" />
         <p className="text-md text-[#1570EF]">
-          {location.name || "91 Springboard"}
+          {location?.name || "91 Springboard"}
         </p>
         <p className="text-md text-[#1570EF]">{court || 1}</p>
       </div>

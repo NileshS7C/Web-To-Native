@@ -127,6 +127,8 @@ export const MatchesListing = () => {
               (game) => game?.parent_id?.toString() === id?.toString()
             );
 
+            console.log(" match games", matchGames);
+
             const players = [opponent1?.id, opponent2?.id]
               .map((id) => participantsById.get(id))
               .filter(Boolean);
@@ -138,6 +140,7 @@ export const MatchesListing = () => {
                     group_id,
                     round_id,
                     stage_id,
+                    parent_id: matchGames[0]?.parent_id,
                     opponent1,
                     opponent2,
                     player1_id: players[0]?.id,
