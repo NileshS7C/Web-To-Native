@@ -61,7 +61,7 @@ export default function JournalAddDataModal({ isOpen, onClose, fetchHomepageSect
               };
             const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/journal`, JSON.stringify(payload),config);
             if (response.data?.data?.length) {
-                const allJournals = result.data.data.flatMap(section => section.journals);
+                const allJournals = response.data.data.flatMap(section => section.journals);
                 setJournalsData(allJournals);
             }
         } catch (error) {

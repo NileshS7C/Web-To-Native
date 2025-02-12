@@ -25,9 +25,6 @@ export default function WeekSectionInfo({ sectionInfo }) {
                 },
               };
             const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/featuredThisWeek`,JSON.stringify(updatedSectionDetails),config);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
         } catch (error) {
             console.error("Error updating section:", error);
         }

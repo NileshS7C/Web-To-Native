@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { PencilIcon } from "@heroicons/react/20/solid";
 import SwitchToggle from "../SwitchToggle";
+import axiosInstance from "../../../../Services/axios";
 
 export default function VenueSectionInfo({ sectionInfo }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -32,20 +33,12 @@ export default function VenueSectionInfo({ sectionInfo }) {
     };
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/venues`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedData),
-        }
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const result = await response.json();
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/venues`,JSON.stringify(updatedData),config);
     } catch (error) {
       console.error("Error updating section:", error);
     }

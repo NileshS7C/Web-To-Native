@@ -18,7 +18,7 @@ export default function BuildCourts() {
         },
       };
       const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=buildCourt`,config);
-      if (response.data.data && response.data.data.length > 0) {
+      if (response?.data?.data && response.data.data.length > 0) {
         setSectionDetails(response.data.data[0]);
       }
     } catch (error) {
