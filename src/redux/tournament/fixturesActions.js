@@ -143,7 +143,7 @@ export const updateSeeding = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.put(
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         JSON.stringify(matchData?.formData),
         config
