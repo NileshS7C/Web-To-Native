@@ -81,7 +81,6 @@ export const MatchModal = ({
 
   const dispatch = useDispatch();
   const { category } = useSelector((state) => state.event);
-  const { ErrorMessage } = useSelector((state) => state.fixture);
   const [roundNumber, setRoundNumber] = useState(null);
   const [initialState, setInitialState] = useState(initialValues);
   const [playersData, setPlayersData] = useState({
@@ -175,7 +174,7 @@ export const MatchModal = ({
       dispatch(
         showError({
           message:
-            ErrorMessage ||
+            err?.data?.message ||
             "Opps! something went wrong while updating the match.",
           onClose: "hideError",
         })
