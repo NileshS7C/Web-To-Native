@@ -22,6 +22,7 @@ export default function FeaturedWeek() {
             };
             const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=featuredThisWeek`, config);
             const data = response.data.data[0];
+            console.log('data',data)
             setWeekData(data);
             setHeading(data.heading);
             setSubHeading(data.subHeading);

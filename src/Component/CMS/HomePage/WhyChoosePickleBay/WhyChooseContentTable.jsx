@@ -20,7 +20,7 @@ export default function WhyChooseContentTable({ data, fetchHomepageSections }) {
     };
 
     const handleDeleteItem = async () => {
-        const updatedFeatures = data.features.filter(item => item._id !== selectedCard._id);
+        const updatedFeatures = data.steps.filter(item => item._id !== selectedCard._id);
 
         const payload = {
             sectionTitle: data.sectionTitle,
@@ -62,7 +62,7 @@ export default function WhyChooseContentTable({ data, fetchHomepageSections }) {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                    {data?.map((event, index) => (
+                    {data?.steps?.map((event, index) => (
                         <tr key={index} className="text-left">
                             <td className="px-3 py-4 text-sm text-gray-500 w-[10%]">
                                 {index + 1}
@@ -92,7 +92,8 @@ export default function WhyChooseContentTable({ data, fetchHomepageSections }) {
             </table>
             {openEditModal && (
                 <WhyChooseEditDataModal
-                    data={selectedCard}
+                    data={data}
+                    selectedCard={selectedCard}
                     isOpen={openEditModal}
                     onClose={() => setOpenEditModal(false)}
                     fetchHomepageSections={fetchHomepageSections}

@@ -10,14 +10,14 @@ import Spinner from "../../../../Page/CMS/Spinner";
 import { uploadImage } from "../../../../utils/uploadImage";
 import axiosInstance from "../../../../Services/axios";
 
-export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
+export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
     const [loading, setLoading] = useState(false);
     useEffect(() => {
-        if (data?.image) {
-            setImagePreview(data.image);
+        if (selectedCard?.image) {
+            setImagePreview(selectedCard.image);
         }
-    }, [data]);
+    }, [selectedCard]);
 
     const validationSchema = Yup.object().shape({
         title: Yup.string().required("Title is required"),
@@ -34,45 +34,63 @@ export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomep
                     <DialogPanel className="relative transform overflow-auto max-h-[90vh] rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                         <Formik
                             initialValues={{
-                                title: data?.title || "",
-                                description: data?.subtitle || "",
-                                redirect: data?.link || "",
-                                image: data?.link || "",
+                                title: selectedCard?.title || "",
+                                description: selectedCard?.subtitle || "",
+                                redirect: selectedCard?.link || "",
+                                image: selectedCard?.image || "",
                             }}
                             validationSchema={validationSchema}
                             onSubmit={async (values) => {
                                 setLoading(true);
                                 try {
                                     let finalImageUrl = values.image;
-
                                     if (values.image instanceof File) {
-                                        let image  = await uploadImage(values.image);
-                                        finalImageUrl = image.url
+                                        let image = await uploadImage(values.image);
+                                        finalImageUrl = image.url;
                                     }
 
-                                    const myHeaders = new Headers({
-                                        "Content-Type": "application/json",
-                                    });
                                     const newFeature = {
                                         title: values.title,
                                         subtitle: values.description,
                                         image: finalImageUrl,
                                         link: values.redirect,
-                                        position: data.position,
+                                        position: selectedCard.position,
                                     };
+                                    const hasChanged = Object.keys(newFeature).some(
+                                        (key) => newFeature[key] !== selectedCard[key]
+                                    );
+
+                                    if (!hasChanged) {
+                                        console.log("No changes detected, API request skipped.");
+                                        setLoading(false);
+                                        return;
+                                    }
+
+                                    const updatedFeatures = data.features.map((feature) =>
+                                        feature.position === selectedCard.position ? newFeature : feature
+                                    );
 
                                     const payload = {
                                         sectionTitle: data.sectionTitle,
                                         isVisible: data.isVisible,
-                                        features: newFeature,
+                                        features: updatedFeatures,
                                     };
+
+                                    console.log("Updated Payload:", payload);
+
                                     const config = {
                                         headers: {
-                                          "Content-Type": "application/json",
+                                            "Content-Type": "application/json",
                                         },
-                                      };
+                                    };
+
                                     // Send API request
-                                    const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/explore`, JSON.stringify(payload),config);
+                                    const response = await axiosInstance.post(
+                                        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/explore`,
+                                        JSON.stringify(payload),
+                                        config
+                                    );
+
                                     fetchHomepageSections();
                                     onClose();
                                 } catch (error) {
@@ -154,7 +172,7 @@ export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomep
                                                         onChange={(event) => {
                                                             const file = event.currentTarget.files[0];
                                                             setFieldValue("image", file);
-                                                            setImagePreview(file ? URL.createObjectURL(file) : data?.image);
+                                                            setImagePreview(file ? URL.createObjectURL(file) : selectedCard?.image);
                                                         }}
                                                     />
                                                     <ErrorMessage name="image" component="p" className="mt-1 text-sm text-red-600" />
