@@ -87,10 +87,9 @@ const Layout = () => {
     "/cms/blogs/blog-posts",
     "/cms/blogs/blog-posts/new",
   ];
-   const shouldHideTitleBar =
+  const shouldHideTitleBar =
     hiddenRoutes.includes(location.pathname) ||
     location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
-
 
   return (
     <div className="flex flex-col min-h-screen ">
@@ -160,7 +159,6 @@ const Layout = () => {
     </div>
   );
 };
-
 
 const TournamentOrganiserButtons = ({ dispatch }) => {
   const { tournamentOwners } = useSelector((state) => state.Tournament);
@@ -297,6 +295,5 @@ TournamentActionButton.propTypes = {
   tournamentEditMode: PropTypes.bool,
   eventId: PropTypes.string,
 };
-
 
 export default Layout;
