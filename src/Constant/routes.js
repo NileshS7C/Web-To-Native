@@ -72,7 +72,6 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures`;
         }
       },
-
       publishFixture: (type, tournamentId, categoryId, fixtureId) => {
         if (ADMINROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
