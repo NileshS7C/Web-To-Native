@@ -889,10 +889,12 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
 
   return (
     <div className=" flex flex-col items-start gap-2.5">
-      <p className="text-base leading-[19.36px] text-[#232323]">Upload Image</p>
+      <p className="text-base leading-[19.36px] text-[#232323]">
+        Venue Banners
+      </p>
 
-      <div className="grid grid-cols-[1fr_auto] gap-[30px] h-[133px]">
-        <div className="flex flex-wrap gap-2.5 h-[133px] overflow-hidden">
+      <div className="grid grid-cols-[1fr_auto] gap-[30px] min-h-[133px]">
+        <div className="flex flex-wrap gap-2.5 min-h-[133px] overflow-hidden">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               className="relative flex h-[133px]"

@@ -19,10 +19,15 @@ import "react-quill/dist/quill.snow.css";
 
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { MdOutlineModeEditOutline } from "react-icons/md";
-import { IoMdTrash } from "react-icons/io";
+import { IoMdTrash, IoIosCloseCircleOutline } from "react-icons/io";
 import { ImSpinner2 } from "react-icons/im";
 
-import { imageUpload, uploadIcon, calenderIcon } from "../../Assests";
+import {
+  imageUpload,
+  uploadIcon,
+  calenderIcon,
+  venueUploadImage,
+} from "../../Assests";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { editRow, setFormOpen } from "../../redux/tournament/addTournament";
@@ -44,7 +49,7 @@ import LocationSearchInput from "../Common/LocationSearch";
 import { ErrorModal } from "../Common/ErrorModal";
 import { SuccessModal } from "../Common/SuccessModal";
 import { formattedDate, parseDate } from "../../utils/dateUtils";
-import { ROLES } from "../../Constant/app";
+import { ROLES, venueImageSize } from "../../Constant/app";
 import Spinner from "../Common/Spinner";
 import Button from "../Common/Button";
 import TextError from "../Error/formError";
@@ -73,6 +78,7 @@ const requiredTournamentFields = (tournament) => {
     bookingStartDate,
     bookingEndDate,
     sponsors,
+    tournamentGallery,
   } = tournament;
 
   const updatedTournamentLocation = {
@@ -95,6 +101,7 @@ const requiredTournamentFields = (tournament) => {
     bookingStartDate,
     bookingEndDate,
     sponsors,
+    tournamentGallery,
   };
 };
 
@@ -126,6 +133,7 @@ const initialValues = {
   bookingStartDate: null,
   bookingEndDate: null,
   sponsors: [],
+  tournamentGallery: [],
 };
 
 export const TournamentInfo = ({ tournament, status, isDisable }) => {
@@ -432,6 +440,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 />
                 <TournamentSponserTable isDisable={isDisable} />
                 <TournamentBookingDates />
+                <TournamentGallery dispatch={dispatch} />
                 <Button
                   className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
                     !isDisable ? "hidden" : ""
@@ -1387,6 +1396,131 @@ const TournamentBookingDates = () => {
       </div>
     </div>
   );
+};
+
+const TournamentGallery = ({ dispatch }) => {
+  const { values, setFieldValue, setFieldError } = useFormikContext();
+  const [previews, setPreviews] = useState([]);
+
+  useEffect(() => {
+    const previewImages = values?.tournamentGallery?.length
+      ? values.tournamentGallery.map((url) => ({
+          preview: url,
+        }))
+      : [];
+    setPreviews(previewImages);
+  }, [values?.tournamentGallery]);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const handleRemoveImage = (index) => {
+    const newBannerImages = values.tournamentGallery.filter(
+      (_, i) => i !== index
+    );
+    setFieldValue("tournamentGallery", newBannerImages);
+    const newPreviews = previews.filter((_, i) => i !== index);
+    setPreviews(newPreviews);
+  };
+
+  const handleFileUpload = async (e) => {
+    setIsError(false);
+    setErrorMessage("");
+    const uploadedFile = e.target.files[0];
+    if (!uploadedFile.type.startsWith("image/")) {
+      setFieldError("tournamentGallery", "File should be a valid image type.");
+      return;
+    }
+
+    if (values.tournamentGallery.length === 4) {
+      dispatch(
+        showError({
+          message: "You can add up to 4 images only.",
+          onClose: "hideError",
+        })
+      );
+      return;
+    }
+
+    const maxSize = venueImageSize;
+    if (uploadedFile.size > maxSize) {
+      setFieldError("tournamentGallery", "File should be less than 1 MB");
+      return;
+    }
+    try {
+      const result = await dispatch(uploadImage(uploadedFile)).unwrap();
+      setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
+      const url = result?.data?.url;
+      setFieldValue("tournamentGallery", [...values.tournamentGallery, url]);
+    } catch (err) {
+      setErrorMessage(err.data?.message);
+      setIsError(true);
+      setFieldError("tournamentGallery", err.data.message);
+    }
+  };
+  return (
+    <div className="flex flex-col items-start gap-2.5 ">
+      <p className="text-base leading-[19.36px] text-[#232323]">
+        Tournament Gallery
+      </p>
+
+      <div className="grid grid-cols-[1fr_auto] gap-[30px] min-h-[133px]">
+        <div className="flex flex-wrap gap-2.5 min-h-[133px] w-full overflow-hidden">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              className="relative flex h-[133px]"
+              key={`tournamentGallery-${index}`}
+            >
+              <img
+                src={previews[index]?.preview || venueUploadImage}
+                alt={`Venue upload ${index + 1}`}
+                className=" object-scale-down rounded h-full w-[223px]"
+              />
+              {previews[index]?.preview && (
+                <IoIosCloseCircleOutline
+                  className="absolute right-0 w-6 h-6 z-100 text-black  cursor-pointer "
+                  onClick={() => {
+                    handleRemoveImage(index);
+                  }}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="relative flex flex-col items-start gap-2.5 w-[223px] h-[133px]">
+          <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
+            <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+
+            <p className="text-sm text-[#5B8DFF]">
+              Click to upload{" "}
+              <span className="text-sm text-[#353535] "> or drag and drop</span>
+            </p>
+
+            <p className="text-xs text-[#353535] mt-1">(Max. File size: 1MB)</p>
+            <FieldArray name="tournamentGallery">
+              {({ form, field, meta }) => (
+                <input
+                  {...field}
+                  id="tournamentGallery"
+                  name="tournamentGallery"
+                  onChange={(e) => {
+                    handleFileUpload(e);
+                  }}
+                  value=""
+                  type="file"
+                  className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                />
+              )}
+            </FieldArray>
+          </div>
+          {isError && <TextError>{errorMessage}</TextError>}
+          <ErrorMessage name="tournamentGallery" component={TextError} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+TournamentGallery.propTypes = {
+  dispatch: PropTypes.func,
 };
 
 TournamentBasicInfo.propTypes = {
