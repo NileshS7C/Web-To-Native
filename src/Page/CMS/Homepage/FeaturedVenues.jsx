@@ -50,7 +50,7 @@ export default function FeaturedVenues() {
             </div>
 
             {/* Pass isOpen and onClose to AddDataModal */}
-            <VenueListingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchVenuesData}/>
+            <VenueListingModal venuesCMSData={venuesData} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchVenuesData}/>
         </div>
     );
 }

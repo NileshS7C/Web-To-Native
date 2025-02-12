@@ -50,7 +50,7 @@ export default function FeaturedTournaments() {
             </div>
 
             {/* Pass isOpen and onClose to AddDataModal */}
-            <TournamentListingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchTournamentsData}/>
+            <TournamentListingModal tournamentData={tournamentData} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} fetchHomepageSections={fetchTournamentsData}/>
         </div>
     );
 }

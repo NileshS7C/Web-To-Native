@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import axiosInstance from '../../../../Services/axios';
 
-export default function TournamentListingModal({ isOpen, onClose, fetchHomepageSections }) {
+export default function TournamentListingModal({tournamentData, isOpen, onClose, fetchHomepageSections }) {
     const [selectedItems, setSelectedItems] = useState([]);
     const [tournamentSectionData, setTournamentSectionData] = useState();
     const [tournamentsData, setTournamentsData] = useState([]);
@@ -11,15 +11,13 @@ export default function TournamentListingModal({ isOpen, onClose, fetchHomepageS
         try {
             const config = {
                 headers: {
-                  "Content-Type": "application/json",
+                    "Content-Type": "application/json",
                 },
-              };
-            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=tournament`, config);
+            };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/public/tournaments`, config);
+
             setTournamentSectionData(response);
-            if (response.data?.data.length) {
-                const allTournaments = response.data.data.flatMap(section => section.tournaments);
-                setTournamentsData(allTournaments);
-            }
+            setTournamentsData(response.data.data.tournaments);
         } catch (error) {
             console.error("Error fetching tournaments:", error);
         }
@@ -44,23 +42,24 @@ export default function TournamentListingModal({ isOpen, onClose, fetchHomepageS
     const handleSave = async () => {
 
         const formattedData = selectedItems.map((item, index) => ({
-            tournamentID: item.tournamentID._id,
+            tournamentID: item._id,
             position: index,
         }));
 
+        console.log('tournamentData',tournamentData)
         const payload = {
-            sectionTitle: tournamentSectionData.data[0].sectionTitle,
-            isVisible: tournamentSectionData.data[0].isVisible,
+            sectionTitle: tournamentData.sectionTitle,
+            isVisible: tournamentData.isVisible,
             tournaments: formattedData,
         };
 
         try {
             const config = {
                 headers: {
-                  "Content-Type": "application/json",
+                    "Content-Type": "application/json",
                 },
-              };
-            const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/tournament`, JSON.stringify(payload),config);
+            };
+            const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/tournament`, JSON.stringify(payload), config);
             if (response.data?.data?.length) {
                 const allTournaments = response.data.data.flatMap(section => section.tournaments);
                 setTournamentsData(allTournaments);
@@ -100,10 +99,10 @@ export default function TournamentListingModal({ isOpen, onClose, fetchHomepageS
                                             className="checkbox accent-blue-500"
                                         />
                                         <div className="item-details flex flex-row justify-between w-full text-left gap-4">
-                                            <h4 className='w-[40%] font-medium'>{item.tournamentID.tournamentName}</h4>
-                                            <p className='w-[40%] text-gray-600'>Owner ID: {item.tournamentID.ownerUserId}</p>
-                                            <p className='w-[10%] text-gray-600'>{new Date(item.tournamentID.startDate).toLocaleDateString()}</p>
-                                            <p className='w-[10%] text-gray-600'>{new Date(item.tournamentID.endDate).toLocaleDateString()}</p>
+                                            <h4 className='w-[40%] font-medium'>{item.tournamentName}</h4>
+                                            <p className='w-[40%] text-gray-600'>{item.handle}</p>
+                                            <p className='w-[10%] text-gray-600'>{item.startDate}</p>
+                                            <p className='w-[10%] text-gray-600'>{item.endDate}</p>
                                         </div>
                                     </div>
                                 ))
