@@ -622,9 +622,9 @@ export const cancelAndRefundBooking = createAsyncThunk(
         },
       };
       const response = await axiosInstance.post(
-        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}${type}`,
-        JSON.stringify(data),
-        config
+    `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}${type}`,
+    JSON.stringify(data),
+     config
       );
 
       return response.data;

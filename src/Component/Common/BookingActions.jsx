@@ -1,17 +1,37 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
-import { ActionButtonBooking } from "../../Constant/booking";
+
 import {
   resetConfirmationState,
   showConfirmation,
 } from "../../redux/Confirmation/confirmationSlice";
-import { cancelAndRefundBooking } from "../../redux/tournament/tournamentActions";
+import {
+  resetActionType,
+  setAction,
+} from "../../redux/tournament/bookingSlice";
+
+import {
+  cancelAndRefundBooking,
+  getAllBookings,
+} from "../../redux/tournament/tournamentActions";
 import { showError } from "../../redux/Error/errorSlice";
+import { showSuccess } from "../../redux/Success/successSlice";
+
+import { bookingLimit } from "../../Constant/tournament";
+import { ActionButtonBooking } from "../../Constant/booking";
 import Button from "./Button";
 
-const cancelBooking = async (dispatch, data, type, bookingId) => {
+const cancelBooking = async (
+  dispatch,
+  data,
+  type,
+  bookingId,
+  currentPage,
+  tournamentId,
+  eventId
+) => {
   try {
     const result = await dispatch(
       cancelAndRefundBooking({ data, type, bookingId })
@@ -24,11 +44,18 @@ const cancelBooking = async (dispatch, data, type, bookingId) => {
           onClose: "hideSuccess",
         })
       );
+
+      dispatch(
+        getAllBookings({
+          currentPage: currentPage || 1,
+          limit: bookingLimit,
+          tour_Id: tournamentId,
+          eventId,
+        })
+      );
     }
   } catch (err) {
-    if (process.env.NODE_ENV === "development") {
-      console.log("err in canceling the booking", err);
-    }
+    console.log("err in canceling the booking", err);
 
     dispatch(
       showError({
@@ -40,10 +67,19 @@ const cancelBooking = async (dispatch, data, type, bookingId) => {
     );
   } finally {
     dispatch(resetConfirmationState());
+    dispatch(resetActionType());
   }
 };
 
-const processRefund = async (dispatch, data, type, bookingId) => {
+const processRefund = async (
+  dispatch,
+  data,
+  type,
+  bookingId,
+  currentPage,
+  tournamentId,
+  eventId
+) => {
   try {
     const result = await dispatch(
       cancelAndRefundBooking({ data, type, bookingId })
@@ -56,11 +92,18 @@ const processRefund = async (dispatch, data, type, bookingId) => {
           onClose: "hideSuccess",
         })
       );
+
+      dispatch(
+        getAllBookings({
+          currentPage: currentPage || 1,
+          limit: bookingLimit,
+          tour_Id: tournamentId,
+          eventId,
+        })
+      );
     }
   } catch (err) {
-    if (process.env.NODE_ENV === "development") {
-      console.log("err in processing the refund of the booking", err);
-    }
+    console.log("err in processing the refund of the booking", err);
 
     dispatch(
       showError({
@@ -72,12 +115,15 @@ const processRefund = async (dispatch, data, type, bookingId) => {
     );
   } finally {
     dispatch(resetConfirmationState());
+    dispatch(resetActionType());
   }
 };
 
-const BookingActions = ({ id, index }) => {
+const BookingActions = ({ id, index, status }) => {
   const dispatch = useDispatch();
-  const { eventId } = useParams();
+  const { eventId, tournamentId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = searchParams.get("page");
 
   const [actionType, setActionType] = useState(null);
   const [actionObject, setActionObject] = useState({
@@ -110,7 +156,10 @@ const BookingActions = ({ id, index }) => {
           dispatch,
           updatedData,
           actionType,
-          actionObject?.bookingId
+          actionObject?.bookingId,
+          currentPage,
+          tournamentId,
+          eventId
         );
 
         setActionObject({
@@ -119,7 +168,7 @@ const BookingActions = ({ id, index }) => {
         });
       }
     } else if (actionType && actionType === "refund") {
-      if (actionObject?.bookingId) {
+      if (isConfirmed && actionObject?.bookingId) {
         const updatedData = {
           ...refundBookingData,
           categoryId: eventId,
@@ -128,7 +177,10 @@ const BookingActions = ({ id, index }) => {
           dispatch,
           updatedData,
           actionType,
-          actionObject?.bookingId
+          actionObject?.bookingId,
+          currentPage,
+          tournamentId,
+          eventId
         );
 
         setActionObject({
@@ -139,16 +191,28 @@ const BookingActions = ({ id, index }) => {
     }
   }, [actionType, isConfirmed, actionObject]);
 
+  const handleDisable = (item) => {
+    if (status === "REFUNDED") {
+      return true;
+    }
+    if (item.action === "refund" && status !== "CANCELLED") {
+      return true;
+    } else if (item.action === "cancel" && status === "CANCELLED") {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <div className="flex justify-end gap-2.5">
       {ActionButtonBooking.map((item) => {
         const buttonColor =
           item?.action === "cancel"
-            ? "bg-red-500 hover:bg-red-300"
-            : "bg-orange-500 hover:bg-orange-400";
+            ? "bg-red-500 hover:bg-red-300 text-white"
+            : "bg-gray-200 hover:bg-gray-400 text-black";
         return (
           <Button
-            className={`text-white text-sm px-[20px] py-2 rounded-md  ${buttonColor} `}
+            className={`text-sm px-[20px] py-2 rounded-md  ${buttonColor} `}
             type="button"
             key={item?.name}
             onClick={() => {
@@ -158,16 +222,21 @@ const BookingActions = ({ id, index }) => {
                 type: item?.action,
                 bookingId: id,
               }));
-              if (item?.action === "cancel") {
-                dispatch(
-                  showConfirmation({
-                    message: "Do you want to cancel the booking?",
-                    type: "booking",
-                  })
-                );
-              }
+
+              dispatch(setAction(item.action));
+
+              dispatch(
+                showConfirmation({
+                  message:
+                    item.action === "cancel"
+                      ? "Do you want to cancel the booking?"
+                      : "Do you want to initiate the refund?",
+                  type: "booking",
+                })
+              );
             }}
             loading={actionPending && item.action === actionObject.type}
+            disabled={handleDisable(item)}
           >
             {item?.name}
           </Button>
