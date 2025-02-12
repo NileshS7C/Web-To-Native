@@ -6,6 +6,8 @@ import { getSingleCategory } from "../../../redux/tournament/tournamentActions";
 import Spinner from "../../Common/Spinner";
 import ErrorBanner from "../../Common/ErrorBanner";
 import { locationIcon } from "../../../Assests";
+import { tournamentEvent } from "../../../Constant/tournament";
+import { MdCurrencyRupee } from "react-icons/md";
 
 function EventDescription() {
   const dispatch = useDispatch();
@@ -40,12 +42,12 @@ function EventDescription() {
       <EventNameAndDate
         name={category?.categoryName}
         format={category?.format}
-        maxPlayer={category?.maxPlayer}
+        maxPlayer={category?.maxPlayers}
       />
       <EventFormatAndCategory
         date={category?.categoryStartDate}
         category={category?.type}
-        minPlayer={category?.minPlayer}
+        minPlayer={category?.minPlayers}
       />
 
       <EventPlayers
@@ -59,6 +61,10 @@ function EventDescription() {
 }
 
 const EventNameAndDate = ({ name, format, maxPlayer }) => {
+  const eventFormatName = tournamentEvent.format.find(
+    (item) => item.shortName === format
+  );
+
   return (
     <div className="flex flex-col items-start flex-1 gap-10">
       <div className="flex flex-wrap flex-col items-start gap-2.5">
@@ -74,7 +80,7 @@ const EventNameAndDate = ({ name, format, maxPlayer }) => {
           Event Format
         </p>
         <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
-          {format}
+          {eventFormatName?.name ?? ""}
         </p>
       </div>
       <div className="flex flex-wrap flex-col items-start gap-2.5">
@@ -90,6 +96,9 @@ const EventNameAndDate = ({ name, format, maxPlayer }) => {
 };
 
 const EventFormatAndCategory = ({ date, category, minPlayer }) => {
+  const categoryName = tournamentEvent.category.find(
+    (item) => item.shortName === category
+  );
   return (
     <div className="flex flex-col items-start flex-1 gap-10">
       <div className="flex flex-wrap flex-col items-start gap-2.5">
@@ -106,7 +115,7 @@ const EventFormatAndCategory = ({ date, category, minPlayer }) => {
           Event Category
         </p>
         <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
-          {category}
+          {categoryName?.name ?? ""}
         </p>
       </div>
       <div className="flex flex-wrap flex-col items-start gap-2.5">
@@ -126,9 +135,10 @@ const EventPlayers = ({ fee, skillLevel }) => {
     <div className="flex flex-col items-start gap-10">
       <div className="flex flex-wrap flex-col items-start gap-2.5">
         <p className="text-tour_List_Color  text-xs sm:text-sm md:text-md lg:text-lg whitespace-nowrap">
-          Registration Fee
+          Registration Fee (INR)
         </p>
-        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
+        <p className="inline-flex items-center text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
+          {fee && <MdCurrencyRupee />}
           {fee}
         </p>
       </div>
@@ -138,7 +148,7 @@ const EventPlayers = ({ fee, skillLevel }) => {
           Skill Level
         </p>
         <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
-          {skillLevel}
+          {skillLevel?.toUpperCase()}
         </p>
       </div>
     </div>
