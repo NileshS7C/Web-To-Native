@@ -131,7 +131,7 @@ export const updateSeeding = createAsyncThunk(
     try {
       const userRole = cookies.get("userRole");
 
-      const userAPIEndPoint = API_END_POINTS.tournament.PUT.updatePlayerSeeding(
+      const userAPIEndPoint = API_END_POINTS.tournament.POST.updatePlayerSeeding(
         userRole,
         matchData.tour_Id,
         matchData.eventId,
