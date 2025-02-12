@@ -24,6 +24,7 @@ import Button from "./Common/Button";
 import { SuccessModal } from "./Common/SuccessModal";
 import { ErrorModal } from "./Common/ErrorModal";
 import { approvalBody, hideActionButtons } from "../Constant/tournament";
+import { toggleOrganiserModal } from "../redux/tournament/tournamentOrganiserSlice";
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -83,8 +84,13 @@ const Layout = () => {
     "/cms/static-pages/privacy-policy",
     "/cms/static-pages/refunds-&-cancellation",
     "/cms/static-pages/terms-&-condition",
+    "/cms/blogs/blog-posts",
+    "/cms/blogs/blog-posts/new",
   ];
-  const shouldHideTitleBar = hiddenRoutes.includes(location.pathname);
+   const shouldHideTitleBar =
+    hiddenRoutes.includes(location.pathname) ||
+    location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
+
 
   return (
     <div className="flex flex-col min-h-screen ">
@@ -126,7 +132,7 @@ const Layout = () => {
                 )}
 
                 {currentTitle === "Tournament Organisers" && (
-                  <TournamentOrganiserButtons />
+                  <TournamentOrganiserButtons dispatch={dispatch} />
                 )}
 
                 {isTournament &&
@@ -154,13 +160,17 @@ const Layout = () => {
   );
 };
 
-const TournamentOrganiserButtons = () => {
+
+const TournamentOrganiserButtons = ({ dispatch }) => {
   const { tournamentOwners } = useSelector((state) => state.Tournament);
 
   return (
     <>
       {tournamentOwners?.owners?.length > 0 && (
-        <Button className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400">
+        <Button
+          className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+          onClick={() => dispatch(toggleOrganiserModal())}
+        >
           Create
         </Button>
       )}
@@ -283,5 +293,6 @@ TournamentActionButton.propTypes = {
   setApproveButtonClicked: PropTypes.func,
   tournamentEditMode: PropTypes.bool,
 };
+
 
 export default Layout;

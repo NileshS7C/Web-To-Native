@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { PencilIcon } from "@heroicons/react/20/solid";
 import SwitchToggle from "../SwitchToggle";
+import axiosInstance from "../../../../Services/axios";
 
 export default function WeekSectionInfo({ sectionInfo }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -18,19 +19,12 @@ export default function WeekSectionInfo({ sectionInfo }) {
         }
         const { _id, updatedAt, sectionType, ...updatedSectionDetails } = sectionDetails;
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/featuredThisWeek`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(updatedSectionDetails),
-                }
-            );
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const result = await response.json();
+            const config = {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              };
+            const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/featuredThisWeek`,JSON.stringify(updatedSectionDetails),config);
         } catch (error) {
             console.error("Error updating section:", error);
         }

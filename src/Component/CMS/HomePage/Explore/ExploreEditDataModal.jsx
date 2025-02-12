@@ -8,6 +8,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Spinner from "../../../../Page/CMS/Spinner";
 import { uploadImage } from "../../../../utils/uploadImage";
+import axiosInstance from "../../../../Services/axios";
 
 export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
@@ -65,15 +66,13 @@ export default function ExploreEditDataModal({ data, isOpen, onClose, fetchHomep
                                         isVisible: data.isVisible,
                                         features: newFeature,
                                     };
-
+                                    const config = {
+                                        headers: {
+                                          "Content-Type": "application/json",
+                                        },
+                                      };
                                     // Send API request
-                                    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/explore`, {
-                                        method: "PATCH",
-                                        headers: myHeaders,
-                                        body: JSON.stringify(payload),
-                                    });
-
-                                    const result = await response.json();
+                                    const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/explore`, JSON.stringify(payload),config);
                                     fetchHomepageSections();
                                     onClose();
                                 } catch (error) {

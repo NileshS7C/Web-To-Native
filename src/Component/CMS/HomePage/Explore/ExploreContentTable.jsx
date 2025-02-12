@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ExploreEditDataModal from "./ExploreEditDataModal";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
 import DeleteModal from "../DeleteModal";
+import axiosInstance from "../../../../Services/axios";
 
 export default function ExploreContentTable({ data, fetchHomepageSections }) {
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -36,14 +37,13 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
       isVisible: data.isVisible,
       features: reindexedFeatures,
     };
-
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
     // Send API request
-    await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/explore`, {
-      method: "PATCH",
-      headers: myHeaders,
-      body: JSON.stringify(payload),
-    });
-
+    await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/explore`,JSON.stringify(payload),config);
     fetchHomepageSections();
   };
 

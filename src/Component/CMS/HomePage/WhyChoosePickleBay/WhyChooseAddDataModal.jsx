@@ -7,6 +7,7 @@ import {
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { uploadImage } from "../../../../utils/uploadImage";
+import axiosInstance from "../../../../Services/axios";
 
 export default function WhyChooseAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
@@ -57,15 +58,13 @@ export default function WhyChooseAddDataModal({ data, isOpen, onClose, fetchHome
                                             isVisible: data.isVisible,
                                             steps: updatedFeatures,
                                         };
-
+                                        const config = {
+                                            headers: {
+                                              "Content-Type": "application/json",
+                                            },
+                                          };
                                         // Send API request
-                                        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/whyChoosePicklebay`, {
-                                            method: "PATCH",
-                                            headers: myHeaders,
-                                            body: JSON.stringify(payload),
-                                        });
-
-                                        const result = await response.json();
+                                        const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/whyChoosePicklebay`, JSON.stringify(payload),config);
                                         fetchHomepageSections();
                                         onClose();
                                     }

@@ -27,7 +27,6 @@ export const menus = [
 ];
 
 export const ADMIN_NAVIGATION = [
-
   { name: "DashBoard", icon: overviewIcon, path: "" },
   {
     name: "Tournament Organisers",
@@ -51,31 +50,30 @@ export const ADMIN_NAVIGATION = [
       {
         name: "Homepage",
         children: [
-          { name: "Explore"},
-          { name: "Featured Tournaments"},
-          { name: "Featured Week"},
-          { name: "Featured Venues"},
-          { name: "Why Choose Picklebay"},
-          { name: "Destination Dink"},
-          { name: "Build Courts"},
-          { name: "Journal"},
-          { name: "News & Update"},
+          { name: "Explore" },
+          { name: "Featured Tournaments" },
+          { name: "Featured Week" },
+          { name: "Featured Venues" },
+          { name: "Why Choose Picklebay" },
+          { name: "Destination Dink" },
+          { name: "Build Courts" },
+          { name: "Journal" },
+          { name: "News & Update" },
         ],
       },
       {
         name: "Blogs",
-        children: [
-          { name: "Test"},
-        ],
+        children: [{ name: "Blog Posts" }],
       },
       {
         name: "Static Pages",
         children: [
-          { name: "Help & Faqs"},
-          { name: "Terms & Condition"},
-          { name: "Refunds & Cancellation"},
-          { name: "Privacy Policy"},
-          { name: "Picklebay Guidelines"},
+          { name: "Help & Faqs" },
+          { name: "Terms & Condition" },
+          { name: "Refunds & Cancellation" },
+          { name: "Privacy Policy" },
+          { name: "Picklebay Guidelines" },
+
         ],
       },
     ],
@@ -104,10 +102,7 @@ export const VENUE_OWNER_NAVIGATION = [
   { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Venues", icon: venueIcon, path: "venues" },
   { name: "User", icon: profileIcon, path: "users" },
-
 ];
-
-
 
 export const ActionButtonGroup = [
   { name: "Edit", icon: EditIcon, action: "edit" },
@@ -118,6 +113,13 @@ export const ActionButtonGroup = [
 export const rowsInOnePage = 10;
 
 export const venueImageSize = 1000 * 1024;
+
+export const TournamentOragniserModalTitle = "Pickle Ball Federation";
+
+export const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+export const phoneRegex = /^\d{10}$/;
+export const passRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 export const courtImageSize = 500 * 1024;
 export const notHaveBackButton = [

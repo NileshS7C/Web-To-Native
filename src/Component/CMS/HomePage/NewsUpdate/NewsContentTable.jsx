@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
 import NewsEditDataModal from "./NewsEditDataModal";
 import DeleteModal from "../DeleteModal";
+import axiosInstance from "../../../../Services/axios";
 
 export default function NewsContentTable({ data, fetchHomepageSections }) {
     const [openEditModal, setOpenEditModal] = useState(false);
@@ -24,13 +25,12 @@ export default function NewsContentTable({ data, fetchHomepageSections }) {
             isVisible: data.isVisible,
             news: updatedFeatures,
         };
-
-        await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/news`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-        });
-
+        const config = {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
+        await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/news`, JSON.stringify(payload),config);
         fetchHomepageSections();
     };
     const headers = [

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import axiosInstance from '../../../../Services/axios';
 
 export default function VenueListingModal({ isOpen, onClose,fetchHomepageSections }) {
     const [selectedItems, setSelectedItems] = useState([]);
@@ -8,11 +9,15 @@ export default function VenueListingModal({ isOpen, onClose,fetchHomepageSection
 
     const GetAllVenues = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=venues`, { method: "GET" });
-            const result = await response.json();
-            setVenueSectionData(result);
-            if (result.data?.length) {
-                const allVenues = result.data.flatMap(section => section.venues);
+            const config = {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=venues`, config);
+            setVenueSectionData(response);
+            if (response.data?.data?.length) {
+                const allVenues = response.data.data.flatMap(section => section.venues);
                 setVenuesData(allVenues);
             }
         } catch (error) {
@@ -50,17 +55,14 @@ export default function VenueListingModal({ isOpen, onClose,fetchHomepageSection
         };
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/venues`, {
-                method: "PATCH",
+            const config = {
                 headers: {
-                    "Content-Type": "application/json"
+                  "Content-Type": "application/json",
                 },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-            if (result.data?.length) {
-                const allVenues = result.data.flatMap(section => section.venues);
+              };
+            const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/venues`, JSON.stringify(payload),config);
+            if (response.data?.data?.length) {
+                const allVenues = response.data.data.flatMap(section => section.venues);
                 setVenuesData(allVenues);
             }
         } catch (error) {

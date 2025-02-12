@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import StaticPage from '../../../Component/CMS/StaticPages/StaticPage'
+import axiosInstance from '../../../Services/axios';
 
 export default function PrivacyPolicy() {
   const [PrivacyPolicyData, setPrivacyPolicyData] = useState({});
   const getPrivacyPolicyData = async () => {
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/static-pages/privacyPolicy`, { method: "GET" })
-    const result = await response.json();
-    setPrivacyPolicyData(result.data)
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/public/static-pages/privacyPolicy`, config)
+    setPrivacyPolicyData(response.data.data)
   }
   const handleSavePage = async (data) => {
     const filterData = {
@@ -14,15 +19,12 @@ export default function PrivacyPolicy() {
       description: data.description
     };
 
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    const requestOptions = {
-      method: "PATCH",
-      headers: myHeaders,
-      body: JSON.stringify(filterData),
-      redirect: "follow"
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
     };
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/static-pages/privacyPolicy`, requestOptions)
+    const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/static-pages/privacyPolicy`, JSON.stringify(filterData),config)
   }
   useEffect(() => { getPrivacyPolicyData() }, [])
   return (
