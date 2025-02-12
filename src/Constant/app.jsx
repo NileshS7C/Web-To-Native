@@ -10,6 +10,7 @@ import {
   DeleteIcon,
   EditIcon,
   ViewIcon,
+  cmsIcon,
 } from "../Assests";
 
 export const menus = [
@@ -33,19 +34,19 @@ export const ADMIN_NAVIGATION = [
     icon: tournamentIcon,
     path: "tournament-organisers",
   },
-  { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
-  {
-    name: "Tournament Bookings",
-    icon: bookingIcon,
-    path: "tournament-bookings",
-  },
-  { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
+  // { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
+  // {
+  //   name: "Tournament Bookings",
+  //   icon: bookingIcon,
+  //   path: "tournament-bookings",
+  // },
+  // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
   { name: "Venues", icon: venueIcon, path: "venues" },
-  { name: "User", icon: profileIcon, path: "users" },
+  // { name: "User", icon: profileIcon, path: "users" },
   {
     name: "CMS",
-    // icon: profileIcon,
+    icon: cmsIcon,
     children: [
       {
         name: "Homepage",
@@ -73,7 +74,6 @@ export const ADMIN_NAVIGATION = [
           { name: "Refunds & Cancellation" },
           { name: "Privacy Policy" },
           { name: "Picklebay Guidelines" },
-
         ],
       },
     ],
@@ -87,21 +87,21 @@ export const TOURNAMENT_OWNER_NAVIGATION = [
     icon: tournamentIcon,
     path: "tournament-organisers",
   },
-  {
-    name: "Tournament Bookings",
-    icon: bookingIcon,
-    path: "tournament-bookings",
-  },
+  // {
+  //   name: "Tournament Bookings",
+  //   icon: bookingIcon,
+  //   path: "tournament-bookings",
+  // },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
-  { name: "User", icon: profileIcon, path: "users" },
+  // { name: "User", icon: profileIcon, path: "users" },
 ];
 
 export const VENUE_OWNER_NAVIGATION = [
   { name: "DashBoard", icon: overviewIcon, path: "" },
-  { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
-  { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
+  // { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
+  // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Venues", icon: venueIcon, path: "venues" },
-  { name: "User", icon: profileIcon, path: "users" },
+  // { name: "User", icon: profileIcon, path: "users" },
 ];
 
 export const ActionButtonGroup = [

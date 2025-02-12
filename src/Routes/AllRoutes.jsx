@@ -36,7 +36,6 @@ import PrivacyPolicy from "../Page/CMS/StaticPages/PrivacyPolicy";
 import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
 import TournamentOrganisersPage from "../Page/TournamentOrganisers";
 
-
 const AllRoutes = () => {
   return (
     <div>
@@ -91,8 +90,8 @@ const AllRoutes = () => {
           <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />
           <Route path="cms/blogs/blog-posts">
             <Route index element={<BlogPosts />} />
-            <Route path="new" element={<CreateBlogPost/>} />
-            <Route path=":handle" element={<EditBlogPost/>} />
+            <Route path="new" element={<CreateBlogPost />} />
+            <Route path=":handle" element={<EditBlogPost />} />
           </Route>
 
           <Route
@@ -125,7 +124,6 @@ const AllRoutes = () => {
           />
 
           {/* Ends Here */}
-
 
           <Route path="venues">
             <Route index element={<VenueListing />} />
