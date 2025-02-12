@@ -136,7 +136,7 @@ export const TournamentFixture = ({ tournament }) => {
             matchGames: stableFixture?.bracketData?.match_game,
             participants: stableFixture?.bracketData?.participant,
           },
-          { highlightParticipantOnHover: true }
+          { highlightParticipantOnHover: true, clear: true }
         );
         const players = stableFixture?.bracketData?.participant.map(
           (participant) => ({
