@@ -1,10 +1,20 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
+import { Cookies } from "react-cookie";
+import { API_END_POINTS } from "../../Constant/routes";
 
+const cookies = new Cookies();
 export const createFixture = createAsyncThunk(
   "fixture/createFixture",
   async ({ tour_Id, eventId }, { rejectWithValue }) => {
     try {
+      const userRole = cookies.get("userRole");
+
+      const userAPIEndPoint = API_END_POINTS.tournament.POST.createFixture(
+        userRole,
+        tour_Id,
+        eventId
+      );
       const formData = { tournamentId: tour_Id, categoryId: eventId };
       const config = {
         headers: {
@@ -12,9 +22,7 @@ export const createFixture = createAsyncThunk(
         },
       };
       const response = await axiosInstance.post(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/users/admin/tournaments/${tour_Id}/categories/${eventId}/fixtures`,
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         JSON.stringify(formData),
 
         config
@@ -41,15 +49,21 @@ export const getFixture = createAsyncThunk(
   "fixture/getFixture",
   async ({ tour_Id, eventId }, { rejectWithValue }) => {
     try {
+      const userRole = cookies.get("userRole");
+
+      const userAPIEndPoint =
+        API_END_POINTS.tournament.GET.getFixtureByTour_IdAndCategoryId(
+          userRole,
+          tour_Id,
+          eventId
+        );
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
       };
       const response = await axiosInstance.get(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/users/admin/tournaments/${tour_Id}/categories/${eventId}/fixtures`,
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         config
       );
 
@@ -74,17 +88,22 @@ export const updateMatch = createAsyncThunk(
   "fixture/updateMatch",
   async (matchData, { rejectWithValue }) => {
     try {
+      const userRole = cookies.get("userRole");
+
+      const userAPIEndPoint =
+        API_END_POINTS.tournament.PATCH.fixtureMatchUpdate(
+          userRole,
+          matchData.tour_Id,
+          matchData.eventId,
+          matchData.fixtureId
+        );
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
       };
       const response = await axiosInstance.patch(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${
-          matchData.tour_Id
-        }/categories/${matchData.eventId}/fixtures/${
-          matchData.fixtureId
-        }/update-Match`,
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         JSON.stringify(matchData?.formData),
         config
       );
@@ -110,17 +129,22 @@ export const updateSeeding = createAsyncThunk(
   "fixture/updateSeeding",
   async (matchData, { rejectWithValue }) => {
     try {
+      const userRole = cookies.get("userRole");
+
+      const userAPIEndPoint = API_END_POINTS.tournament.PUT.updatePlayerSeeding(
+        userRole,
+        matchData.tour_Id,
+        matchData.eventId,
+        matchData.fixtureId,
+        matchData.stageId
+      );
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
       };
       const response = await axiosInstance.put(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${
-          matchData.tour_Id
-        }/categories/${matchData.eventId}/fixtures/${
-          matchData.fixtureId
-        }/stages/${matchData.stageId}/seeding`,
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         JSON.stringify(matchData?.formData),
         config
       );
@@ -146,12 +170,23 @@ export const updateMatchSet = createAsyncThunk(
   "fixture/updateMatchSet",
   async (matchData, { rejectWithValue }) => {
     try {
+      const userRole = cookies.get("userRole");
+
+      const userAPIEndPoint =
+        API_END_POINTS.tournament.PATCH.fixtureMatchSetUpdated(
+          userRole,
+          matchData.tour_Id,
+          matchData.eventId,
+          matchData.fixtureId
+        );
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.patch(
+
+
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${
           matchData.tour_Id
         }/categories/${matchData.eventId}/fixtures/${
@@ -182,17 +217,21 @@ export const publishFixture = createAsyncThunk(
   "fixture/publishFixture",
   async (matchData, { rejectWithValue }) => {
     try {
+      const userRole = cookies.get("userRole");
+
+      const userAPIEndPoint = API_END_POINTS.tournament.PATCH.publishFixture(
+        userRole,
+        matchData.tour_Id,
+        matchData.eventId,
+        matchData.fixtureId
+      );
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
       };
       const response = await axiosInstance.patch(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${
-          matchData.tour_Id
-        }/categories/${matchData.eventId}/fixtures/${
-          matchData.fixtureId
-        }/publish`,
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         config
       );
 

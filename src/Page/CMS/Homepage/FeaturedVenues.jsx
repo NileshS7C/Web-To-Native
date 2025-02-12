@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import VenueSectionInfo from "../../../Component/CMS/HomePage/FeaturedVenues/VenueSectionInfo";
 import VenueContentTable from "../../../Component/CMS/HomePage/FeaturedVenues/VenueContentTable";
 import VenueListingModal from "../../../Component/CMS/HomePage/FeaturedVenues/VenueListingModal";
+import axiosInstance from "../../../Services/axios";
 
 
 export default function FeaturedVenues() {
@@ -9,9 +10,13 @@ export default function FeaturedVenues() {
     const [venuesData, setVenuesData] = useState([]);
     const fetchVenuesData = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=venues`, { method: "GET" });
-            const result = await response.json();
-            setVenuesData(result.data[0]);
+            const config = {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=venues`, config);
+            setVenuesData(response.data.data[0]);
         } catch (error) {
             console.error(error);
         }

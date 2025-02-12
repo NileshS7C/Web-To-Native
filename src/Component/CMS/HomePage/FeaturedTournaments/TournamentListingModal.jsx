@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import axiosInstance from '../../../../Services/axios';
 
 export default function TournamentListingModal({ isOpen, onClose, fetchHomepageSections }) {
     const [selectedItems, setSelectedItems] = useState([]);
@@ -8,11 +9,15 @@ export default function TournamentListingModal({ isOpen, onClose, fetchHomepageS
 
     const GetAllTournaments = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=tournament`, { method: "GET" });
-            const result = await response.json();
-            setTournamentSectionData(result);
-            if (result.data?.length) {
-                const allTournaments = result.data.flatMap(section => section.tournaments);
+            const config = {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=tournament`, config);
+            setTournamentSectionData(response);
+            if (response.data?.data.length) {
+                const allTournaments = response.data.data.flatMap(section => section.tournaments);
                 setTournamentsData(allTournaments);
             }
         } catch (error) {
@@ -50,17 +55,14 @@ export default function TournamentListingModal({ isOpen, onClose, fetchHomepageS
         };
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/tournament`, {
-                method: "PATCH",
+            const config = {
                 headers: {
-                    "Content-Type": "application/json"
+                  "Content-Type": "application/json",
                 },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-            if (result.data?.length) {
-                const allTournaments = result.data.flatMap(section => section.tournaments);
+              };
+            const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/tournament`, JSON.stringify(payload),config);
+            if (response.data?.data?.length) {
+                const allTournaments = response.data.data.flatMap(section => section.tournaments);
                 setTournamentsData(allTournaments);
             }
         } catch (error) {

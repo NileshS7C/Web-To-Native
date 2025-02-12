@@ -1,12 +1,17 @@
 import { useDispatch, useSelector } from "react-redux";
+import { useCookies } from "react-cookie";
 import {
   TournamentTableHeaders,
   tournamentListingTabs as initialTour_Tabs,
   tournamentStatusFilters,
 } from "../../Constant/tournament";
+
 import Tabs from "../Common/Tabs";
 import { useEffect } from "react";
-import { getAllTournaments } from "../../redux/tournament/tournamentActions";
+import {
+  getAllTournaments,
+  getSingle_TO,
+} from "../../redux/tournament/tournamentActions";
 import Spinner from "../Common/Spinner";
 import PropTypes from "prop-types";
 import { useSearchParams } from "react-router-dom";
@@ -38,78 +43,120 @@ const SearchEvents = () => {
 function TournamentListing() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
-    useSelector((state) => state.GET_TOUR);
+  const [cookies] = useCookies(["name", "userRole"]);
+  const {
+    tournaments,
+    totalTournaments,
+    isGettingTournament,
+    selectedFilter,
+    singleTournamentOwner,
+  } = useSelector((state) => state.GET_TOUR);
   const selectedTab = searchParams.get("tab");
   const currentPage = searchParams.get("page");
   useEffect(() => {
     dispatch(resetEditMode());
+    const userRole = cookies.userRole;
+
+    if (!userRole) {
+      dispatch(userLogout());
+    } else if (userRole === "TOURNAMENT_OWNER") {
+      dispatch(getSingle_TO("TOURNAMENT_OWNER"));
+    } else if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
+      dispatch(getSingle_TO("ADMIN"));
+    }
   }, []);
 
   useEffect(() => {
-    switch (selectedTab) {
-      case "all":
-        dispatch(getAllTournaments({ page: currentPage || 1, limit: 10 }));
-        break;
-      case "draft":
-        dispatch(
-          getAllTournaments({
-            page: currentPage || 1,
-            limit: 10,
-            status: selectedTab?.toUpperCase(),
-          })
-        );
+    const userRole = cookies.userRole;
+    if (singleTournamentOwner) {
+      switch (selectedTab) {
+        case "all":
+          dispatch(
+            getAllTournaments({
+              page: currentPage || 1,
+              limit: 10,
+              type: userRole,
+              ownerId: singleTournamentOwner?.id,
+            })
+          );
+          break;
+        case "draft":
+          dispatch(
+            getAllTournaments({
+              page: currentPage || 1,
+              limit: 10,
+              status: selectedTab?.toUpperCase(),
+              type: userRole,
+              ownerId: singleTournamentOwner?.id,
+            })
+          );
 
-        break;
-      case "active":
-        dispatch(
-          getAllTournaments({
-            page: currentPage || 1,
-            limit: 10,
-            "dateRange[startDate]": formattedDate(new Date()),
-            timeline: "ACTIVE",
-          })
-        );
-        break;
+          break;
+        case "active":
+          dispatch(
+            getAllTournaments({
+              page: currentPage || 1,
+              limit: 10,
+              "dateRange[startDate]": formattedDate(new Date()),
+              timeline: "ACTIVE",
+              type: userRole,
+              ownerId: singleTournamentOwner?.id,
+            })
+          );
+          break;
 
-      case "upcoming":
-        if (selectedFilter && selectedFilter !== "all") {
+        case "upcoming":
+          if (selectedFilter && selectedFilter !== "all") {
+            dispatch(
+              getAllTournaments({
+                page: currentPage || 1,
+                limit: 10,
+                "dateRange[endDate]": formattedDate(new Date()),
+                status: selectedFilter?.toUpperCase(),
+                timeline: "UPCOMING",
+                type: userRole,
+                ownerId: singleTournamentOwner?.id,
+              })
+            );
+          } else {
+            dispatch(
+              getAllTournaments({
+                page: currentPage || 1,
+                limit: 10,
+                "dateRange[endDate]": formattedDate(new Date()),
+                timeline: "UPCOMING",
+                type: userRole,
+                ownerId: singleTournamentOwner?.id,
+              })
+            );
+          }
+          break;
+
+        case "archive":
           dispatch(
             getAllTournaments({
               page: currentPage || 1,
               limit: 10,
               "dateRange[endDate]": formattedDate(new Date()),
-              status: selectedFilter?.toUpperCase(),
-              timeline: "UPCOMING",
+              timeline: "COMPLETED",
+              type: userRole,
+              ownerId: singleTournamentOwner?.id,
             })
           );
-        } else {
+          break;
+
+        default:
           dispatch(
             getAllTournaments({
               page: currentPage || 1,
               limit: 10,
-              "dateRange[endDate]": formattedDate(new Date()),
-              timeline: "UPCOMING",
+              type: userRole,
+              ownerId: singleTournamentOwner?.id,
             })
           );
-        }
-        break;
-
-      case "archive":
-        dispatch(
-          getAllTournaments({
-            page: currentPage || 1,
-            limit: 10,
-            "dateRange[endDate]": formattedDate(new Date()),
-            timeline: "COMPLETED",
-          })
-        );
-        break;
-
-      default:
-        dispatch(getAllTournaments({ page: currentPage || 1, limit: 10 }));
+      }
     }
-  }, [selectedTab, currentPage, selectedFilter]);
+  }, [selectedTab, currentPage, selectedFilter, singleTournamentOwner]);
 
   if (isGettingTournament) {
     return (

@@ -2,15 +2,20 @@ import React, { useEffect, useState } from "react";
 import WhyChooseSectionInfo from "../../../Component/CMS/HomePage/WhyChoosePickleBay/WhyChooseSectionInfo";
 import WhyChooseContentTable from "../../../Component/CMS/HomePage/WhyChoosePickleBay/WhyChooseContentTable";
 import WhyChooseAddDataModal from "../../../Component/CMS/HomePage/WhyChoosePickleBay/WhyChooseAddDataModal";
+import axiosInstance from "../../../Services/axios";
 
 function WhyChoosePickleBay() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [whyChooseData, setWhyChooseData] = useState([]);
     const fetchWhyChooseSection = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=whyChoosePicklebay`, { method: "GET" });
-            const result = await response.json();
-            setWhyChooseData(result.data[0])
+            const config = {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=whyChoosePicklebay`, config);
+            setWhyChooseData(response.data.data[0])
         } catch (error) {
             console.error(error);
         }

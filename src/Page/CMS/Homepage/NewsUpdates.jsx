@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import NewsSectionInfo from "../../../Component/CMS/HomePage/NewsUpdate/NewsSectionInfo";
 import NewsContentTable from "../../../Component/CMS/HomePage/NewsUpdate/NewsContentTable";
 import NewsAddDataModal from "../../../Component/CMS/HomePage/NewsUpdate/NewsAddDataModal";
+import axiosInstance from "../../../Services/axios";
 // import SpinnerLoader from "../../../Assests/Spinner";
 
 export default function NewsUpdates() {
@@ -9,9 +10,13 @@ export default function NewsUpdates() {
     const [newsData, setNewsData] = useState([]);
     const fetchNewsSection = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=news`, { method: "GET" });
-            const result = await response.json();
-            setNewsData(result.data[0])
+            const config = {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            };
+            const response = axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=news`, config);
+            setNewsData(response.data.data[0])
         } catch (error) {
             console.error(error);
         }

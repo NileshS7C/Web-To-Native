@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { TrashIcon } from "@heroicons/react/20/solid";
 import DeleteModal from "../DeleteModal";
+import axiosInstance from "../../../../Services/axios";
 
 export default function VenueContentTable({ data, fetchHomepageSections }) {
     const [deleteModal, setDeleteModal] = useState(false);
@@ -26,15 +27,13 @@ export default function VenueContentTable({ data, fetchHomepageSections }) {
             venues: reindexedFeatures,
         };
 
-        const myHeaders = new Headers({
-            "Content-Type": "application/json",
-        });
+        const config = {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
         // Send API request
-        await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections/venues`, {
-            method: "PATCH",
-            headers: myHeaders,
-            body: JSON.stringify(payload),
-        });
+        await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/venues`, JSON.stringify(payload),config);
         fetchHomepageSections();
 
     };

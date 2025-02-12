@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import JournalSectionInfo from "../../../Component/CMS/HomePage/Journal/JournalSectionInfo";
 import JournalContentTable from "../../../Component/CMS/HomePage/Journal/JournalContentTable";
 import JournalAddDataModal from "../../../Component/CMS/HomePage/Journal/JournalAddDataModal";
+import axiosInstance from "../../../Services/axios";
 // import SpinnerLoader from "../../../Assests/Spinner";
 
 export default function Journal() {
@@ -9,9 +10,13 @@ export default function Journal() {
     const [journalData, setJournalData] = useState([]);
     const fetchJournalSection = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/homepage-sections?section=journal`, { method: "GET" });
-            const result = await response.json();
-            setJournalData(result.data[0])
+            const config = {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=journal`, config);
+            setJournalData(response.data.data[0])
         } catch (error) {
             console.error(error);
         }

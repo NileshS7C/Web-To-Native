@@ -63,7 +63,7 @@ export const ADMIN_NAVIGATION = [
       },
       {
         name: "Blogs",
-        children: [{ name: "Test" }],
+        children: [{ name: "Blog Posts" }],
       },
       {
         name: "Static Pages",
@@ -73,6 +73,7 @@ export const ADMIN_NAVIGATION = [
           { name: "Refunds & Cancellation" },
           { name: "Privacy Policy" },
           { name: "Picklebay Guidelines" },
+
         ],
       },
     ],
