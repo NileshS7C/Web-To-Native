@@ -60,7 +60,6 @@ export const getPageTitle = (pathname, params, venueData) => {
       return "Add Tournament";
     }
 
-    
     if (pathname.match(/^\/tournaments\/\w+$/)) {
       return `${venueData?.tournament?.tournamentName || ""}`;
     }
