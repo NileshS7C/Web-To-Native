@@ -1,4 +1,3 @@
-import React from "react";
 import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import { crossIcon, calenderIcon } from "../../../Assests";
@@ -93,6 +92,7 @@ const initialValues = {
 
 export const EventCreationModal = () => {
   const [isVenueFinal, setIsVenueFinal] = useState(false);
+  const [venueNotListed, setVenueNotListed] = useState(false);
   const validationSchema = yup.object().shape({
     categoryName: yup
       .string()
@@ -109,7 +109,7 @@ export const EventCreationModal = () => {
     minPlayers: yup.number().required("Minimum players is required."),
     skillLevel: yup.string().optional(),
     categoryLocation:
-      isVenueFinal &&
+      venueNotListed &&
       yup.object().shape({
         address: yup.object().shape({
           line1: yup.string().required("Line 1 is required."),
@@ -149,28 +149,57 @@ export const EventCreationModal = () => {
   const [isVenueDecided, setIsVenueDecided] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [selectedVenueData, setSelectedVenueData] = useState(null);
 
   const { tournamentId } = useParams();
-  const {
-    category,
-    loadingSingleCategory,
-    SingleCategoryError,
-    singleCategorySuccess,
-  } = useSelector((state) => state.event);
+  const { category, loadingSingleCategory, singleCategorySuccess } =
+    useSelector((state) => state.event);
 
   const checkVenueOption = (state) => {
     state === "not_decided" ? setIsVenueFinal(false) : setIsVenueFinal(true);
   };
 
+  const getLocation = (data) => {
+    setSelectedVenueData(data);
+  };
+
+  const isVenueNotListed = (value) => {
+    setVenueNotListed(value);
+  };
+
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setHasError(false);
-      !isVenueFinal && delete values["categoryLocation"];
+      let updatedLocation;
+
+      if (selectedVenueData?.address) {
+        const {
+          location: { is_location_exact, ...locationWithOutExact },
+          ...restOfAddress
+        } = selectedVenueData.address;
+        const updatedAddress = {
+          ...restOfAddress,
+          location: locationWithOutExact,
+        };
+
+        if (!venueNotListed) {
+          updatedLocation = {
+            address: updatedAddress,
+            venueImage: selectedVenueData.image,
+            handle: selectedVenueData.handle,
+          };
+        }
+      }
+
       const updatedValues = {
         ...values,
+        categoryLocation: updatedLocation,
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
+
+      !isVenueFinal && delete values["categoryLocation"];
+
       setSubmitting(true);
       const result = !categoryId
         ? await dispatch(
@@ -230,9 +259,11 @@ export const EventCreationModal = () => {
     }
   }, [categoryId, tournamentId]);
 
+  let updatedCategory;
+
   useEffect(() => {
     if (categoryId && tournamentId && singleCategorySuccess) {
-      const updatedCategory = requiredCategoryFields(category);
+      updatedCategory = requiredCategoryFields(category);
       setInitialState((prevState) => ({
         ...prevState,
         ...updatedCategory,
@@ -295,6 +326,9 @@ export const EventCreationModal = () => {
                             location={location}
                             checkVenueOption={checkVenueOption}
                             isVenueDecided={isVenueDecided}
+                            getLocation={getLocation}
+                            isVenueNotListed={isVenueNotListed}
+                            updatedCategory={updatedCategory}
                           />
                           <EventTimings />
                           <div className="grid justify-self-end gap-[10px]">
@@ -343,6 +377,8 @@ const AddEventTitle = () => {
 };
 
 const EventName = () => {
+  const { values } = useFormikContext();
+
   return (
     <div className="flex flex-col items-start gap-2.5">
       <label className="text-base leading-[19.36px]" htmlFor="categoryName">
@@ -519,13 +555,26 @@ const VenueSelection = ({
   location,
   checkVenueOption,
   isVenueDecided,
+  getLocation,
+  isVenueNotListed,
+  updatedCategory,
 }) => {
+  const dispatch = useDispatch();
   const [isVenueNotAvailable, setIsVenueNotAvailable] = useState(false);
   const [currentCheckBox, setCurrentCheckBox] = useState("");
+  const [venueNotListed, setVenueNotListed] = useState(false);
 
   const handleCheckBox = (e) => {
     setIsVenueNotAvailable(e.target.checked);
+    setVenueNotListed(e.target.checked);
+    isVenueNotListed(e.target.checked);
   };
+
+  useEffect(() => {
+    if (venueNotListed) {
+      dispatch(resetGlobalLocation());
+    }
+  }, [venueNotListed]);
 
   useEffect(() => {
     if (isVenueDecided) {
@@ -553,6 +602,7 @@ const VenueSelection = ({
                 if (e.target.checked) {
                   setCurrentCheckBox("decided");
                   checkVenueOption("decided");
+                  setIsVenueNotAvailable(false);
                 }
               }}
             />
@@ -595,7 +645,12 @@ const VenueSelection = ({
             total={total}
           /> */}
 
-          <ComboboxForVenuesList isVenueNotAvailable={isVenueNotAvailable} />
+          <ComboboxForVenuesList
+            isVenueNotAvailable={isVenueNotAvailable}
+            venueNotListed={venueNotListed}
+            getLocation={getLocation}
+            updatedCategory={updatedCategory}
+          />
 
           <div className="flex gap-[10px] items-center">
             <input
@@ -613,7 +668,6 @@ const VenueSelection = ({
               className="text-[15px] text-[#718EBF] leading-[18px]"
             >
               Venue is not listed?{" "}
-              <span className="underline cursor-pointer">Add venue</span>
             </label>
           </div>
 
@@ -657,7 +711,10 @@ const VenueSelection = ({
                 </div>
               </div>
 
-              <AddVenueAddress location={location} />
+              <AddVenueAddress
+                location={location}
+                venueNotListed={isVenueNotAvailable}
+              />
             </div>
           )}
         </div>
@@ -723,6 +780,7 @@ const EventTimings = () => {
 
 const AddVenueAddress = ({ location }) => {
   const { setFieldValue, errors } = useFormikContext();
+
   useEffect(() => {
     if (location.city || location.state) {
       setFieldValue("categoryLocation.address.line1", location?.address_line1);
@@ -734,20 +792,22 @@ const AddVenueAddress = ({ location }) => {
         "categoryLocation.address.location.coordinates[1]",
         location?.lat
       );
+      setFieldValue("categoryLocation.address.location.type", "Point");
       setFieldValue("categoryLocation.address.line2", location.address_line2);
       setFieldValue("categoryLocation.address.city", location.city);
       setFieldValue("categoryLocation.address.state", location.state);
       setFieldValue("categoryLocation.address.postalCode", location.pin_code);
     }
   }, [
-    location.lat,
-    location.lng,
-    location.city,
-    location.state,
-    location.pin_code,
-    location.address_line1,
-    location.address_line2,
+    location?.lat,
+    location?.lng,
+    location?.city,
+    location?.state,
+    location?.pin_code,
+    location?.address_line1,
+    location?.address_line2,
   ]);
+
   return (
     <div className="flex flex-col items-start gap-2.5">
       <p className=" text-base leading-[19.36px] text-[#232323]">
@@ -755,7 +815,10 @@ const AddVenueAddress = ({ location }) => {
       </p>
       <div className="grid grid-cols-2 gap-2.5 w-full">
         <div className="flex flex-col items-start gap-2.5">
-          <label className="text-xs text-[#232323]" htmlFor="address.line1">
+          <label
+            className="text-xs text-[#232323]"
+            htmlFor="categoryLocation.address.line1"
+          >
             Line 1
           </label>
           <Field
@@ -808,7 +871,10 @@ const AddVenueAddress = ({ location }) => {
           />
         </div>
         <div className="flex flex-col items-start gap-2.5">
-          <label className="text-xs text-[#232323]" htmlFor="address.state">
+          <label
+            className="text-xs text-[#232323]"
+            htmlFor="categoryLocation.address.state"
+          >
             State
           </label>
           <Field
@@ -842,6 +908,39 @@ const AddVenueAddress = ({ location }) => {
             component={TextError}
           />
         </div>
+        {/* <div className="flex flex-col items-start gap-2.5">
+          <label
+            className="text-xs text-[#232323]"
+            htmlFor="categoryLocation.venueImage"
+          >
+            Upload Venue Image
+          </label>
+          <div className=" flex relative ">
+            <img
+              src={values.categoryLocation?.venueImage || imageUpload}
+              alt="sponsor logo"
+              className="min-w-full h-[40px] cursor-pointer"
+            />
+            <Field name="categoryLocation.venueImage">
+              {({ form, field }) => (
+                <input
+                  {...field}
+                  id="categoryLocation.venueImage"
+                  name="categoryLocation.venueImage"
+                  onChange={(e) => {
+                    const files = e.target.files[0];
+                    const url = window.URL.createObjectURL(files);
+                    form.setFieldValue("categoryLocation.venueImage", url);
+                  }}
+                  value=""
+                  type="file"
+                  className="absolute  w-8 h-8  inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
+                  multiple={false}
+                />
+              )}
+            </Field>
+          </div>
+        </div> */}
       </div>
     </div>
   );
@@ -854,36 +953,51 @@ function isReachedBottom(element) {
   );
 }
 
-function ComboboxForVenuesList({ isVenueNotAvailable }) {
+function ComboboxForVenuesList({
+  isVenueNotAvailable,
+  venueNotListed,
+  getLocation,
+  updatedCategory,
+}) {
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
+  const browserLocation = useLocation();
+  const { values } = useFormikContext();
   const { venues, totalVenues } = useSelector((state) => state.getVenues);
+  const { singleCategorySuccess } = useSelector((state) => state.event);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [updatedVenues, setUpdatedVenues] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [reachedBottom, setReachedBottom] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [venueLocation, setVenueLocation] = useState({});
   const selectedFilter = "PUBLISHED";
   const scrollContainerRef = useRef(null);
   const scrollPositionRef = useRef(0);
-  const { setFieldValue } = useFormikContext();
   const debounceCalls = useDebounce(query, 300);
-
+  const searchParams = new URLSearchParams(browserLocation.search);
+  const categoryId = searchParams.get("category");
+  const { tournamentId } = useParams();
   const handleRemoveVenue = () => {
     setSelectedPerson(null);
   };
 
   useEffect(() => {
-    if (selectedPerson && Object.keys(selectedPerson).length > 0) {
-      setVenueLocation({
-        name: selectedPerson.name,
-        address: selectedPerson.address,
+    if (selectedPerson) {
+      const { address } = selectedPerson;
+      getLocation({
+        address,
+        name: selectedPerson?.name,
+        image: selectedPerson.bannerImages[0].url,
       });
-      setFieldValue("categoryLocation", venueLocation);
     }
   }, [selectedPerson]);
+
+  useEffect(() => {
+    if (venueNotListed) {
+      setSelectedPerson(null);
+    }
+  }, [venueNotListed]);
 
   useEffect(() => {
     const getVenueByName = async () => {
@@ -1003,10 +1117,12 @@ function ComboboxForVenuesList({ isVenueNotAvailable }) {
         />
 
         <ComboboxButton className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-hidden">
-          <ChevronUpDownIcon
-            className="size-5 text-gray-400"
-            aria-hidden="true"
-          />
+          {!isVenueNotAvailable && (
+            <ChevronUpDownIcon
+              className="size-5 text-gray-400"
+              aria-hidden="true"
+            />
+          )}
         </ComboboxButton>
 
         <ComboboxOptions
@@ -1074,7 +1190,7 @@ function ComboboxForVenuesList({ isVenueNotAvailable }) {
         </ComboboxOptions>
       </div>
 
-      {selectedPerson && (
+      {selectedPerson && !categoryId && (
         <div className="flex items-center justify-between bg-gray-200 mt-3 w-auto max-w-fit rounded-lg p-2">
           <img
             src={selectedPerson?.bannerImages[0]?.url}

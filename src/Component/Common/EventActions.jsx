@@ -16,13 +16,12 @@ import {
   getAllCategories,
 } from "../../redux/tournament/tournamentActions";
 
-
 const EventActions = ({ id, index, eventName }) => {
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
   const { isNotEditable } = useSelector((state) => state.Tournament);
+  const { tournamentEditMode } = useSelector((state) => state.GET_TOUR);
   const { isConfirmed, type } = useSelector((state) => state.confirm);
   const { currentPage } = useSelector((state) => state.event);
   const handlers = {
@@ -66,7 +65,7 @@ const EventActions = ({ id, index, eventName }) => {
       actionHandlers={handlers}
       data={id}
       index={index}
-      isNotEditable={isNotEditable}
+      isNotEditable={!tournamentEditMode}
     />
   );
 };
