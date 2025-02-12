@@ -483,8 +483,6 @@ const SelectPlayers = () => {
 };
 
 const SelectSkillLevel = () => {
-  const { values, errors } = useFormikContext();
-
   return (
     <div className="flex flex-col items-start gap-2.5">
       <label
