@@ -72,6 +72,41 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures`;
         }
       },
+
+      publishFixture: (type, tournamentId, categoryId, fixtureId) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
+        }
+      },
+      updatePlayerSeeding: (
+        type,
+        tournamentId,
+        categoryId,
+        fixtureId,
+        stageId
+      ) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
+        }
+      },
+      fixtureMatchSetUpdated: (type, tournamentId, categoryId, fixtureId) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match-set`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match-set`;
+        }
+      },
+      fixtureMatchUpdate: (type, tournamentId, categoryId, fixtureId) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match`;
+        }
+      },
     },
 
     GET: {
@@ -168,31 +203,6 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}`;
         }
       },
-
-      publishFixture: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMINROLES.includes(type)) {
-          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
-        } else {
-          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
-        }
-      },
-
-      fixtureMatchSetUpdated: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMINROLES.includes(type)) {
-          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match-set`;
-        } else {
-          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match-set`;
-        }
-      },
-
-      fixtureMatchUpdate: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMINROLES.includes(type)) {
-          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match`;
-        } else {
-          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match`;
-        }
-      },
-
       fixtureMatchSetCountUpdate: (
         type,
         tournamentId,
@@ -217,21 +227,7 @@ export const API_END_POINTS = {
       },
     },
 
-    PUT: {
-      updatePlayerSeeding: (
-        type,
-        tournamentId,
-        categoryId,
-        fixtureId,
-        stageId
-      ) => {
-        if (ADMINROLES.includes(type)) {
-          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
-        } else {
-          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
-        }
-      },
-    },
+    PUT: {},
   },
 };
 
