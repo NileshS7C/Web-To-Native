@@ -1230,6 +1230,10 @@ const TournamentSponserTable = ({ isDisable }) => {
 };
 
 const TournamentDates = () => {
+  const [showStartDate, setShowStartDate] = useState(false);
+  const toggleDates = () => {
+    setShowStartDate(true);
+  };
   return (
     <div className="grid grid-cols-2 gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
@@ -1247,6 +1251,8 @@ const TournamentDates = () => {
                   toggleCalendarOnIconClick
                   selected={field.value ? new Date(field.value) : null}
                   className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px]  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  minDate={new Date()}
+                  dateFormat="dd/MM/yy"
                   onChange={(date) => {
                     if (date) {
                       form.setFieldValue("startDate", date);
@@ -1279,6 +1285,8 @@ const TournamentDates = () => {
                   selected={field.value ? new Date(field.value) : null}
                   toggleCalendarOnIconClick
                   className=" w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px]  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  minDate={new Date()}
+                  dateFormat="dd/MM/yy"
                   onChange={(date) => {
                     if (date) {
                       form.setFieldValue("endDate", date);
@@ -1322,6 +1330,8 @@ const TournamentBookingDates = () => {
                   startDate=""
                   toggleCalendarOnIconClick
                   className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px]  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  minDate={new Date()}
+                  dateFormat="dd/MM/yy"
                   selected={field.value ? new Date(field.value) : null}
                   onChange={(date) => {
                     if (date) {
@@ -1355,6 +1365,8 @@ const TournamentBookingDates = () => {
                   startDate=""
                   toggleCalendarOnIconClick
                   className=" w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px]  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  minDate={new Date()}
+                  dateFormat="dd/MM/yy"
                   selected={field.value ? new Date(field.value) : null}
                   onChange={(date) => {
                     if (date) {
