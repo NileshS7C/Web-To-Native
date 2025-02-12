@@ -88,7 +88,7 @@ const EventNameAndDate = ({ name, format, maxPlayer }) => {
           Max Players
         </p>
         <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg ">
-          {maxPlayer || 0}
+          {maxPlayer || ""}
         </p>
       </div>
     </div>
@@ -123,7 +123,7 @@ const EventFormatAndCategory = ({ date, category, minPlayer }) => {
           Min Players
         </p>
         <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg">
-          {minPlayer || 0}
+          {minPlayer || ""}
         </p>
       </div>
     </div>
