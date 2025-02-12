@@ -72,6 +72,19 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures`;
         }
       },
+      updatePlayerSeeding: (
+        type,
+        tournamentId,
+        categoryId,
+        fixtureId,
+        stageId
+      ) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
+        }
+      },
     },
 
     GET: {
@@ -217,21 +230,7 @@ export const API_END_POINTS = {
       },
     },
 
-    PUT: {
-      updatePlayerSeeding: (
-        type,
-        tournamentId,
-        categoryId,
-        fixtureId,
-        stageId
-      ) => {
-        if (ADMINROLES.includes(type)) {
-          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
-        } else {
-          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
-        }
-      },
-    },
+    PUT: {},
   },
 };
 
