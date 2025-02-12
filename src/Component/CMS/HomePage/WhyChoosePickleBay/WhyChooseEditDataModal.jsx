@@ -5,9 +5,11 @@ import * as Yup from "yup";
 import { uploadImage } from "../../../../utils/uploadImage";
 import axiosInstance from "../../../../Services/axios";
 
-export default function WhyChooseEditDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
-    const [imagePreview, setImagePreview] = useState(data.image || null);
+export default function WhyChooseEditDataModal({ data, selectedCard, isOpen, onClose, fetchHomepageSections }) {
+    const [imagePreview, setImagePreview] = useState(selectedCard.image || null);
 
+    console.log('data', data)
+    console.log('sele', selectedCard)
     // Validation Schema
     const validationSchema = Yup.object().shape({
         heading: Yup.string().required("Heading is required"),
@@ -23,42 +25,46 @@ export default function WhyChooseEditDataModal({ data, isOpen, onClose, fetchHom
                     <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                         <Formik
                             initialValues={{
-                                heading: data.heading || "",
-                                subHeading: data.subHeading || "",
-                                image: null,
+                                heading: selectedCard.heading || "",
+                                subHeading: selectedCard.subHeading || "",
+                                image: selectedCard.image || "",
                             }}
                             validationSchema={validationSchema}
                             onSubmit={async (values) => {
                                 try {
                                     let uploadedImageUrl = imagePreview;
-
-                                    if (values.image) {
+                                    console.log('uploadedImageUrl',uploadedImageUrl)
+                                    if (values.image instanceof File) {
+                                        
                                         const uploadResponse = await uploadImage(values.image);
-                                        if (uploadResponse?.data?.url) {
-                                            uploadedImageUrl = uploadResponse.data.url;
+                                        console.log("uploadResponse",uploadResponse)
+                                        if (uploadResponse?.url) {
+                                            uploadedImageUrl = uploadResponse.url;
                                         }
                                     }
 
-                                    const updatedSteps = [
-                                        {
-                                            heading: values.heading,
-                                            subHeading: values.subHeading,
-                                            image: uploadedImageUrl,
-                                            position: data.position,
-                                        }
-                                    ]
+                                    const updatedSteps =
+                                    {
+                                        heading: values.heading,
+                                        subHeading: values.subHeading,
+                                        image: uploadedImageUrl,
+                                        position: selectedCard.position,
+                                    }
 
+                                    const updatedFeatures = data.steps.map((feature) =>
+                                        feature.position === selectedCard.position ? updatedSteps : steps
+                                    );
                                     const payload = {
                                         sectionTitle: data.sectionTitle,
                                         isVisible: data.isVisible,
-                                        steps: updatedSteps,
+                                        steps: updatedFeatures,
                                     };
                                     const config = {
                                         headers: {
-                                          "Content-Type": "application/json",
+                                            "Content-Type": "application/json",
                                         },
-                                      };
-                                    await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/whyChoosePicklebay`, JSON.stringify(payload),config);
+                                    };
+                                    await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/whyChoosePicklebay`, JSON.stringify(payload), config);
                                     fetchHomepageSections();
                                     onClose();
                                 } catch (error) {
@@ -98,9 +104,7 @@ export default function WhyChooseEditDataModal({ data, isOpen, onClose, fetchHom
                                                         onChange={(event) => {
                                                             const file = event.currentTarget.files[0];
                                                             setFieldValue("image", file);
-                                                            if (file) {
-                                                                setImagePreview(URL.createObjectURL(file));
-                                                            }
+                                                            setImagePreview(file ? URL.createObjectURL(file) : selectedCard?.image);
                                                         }}
                                                     />
                                                     <ErrorMessage name="image" component="p" className="mt-1 text-sm text-red-600" />

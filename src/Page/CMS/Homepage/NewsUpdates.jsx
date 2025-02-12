@@ -15,7 +15,8 @@ export default function NewsUpdates() {
                     "Content-Type": "application/json",
                 },
             };
-            const response = axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=news`, config);
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=news`, config);
+            console.log(response.data.data[0])
             setNewsData(response.data.data[0])
         } catch (error) {
             console.error(error);

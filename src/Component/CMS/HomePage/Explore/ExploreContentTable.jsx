@@ -28,9 +28,6 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
       ...feature,
       position: index + 1,
     }));
-    const myHeaders = new Headers({
-      "Content-Type": "application/json",
-    });
 
     const payload = {
       sectionTitle: data.sectionTitle,
@@ -98,7 +95,8 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
       </table>
       {openEditModal && (
         <ExploreEditDataModal
-          data={selectedCard}
+          data={data}
+          selectedCard={selectedCard}
           isOpen={openEditModal}
           onClose={() => setOpenEditModal(false)}
           fetchHomepageSections={fetchHomepageSections}

@@ -104,7 +104,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                                         id="title"
                                                         name="title"
                                                         type="text"
-                                                        placeholder="Tournament Title"
+                                                        placeholder="Title"
                                                         className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                     />
                                                     <ErrorMessage
@@ -127,7 +127,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                                         id="description"
                                                         name="description"
                                                         rows={4}
-                                                        placeholder="Tournament Description"
+                                                        placeholder="Description"
                                                         className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                     />
                                                     <ErrorMessage

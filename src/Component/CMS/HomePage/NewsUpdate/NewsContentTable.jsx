@@ -58,7 +58,7 @@ export default function NewsContentTable({ data, fetchHomepageSections }) {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                    {data?.news?.map((item, index) => (
+                    {data?.news?.length > 0 ? data?.news?.map((item, index) => (
                         <tr key={index} className="text-left">
                             <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
                                 {index + 1}
@@ -83,7 +83,9 @@ export default function NewsContentTable({ data, fetchHomepageSections }) {
                                 </div>
                             </td>
                         </tr>
-                    ))}
+                    )):(
+                        <div>No news to show</div>
+                    )}
                 </tbody>
             </table>
             {openEditModal && (

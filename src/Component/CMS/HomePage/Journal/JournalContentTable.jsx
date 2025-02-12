@@ -55,19 +55,19 @@ console.log('data',data)
                 <tbody className="divide-y divide-gray-200 bg-white">
                     {data && data.length > 0 ? (data.map((journal, index) => (
                         <tr key={index} className="text-left">
-                            <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%] text-center">
+                            <td className="px-3 py-4 text-sm text-gray-500 w-[10%] text-center">
                                 {index + 1}
                             </td>
-                            <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
+                            <td className="px-3 py-4 text-sm text-gray-500 w-[20%]">
                                 {journal.blogID?.blogName}
                             </td>
-                            <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
+                            <td className="px-3 py-4 text-sm text-gray-500 w-[30%]">
                                 {journal.blogID?.description}
                             </td>
-                            <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[50%]">
+                            <td className="px-3 py-4 text-sm text-gray-500 w-[30%]">
                                 {journal.blogID?.featureImage}
                             </td>
-                            <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
+                            <td className="px-3 py-4 text-sm text-gray-500 w-[10%]">
                                 <div className="flex items-center space-x-3">
                                     <button onClick={() => handleDelete(journal)} className="hover:text-red-600">
                                         <TrashIcon className="w-5 h-5" />
