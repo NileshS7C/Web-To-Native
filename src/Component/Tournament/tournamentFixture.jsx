@@ -82,14 +82,12 @@ export const TournamentFixture = ({ tournament }) => {
     publishError,
   } = useSelector((state) => state.fixture);
 
-  const stableFixture = useMemo(() => fixture, [fixture]);
-
   const handleCreateFixture = useCallback(() => {
     dispatch(createFixture({ tour_Id: tournamentId, eventId }));
   }, []);
 
   const handleplayerShuffling = () => {
-    const result = playerShuffling(stableFixture?.bracketData?.participant);
+    const result = playerShuffling(fixture?.bracketData?.participant);
     const formattedMatchData = formatMatchData(fixture, result);
 
     dispatch(
@@ -131,14 +129,14 @@ export const TournamentFixture = ({ tournament }) => {
       if (fixture) {
         window?.bracketsViewer?.render(
           {
-            stages: stableFixture?.bracketData?.stage,
-            matches: stableFixture?.bracketData?.match,
-            matchGames: stableFixture?.bracketData?.match_game,
-            participants: stableFixture?.bracketData?.participant,
+            stages: fixture?.bracketData?.stage,
+            matches: fixture?.bracketData?.match,
+            matchGames: fixture?.bracketData?.match_game,
+            participants: fixture?.bracketData?.participant,
           },
           { highlightParticipantOnHover: true, clear: true }
         );
-        const players = stableFixture?.bracketData?.participant.map(
+        const players = fixture?.bracketData?.participant.map(
           (participant) => ({
             name: participant.name,
             id: participant.id,
@@ -233,7 +231,7 @@ export const TournamentFixture = ({ tournament }) => {
         </Button>
       </div>
 
-      <div className="brackets-viewer  w-full flex  flex-col justify-center items-start flex-1 rounded-md">
+      <div className="w-full flex  flex-col justify-center items-start flex-1 rounded-md">
         <Button
           className="w-[200px] h-[50px] ml-auto text-white text-[14px] rounded-lg disabled:bg-blue-400"
           onClick={handleCreateFixture}
@@ -242,6 +240,7 @@ export const TournamentFixture = ({ tournament }) => {
         >
           Create Fixture
         </Button>
+        <div className="brackets-viewer"></div>
         <ErrorModal />
         <SuccessModal />
 
@@ -249,7 +248,7 @@ export const TournamentFixture = ({ tournament }) => {
           isOpen={openPlayerSeedingModal}
           onCancel={handlePlayerSeddingModal}
           players={players}
-          participants={stableFixture?.bracketData?.participant}
+          participants={fixture?.bracketData?.participant}
           fixture={fixture}
         />
         <MatchModal
@@ -257,7 +256,7 @@ export const TournamentFixture = ({ tournament }) => {
           onCancel={handleMatchModal}
           tournament={tournament}
           matchDetails={matchDetails}
-          participants={stableFixture?.bracketData?.participant}
+          participants={fixture?.bracketData?.participant}
           tournamentId={tournamentId}
           eventId={eventId}
           fixtureId={fixture?._id}
