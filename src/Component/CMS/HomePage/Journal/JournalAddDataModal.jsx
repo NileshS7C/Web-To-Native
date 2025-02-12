@@ -2,24 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import axiosInstance from '../../../../Services/axios';
 
-export default function JournalAddDataModal({ isOpen, onClose, fetchHomepageSections }) {
+export default function JournalAddDataModal({ data,isOpen, onClose, fetchHomepageSections }) {
     const [selectedItems, setSelectedItems] = useState([]);
-    const [journalSectionData, setJournalSectionData] = useState();
+    // const [journalSectionData, setJournalSectionData] = useState();
     const [journalsData, setJournalsData] = useState([]);
 
     const GetAllJournals = async () => {
         try {
             const config = {
                 headers: {
-                  "Content-Type": "application/json",
+                    "Content-Type": "application/json",
                 },
-              };
-            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=journal`, config);
-            setJournalSectionData(response);
-            if (response.data?.data?.length) {
-                const allJournals = response.data.data.flatMap(section => section.journals);
-                setJournalsData(allJournals);
-            }
+            };
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/public/blogs`, config);
+            // setJournalSectionData(response);
+            setJournalsData(response.data.data);
         } catch (error) {
             console.error("Error fetching tournaments:", error);
         }
@@ -44,22 +41,22 @@ export default function JournalAddDataModal({ isOpen, onClose, fetchHomepageSect
     const handleSave = async () => {
 
         const formattedData = selectedItems.map((item, index) => ({
-            blogID: item.blogID._id,
+            blogID: item._id,
             position: index,
         }));
 
         const payload = {
-            isVisible: journalSectionData.data[0].isVisible,
+            isVisible: data.isVisible,
             journals: formattedData,
         };
 
         try {
             const config = {
                 headers: {
-                  "Content-Type": "application/json",
+                    "Content-Type": "application/json",
                 },
-              };
-            const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/journal`, JSON.stringify(payload),config);
+            };
+            const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/journal`, JSON.stringify(payload), config);
             if (response.data?.data?.length) {
                 const allJournals = response.data.data.flatMap(section => section.journals);
                 setJournalsData(allJournals);
@@ -83,7 +80,7 @@ export default function JournalAddDataModal({ isOpen, onClose, fetchHomepageSect
                     <DialogPanel className="modal-content w-[70%] mx-auto p-4 bg-white rounded-lg">
                         <div className="data-list overflow-y-auto my-4 flex flex-col gap-2 min-h-[60vh] max-h-[60vh] rounded-lg border border-gray-300 p-2">
                             {journalsData.length > 0 ? (
-                                journalsData.map((item) => (
+                                journalsData.map((item,index) => (
                                     <div
                                         key={item._id}
                                         className={`item flex items-center gap-4 p-3 border border-gray-300 rounded-md cursor-pointer transition-all 
@@ -92,14 +89,14 @@ export default function JournalAddDataModal({ isOpen, onClose, fetchHomepageSect
                                     >
                                         <input
                                             type="checkbox"
-                                            checked={selectedItems.some(selectedItem => selectedItem.blogID._id === item.blogID._id)}
+                                            checked={selectedItems.some(selectedItem => selectedItem._id === item._id)}
                                             onChange={() => handleSelectItem(item)}
                                             className="checkbox accent-blue-500"
                                         />
                                         <div className="item-details flex flex-row justify-between w-full text-left gap-4">
-                                            <h4 className='w-[20%] font-medium'>{item.blogID.blogName}</h4>
-                                            <p className='w-[40%] text-gray-600'>{item.blogID.description}</p>
-                                            <p className='w-[40%] text-gray-600'>{item.blogID.featureImage}</p>
+                                            <h4 className='w-[20%] font-medium line-clamp-1'>{item.blogName}</h4>
+                                            <p className='w-[40%] text-gray-600 line-clamp-1'>{item.description}</p>
+                                            <p className='w-[40%] text-gray-600 line-clamp-1'>{item.featureImage}</p>
                                         </div>
                                     // </div>
                                 ))

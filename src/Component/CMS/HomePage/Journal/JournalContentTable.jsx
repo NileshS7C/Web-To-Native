@@ -6,20 +6,20 @@ import axiosInstance from "../../../../Services/axios";
 export default function JournalContentTable({ data, fetchHomepageSections }) {
     const [deleteModal, setDeleteModal] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
-
+console.log('data',data)
     const handleDelete = (item) => {
         setDeleteModal(true);
         setSelectedCard(item);
     };
     const handleDeleteItem = async () => {
-        const updatedFeatures = data.filter(journal => journal.blogID._id !== selectedCard.blogID._id)
+        const updatedFeatures = data.filter(journal => journal.blogID?._id !== selectedCard.blogID?._id)
             .map(event => ({
-                blogID: event.blogID._id,
+                blogID: event.blogID?._id,
                 position: event.position
             }));
 
         const payload = {
-            isVisible: data[0].blogID.isVisible,
+            isVisible: data[0].blogID?.isVisible,
             journals: updatedFeatures,
         };
         const config = {
@@ -53,19 +53,19 @@ export default function JournalContentTable({ data, fetchHomepageSections }) {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                    {data?.map((journal, index) => (
+                    {data && data.length > 0 ? (data.map((journal, index) => (
                         <tr key={index} className="text-left">
                             <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%] text-center">
                                 {index + 1}
                             </td>
                             <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
-                                {journal.blogID.blogName}
+                                {journal.blogID?.blogName}
                             </td>
                             <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
-                                {journal.blogID.description}
+                                {journal.blogID?.description}
                             </td>
                             <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[50%]">
-                                {journal.blogID.featureImage}
+                                {journal.blogID?.featureImage}
                             </td>
                             <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
                                 <div className="flex items-center space-x-3">
@@ -75,7 +75,9 @@ export default function JournalContentTable({ data, fetchHomepageSections }) {
                                 </div>
                             </td>
                         </tr>
-                    ))}
+                    ))):(
+                        <div>No Journals selected</div>
+                    )}
                 </tbody>
             </table>
             {deleteModal && (
