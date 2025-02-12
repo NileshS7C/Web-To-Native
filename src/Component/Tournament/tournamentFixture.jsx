@@ -89,7 +89,7 @@ export const TournamentFixture = ({ tournament }) => {
   }, []);
 
   const handleplayerShuffling = () => {
-    const result = playerShuffling(fixture?.bracketData?.participant);
+    const result = playerShuffling(stableFixture?.bracketData?.participant);
     const formattedMatchData = formatMatchData(fixture, result);
 
     dispatch(
@@ -131,14 +131,14 @@ export const TournamentFixture = ({ tournament }) => {
       if (fixture) {
         window?.bracketsViewer?.render(
           {
-            stages: fixture?.bracketData?.stage,
-            matches: fixture?.bracketData?.match,
-            matchGames: fixture?.bracketData?.match_game,
-            participants: fixture?.bracketData?.participant,
+            stages: stableFixture?.bracketData?.stage,
+            matches: stableFixture?.bracketData?.match,
+            matchGames: stableFixture?.bracketData?.match_game,
+            participants: stableFixture?.bracketData?.participant,
           },
           { highlightParticipantOnHover: true, clear: true }
         );
-        const players = fixture?.bracketData?.participant.map(
+        const players = stableFixture?.bracketData?.participant.map(
           (participant) => ({
             name: participant.name,
             id: participant.id,
@@ -249,7 +249,7 @@ export const TournamentFixture = ({ tournament }) => {
           isOpen={openPlayerSeedingModal}
           onCancel={handlePlayerSeddingModal}
           players={players}
-          participants={fixture?.bracketData?.participant}
+          participants={stableFixture?.bracketData?.participant}
           fixture={fixture}
         />
         <MatchModal
@@ -257,7 +257,7 @@ export const TournamentFixture = ({ tournament }) => {
           onCancel={handleMatchModal}
           tournament={tournament}
           matchDetails={matchDetails}
-          participants={fixture?.bracketData?.participant}
+          participants={stableFixture?.bracketData?.participant}
           tournamentId={tournamentId}
           eventId={eventId}
           fixtureId={fixture?._id}
