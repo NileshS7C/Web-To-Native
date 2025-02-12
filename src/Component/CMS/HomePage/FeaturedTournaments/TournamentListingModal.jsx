@@ -87,22 +87,22 @@ export default function TournamentListingModal({tournamentData, isOpen, onClose,
                             {tournamentsData.length > 0 ? (
                                 tournamentsData.map((item) => (
                                     <div
-                                        key={item._id}
+                                        key={item?._id}
                                         className={`item flex items-center gap-4 p-3 border border-gray-300 rounded-md cursor-pointer transition-all 
                 ${selectedItems.some(selectedItem => selectedItem._id === item._id) ? 'bg-blue-100 border-[#1570EF]' : 'hover:bg-gray-100'}`}
                                         onClick={() => handleSelectItem(item)}
                                     >
                                         <input
                                             type="checkbox"
-                                            checked={selectedItems.some(selectedItem => selectedItem._id === item._id)}
+                                            checked={selectedItems.some(selectedItem => selectedItem?._id === item?._id)}
                                             onChange={() => handleSelectItem(item)}
                                             className="checkbox accent-blue-500"
                                         />
                                         <div className="item-details flex flex-row justify-between w-full text-left gap-4">
-                                            <h4 className='w-[40%] font-medium'>{item.tournamentName}</h4>
-                                            <p className='w-[40%] text-gray-600'>{item.handle}</p>
-                                            <p className='w-[10%] text-gray-600'>{item.startDate}</p>
-                                            <p className='w-[10%] text-gray-600'>{item.endDate}</p>
+                                            <h4 className='w-[40%] font-medium'>{item?.tournamentName}</h4>
+                                            <p className='w-[40%] text-gray-600'>{item?.handle}</p>
+                                            <p className='w-[10%] text-gray-600'>{item?.startDate}</p>
+                                            <p className='w-[10%] text-gray-600'>{item?.endDate}</p>
                                         </div>
                                     </div>
                                 ))
