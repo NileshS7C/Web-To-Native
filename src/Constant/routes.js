@@ -85,6 +85,14 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
         }
       },
+
+      publishFixture: (type, tournamentId, categoryId, fixtureId) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
+        }
+      },
     },
 
     GET: {
@@ -179,14 +187,6 @@ export const API_END_POINTS = {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}`;
-        }
-      },
-
-      publishFixture: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMINROLES.includes(type)) {
-          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
-        } else {
-          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
         }
       },
 

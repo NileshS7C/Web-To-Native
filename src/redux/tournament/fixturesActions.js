@@ -219,7 +219,7 @@ export const publishFixture = createAsyncThunk(
     try {
       const userRole = cookies.get("userRole");
 
-      const userAPIEndPoint = API_END_POINTS.tournament.PATCH.publishFixture(
+      const userAPIEndPoint = API_END_POINTS.tournament.POST.publishFixture(
         userRole,
         matchData.tour_Id,
         matchData.eventId,
@@ -230,7 +230,7 @@ export const publishFixture = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         config
       );
