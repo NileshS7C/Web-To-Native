@@ -434,6 +434,7 @@ const RegistrationFee = () => {
           id="registrationFee"
           name="registrationFee"
           type="number"
+          onWheel={(e) => e.target.blur()}
         />
       </div>
       <ErrorMessage name="registrationFee" component={TextError} />
