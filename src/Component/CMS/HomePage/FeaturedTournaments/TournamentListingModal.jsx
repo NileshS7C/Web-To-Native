@@ -15,7 +15,7 @@ export default function TournamentListingModal({ isOpen, onClose, fetchHomepageS
                 },
               };
             const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=tournament`, config);
-            setTournamentSectionData(result);
+            setTournamentSectionData(response);
             if (response.data?.data.length) {
                 const allTournaments = response.data.data.flatMap(section => section.tournaments);
                 setTournamentsData(allTournaments);
