@@ -14,7 +14,7 @@ export default function Explore() {
                   "Content-Type": "application/json",
                 },
               };
-            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/users/admin/homepage-sections?section=explore`,config);
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=explore`,config);
             setExploreData(response.data.data[0]);
         } catch (error) {
             console.error(error);
