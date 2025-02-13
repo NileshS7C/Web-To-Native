@@ -12,7 +12,7 @@ import { tableHeaders, venueFilters, venueLimit } from "../../Constant/venue";
 import Button from "../Common/Button";
 import DataTable from "../Common/DataTable";
 import { ConfirmationModal } from "../Common/ConfirmationModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
 import { SuccessModal } from "../Common/SuccessModal";
 import { showSuccess } from "../../redux/Success/successSlice";
@@ -24,19 +24,14 @@ import NotCreated from "../Common/NotCreated";
 export default function VenueListing() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = searchParams.get("page");
   const { isOpen, message, onClose } = useSelector((state) => state.confirm);
   const { isDeleting, isDeleted, isError, errorMessage } = useSelector(
     (state) => state.deleteVenue
   );
-  const {
-    venues,
-    totalVenues,
-    currentPage,
-    selectedFilter,
-    isLoading,
-    isSuccess,
-  } = useSelector((state) => state.getVenues);
+  const { venues, totalVenues, selectedFilter, isLoading, isSuccess } =
+    useSelector((state) => state.getVenues);
 
   const { isConfirmed, type, confirmationId } = useSelector(
     (state) => state.confirm
@@ -125,9 +120,10 @@ export default function VenueListing() {
       <DataTable
         columns={tableHeaders}
         data={venues}
-        currentPage={currentPage}
+        currentPage={currentPage || 1}
         totalPages={totalVenues}
         onPageChange={onPageChange}
+        pathName="/venues"
       />
     </div>
   );
