@@ -39,7 +39,7 @@ export default function FeaturedWeek() {
     const handleSave = async () => {
         try {
             let uploadImageUrl = image;
-            if (typeof image === 'object' && image instanceof Blob) {
+            if (data.image != image) {
                 const uploadedImage = await uploadImage(image);
                 uploadImageUrl = uploadedImage?.url || image;
             }

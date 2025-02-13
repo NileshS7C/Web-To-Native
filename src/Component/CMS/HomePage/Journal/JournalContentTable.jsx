@@ -31,7 +31,7 @@ console.log('data',data)
         fetchHomepageSections();
     };
 
-    const headers = ["Position", "Blog Name", "Description", "Image", "Actions"];
+    const headers = ["Position", "Blog Name", "Image", "Actions"];
     return (
         <div className="overflow-x-auto bg-white rounded-lg shadow-lg border border-gray-300">
             <table className="min-w-full divide-y divide-gray-200">
@@ -61,9 +61,9 @@ console.log('data',data)
                             <td className="px-3 py-4 text-sm text-gray-500 w-[20%]">
                                 {journal.blogID?.blogName}
                             </td>
-                            <td className="px-3 py-4 text-sm text-gray-500 w-[30%]">
+                            {/* <td className="px-3 py-4 text-sm text-gray-500 w-[30%]">
                                 {journal.blogID?.description}
-                            </td>
+                            </td> */}
                             <td className="px-3 py-4 text-sm text-gray-500 w-[30%]">
                                 {journal.blogID?.featureImage}
                             </td>
