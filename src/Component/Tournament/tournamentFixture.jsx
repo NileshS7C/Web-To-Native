@@ -67,6 +67,7 @@ export const TournamentFixture = ({ tournament }) => {
   const [openMatchModal, setOpenMatchModal] = useState(false);
   const [openPlayerSeedingModal, setOpenPlayerSeedingModal] = useState(false);
   const [matchDetails, setMatchDetails] = useState(null);
+  const [matchMetaData, setMatchMetaData] = useState(null);
   const [players, setPlayers] = useState([]);
   const [suffledPlayers, setSuffledPlayers] = useState([]);
   const {
@@ -150,14 +151,16 @@ export const TournamentFixture = ({ tournament }) => {
     }
   }, [fixture, isFixtureSuccess, FixtureCreatedSuccess]);
 
-  window.bracketsViewer.onMatchClicked = useCallback((match) => {
-    const { opponent1, opponent2 } = match;
+  window.bracketsViewer.onMatchClicked = (match) => {
+    const { opponent1, opponent2, metaData = {} } = match;
+
     if (opponent1?.id?.toString() && opponent2?.id?.toString()) {
       setOpenMatchModal(true);
     }
 
     setMatchDetails(match);
-  }, []);
+    setMatchMetaData(metaData);
+  };
 
   useEffect(() => {
     if (FixtureCreationError || FixtureCreatedSuccess) {
@@ -260,6 +263,7 @@ export const TournamentFixture = ({ tournament }) => {
           tournamentId={tournamentId}
           eventId={eventId}
           fixtureId={fixture?._id}
+          metaData={matchMetaData}
         />
 
         <div className="flex items-center justify-center w-full h-full text-lg">

@@ -10,10 +10,13 @@ import { IoCloseSharp } from "react-icons/io5";
 import { calenderIcon } from "../../Assests";
 import { Field, Formik, Form, ErrorMessage } from "formik";
 import TextError from "../Error/formError";
-import { updateMatch } from "../../redux/tournament/fixturesActions";
+import {
+  updateMatch,
+  getFixture,
+} from "../../redux/tournament/fixturesActions";
 import { showSuccess } from "../../redux/Success/successSlice";
 import { showError } from "../../redux/Error/errorSlice";
-import { formattedDate, timeInMins } from "../../utils/dateUtils";
+import { formattedDate, parseDate, timeInMins } from "../../utils/dateUtils";
 
 const initialValues = {
   id: "",
@@ -48,6 +51,7 @@ export const MatchModal = ({
   fixtureId,
   tournamentId,
   eventId,
+  metaData,
 }) => {
   const validationSchema = yup.object().shape({
     metaData: yup.object().shape({
@@ -136,6 +140,17 @@ export const MatchModal = ({
         group_id,
         stage_id,
         round_id,
+        metaData: {
+          ...prev.metaData,
+          location: { name: metaData?.location?.name },
+          court: metaData?.court,
+          date: metaData?.date && parseDate(metaData?.date),
+          time: {
+            ...prev.metaData.time,
+            startTime: metaData?.time?.startTime,
+            endTime: metaData?.time?.endTime,
+          },
+        },
       }));
     }
   }, [matchDetails]);
@@ -167,6 +182,9 @@ export const MatchModal = ({
             onClose: "hideSuccess",
           })
         );
+        onCancel(false);
+
+        dispatch(getFixture({ tour_Id: tournamentId, eventId }));
       }
     } catch (err) {
       console.log("Error in updating the match", err);
@@ -426,4 +444,5 @@ MatchModal.propTypes = {
   tournamentId: PropTypes.string,
   eventId: PropTypes.string,
   fixtureId: PropTypes.string,
+  metaData: PropTypes.object,
 };
