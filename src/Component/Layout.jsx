@@ -30,7 +30,7 @@ const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const { tournamentId, eventId } = useParams();
+  const { tournamentId, eventId, id } = useParams();
   const { venue } = useSelector((state) => state.getVenues);
   const { tournament, tournamentEditMode } = useSelector(
     (state) => state.GET_TOUR
@@ -53,7 +53,7 @@ const Layout = () => {
 
   useEffect(() => {
     if (
-      approvalBody.action === "APPROVE" &&
+      approvalBody?.action === "APPROVE" &&
       approveButtonClicked &&
       tournamentId
     ) {
@@ -102,7 +102,15 @@ const Layout = () => {
           <div className="flex gap-2.5 items-center mb-4 ">
             {!notHaveBackButton.includes(currentTitle) && (
               <button
-                onClick={() => navigate(backRoute(location, { tournamentId }))}
+                onClick={() =>
+                  navigate(
+                    backRoute(location, {
+                      tournamentId,
+                      id,
+                      status: tournament?.status,
+                    })
+                  )
+                }
               >
                 <ArrowLeftIcon width="24px" height="24px" color="#343C6A" />
               </button>
