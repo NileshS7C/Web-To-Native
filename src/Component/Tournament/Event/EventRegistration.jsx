@@ -66,12 +66,6 @@ function EventRegistrations({ tournament }) {
     );
   }
 
-  if (!bookingData?.bookings?.length) {
-    return (
-      <EmptyBanner message="There are currently no bookings for this event." />
-    );
-  }
-
   return (
     <div className="flex flex-col gap-5 md:bg-[#FFFFFF] justify-center p-5 rounded-lg">
       <div className="flex justify-end mt-4">
@@ -100,7 +94,7 @@ function EventRegistrations({ tournament }) {
 
       <DataTable
         columns={bookingTableHeaders}
-        data={bookingData.bookings}
+        data={bookingData?.bookings}
         totalPages={bookingData?.total}
         currentPage={currentPage}
         onPageChange={onPageChangeEvent}

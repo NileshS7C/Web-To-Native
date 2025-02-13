@@ -607,14 +607,15 @@ export const createConfirmBooking = createAsyncThunk(
 
 export const cancelAndRefundBooking = createAsyncThunk(
   "GET_TOUR/cancelAndRefundBooking",
-  async ({ data, type, bookingId }, { rejectWithValue }) => {
+  async ({ data, type, bookingId, ownerId }, { rejectWithValue }) => {
     try {
       const userRole = cookies.get("userRole");
 
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.cancelAndRefundBooking(
           userRole,
-          ownerId
+          ownerId,
+          bookingId
         );
       const config = {
         headers: {
@@ -622,9 +623,9 @@ export const cancelAndRefundBooking = createAsyncThunk(
         },
       };
       const response = await axiosInstance.post(
-    `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}${type}`,
-    JSON.stringify(data),
-     config
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}/${type}`,
+        JSON.stringify(data),
+        config
       );
 
       return response.data;
