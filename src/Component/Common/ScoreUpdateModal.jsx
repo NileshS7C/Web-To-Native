@@ -19,6 +19,7 @@ import ErrorBanner from "./ErrorBanner";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import { CiLocationOn } from "react-icons/ci";
 import { IoMdAdd } from "react-icons/io";
+import NotificationBanner from "./NotificationBanner";
 
 const checkAllField = (scoreData, onValidationError, setDisableButton) => {
   if (!scoreData.length) {
@@ -241,47 +242,61 @@ export const ScoreUpdateModal = ({
               />
 
               {updateError && <ErrorBanner message={errorMessage} />}
+
+              {(players?.player1_id == null || players?.player2_id == null) && (
+                <NotificationBanner
+                  message="Both opponents are required to update the match score."
+                  messageStyle="text-sm text-[#E82B00]"
+                  wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
+                />
+              )}
               {validationError && (
                 <p className="text-md text-red-600">
                   Opponent 1 and Opponent 2 scores are required.
                 </p>
               )}
 
-              <PlayerDetails players={players} />
+              {players?.player1_id == null && players?.player2_id == null && (
+                <>
+                  <PlayerDetails players={players} />
 
-              <ForfietCheckBox handlePlayerSelection={handlePlayerSelection} />
+                  <ForfietCheckBox
+                    handlePlayerSelection={handlePlayerSelection}
+                  />
 
-              {showPlayerSelections && (
-                <PlayerSelector
-                  players={players}
-                  handleSelectedPlayer={handleSelectedPlayer}
-                />
+                  {showPlayerSelections && (
+                    <PlayerSelector
+                      players={players}
+                      handleSelectedPlayer={handleSelectedPlayer}
+                    />
+                  )}
+                  <MatchScoreUpdateSet
+                    getScoreData={getScoreData}
+                    scoreUpdateArray={scoreUpdateArray}
+                  />
+                  <div className="mr-0 mt-3 flex items-end justify-between">
+                    <Button
+                      className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
+                      type="submit"
+                      onClick={(e) => handleScoreUpdate(e)}
+                      disabled={!showPlayerSelections}
+                    >
+                      Forfiet
+                    </Button>
+                    {!showPlayerSelections && (
+                      <Button
+                        className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
+                        type="submit"
+                        onClick={(e) => handleScoreUpdate(e)}
+                        loading={isUpdating}
+                        disabled={validationError || disableButton}
+                      >
+                        Update
+                      </Button>
+                    )}
+                  </div>
+                </>
               )}
-              <MatchScoreUpdateSet
-                getScoreData={getScoreData}
-                scoreUpdateArray={scoreUpdateArray}
-              />
-              <div className="mr-0 mt-3 flex items-end justify-between">
-                <Button
-                  className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
-                  type="submit"
-                  onClick={(e) => handleScoreUpdate(e)}
-                  disabled={!showPlayerSelections}
-                >
-                  Forfiet
-                </Button>
-                {!showPlayerSelections && (
-                  <Button
-                    className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
-                    type="submit"
-                    onClick={(e) => handleScoreUpdate(e)}
-                    loading={isUpdating}
-                    disabled={validationError || disableButton}
-                  >
-                    Update
-                  </Button>
-                )}
-              </div>
             </div>
           </DialogPanel>
         </div>
