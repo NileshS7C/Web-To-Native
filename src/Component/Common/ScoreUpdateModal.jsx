@@ -212,7 +212,6 @@ export const ScoreUpdateModal = ({
       );
     } finally {
       setIsUpdating(false);
-      
     }
   };
 
@@ -472,15 +471,13 @@ const MatchLocationDetails = ({ match, location, date, time, court }) => {
 
       <div className="flex items-center justify-between divide-x divide-[#232323]">
         <p className="text-matchTextColor pr-2">{time?.startTime || "1:00"}</p>
-        <p className="text-matchTextColor pl-2 pr-2">{date || "20 December"}</p>
-        <p className="text-matchTextColor pl-2">{date || "20 December"}</p>
+        <p className="text-matchTextColor pl-2 pr-2">{date || ""}</p>
+        <p className="text-matchTextColor pl-2">{date || ""}</p>
       </div>
 
       <div className="flex items-center justify-between gap-2">
         <CiLocationOn color="#1570EF" className="w-[24px] h-[24px]" />
-        <p className="text-md text-[#1570EF]">
-          {location?.name || "91 Springboard"}
-        </p>
+        <p className="text-md text-[#1570EF]">{location?.name || ""}</p>
         <p className="text-md text-[#1570EF]">{court || 1}</p>
       </div>
     </div>

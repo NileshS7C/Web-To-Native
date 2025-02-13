@@ -127,8 +127,6 @@ export const MatchesListing = () => {
               (game) => game?.parent_id?.toString() === id?.toString()
             );
 
-            console.log(" match games", matchGames);
-
             const players = [opponent1?.id, opponent2?.id]
               .map((id) => participantsById.get(id))
               .filter(Boolean);
