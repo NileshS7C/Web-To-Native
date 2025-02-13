@@ -69,10 +69,11 @@ const formattedMatchData = (scoreData, players) => {
 };
 
 const formattedMatchDataForForfiet = (forfietPlayerId, players) => {
-  const { player1_id, player2_id, stage_id, group_id, round_id } = players;
+  const { player1_id, player2_id, stage_id, group_id, round_id, matchId } =
+    players;
 
   return {
-    id: players.match,
+    id: matchId,
     stage_id,
     group_id,
     round_id,

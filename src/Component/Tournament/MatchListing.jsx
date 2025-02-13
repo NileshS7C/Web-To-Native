@@ -135,6 +135,7 @@ export const MatchesListing = () => {
               ? [
                   {
                     match: number,
+                    matchId: id,
                     group_id,
                     round_id,
                     stage_id,
