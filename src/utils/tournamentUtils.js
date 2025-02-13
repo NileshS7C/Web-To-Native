@@ -43,6 +43,13 @@ const backRoute = (location, indentityData) => {
   if (isChildExist) {
     const id = indentityData[parentRoute.id];
 
+    if (
+      location.pathname.includes("/event") &&
+      indentityData.status === "DRAFT"
+    ) {
+      return `${parentRoute.path}/${id}/add`;
+    }
+
     return `${parentRoute.path}/${id}`;
   }
 
