@@ -80,6 +80,7 @@ const Layout = () => {
     "/cms/homepage/build-courts",
     "/cms/homepage/journal",
     "/cms/homepage/news-&-update",
+    "/cms/homepage/faqs",
     "/cms/static-pages/picklebay-guidelines",
     "/cms/static-pages/privacy-policy",
     "/cms/static-pages/refunds-&-cancellation",

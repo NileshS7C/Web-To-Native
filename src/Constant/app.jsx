@@ -60,6 +60,7 @@ export const ADMIN_NAVIGATION = [
           { name: "Build Courts" },
           { name: "Journal" },
           { name: "News & Update" },
+          { name: "FAQS" }
         ],
       },
       {

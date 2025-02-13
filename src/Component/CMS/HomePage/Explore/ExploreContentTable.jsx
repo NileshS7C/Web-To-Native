@@ -40,7 +40,7 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
       },
     };
     // Send API request
-    await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/explore`,JSON.stringify(payload),config);
+    await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/explore`, JSON.stringify(payload), config);
     fetchHomepageSections();
   };
 
