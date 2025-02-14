@@ -103,8 +103,8 @@ const eventTableHeaders = [
   },
   {
     key: "tournament_venue",
-    header: "venue",
-    render: (item) => item?.categoryLocation?.name,
+    header: "Venue",
+    render: (item) => item?.categoryLocation?.handle,
   },
   {
     key: "actions",
