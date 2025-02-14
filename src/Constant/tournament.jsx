@@ -190,7 +190,7 @@ const TournamentTableHeaders = [
       return (
         <div className="flex flex-col">
           <p className="text-customColor font-semibold">Events</p>
-          <p className="text-tour_List_Color">{item?.events || 0}</p>
+          <p className="text-tour_List_Color">{item?.categoryCount || 0}</p>
         </div>
       );
     },
