@@ -20,6 +20,7 @@ import { RiDeleteBin2Line } from "react-icons/ri";
 import { CiLocationOn } from "react-icons/ci";
 import { IoMdAdd } from "react-icons/io";
 import NotificationBanner from "./NotificationBanner";
+import { dateAndMonth } from "../../utils/dateUtils";
 
 const checkAllField = (scoreData, onValidationError, setDisableButton) => {
   if (!scoreData.length) {
@@ -479,6 +480,8 @@ const PlayerDetails = ({ players }) => {
 };
 
 const MatchLocationDetails = ({ match, location, date, time, court }) => {
+  const formattedMonth = dateAndMonth(date);
+
   return (
     <div className="flex flex-col items-center gap-3 ">
       <p className="text-matchTextColor text-md font-[600]">
@@ -487,8 +490,9 @@ const MatchLocationDetails = ({ match, location, date, time, court }) => {
 
       <div className="flex items-center justify-between divide-x divide-[#232323]">
         <p className="text-matchTextColor pr-2">{time?.startTime || "1:00"}</p>
-        <p className="text-matchTextColor pl-2 pr-2">{date || ""}</p>
-        <p className="text-matchTextColor pl-2">{date || ""}</p>
+        <p className="text-matchTextColor pl-2 pr-2">
+          {formattedMonth.day || ""} <span>{formattedMonth.month || ""}</span>
+        </p>
       </div>
 
       <div className="flex items-center justify-between gap-2">
