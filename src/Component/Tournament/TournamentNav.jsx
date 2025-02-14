@@ -54,7 +54,7 @@ const TournamentCreationForm = () => {
     (state) => state.confirm
   );
   const [cookies] = useCookies(["name", "userRole"]);
-  const isAddInThePath = window.location.pathname.includes("add");
+  const isAddInThePath = window.location.pathname.includes("/add");
 
   useEffect(() => {
     const isDisable = shouldBeDisable(
@@ -78,7 +78,8 @@ const TournamentCreationForm = () => {
     tournamentId,
     tournamentEditMode,
     isAddInThePath,
-    cookies,
+    cookies?.userRole,
+    tournament?._id,
   ]);
 
   useEffect(() => {

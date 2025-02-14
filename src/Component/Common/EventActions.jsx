@@ -21,7 +21,6 @@ const EventActions = ({ id, index, eventName }) => {
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
   const { isNotEditable } = useSelector((state) => state.Tournament);
-  const { tournamentEditMode } = useSelector((state) => state.GET_TOUR);
   const { isConfirmed, type } = useSelector((state) => state.confirm);
   const { currentPage } = useSelector((state) => state.event);
   const handlers = {
@@ -65,7 +64,7 @@ const EventActions = ({ id, index, eventName }) => {
       actionHandlers={handlers}
       data={id}
       index={index}
-      isNotEditable={!tournamentEditMode}
+      isNotEditable={!isNotEditable}
     />
   );
 };
@@ -73,6 +72,7 @@ const EventActions = ({ id, index, eventName }) => {
 EventActions.propTypes = {
   id: PropTypes.string,
   index: PropTypes.number,
+  eventName: PropTypes.string,
 };
 
 export default EventActions;

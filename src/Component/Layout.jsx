@@ -35,6 +35,7 @@ const Layout = () => {
   const { tournament, tournamentEditMode } = useSelector(
     (state) => state.GET_TOUR
   );
+
   const [approveButtonClicked, setApproveButtonClicked] = useState(false);
   const { changingDecision, verificationSuccess, approvalBody } = useSelector(
     (state) => state.Tournament
