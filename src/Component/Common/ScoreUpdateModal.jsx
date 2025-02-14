@@ -256,7 +256,7 @@ export const ScoreUpdateModal = ({
                 </p>
               )}
 
-              {players?.player1_id == null && players?.player2_id == null && (
+              {players?.player1_id !== null && players?.player2_id !== null && (
                 <>
                   <PlayerDetails players={players} />
 
