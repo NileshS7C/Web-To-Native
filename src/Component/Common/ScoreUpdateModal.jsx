@@ -257,7 +257,7 @@ export const ScoreUpdateModal = ({
                 </p>
               )}
 
-              {players?.player1_id !== null && players?.player2_id !== null && (
+              {players?.player1_id != null && players?.player2_id != null && (
                 <>
                   <PlayerDetails players={players} />
 
@@ -354,7 +354,7 @@ const InputSet = ({ index, handleScoreChange, scoreUpdateArray }) => {
           handleScoreChange(value, "set1", index);
         }}
       />
-      <p className="inline-flex items-center gap-1 justify-center text-md text-matchTextColor border-[1px] border-[#718EBF] w-[100px] lg:w-[80px] text-center h-[5vh]  rounded-md ">
+      <p className="inline-flex items-center gap-1 justify-center text-md text-matchTextColor border-[1px] border-[#718EBF] w-[100px] lg:w-[80px] text-center h-[5vh]  rounded-md p-2">
         Set <span>{index + 1} </span>
       </p>
       <input
@@ -417,7 +417,7 @@ const MatchScoreUpdateSet = ({ getScoreData, scoreUpdateArray }) => {
         <div className="flex items-center justify-center gap-2 m-auto">
           {scoreSet.length > 1 && (
             <Button
-              className="w-[15vh] h-[6vh] bg-red-700 text-white rounded-[1vh] flex items-center justify-center gap-2 m-auto hover:bg-red-500"
+              className=" min-w-fit p-2 h-[6vh] bg-red-700 text-white rounded-[1vh] flex items-center justify-center gap-2 m-auto hover:bg-red-500"
               onClick={handleDeleteRow}
             >
               <RiDeleteBin2Line />
@@ -426,7 +426,7 @@ const MatchScoreUpdateSet = ({ getScoreData, scoreUpdateArray }) => {
           )}
           {scoreSet.length < 5 && (
             <Button
-              className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2 m-auto"
+              className="min-w-fit p-2 h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2 m-auto"
               onClick={handleRow}
             >
               <IoMdAdd />
