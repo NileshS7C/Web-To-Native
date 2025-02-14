@@ -13,6 +13,31 @@ import {
   cmsIcon,
 } from "../Assests";
 
+export const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+export const days = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
 export const menus = [
   { name: "Overview", icon: overviewIcon },
   { name: "Tournaments", icon: tournamentIcon },
@@ -60,7 +85,7 @@ export const ADMIN_NAVIGATION = [
           { name: "Build Courts" },
           { name: "Journal" },
           { name: "News & Update" },
-          { name: "FAQS" }
+          { name: "FAQS" },
         ],
       },
       {
