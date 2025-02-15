@@ -2,9 +2,12 @@ import { useDispatch } from "react-redux";
 import { userProfileIcon, pickleBayLogo } from "../../Assests";
 import { userLogout } from "../../redux/Authentication/authActions";
 import { useCookies } from "react-cookie";
+import { useRef } from "react";
 
 const Header = () => {
   const dispatch = useDispatch();
+  const detailRef = useRef(null);
+
   const [cookies] = useCookies();
   const handleUserLogout = () => {
     dispatch(userLogout());
@@ -17,7 +20,11 @@ const Header = () => {
       </div>
       <div className="flex items-center gap-5">
         <p>{cookies.name || ""}</p>
-        <details className="relative">
+        <details
+          className="relative"
+          ref={detailRef}
+          onBlur={(e) => e.currentTarget.removeAttribute("open")}
+        >
           <summary className="list-none">
             <img src={userProfileIcon} alt="profile" />
           </summary>
