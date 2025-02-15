@@ -138,7 +138,7 @@ export const ActionButtonGroup = [
 
 export const rowsInOnePage = 10;
 
-export const venueImageSize = 1000 * 1024;
+export const venueImageSize = 5 * 1024 * 1024; //5 mb
 
 export const TournamentOragniserModalTitle = "Pickle Ball Federation";
 

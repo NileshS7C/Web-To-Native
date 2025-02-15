@@ -846,9 +846,9 @@ const DesktopBannerImageUpload = ({
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    const maxSize = venueImageSize;
     if (uploadedFile.size > maxSize) {
-      setFieldError("bannerDesktopImages", "File should be less than 1 MB");
+      setFieldError("bannerDesktopImages", "File should be less than 5 MB");
       return;
     }
     try {
@@ -960,9 +960,9 @@ const MobileBannerImageUpload = ({
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    const maxSize = venueImageSize;
     if (uploadedFile.size > maxSize) {
-      setFieldError("bannerMobileImages", "File should be less than 1 MB");
+      setFieldError("bannerMobileImages", "File should be less than 5 MB");
       return;
     }
     try {
@@ -1056,9 +1056,9 @@ const TournamentSponserTable = ({ isDisable }) => {
       return;
     }
 
-    const maxSize = 1000 * 1024;
+    const maxSize = venueImageSize;
     if (uploadedFile.size > maxSize) {
-      setFieldError("sponserImage", "File should be less than 1 MB");
+      setFieldError("sponserImage", "File should be less than 5 MB");
       return;
     }
     try {
@@ -1442,7 +1442,7 @@ const TournamentGallery = ({ dispatch }) => {
 
     const maxSize = venueImageSize;
     if (uploadedFile.size > maxSize) {
-      setFieldError("tournamentGallery", "File should be less than 1 MB");
+      setFieldError("tournamentGallery", "File should be less than 5 MB");
       return;
     }
     try {
