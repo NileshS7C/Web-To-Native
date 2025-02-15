@@ -277,7 +277,7 @@ const BrandPhoneAndLocation = () => {
           Brand Phone
         </label>
         <Field
-          placeholder="Enter Venue Name"
+          placeholder="Enter Brand Phone"
           id="ownerDetails.brandPhone"
           name="ownerDetails.brandPhone"
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"

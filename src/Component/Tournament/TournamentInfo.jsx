@@ -238,10 +238,10 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
     bookingStartDate: yup
       .date()
       .nullable()
-      .required("Booking end date is required.")
+      .required("Booking start date is required.")
       .test(
         "valid-booking-start-date",
-        "Booking start Date must be greater than tournament start date.",
+        "Booking start Date must be before the tournament start date.",
         function (value) {
           const { startDate, endDate } = this.parent;
           const newStartDate = new Date(startDate).getTime();
@@ -257,11 +257,11 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       .required("Booking end date is required.")
       .min(
         yup.ref("bookingStartDate"),
-        "End date must be equal to or after the start date"
+        "Booking end date must be after the booking start date and before the tournament start date"
       )
       .test(
         "valid-booking-end-date",
-        "Booking end Date must be greater than tournament start date",
+        "Booking end Date must be after the booking start date and before the tournament start date",
         function (value) {
           const { startDate, endDate } = this.parent;
           const newStartDate = new Date(startDate).getTime();
