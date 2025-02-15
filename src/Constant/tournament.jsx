@@ -256,8 +256,8 @@ const TournamentTableHeaders = [
 
 const tournamentStatusFilters = [
   { id: "all", title: "all" },
-  { id: "pending", title: "Pending" },
-  { id: "approved", title: "Approved" },
+  { id: "PENDING_VERIFICATION", title: "Pending" },
+  { id: "PUBLISHED", title: "Approved" },
 ];
 
 const approvalBody = {
