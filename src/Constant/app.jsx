@@ -108,18 +108,18 @@ export const ADMIN_NAVIGATION = [
 
 export const TOURNAMENT_OWNER_NAVIGATION = [
   { name: "DashBoard", icon: overviewIcon, path: "" },
-  {
-    name: "Tournament Organiser",
-    icon: tournamentIcon,
-    path: "tournament-organisers",
-  },
+  // {
+  //   name: "Tournament Organisers",
+  //   icon: tournamentIcon,
+  //   path: "tournament-organisers",
+  // },
   // {
   //   name: "Tournament Bookings",
   //   icon: bookingIcon,
   //   path: "tournament-bookings",
   // },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
-  // { name: "User", icon: profileIcon, path: "users" },
+  { name: "Profile", icon: profileIcon, path: "profile" },
 ];
 
 export const VENUE_OWNER_NAVIGATION = [
@@ -159,6 +159,7 @@ export const notHaveBackButton = [
 
   "Users",
   "DASHBOARD",
+  "User Details",
 ];
 
 export const ROLES = [
