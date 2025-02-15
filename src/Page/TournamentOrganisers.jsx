@@ -40,7 +40,7 @@ function TournamentOrganisersPage() {
       <NotCreated
         message="Currently No tournament organisers are present. Please create the tournament organisers to get started."
         buttonText="Add Tournament Organiser"
-        disable={true}
+        // disable={true}
       />
     );
   }
