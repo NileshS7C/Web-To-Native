@@ -928,7 +928,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
               <span className="text-sm text-[#353535] "> or drag and drop</span>
             </p>
 
-            <p className="text-xs text-[#353535] mt-1">(Max. File size: 1MB)</p>
+            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
 
             <FieldArray name="bannerImages">
               {({ form, field, meta, push }) => (
@@ -1044,7 +1044,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading }) => {
               <span className="text-sm text-[#353535] "> or drag and drop</span>
             </p>
 
-            <p className="text-xs text-[#353535] mt-1">(Max. File size: 1MB)</p>
+            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
             <FieldArray name="layoutImages">
               {({ form, field, meta }) => (
                 <input

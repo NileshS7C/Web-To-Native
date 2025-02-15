@@ -899,7 +899,7 @@ const DesktopBannerImageUpload = ({
               <span className="text-sm text-[#353535] "> or drag and drop</span>
             </p>
 
-            <p className="text-xs text-[#353535] mt-1">(Max. File size: 1MB)</p>
+            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
             <Field name="bannerDesktopImages">
               {({ field }) => (
                 <input
@@ -1494,7 +1494,7 @@ const TournamentGallery = ({ dispatch }) => {
               <span className="text-sm text-[#353535] "> or drag and drop</span>
             </p>
 
-            <p className="text-xs text-[#353535] mt-1">(Max. File size: 1MB)</p>
+            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
             <FieldArray name="tournamentGallery">
               {({ form, field, meta }) => (
                 <input
