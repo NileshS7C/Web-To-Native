@@ -231,6 +231,14 @@ const BookingActions = ({ id, index, status }) => {
           item?.action === "cancel"
             ? "bg-red-500 hover:bg-red-300 text-white"
             : "bg-gray-200 hover:bg-gray-400 text-black";
+        let itemName;
+        if (item?.action === "cancel" && status === "CANCELLED") {
+          itemName = "Cancelled";
+        } else if (item?.action === "refund" && status === "REFUNDED") {
+          itemName = "Refunded";
+        } else {
+          itemName = item?.name;
+        }
         return (
           <Button
             className={`text-sm px-[20px] py-2 rounded-md  ${buttonColor} `}
@@ -259,7 +267,7 @@ const BookingActions = ({ id, index, status }) => {
             loading={actionPending && item.action === actionObject.type}
             disabled={handleDisable(item)}
           >
-            {item?.name}
+            {itemName}
           </Button>
         );
       })}
