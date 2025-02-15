@@ -19,6 +19,8 @@ import ErrorBanner from "./ErrorBanner";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import { CiLocationOn } from "react-icons/ci";
 import { IoMdAdd } from "react-icons/io";
+import NotificationBanner from "./NotificationBanner";
+import { dateAndMonth } from "../../utils/dateUtils";
 
 const checkAllField = (scoreData, onValidationError, setDisableButton) => {
   if (!scoreData.length) {
@@ -241,47 +243,61 @@ export const ScoreUpdateModal = ({
               />
 
               {updateError && <ErrorBanner message={errorMessage} />}
+
+              {(players?.player1_id == null || players?.player2_id == null) && (
+                <NotificationBanner
+                  message="Both opponents are required to update the match score."
+                  messageStyle="text-sm text-[#E82B00]"
+                  wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
+                />
+              )}
               {validationError && (
                 <p className="text-md text-red-600">
                   Opponent 1 and Opponent 2 scores are required.
                 </p>
               )}
 
-              <PlayerDetails players={players} />
+              {players?.player1_id != null && players?.player2_id != null && (
+                <>
+                  <PlayerDetails players={players} />
 
-              <ForfietCheckBox handlePlayerSelection={handlePlayerSelection} />
+                  <ForfietCheckBox
+                    handlePlayerSelection={handlePlayerSelection}
+                  />
 
-              {showPlayerSelections && (
-                <PlayerSelector
-                  players={players}
-                  handleSelectedPlayer={handleSelectedPlayer}
-                />
+                  {showPlayerSelections && (
+                    <PlayerSelector
+                      players={players}
+                      handleSelectedPlayer={handleSelectedPlayer}
+                    />
+                  )}
+                  <MatchScoreUpdateSet
+                    getScoreData={getScoreData}
+                    scoreUpdateArray={scoreUpdateArray}
+                  />
+                  <div className="mr-0 mt-3 flex items-end justify-between">
+                    <Button
+                      className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
+                      type="submit"
+                      onClick={(e) => handleScoreUpdate(e)}
+                      disabled={!showPlayerSelections}
+                    >
+                      Forfiet
+                    </Button>
+                    {!showPlayerSelections && (
+                      <Button
+                        className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
+                        type="submit"
+                        onClick={(e) => handleScoreUpdate(e)}
+                        loading={isUpdating}
+                        disabled={validationError || disableButton}
+                      >
+                        Update
+                      </Button>
+                    )}
+                  </div>
+                </>
               )}
-              <MatchScoreUpdateSet
-                getScoreData={getScoreData}
-                scoreUpdateArray={scoreUpdateArray}
-              />
-              <div className="mr-0 mt-3 flex items-end justify-between">
-                <Button
-                  className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
-                  type="submit"
-                  onClick={(e) => handleScoreUpdate(e)}
-                  disabled={!showPlayerSelections}
-                >
-                  Forfiet
-                </Button>
-                {!showPlayerSelections && (
-                  <Button
-                    className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
-                    type="submit"
-                    onClick={(e) => handleScoreUpdate(e)}
-                    loading={isUpdating}
-                    disabled={validationError || disableButton}
-                  >
-                    Update
-                  </Button>
-                )}
-              </div>
             </div>
           </DialogPanel>
         </div>
@@ -338,7 +354,7 @@ const InputSet = ({ index, handleScoreChange, scoreUpdateArray }) => {
           handleScoreChange(value, "set1", index);
         }}
       />
-      <p className="inline-flex items-center gap-1 justify-center text-md text-matchTextColor border-[1px] border-[#718EBF] w-[100px] lg:w-[80px] text-center h-[5vh]  rounded-md ">
+      <p className="inline-flex items-center gap-1 justify-center text-md text-matchTextColor border-[1px] border-[#718EBF] w-[100px] lg:w-[80px] text-center h-[5vh]  rounded-md p-2">
         Set <span>{index + 1} </span>
       </p>
       <input
@@ -401,7 +417,7 @@ const MatchScoreUpdateSet = ({ getScoreData, scoreUpdateArray }) => {
         <div className="flex items-center justify-center gap-2 m-auto">
           {scoreSet.length > 1 && (
             <Button
-              className="w-[15vh] h-[6vh] bg-red-700 text-white rounded-[1vh] flex items-center justify-center gap-2 m-auto hover:bg-red-500"
+              className=" min-w-fit p-2 h-[6vh] bg-red-700 text-white rounded-[1vh] flex items-center justify-center gap-2 m-auto hover:bg-red-500"
               onClick={handleDeleteRow}
             >
               <RiDeleteBin2Line />
@@ -410,7 +426,7 @@ const MatchScoreUpdateSet = ({ getScoreData, scoreUpdateArray }) => {
           )}
           {scoreSet.length < 5 && (
             <Button
-              className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2 m-auto"
+              className="min-w-fit p-2 h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2 m-auto"
               onClick={handleRow}
             >
               <IoMdAdd />
@@ -464,6 +480,8 @@ const PlayerDetails = ({ players }) => {
 };
 
 const MatchLocationDetails = ({ match, location, date, time, court }) => {
+  const formattedMonth = dateAndMonth(date);
+
   return (
     <div className="flex flex-col items-center gap-3 ">
       <p className="text-matchTextColor text-md font-[600]">
@@ -472,8 +490,9 @@ const MatchLocationDetails = ({ match, location, date, time, court }) => {
 
       <div className="flex items-center justify-between divide-x divide-[#232323]">
         <p className="text-matchTextColor pr-2">{time?.startTime || "1:00"}</p>
-        <p className="text-matchTextColor pl-2 pr-2">{date || ""}</p>
-        <p className="text-matchTextColor pl-2">{date || ""}</p>
+        <p className="text-matchTextColor pl-2 pr-2">
+          {formattedMonth.day || ""} <span>{formattedMonth.month || ""}</span>
+        </p>
       </div>
 
       <div className="flex items-center justify-between gap-2">

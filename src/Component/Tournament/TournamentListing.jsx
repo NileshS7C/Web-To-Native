@@ -173,9 +173,9 @@ function TournamentListing() {
       </div>
 
       <div className="flex flex-col gap-2.5 justify-end items-end">
-        <div className="flex justify-end">
+        {/* <div className="flex justify-end">
           <SearchEvents />
-        </div>
+        </div> */}
         {selectedTab && selectedTab === "upcoming" && (
           <FilterGroup
             title="Filter by approved status:"

@@ -4,6 +4,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { uploadImage } from "../../../utils/uploadImage";
 import axiosInstance from "../../../Services/axios";
+
 export default function FeaturedWeek() {
     const [isEditing, setIsEditing] = useState(false);
     const [weekData, setWeekData] = useState({});
@@ -12,17 +13,16 @@ export default function FeaturedWeek() {
     const [buttonText, setButtonText] = useState("");
     const [link, setLink] = useState("");
     const [image, setImage] = useState("");
+    const [newImageFile, setNewImageFile] = useState(null);
 
     const fetchWeekData = async () => {
         try {
             const config = {
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
             };
             const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=featuredThisWeek`, config);
             const data = response.data.data[0];
-            console.log('data',data)
+            
             setWeekData(data);
             setHeading(data.heading);
             setSubHeading(data.subHeading);
@@ -39,23 +39,25 @@ export default function FeaturedWeek() {
     const handleSave = async () => {
         try {
             let uploadImageUrl = image;
-            if (data.image != image) {
-                const uploadedImage = await uploadImage(image);
+
+            if (newImageFile) { // Only upload if a new image is selected
+                const uploadedImage = await uploadImage(newImageFile);
                 uploadImageUrl = uploadedImage?.url || image;
             }
             const config = {
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
             };
-            await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/featuredThisWeek`, JSON.stringify({ heading, subHeading, buttonText, link, image: uploadImageUrl }), config);
+            
+            await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/featuredThisWeek`, 
+                JSON.stringify({ heading, subHeading, buttonText, link, image: uploadImageUrl }), config
+            );
+            
             setIsEditing(false);
             fetchWeekData();
         } catch (error) {
             console.error(error);
         }
     };
-
 
     return (
         <div className="px-4 sm:px-6 lg:px-8">
@@ -66,12 +68,7 @@ export default function FeaturedWeek() {
                 <div className="flex items-end justify-between w-full">
                     <WeekSectionInfo sectionInfo={weekData} />
                     {!isEditing ? (
-                        <button
-                            className="bg-blue-500 text-white px-3 py-2 rounded"
-                            onClick={() => setIsEditing(true)}
-                        >
-                            Edit
-                        </button>
+                        <button className="bg-blue-500 text-white px-3 py-2 rounded" onClick={() => setIsEditing(true)}>Edit</button>
                     ) : (
                         <div className="flex gap-2">
                             <button className="bg-green-500 text-white px-3 py-2 rounded" onClick={handleSave}>Save</button>
@@ -83,60 +80,35 @@ export default function FeaturedWeek() {
             <div className="mt-4 grid grid-cols-2 gap-4 shadow-md rounded-lg border border-gray-300 bg-white py-4 px-4">
                 <div className="flex flex-col gap-2">
                     <label className="font-semibold text-left">Heading</label>
-                    <input
-                        type="text"
-                        className="border p-2 rounded"
-                        value={heading}
-                        onChange={(e) => setHeading(e.target.value)}
-                        disabled={!isEditing}
-                    />
+                    <input type="text" className="border p-2 rounded" value={heading} onChange={(e) => setHeading(e.target.value)} disabled={!isEditing} />
+                    
                     <label className="font-semibold text-left">Sub Heading</label>
-                    <ReactQuill
-                        value={subHeading}
-                        onChange={setSubHeading}
-                        readOnly={!isEditing}
-                        theme="snow"
-                        style={{
-                            height: '170px',
-                            cursor: isEditing ? 'text' : 'not-allowed',
-                            borderColor: '#e5e7eb',
-                        }}
-                    />
-
+                    <ReactQuill value={subHeading} onChange={setSubHeading} readOnly={!isEditing} theme="snow" style={{ height: '170px', cursor: isEditing ? 'text' : 'not-allowed', borderColor: '#e5e7eb' }} />
                 </div>
                 <div className="flex flex-col gap-2">
                     <label className="font-semibold text-left">Button Text</label>
-                    <input
-                        type="text"
-                        className="border p-2 rounded"
-                        value={buttonText}
-                        onChange={(e) => setButtonText(e.target.value)}
-                        disabled={!isEditing}
-                    />
+                    <input type="text" className="border p-2 rounded" value={buttonText} onChange={(e) => setButtonText(e.target.value)} disabled={!isEditing} />
+                    
                     <label className="font-semibold text-left">Link</label>
-                    <input
-                        type="text"
-                        className="border p-2 rounded"
-                        value={link}
-                        onChange={(e) => setLink(e.target.value)}
-                        disabled={!isEditing}
-                    />
+                    <input type="text" className="border p-2 rounded" value={link} onChange={(e) => setLink(e.target.value)} disabled={!isEditing} />
+                    
                     <div className="relative flex items-center gap-2">
-                        {/* Image */}
                         <img src={image} alt="Preview" className="w-full h-40 object-cover rounded" />
-
-                        {/* Upload Icon and Button */}
                         {isEditing && (
                             <div className="absolute right-0 top-0 flex flex-col gap-2">
                                 <input
                                     type="file"
                                     className="hidden"
                                     id="imageUpload"
-                                    onChange={(e) => setImage(URL.createObjectURL(e.target.files[0]))}
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            setNewImageFile(file);
+                                            setImage(URL.createObjectURL(file));
+                                        }
+                                    }}
                                 />
-                                <label htmlFor="imageUpload" className="bg-blue-500 text-white px-3 py-2 rounded cursor-pointer">
-                                    Upload
-                                </label>
+                                <label htmlFor="imageUpload" className="bg-blue-500 text-white px-3 py-2 rounded cursor-pointer">Upload</label>
                             </div>
                         )}
                     </div>

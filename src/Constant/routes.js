@@ -49,11 +49,11 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/bookings/owner/${ownerId}`;
         }
       },
-      cancelAndRefundBooking: (type, ownerId) => {
+      cancelAndRefundBooking: (type, ownerId, bookingId) => {
         if (ADMINROLES.includes(type)) {
-          return `/users/admin/bookings/owner/${ownerId}`;
+          return `/users/admin/bookings/${bookingId}/owner/${ownerId}`;
         } else {
-          return `/users/tournament-owner/bookings/owner/${ownerId}`;
+          return `/users/tournament-owner/bookings/${bookingId}/owner/${ownerId}`;
         }
       },
 

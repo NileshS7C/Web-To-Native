@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
+import { useCookies } from "react-cookie";
 
 import {
   resetConfirmationState,
@@ -11,6 +12,8 @@ import {
   resetActionType,
   setAction,
 } from "../../redux/tournament/bookingSlice";
+import { userLogout } from "../../redux/Authentication/authActions";
+import { getSingle_TO } from "../../redux/tournament/tournamentActions";
 
 import {
   cancelAndRefundBooking,
@@ -30,11 +33,12 @@ const cancelBooking = async (
   bookingId,
   currentPage,
   tournamentId,
-  eventId
+  eventId,
+  ownerId
 ) => {
   try {
     const result = await dispatch(
-      cancelAndRefundBooking({ data, type, bookingId })
+      cancelAndRefundBooking({ data, type, bookingId, ownerId })
     ).unwrap();
 
     if (!result.responseCode) {
@@ -78,11 +82,12 @@ const processRefund = async (
   bookingId,
   currentPage,
   tournamentId,
-  eventId
+  eventId,
+  ownerId
 ) => {
   try {
     const result = await dispatch(
-      cancelAndRefundBooking({ data, type, bookingId })
+      cancelAndRefundBooking({ data, type, bookingId, ownerId })
     ).unwrap();
 
     if (!result.responseCode) {
@@ -124,6 +129,7 @@ const BookingActions = ({ id, index, status }) => {
   const { eventId, tournamentId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = searchParams.get("page");
+  const [cookies] = useCookies(["name", "userRole"]);
 
   const [actionType, setActionType] = useState(null);
   const [actionObject, setActionObject] = useState({
@@ -134,6 +140,7 @@ const BookingActions = ({ id, index, status }) => {
   const { rejectionComments } = useSelector((state) => state.Tournament);
   const { isConfirmed } = useSelector((state) => state.confirm);
   const { isBookingCreating } = useSelector((state) => state.tourBookings);
+  const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
 
   const cancelBookingData = {
     categoryId: "",
@@ -143,6 +150,18 @@ const BookingActions = ({ id, index, status }) => {
   const refundBookingData = {
     categoryId: "",
   };
+
+  useEffect(() => {
+    const userRole = cookies.userRole;
+
+    if (!userRole) {
+      dispatch(userLogout());
+    } else if (userRole === "TOURNAMENT_OWNER") {
+      dispatch(getSingle_TO("TOURNAMENT_OWNER"));
+    } else if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
+      dispatch(getSingle_TO("ADMIN"));
+    }
+  }, []);
 
   useEffect(() => {
     if (actionType && actionType === "cancel") {
@@ -159,7 +178,8 @@ const BookingActions = ({ id, index, status }) => {
           actionObject?.bookingId,
           currentPage,
           tournamentId,
-          eventId
+          eventId,
+          singleTournamentOwner?.id
         );
 
         setActionObject({
@@ -180,7 +200,8 @@ const BookingActions = ({ id, index, status }) => {
           actionObject?.bookingId,
           currentPage,
           tournamentId,
-          eventId
+          eventId,
+          singleTournamentOwner?.id
         );
 
         setActionObject({
@@ -210,6 +231,14 @@ const BookingActions = ({ id, index, status }) => {
           item?.action === "cancel"
             ? "bg-red-500 hover:bg-red-300 text-white"
             : "bg-gray-200 hover:bg-gray-400 text-black";
+        let itemName;
+        if (item?.action === "cancel" && status === "CANCELLED") {
+          itemName = "Cancelled";
+        } else if (item?.action === "refund" && status === "REFUNDED") {
+          itemName = "Refunded";
+        } else {
+          itemName = item?.name;
+        }
         return (
           <Button
             className={`text-sm px-[20px] py-2 rounded-md  ${buttonColor} `}
@@ -238,7 +267,7 @@ const BookingActions = ({ id, index, status }) => {
             loading={actionPending && item.action === actionObject.type}
             disabled={handleDisable(item)}
           >
-            {item?.name}
+            {itemName}
           </Button>
         );
       })}

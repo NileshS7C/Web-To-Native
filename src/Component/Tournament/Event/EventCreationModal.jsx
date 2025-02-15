@@ -1,17 +1,35 @@
-import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
+import PropTypes from "prop-types";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
+import DatePicker from "react-datepicker";
+import * as yup from "yup";
+
+import useDebounce from "../../../Hooks/useDebounce";
+
+import { toggleModal } from "../../../redux/tournament/eventSlice";
+import { getAllVenues } from "../../../redux/Venue/venueActions";
+import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
+
+import {
+  addEventCategory,
+  getAllCategories,
+  getSingleCategory,
+  updateEventCategory,
+} from "../../../redux/tournament/tournamentActions";
+
 import { crossIcon, calenderIcon } from "../../../Assests";
 import Button from "../../Common/Button";
-import { toggleModal } from "../../../redux/tournament/eventSlice";
+
 import { tournamentEvent } from "../../../Constant/tournament";
 import TextError from "../../Error/formError";
-import DatePicker from "react-datepicker";
+
 import { formattedDate, parseDate } from "../../../utils/dateUtils";
 import { ImSpinner8 } from "react-icons/im";
 import LocationSearchInput from "../../Common/LocationSearch";
-import { useEffect, useRef, useState } from "react";
-import { getAllVenues } from "../../../redux/Venue/venueActions";
-import PropTypes from "prop-types";
+import ErrorBanner from "../../Common/ErrorBanner";
+
 import { RxCrossCircled } from "react-icons/rx";
 import {
   ComboboxOptions,
@@ -24,20 +42,7 @@ import {
   DialogBackdrop,
   DialogPanel,
 } from "@headlessui/react";
-
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import * as yup from "yup";
-import {
-  addEventCategory,
-  getAllCategories,
-  getSingleCategory,
-  updateEventCategory,
-} from "../../../redux/tournament/tournamentActions";
-import { showError } from "../../../redux/Error/errorSlice";
-import useDebounce from "../../../Hooks/useDebounce";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
-import ErrorBanner from "../../Common/ErrorBanner";
 
 const requiredCategoryFields = (category) => {
   const {
@@ -74,7 +79,7 @@ const initialValues = {
   minPlayers: 1,
   skillLevel: "",
   categoryLocation: {
-    name: "",
+    handle: "",
     address: {
       line1: "",
       line2: "",
@@ -182,18 +187,18 @@ export const EventCreationModal = () => {
           location: locationWithOutExact,
         };
 
-        if (!venueNotListed) {
-          updatedLocation = {
-            address: updatedAddress,
-            venueImage: selectedVenueData.image,
-            handle: selectedVenueData.handle,
-          };
-        }
+        updatedLocation = {
+          address: updatedAddress,
+          venueImage: selectedVenueData.image,
+          handle: selectedVenueData.name,
+        };
       }
 
       const updatedValues = {
         ...values,
-        categoryLocation: updatedLocation,
+        categoryLocation: venueNotListed
+          ? values?.categoryLocation
+          : updatedLocation,
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
@@ -377,8 +382,6 @@ const AddEventTitle = () => {
 };
 
 const EventName = () => {
-  const { values } = useFormikContext();
-
   return (
     <div className="flex flex-col items-start gap-2.5">
       <label className="text-base leading-[19.36px]" htmlFor="categoryName">
@@ -677,18 +680,18 @@ const VenueSelection = ({
                 <div className="flex flex-col items-start gap-2.5 w-full">
                   <label
                     className=" text-[#232323] text-base leading-[19.36px]"
-                    htmlFor="categoryLocation.name"
+                    htmlFor="categoryLocation.handle"
                   >
                     Venue Name
                   </label>
                   <Field
                     placeholder="Enter Venue Name"
-                    id="categoryLocation.name"
-                    name="categoryLocation.name"
+                    id="categoryLocation.handle"
+                    name="categoryLocation.handle"
                     className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <ErrorMessage
-                    name="categoryLocation.name"
+                    name="categoryLocation.handle"
                     component={TextError}
                   />
                 </div>
@@ -779,7 +782,7 @@ const EventTimings = () => {
 };
 
 const AddVenueAddress = ({ location }) => {
-  const { setFieldValue, errors } = useFormikContext();
+  const { setFieldValue } = useFormikContext();
 
   useEffect(() => {
     if (location.city || location.state) {
@@ -962,9 +965,7 @@ function ComboboxForVenuesList({
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
   const browserLocation = useLocation();
-  const { values } = useFormikContext();
   const { venues, totalVenues } = useSelector((state) => state.getVenues);
-  const { singleCategorySuccess } = useSelector((state) => state.event);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [updatedVenues, setUpdatedVenues] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -977,7 +978,6 @@ function ComboboxForVenuesList({
   const debounceCalls = useDebounce(query, 300);
   const searchParams = new URLSearchParams(browserLocation.search);
   const categoryId = searchParams.get("category");
-  const { tournamentId } = useParams();
   const handleRemoveVenue = () => {
     setSelectedPerson(null);
   };
@@ -988,7 +988,7 @@ function ComboboxForVenuesList({
       getLocation({
         address,
         name: selectedPerson?.name,
-        image: selectedPerson.bannerImages[0].url,
+        image: selectedPerson?.bannerImages?.[0].url,
       });
     }
   }, [selectedPerson]);
@@ -1224,6 +1224,13 @@ function ComboboxForVenuesList({
 
 VenueSelection.propTypes = {
   venues: PropTypes.array,
+  total: PropTypes.number,
+  location: PropTypes.object,
+  checkVenueOption: PropTypes.bool,
+  isVenueDecided: PropTypes.bool,
+  getLocation: PropTypes.func,
+  isVenueNotListed: PropTypes.bool,
+  updatedCategory: PropTypes.object,
 };
 
 ComboboxForVenuesList.propTypes = {

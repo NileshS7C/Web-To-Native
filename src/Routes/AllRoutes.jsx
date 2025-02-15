@@ -35,6 +35,7 @@ import RefundCancellation from "../Page/CMS/StaticPages/RefundCancellation";
 import PrivacyPolicy from "../Page/CMS/StaticPages/PrivacyPolicy";
 import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
 import TournamentOrganisersPage from "../Page/TournamentOrganisers";
+import FAQS from "../Page/CMS/Homepage/FAQ";
 
 const AllRoutes = () => {
   return (
@@ -103,6 +104,7 @@ const AllRoutes = () => {
             element={<DestinationDink />}
           />
           <Route path="cms/homepage/build-courts" element={<BuildCourts />} />
+          <Route path="cms/homepage/faqs" element={<FAQS />} />
           <Route path="cms/homepage/journal" element={<Journal />} />
           <Route path="cms/homepage/news-&-update" element={<NewsUpdates />} />
           <Route path="cms/static-pages/help-&-faqs" element={<FAQ />} />

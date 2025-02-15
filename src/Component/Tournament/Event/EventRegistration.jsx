@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllBookings } from "../../../redux/tournament/tournamentActions";
+import { getFixture } from "../../../redux/tournament/fixturesActions";
 import {
   onPageChangeEvent,
   toggleBookingModal,
@@ -37,6 +38,8 @@ function EventRegistrations({ tournament }) {
     (state) => state.confirm
   );
 
+  const { fixture } = useSelector((state) => state.fixture);
+
   const currentPath = location.pathname;
 
   useEffect(() => {
@@ -49,6 +52,8 @@ function EventRegistrations({ tournament }) {
           eventId,
         })
       );
+
+      dispatch(getFixture({ tour_Id: tournamentId, eventId }));
     }
   }, [currentPage, tournamentId, eventId]);
 
@@ -66,21 +71,16 @@ function EventRegistrations({ tournament }) {
     );
   }
 
-  if (!bookingData?.bookings?.length) {
-    return (
-      <EmptyBanner message="There are currently no bookings for this event." />
-    );
-  }
-
   return (
     <div className="flex flex-col gap-5 md:bg-[#FFFFFF] justify-center p-5 rounded-lg">
       <div className="flex justify-end mt-4">
         <Button
           type="button"
-          className="w-[148px] h-[40px] rounded-[10px] shadow-md text-sm text-white bg-blue-500 hover:bg-blue-700 focus:outline-none"
+          className="w-[148px] h-[40px] rounded-[10px] shadow-md text-sm text-white bg-blue-500 hover:bg-blue-700 focus:outline-none disabled:bg-blue-300"
           onClick={() => {
             dispatch(toggleBookingModal());
           }}
+          disabled={fixture}
         >
           Add Participant
         </Button>
@@ -100,7 +100,7 @@ function EventRegistrations({ tournament }) {
 
       <DataTable
         columns={bookingTableHeaders}
-        data={bookingData.bookings}
+        data={bookingData?.bookings}
         totalPages={bookingData?.total}
         currentPage={currentPage}
         onPageChange={onPageChangeEvent}
