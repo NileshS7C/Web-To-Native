@@ -865,10 +865,10 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
 
     const maxSize = venueImageSize;
     if (uploadedFile.size > maxSize) {
-      setFieldError("bannerImages", "File should be less than 1 MB");
+      setFieldError("bannerImages", "File should be less than 5 MB");
       dispatch(
         showError({
-          message: "File should be less than 1 MB.",
+          message: "File should be less than 5 MB.",
           onClose: "hideError",
         })
       );
@@ -993,7 +993,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading }) => {
 
     const maxSize = venueImageSize;
     if (uploadedFile.size > maxSize) {
-      setFieldError("layoutImages", "File should be less than 1 MB");
+      setFieldError("layoutImages", "File should be less than 5 MB");
       return;
     }
     try {
