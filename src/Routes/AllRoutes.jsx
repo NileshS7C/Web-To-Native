@@ -36,6 +36,7 @@ import PrivacyPolicy from "../Page/CMS/StaticPages/PrivacyPolicy";
 import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
 import TournamentOrganisersPage from "../Page/TournamentOrganisers";
 import FAQS from "../Page/CMS/Homepage/FAQ";
+import ProfilePage from "../Page/Profile";
 
 const AllRoutes = () => {
   return (
@@ -189,6 +190,10 @@ const AllRoutes = () => {
                 />
               }
             />
+          </Route>
+
+          <Route path="profile">
+            <Route index element={<ProfilePage />} />
           </Route>
         </Route>
 
