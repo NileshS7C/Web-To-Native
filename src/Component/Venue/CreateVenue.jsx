@@ -570,7 +570,7 @@ const VenueDescription = () => {
         theme="snow"
         id="description"
         name="description"
-        placeholder="Enter Tournament Description"
+        placeholder="Enter Venue Description"
         onChange={(e) => {
           setFieldValue("description", e);
         }}
