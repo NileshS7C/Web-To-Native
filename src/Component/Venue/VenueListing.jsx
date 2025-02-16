@@ -124,6 +124,9 @@ export default function VenueListing() {
         totalPages={totalVenues}
         onPageChange={onPageChange}
         pathName="/venues"
+        evenRowColor="[#FFFFFF]"
+        oddRowColor="blue-400"
+        alternateRowColors= "true"
       />
     </div>
   );
