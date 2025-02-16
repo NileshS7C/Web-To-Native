@@ -135,7 +135,7 @@ export const API_END_POINTS = {
         if (ADMINROLES.includes(type)) {
           return "/users/admin/tournaments/tournament-tags";
         } else {
-          return "users/tournament-owner/tournaments/tournament-tags";
+          return "/users/tournament-owner/tournaments/tournament-tags";
         }
       },
 
