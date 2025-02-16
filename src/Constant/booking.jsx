@@ -48,7 +48,7 @@ const bookingTableHeaders = [
   },
   {
     key: "registrationDate",
-    header: "Registration Date",
+    header: "Registration Fee",
     render: (item) => {
       return <p>{item?.totalAmount}</p>;
     },
