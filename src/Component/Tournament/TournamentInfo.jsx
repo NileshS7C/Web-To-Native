@@ -62,6 +62,7 @@ const requiredTournamentFields = (tournament) => {
     ownerUserId,
     tournamentId,
     tournamentName,
+    preRequisites,
     tournamentLocation: {
       address: {
         location: { is_location_exact, ...locationWithOutExact },
@@ -90,6 +91,7 @@ const requiredTournamentFields = (tournament) => {
     ownerUserId,
     tournamentId,
     tournamentName,
+    preRequisites,
     tournamentLocation: { address: updatedTournamentLocation },
     handle,
     tags,
@@ -123,6 +125,7 @@ const initialValues = {
       },
     },
   },
+  preRequisites: "",
   handle: "",
   tags: [],
   description: "",
@@ -418,7 +421,6 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
               <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323]">
                 <ErrorModal />
                 <SuccessModal />
-
                 <TournamentBasicInfo
                   userName={cookies?.name || ""}
                   userRole={cookies?.userRole || userRole}
@@ -433,6 +435,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 />
                 <TournamentAddress location={location} />
                 <TournamentDescription isDisable={isDisable} />
+                <TournamentPrerequisite isDisable={isDisable} />
                 <TournamentDates />
                 <TournamentFileUpload
                   dispatch={dispatch}
@@ -777,6 +780,34 @@ const TournamentDescription = ({ isDisable }) => {
         }}
         className="custom-quill"
         value={values?.description}
+        readOnly={!isDisable}
+      />
+      ;
+    </div>
+  );
+};
+
+const TournamentPrerequisite = ({ isDisable }) => {
+  const { values, setFieldValue } = useFormikContext();
+
+  return (
+    <div className="grid grid-cols-1 gap-2">
+      <label
+        className="text-base leading-[19.36px] justify-self-start"
+        htmlFor="preRequisites"
+      >
+        Prerequisite
+      </label>
+      <ReactQuill
+        theme="snow"
+        id="preRequisites"
+        name="preRequisites"
+        placeholder="Enter Tournament Prerequisites"
+        onChange={(e) => {
+          setFieldValue("preRequisites", e);
+        }}
+        className="custom-quill"
+        value={values?.preRequisites}
         readOnly={!isDisable}
       />
       ;

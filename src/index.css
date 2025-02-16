@@ -6,7 +6,6 @@
   font-style: normal;
 }
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -80,7 +79,35 @@
   @apply border-blue-500 shadow-md;
 }
 
-
 #description .ql-toolbar .ql-formats {
+  @apply flex gap-3 mx-2; /* Adjust gap and margin as needed */
+}
+
+/* Customize the editor container */
+#preRequisites .ql-container {
+  @apply bg-white border-2 border-[#DFEAF2] rounded-md p-2 text-gray-800 text-base;
+}
+
+/* Customize the toolbar */
+#preRequisites .ql-toolbar {
+  @apply flex justify-center gap-5 bg-[#DFEAF2] border-2 border-[#DFEAF2] rounded-t-md;
+}
+
+/* Style the toolbar buttons */
+#preRequisites .ql-toolbar button {
+  @apply bg-white text-gray-800 border border-[#DFEAF2] rounded-md hover:bg-gray-300;
+}
+
+/* Style the editor text */
+#preRequisites .ql-editor {
+  @apply min-h-[170px] text-gray-900 font-sans leading-relaxed;
+}
+
+/* Customize editor focus state */
+#preRequisites .ql-container:focus-within {
+  @apply border-blue-500 shadow-md;
+}
+
+#preRequisites .ql-toolbar .ql-formats {
   @apply flex gap-3 mx-2; /* Adjust gap and margin as needed */
 }
