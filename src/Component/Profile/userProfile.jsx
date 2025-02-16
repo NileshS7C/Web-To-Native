@@ -4,10 +4,6 @@ export const UserProfile = ({ onwerDetails }) => {
   return (
     <div className="w-full max-w-3xl mx-auto p-4">
       <div className="bg-white rounded-lg shadow-lg p-6">
-        <div className="border-b pb-4 mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">User Details</h2>
-        </div>
-
         <div className="space-y-6">
           {/* Personal Information */}
           <div>
@@ -78,6 +74,6 @@ export const UserProfile = ({ onwerDetails }) => {
   );
 };
 
-UserProfile.PropTypes = {
+UserProfile.propTypes = {
   onwerDetails: PropTypes.object,
 };
