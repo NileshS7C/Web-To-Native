@@ -55,7 +55,7 @@ const tableHeaders = [
     render: (item) => (
       <span
         className={`inline-flex items-center rounded-2xl ${
-          item.status === "PUBLISHED"
+          item.status === "DRAFT"
             ? "bg-gray-300 text-black-800"
             : "bg-green-50 text-[#41C588]"
         }  px-2 py-1 text-xs font-medium  ring-1 ring-inset ring-green-600/20`}
