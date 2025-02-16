@@ -165,11 +165,7 @@ const VenueInfo = () => {
           .required("Location is required."),
       }),
     }),
-    description: yup
-      .string()
-      .required("Description is required.")
-      .max(500, "Description cannot exceed 500 characters."),
-
+    description: yup.string().required("Description is required."),
     availableDays: yup
       .array()
       .test(
