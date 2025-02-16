@@ -54,11 +54,25 @@ const formattedMatchData = (scoreData, players) => {
 
     if (currentMatch) {
       const { status, number, stage_id, parent_id, ...rest } = currentMatch;
+      const score1 = Number(set.set1);
+      const score2 = Number(set.set2);
+
+      // Determine result based on scores
+      const result1 = score1 > score2 ? "win" : "loss";
+      const result2 = score2 > score1 ? "win" : "loss";
 
       return {
         ...rest,
-        opponent1: { ...currentMatch.opponent1, score: Number(set.set1) },
-        opponent2: { ...currentMatch.opponent2, score: Number(set.set2) },
+        opponent1: { 
+          ...currentMatch.opponent1, 
+          score: score1,
+          result: result1
+        },
+        opponent2: { 
+          ...currentMatch.opponent2, 
+          score: score2,
+          result: result2
+        },
       };
     }
   });
@@ -71,16 +85,26 @@ const formattedMatchData = (scoreData, players) => {
 };
 
 const formattedMatchDataForForfiet = (forfietPlayerId, players) => {
-  const { player1_id, player2_id, stage_id, group_id, round_id, matchId } =
-    players;
+  const { player1_id, player2_id, stage_id, group_id, round_id, matchId } = players;
+
+  // Ensure forfietPlayerId is compared as the same type (string or number)
+  const selectedId = Number(forfietPlayerId);
+  const p1Id = Number(player1_id);
+  const p2Id = Number(player2_id);
 
   return {
     id: matchId,
     stage_id,
     group_id,
     round_id,
-    opponent1: { id: player1_id, forfeit: player1_id === forfietPlayerId },
-    opponent2: { id: player2_id, forfeit: player2_id === forfietPlayerId },
+    opponent1: {
+      id: p1Id,
+      forfeit: selectedId === p1Id  // Will be true if this player was selected
+    },
+    opponent2: {
+      id: p2Id,
+      forfeit: selectedId === p2Id  // Will be true if this player was selected
+    }
   };
 };
 
@@ -135,7 +159,7 @@ export const ScoreUpdateModal = ({
   };
 
   const handleSelectedPlayer = (value) => {
-    setSelectedPlayerId(value);
+    setSelectedPlayerId(value ? Number(value) : "");
   };
 
   const handleValidationError = (data) => {
@@ -211,7 +235,7 @@ export const ScoreUpdateModal = ({
       setUpdateError(true);
       setErrorMessage(
         err.data.message ||
-          "Opps, something went wrong while updating the match score."
+        "Opps, something went wrong while updating the match score."
       );
     } finally {
       setIsUpdating(false);
@@ -333,6 +357,7 @@ const PlayerSelector = ({ players, handleSelectedPlayer }) => {
     <select
       className="h-[5vh] min-w-full border-[1px] px-[10px] border-[#DFEAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       onChange={(e) => handleSelectedPlayer(e.target.value)}
+      defaultValue=""
     >
       <option value="">Select Player</option>
       <option value={player1_id}>{player1}</option>
