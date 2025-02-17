@@ -99,6 +99,7 @@ const validateOpenAndCloseTime = (days) => {
 const initialValues = {
   name: "",
   handle: "",
+  venueInfoUrl:"",
   tags: [],
   address: {
     line1: "",
@@ -433,6 +434,26 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
           }}
         />
         <ErrorMessage name="handle" component={TextError} />
+      </div>
+
+
+      <div className="flex flex-col items-start gap-2.5">
+        <label
+          className=" text-[#232323] text-base leading-[19.36px]"
+          htmlFor="venueInfoUrl"
+        >
+          Redirection Link
+        </label>
+        <Field
+          placeholder="Enter Venue redirection link"
+          id="venueInfoUrl"
+          name="venueInfoUrl"
+          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            setFieldValue("venueInfoUrl", e.target.value);
+          }}
+        />
+        {/* <ErrorMessage name="handle" component={TextError} /> */}
       </div>
 
       <Combopopover
