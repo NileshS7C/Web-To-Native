@@ -240,7 +240,7 @@ const Description = ({ description }) => {
       <h3 className="text-sm text-[#667085]">About Venue</h3>
       <div
         id="about-venue"
-        className="flex items-start w-full h-[250px]  p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        className="text-left overflow-auto w-full h-[250px]  p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
         dangerouslySetInnerHTML={{ __html: description }}
       />
     </div>
