@@ -51,8 +51,9 @@ export default function WhyChooseEditDataModal({ data, selectedCard, isOpen, onC
                                         position: selectedCard.position,
                                     }
 
+                                    console.log('data',data);
                                     const updatedFeatures = data.steps.map((feature) =>
-                                        feature.position === selectedCard.position ? updatedSteps : steps
+                                        feature.position === selectedCard.position ? updatedSteps : data?.steps
                                     );
                                     const payload = {
                                         sectionTitle: data.sectionTitle,

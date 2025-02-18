@@ -24,7 +24,7 @@ export default function NewsEditDataModal({ data, selectedCard, isOpen, onClose,
         title: Yup.string().required("Title is required"),
         description: Yup.string().required("Description is required"),
         date: Yup.date().required("Date is required"),
-        link: Yup.string().url("Invalid URL format").required("Link is required"),
+        link: Yup.string().required("Link is required"),
         image: Yup.mixed().required("Image is required")
     });
 
@@ -128,7 +128,7 @@ export default function NewsEditDataModal({ data, selectedCard, isOpen, onClose,
                                                 {/* Link Input */}
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-900">Link</label>
-                                                    <Field name="link" type="url" placeholder="https://example.com" className="block w-full rounded-md border-2 border-gray-300 px-3 py-2 text-base" />
+                                                    <Field name="link" type="text" placeholder="https://example.com" className="block w-full rounded-md border-2 border-gray-300 px-3 py-2 text-base" />
                                                     <ErrorMessage name="link" component="p" className="mt-1 text-sm text-red-600" />
                                                 </div>
 
