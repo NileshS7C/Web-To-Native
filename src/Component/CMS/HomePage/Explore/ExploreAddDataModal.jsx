@@ -18,7 +18,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
     const validationSchema = Yup.object().shape({
         title: Yup.string().required("Title is required"),
         description: Yup.string().required("Description is required"),
-        redirect: Yup.string().url("Invalid URL format").required("Redirect URL is required"),
+        redirect: Yup.string().required("Redirect URL is required"),
         image: Yup.mixed().required("Image is required")
     });
 
@@ -148,7 +148,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                                     <Field
                                                         id="redirect"
                                                         name="redirect"
-                                                        type="url"
+                                                        type="text"
                                                         placeholder="https://example.com"
                                                         className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                     />
