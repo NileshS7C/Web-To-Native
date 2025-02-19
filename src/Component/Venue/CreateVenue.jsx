@@ -946,6 +946,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
             </p>
 
             <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
+            <p className="text-xs text-[#353535] mt-1">(Image size: 1200x600)</p>
 
             <FieldArray name="bannerImages">
               {({ form, field, meta, push }) => (
@@ -1062,6 +1063,8 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading }) => {
             </p>
 
             <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
+            <p className="text-xs text-[#353535] mt-1">(Image size: 800x400)</p>
+
             <FieldArray name="layoutImages">
               {({ form, field, meta }) => (
                 <input

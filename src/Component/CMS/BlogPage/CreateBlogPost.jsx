@@ -247,7 +247,6 @@ export default function CreateBlogPost() {
               id="coverImageUpload"
               ref={coverFileInputRef}
             />
-
             <div className="text-left">
               <label
                 htmlFor="coverImageUpload"
@@ -274,6 +273,9 @@ export default function CreateBlogPost() {
                 </button>
               </div>
             )}
+
+<span className="text-[12px] text-left text-[#353535] mt-1">(Image size: 1200x600) </span>
+
 
             {imageError && <p className="text-red-500 text-sm">{imageError}</p>}
           </div>
@@ -350,6 +352,8 @@ export default function CreateBlogPost() {
                   >
                     &times;
                   </button>
+                  <span className="text-[12px] text-left text-[#353535] mt-1">(Image size: 300x300) </span>
+
                 </div>
               )}
 

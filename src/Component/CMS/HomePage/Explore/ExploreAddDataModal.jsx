@@ -178,6 +178,7 @@ export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepa
                                                             setImagePreview(event.currentTarget.files[0] ? URL.createObjectURL(event.currentTarget.files[0]) : null);
                                                         }}
                                                     />
+                                                    <p className="text-[12px] text-[#353535] mt-1">(Image size: 500x700)</p>
                                                     <ErrorMessage
                                                         name="image"
                                                         component="p"

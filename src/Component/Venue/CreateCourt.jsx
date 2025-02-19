@@ -308,6 +308,7 @@ const CourtFileUpload = ({ dispatch }) => {
               <p className="text-xs text-[#353535] mt-1">
                 (Max. File size: 5MB)
               </p>
+              <p className="text-xs text-[#353535] mt-1">(Image size: 600x300)</p>
 
               <Field name="desktopBannerImages">
                 {({ form, field, meta }) => (
@@ -429,6 +430,7 @@ const MobileBannerImage = ({ dispatch }) => {
             </p>
 
             <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
+            <p className="text-xs text-[#353535] mt-1">(Image size: 600x300)</p>
             <Field name="mobileBannerImages">
               {({ form, field }) => (
                 <input

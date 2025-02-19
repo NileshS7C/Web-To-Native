@@ -108,6 +108,9 @@ export default function WhyChooseEditDataModal({ data, selectedCard, isOpen, onC
                                                             setImagePreview(file ? URL.createObjectURL(file) : selectedCard?.image);
                                                         }}
                                                     />
+                                                 <span className="text-[12px] text-[#353535] mt-1">(Image size: 600x600) </span>
+                                                 <span className="text-[12px] text-[#353535] mt-1">(Image Type: PNG) </span>
+
                                                     <ErrorMessage name="image" component="p" className="mt-1 text-sm text-red-600" />
 
                                                     {imagePreview && (
