@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
@@ -68,6 +68,10 @@ const Layout = () => {
       setApproveButtonClicked(false);
     }
   }, [approvalBody, tournamentId, approveButtonClicked]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
 
   // Define the custom route where the div should be hidden
   const hiddenRoutes = [
