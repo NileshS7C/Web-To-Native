@@ -446,7 +446,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 <TournamentGallery dispatch={dispatch} />
                 <Button
                   className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
-                    !isDisable ? "hidden" : ""
+                    status !== "DRAFT" ? "hidden" : ""
                   }`}
                   type="submit"
                   loading={isSubmitting}
@@ -931,7 +931,9 @@ const DesktopBannerImageUpload = ({
             </p>
 
             <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-            <p className="text-xs text-[#353535] mt-1">(Image Size: 1200x600)</p>
+            <p className="text-xs text-[#353535] mt-1">
+              (Image Size: 1200x600)
+            </p>
             <Field name="bannerDesktopImages">
               {({ field }) => (
                 <input
@@ -1133,13 +1135,15 @@ const TournamentSponserTable = ({ isDisable }) => {
                     <td className="text-left p-2">{index + 1}</td>
                     <td className=" text-left p-2">
                       <div className=" flex relative ">
-                      <div className="block text-center">
-                        <img
-                          src={row.sponsorImage || imageUpload}
-                          alt="sponsor logo"
-                          className="w-8 h-8 "
-                        />
-                        <p className="text-[11px] text-[#353535]">(Image Size: 200x200)</p>
+                        <div className="block text-center">
+                          <img
+                            src={row.sponsorImage || imageUpload}
+                            alt="sponsor logo"
+                            className="w-8 h-8 "
+                          />
+                          <p className="text-[11px] text-[#353535]">
+                            (Image Size: 200x200)
+                          </p>
                         </div>
                         <Field name={`sponsors.${index}.sponserImage`}>
                           {({ form, field }) => (
@@ -1218,12 +1222,14 @@ const TournamentSponserTable = ({ isDisable }) => {
                 <td className=" text-left p-2">
                   <div className=" flex relative ">
                     <div className="block text-center">
-                    <img
-                      src={sponsorImage || imageUpload}
-                      alt="sponsor logo"
-                      className="w-8 h-8 "
-                    />
-                    <p className="text-[11px] text-[#353535]">(Image Size: 200x200)</p>
+                      <img
+                        src={sponsorImage || imageUpload}
+                        alt="sponsor logo"
+                        className="w-8 h-8 "
+                      />
+                      <p className="text-[11px] text-[#353535]">
+                        (Image Size: 200x200)
+                      </p>
                     </div>
                     <input
                       id="sponserImage"
