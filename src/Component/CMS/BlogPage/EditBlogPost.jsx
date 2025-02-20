@@ -323,6 +323,8 @@ export default function EditBlogPost() {
                         &times;
                       </button>
                     )}
+                    <span className="text-[12px] text-left text-[#353535] mt-1">(Image size: 1200x600) </span>
+
                   </div>
                 )}
                 {imageError && (
@@ -409,6 +411,8 @@ export default function EditBlogPost() {
                           &times;
                         </button>
                       )}
+                      <span className="text-[12px] text-left text-[#353535] mt-1">(Image size: 300x300) </span>
+
                     </div>
                   )}
                   {writerImageError && (

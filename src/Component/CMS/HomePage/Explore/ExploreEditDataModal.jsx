@@ -175,6 +175,7 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
                                                             setImagePreview(file ? URL.createObjectURL(file) : selectedCard?.image);
                                                         }}
                                                     />
+                                                    <p className="text-[12px] text-[#353535] mt-1">(Image size: 500x700)</p>
                                                     <ErrorMessage name="image" component="p" className="mt-1 text-sm text-red-600" />
 
                                                     {/* Image Preview */}

@@ -8,8 +8,7 @@ import axiosInstance from "../../../../Services/axios";
 export default function WhyChooseEditDataModal({ data, selectedCard, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(selectedCard.image || null);
 
-    console.log('data', data)
-    console.log('sele', selectedCard)
+   
     // Validation Schema
     const validationSchema = Yup.object().shape({
         heading: Yup.string().required("Heading is required"),
@@ -33,45 +32,66 @@ export default function WhyChooseEditDataModal({ data, selectedCard, isOpen, onC
                             onSubmit={async (values) => {
                                 try {
                                     let uploadedImageUrl = imagePreview;
-                                    console.log('uploadedImageUrl',uploadedImageUrl)
+                                    
                                     if (values.image instanceof File) {
-                                        
                                         const uploadResponse = await uploadImage(values.image);
-                                        console.log("uploadResponse",uploadResponse)
                                         if (uploadResponse?.url) {
                                             uploadedImageUrl = uploadResponse.url;
                                         }
                                     }
-
-                                    const updatedSteps =
-                                    {
-                                        heading: values.heading,
-                                        subHeading: values.subHeading,
-                                        image: uploadedImageUrl,
-                                        position: selectedCard.position,
+                            
+                                    // Find the existing step in data.steps
+                                    const existingStep = data.steps.find(step => step.position === selectedCard.position);
+                            
+                                    // Check if any value has changed
+                                    if (
+                                        existingStep.heading !== values.heading ||
+                                        existingStep.subHeading !== values.subHeading ||
+                                        existingStep.image !== uploadedImageUrl
+                                    ) {
+                                        // Create a new updated object
+                                        const updatedStep = {
+                                            heading: values.heading,
+                                            subHeading: values.subHeading,
+                                            image: uploadedImageUrl,
+                                            position: selectedCard.position,
+                                        };
+                            
+                                        // Replace the old step with the updated one
+                                        const updatedSteps = data.steps.map(step =>
+                                            step.position === selectedCard.position ? updatedStep : step
+                                        );
+                            
+                                        const payload = {
+                                            sectionTitle: data.sectionTitle,
+                                            isVisible: data.isVisible,
+                                            steps: updatedSteps,
+                                        };
+                            
+                                        console.log('Updated Payload:', payload);
+                            
+                                        const config = {
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                            },
+                                        };
+                            
+                                        await axiosInstance.post(
+                                            `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/whyChoosePicklebay`,
+                                            JSON.stringify(payload),
+                                            config
+                                        );
+                            
+                                        fetchHomepageSections();
+                                        onClose();
+                                    } else {
+                                        console.log("No changes detected. No update required.");
                                     }
-
-                                    console.log('data',data);
-                                    const updatedFeatures = data.steps.map((feature) =>
-                                        feature.position === selectedCard.position ? updatedSteps : data?.steps
-                                    );
-                                    const payload = {
-                                        sectionTitle: data.sectionTitle,
-                                        isVisible: data.isVisible,
-                                        steps: updatedFeatures,
-                                    };
-                                    const config = {
-                                        headers: {
-                                            "Content-Type": "application/json",
-                                        },
-                                    };
-                                    await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/whyChoosePicklebay`, JSON.stringify(payload), config);
-                                    fetchHomepageSections();
-                                    onClose();
                                 } catch (error) {
                                     console.error("Error submitting data:", error);
                                 }
                             }}
+                            
                         >
                             {({ setFieldValue }) => (
                                 <Form>
@@ -108,6 +128,9 @@ export default function WhyChooseEditDataModal({ data, selectedCard, isOpen, onC
                                                             setImagePreview(file ? URL.createObjectURL(file) : selectedCard?.image);
                                                         }}
                                                     />
+                                                 <span className="text-[12px] text-[#353535] mt-1">(Image size: 600x600) </span>
+                                                 <span className="text-[12px] text-[#353535] mt-1">(Image Type: PNG) </span>
+
                                                     <ErrorMessage name="image" component="p" className="mt-1 text-sm text-red-600" />
 
                                                     {imagePreview && (

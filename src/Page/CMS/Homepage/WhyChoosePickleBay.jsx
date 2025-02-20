@@ -16,6 +16,7 @@ function WhyChoosePickleBay() {
               };
             const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=whyChoosePicklebay`, config);
             setWhyChooseData(response.data.data[0])
+            console.log('respones',response)
         } catch (error) {
             console.error(error);
         }

@@ -145,6 +145,8 @@ export default function DestinationDink() {
               alt="Desktop"
               className="w-full h-60 object-cover rounded-md mt-4"
             />
+                                  <span className="text-[12px] text-[#353535] mt-1">(Image size: 800x500) </span>
+
           </div>
 
           {/* Mobile Image */}
@@ -173,6 +175,7 @@ export default function DestinationDink() {
               alt="Mobile"
               className="w-full h-60 object-cover rounded-md mt-4"
             />
+                                  <span className="text-[12px] text-[#353535] mt-1">(Image size: 1600x600) </span>
           </div>
         </div>
       </div>

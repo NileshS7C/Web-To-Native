@@ -108,10 +108,13 @@ export default function FeaturedWeek() {
                                         }
                                     }}
                                 />
+                     
                                 <label htmlFor="imageUpload" className="bg-blue-500 text-white px-3 py-2 rounded cursor-pointer">Upload</label>
                             </div>
                         )}
                     </div>
+                    <p className="text-[12px] text-[#353535] mt-1">(Image size: 800x800)</p>
+
                 </div>
             </div>
         </div>

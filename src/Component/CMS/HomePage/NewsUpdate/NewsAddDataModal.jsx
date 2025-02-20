@@ -133,6 +133,7 @@ export default function NewsAddDataModal({ data, isOpen, onClose, fetchHomepageS
                                                             setImagePreview(event.currentTarget.files[0] ? URL.createObjectURL(event.currentTarget.files[0]) : null);
                                                         }}
                                                     />
+                                             <span className="text-[12px] text-[#353535] mt-1">(Image size: 600x400) </span>
                                                     <ErrorMessage name="image" component="p" className="mt-1 text-sm text-red-600" />
 
                                                     {imagePreview && (
