@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
@@ -46,6 +46,8 @@ const Layout = () => {
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
 
+  const userPosition = useRef(null);
+
   const currentTitle = getPageTitle(
     location.pathname,
     { tournamentId },
@@ -68,6 +70,10 @@ const Layout = () => {
       setApproveButtonClicked(false);
     }
   }, [approvalBody, tournamentId, approveButtonClicked]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
 
   // Define the custom route where the div should be hidden
   const hiddenRoutes = [
@@ -94,7 +100,7 @@ const Layout = () => {
     location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
 
   return (
-    <div className="flex flex-col min-h-screen ">
+    <div className="flex flex-col min-h-screen " ref={userPosition}>
       <Header />
       <div className="flex flex-1 bg-[#F5F7FA]">
         <div className="w-[250px] hidden lg:block h-auto bg-[#FFFFFF]">
