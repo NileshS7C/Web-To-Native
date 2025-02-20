@@ -46,8 +46,6 @@ const Layout = () => {
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
 
-  const userPosition = useRef(null);
-
   const currentTitle = getPageTitle(
     location.pathname,
     { tournamentId },
@@ -100,7 +98,7 @@ const Layout = () => {
     location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
 
   return (
-    <div className="flex flex-col min-h-screen " ref={userPosition}>
+    <div className="flex flex-col min-h-screen ">
       <Header />
       <div className="flex flex-1 bg-[#F5F7FA]">
         <div className="w-[250px] hidden lg:block h-auto bg-[#FFFFFF]">
