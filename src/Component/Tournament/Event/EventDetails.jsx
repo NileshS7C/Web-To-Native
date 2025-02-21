@@ -11,6 +11,7 @@ import EventDescription from "./EventDescription";
 import EventRegistrations from "./EventRegistration";
 import { TournamentFixture } from "../tournamentFixture";
 import { MatchesListing } from "../MatchListing";
+import { MatchStandings } from "../MatchStandings";
 
 const options = (tournamentId, eventId) => {
   return [
@@ -119,6 +120,9 @@ function EventDetailPage() {
       )}
 
       {selectedTab === "matches" && <MatchesListing />}
+      {selectedTab === "standing" && (
+        <MatchStandings tournamentId={tournamentId} eventId= {eventId}/>
+      )}
     </div>
   );
 }
