@@ -43,6 +43,10 @@ export default function VenueListing() {
   }, [isConfirmed, type, confirmationId]);
 
   useEffect(() => {
+    setSearchParams({ page: 1 });
+  }, [selectedFilter]);
+
+  useEffect(() => {
     dispatch(getAllVenues({ currentPage, selectedFilter, limit: venueLimit }));
   }, [currentPage, selectedFilter, isDeleted, isSuccess]);
 
@@ -126,7 +130,7 @@ export default function VenueListing() {
         pathName="/venues"
         evenRowColor="[#FFFFFF]"
         oddRowColor="blue-400"
-        alternateRowColors= "true"
+        alternateRowColors="true"
       />
     </div>
   );

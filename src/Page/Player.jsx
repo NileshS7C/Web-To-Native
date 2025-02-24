@@ -79,6 +79,10 @@ const Player = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setSearchParams({ page: 1 });
+  }, [skill, gender]);
+
   const getAllPlayers = async (page, genderFilter, skillFilter) => {
     try {
       setLoading(true);
@@ -93,7 +97,7 @@ const Player = () => {
         `${import.meta.env.VITE_BASE_URL}/users/admin/players${queryParams}`
       );
 
-      setPlayers(response.data.data);
+      setPlayers(response?.data?.data);
     } catch (error) {
       console.error("Error fetching players:", error);
       setError("Failed to load players.");
@@ -156,7 +160,7 @@ const Player = () => {
 
       <DataTable
         columns={tableHeaders}
-        data={players.players || players}
+        data={players?.players || players}
         currentPage={currentPage}
         totalPages={players.total}
         onPageChange={handlePageChange}
