@@ -74,8 +74,17 @@ export const MatchesListing = () => {
   const [totalRounds, setTotalRounds] = useState(0);
   const [showScoreUpdateModal, setShowScoreUpdateModal] = useState(false);
   const [currentMatchClicked, setCurrentMatchClicked] = useState(null);
+
   const [bracketName, setBracketName] = useState(null);
   const [currentRoundData, setCurrentRoundData] = useState(null);
+
+  const [updateFixture, setUpdateFixture] = useState(null);
+  const [players, setPlayers] = useState({});
+
+  const handleUpdateFixture = (value) => {
+    setUpdateFixture(value);
+  };
+
 
   const handleChangeRounds = (type) => {
     if (type === "back") {
@@ -93,8 +102,15 @@ export const MatchesListing = () => {
   useEffect(() => {
     dispatch(getFixture({ tour_Id: tournamentId, eventId }));
   }, []);
+  
+   useEffect(() => {
+  if (updateFixture) {
+      dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+    }
+  }, [updateFixture]);
 
   useEffect(() => {
+
     if (currentRoundData && fixture?.format === "DE") {
       const group_id = currentRoundData[0].group_id;
 
@@ -118,6 +134,9 @@ export const MatchesListing = () => {
       }
     }
   }, [currentRoundData, fixture]);
+
+
+
 
   useEffect(() => {
     if (fixture && currentRound) {
@@ -188,11 +207,22 @@ export const MatchesListing = () => {
 
       setPlayerData(playerData);
 
-      setTotalRounds(fixture?.bracketData?.round.length);
-    }
-  }, [fixture, currentRound]);
+      setPlayers(() => {
+        const currentMatchId = currentMatchClicked?.matchId;
 
-  if (isFetchingFixture) {
+        const currentPlayers = playerData?.find(
+          (player) => String(player?.matchId) === String(currentMatchId)
+        );
+
+        return currentPlayers;
+      });
+
+      setTotalRounds(fixture?.bracketData?.round.length);
+      setUpdateFixture(null);
+    }
+  }, [fixture, currentRound, updateFixture, currentMatchClicked]);
+
+  if (isFetchingFixture && !showScoreUpdateModal) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spinner />
@@ -253,10 +283,12 @@ export const MatchesListing = () => {
           <ScoreUpdateModal
             isOpen={showScoreUpdateModal}
             onCancel={setShowScoreUpdateModal}
-            players={currentMatchClicked}
+            players={players}
             fixtureId={fixture?._id}
             tournamentId={tournamentId}
             eventId={eventId}
+            currentMatchId={currentMatchClicked?.matchId}
+            handleUpdateFixture={handleUpdateFixture}
           />
         </>
       )}

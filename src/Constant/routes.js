@@ -106,6 +106,14 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match`;
         }
       },
+
+      fixtureMatchSetCount: (type, tournamentId, categoryId, fixtureId) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/set-match-count`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/set-match-count`;
+        }
+      },
     },
 
     GET: {
