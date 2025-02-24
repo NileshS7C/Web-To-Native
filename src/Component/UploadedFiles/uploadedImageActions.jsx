@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FaRegCopy } from "react-icons/fa";
 import { LuCopyCheck } from "react-icons/lu";
@@ -16,6 +16,17 @@ export const ImageActions = ({ item }) => {
       setHasError(true);
     }
   };
+
+  useEffect(() => {
+    let timerId;
+    if (hasUrlCopied) {
+      timerId = setTimeout(() => {
+        setHasUrlCopied(false);
+      }, 30000);
+    }
+
+    return () => clearTimeout(timerId);
+  }, [hasUrlCopied]);
   return (
     <button onClick={handleCopyUrl}>
       {hasUrlCopied ? <LuCopyCheck /> : <FaRegCopy />}
