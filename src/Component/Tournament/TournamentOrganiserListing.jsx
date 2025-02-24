@@ -157,10 +157,11 @@ export const TournamentOrganisersListing = ({
         columns={TournamentOrganisersHeaders}
         alternateRowColors={true}
         evenRowColor="[#FFFFFF]"
-        oddRowColor="blue-400"
+        oddRowColor="blue-100"
         totalPages={total}
         currentPage={currentPage}
         pathName="/tournament-organisers"
+        rowPaddingY="5"
       />
     </div>
   );
