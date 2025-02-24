@@ -68,6 +68,8 @@ export const ADMIN_NAVIGATION = [
   // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
   { name: "Venues", icon: venueIcon, path: "venues" },
+  { name: "Images", icon: venueIcon, path: "images" },
+
   // { name: "User", icon: profileIcon, path: "users" },
   {
     name: "CMS",
@@ -138,6 +140,8 @@ export const ActionButtonGroup = [
 
 export const rowsInOnePage = 10;
 
+export const uploadedImageLimit = 20;
+
 export const venueImageSize = 5 * 1024 * 1024; //5 mb
 
 export const TournamentOragniserModalTitle = "Pickle Ball Federation";
@@ -160,6 +164,7 @@ export const notHaveBackButton = [
   "Users",
   "DASHBOARD",
   "User Details",
+  "Uploaded Images",
 ];
 
 export const ROLES = [

@@ -85,7 +85,6 @@ export const MatchesListing = () => {
     setUpdateFixture(value);
   };
 
-
   const handleChangeRounds = (type) => {
     if (type === "back") {
       setCurrentRound((prev) => (prev > 1 ? prev - 1 : 1));
@@ -102,15 +101,14 @@ export const MatchesListing = () => {
   useEffect(() => {
     dispatch(getFixture({ tour_Id: tournamentId, eventId }));
   }, []);
-  
-   useEffect(() => {
-  if (updateFixture) {
+
+  useEffect(() => {
+    if (updateFixture) {
       dispatch(getFixture({ tour_Id: tournamentId, eventId }));
     }
   }, [updateFixture]);
 
   useEffect(() => {
-
     if (currentRoundData && fixture?.format === "DE") {
       const group_id = currentRoundData[0].group_id;
 
@@ -134,9 +132,6 @@ export const MatchesListing = () => {
       }
     }
   }, [currentRoundData, fixture]);
-
-
-
 
   useEffect(() => {
     if (fixture && currentRound) {

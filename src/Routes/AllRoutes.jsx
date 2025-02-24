@@ -37,6 +37,7 @@ import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
 import TournamentOrganisersPage from "../Page/TournamentOrganisers";
 import FAQS from "../Page/CMS/Homepage/FAQ";
 import ProfilePage from "../Page/Profile";
+import { UploadedImages } from "../Page/UploadedImages";
 
 const AllRoutes = () => {
   return (
@@ -194,6 +195,9 @@ const AllRoutes = () => {
 
           <Route path="profile">
             <Route index element={<ProfilePage />} />
+          </Route>
+          <Route path="images">
+            <Route index element={<UploadedImages />} />
           </Route>
         </Route>
 
