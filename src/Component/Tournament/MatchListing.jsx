@@ -74,12 +74,17 @@ export const MatchesListing = () => {
   const [totalRounds, setTotalRounds] = useState(0);
   const [showScoreUpdateModal, setShowScoreUpdateModal] = useState(false);
   const [currentMatchClicked, setCurrentMatchClicked] = useState(null);
+
+  const [bracketName, setBracketName] = useState(null);
+  const [currentRoundData, setCurrentRoundData] = useState(null);
+
   const [updateFixture, setUpdateFixture] = useState(null);
   const [players, setPlayers] = useState({});
 
   const handleUpdateFixture = (value) => {
     setUpdateFixture(value);
   };
+
 
   const handleChangeRounds = (type) => {
     if (type === "back") {
@@ -97,18 +102,49 @@ export const MatchesListing = () => {
   useEffect(() => {
     dispatch(getFixture({ tour_Id: tournamentId, eventId }));
   }, []);
-
-  useEffect(() => {
-    if (updateFixture) {
+  
+   useEffect(() => {
+  if (updateFixture) {
       dispatch(getFixture({ tour_Id: tournamentId, eventId }));
     }
   }, [updateFixture]);
+
+  useEffect(() => {
+
+    if (currentRoundData && fixture?.format === "DE") {
+      const group_id = currentRoundData[0].group_id;
+
+      switch (group_id) {
+        case 0: {
+          setBracketName("Winner Bracket");
+          break;
+        }
+        case 1: {
+          setBracketName("Looser Bracket");
+          break;
+        }
+
+        case 2: {
+          setBracketName("Grand Finale");
+          break;
+        }
+        default: {
+          setBracketName("");
+        }
+      }
+    }
+  }, [currentRoundData, fixture]);
+
+
+
 
   useEffect(() => {
     if (fixture && currentRound) {
       const currentRoundId = fixture?.bracketData?.round.filter(
         (item) => item?.id?.toString() === (currentRound - 1)?.toString()
       );
+
+      setCurrentRoundData(currentRoundId);
 
       const currentRoundMatches = currentRoundId.flatMap((round) => {
         const match = fixture.bracketData.match.filter(
@@ -214,6 +250,9 @@ export const MatchesListing = () => {
 
             <p className="text-matchTextColor font-bold text-sm sm:text-md:text-xl lg:text-2xl">
               Round <span>{currentRound}</span>
+              <span className="inline-flex justify-center font-semibold flex-1 w-full items-center rounded-2xl  px-2 py-1 text-xs  ring-1 ring-inset">
+                {bracketName}
+              </span>
             </p>
 
             <button

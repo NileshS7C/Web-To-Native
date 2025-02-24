@@ -200,6 +200,20 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}`;
         }
       },
+
+      getMatchStandings: (
+        type,
+        tournamentId,
+        categoryId,
+        fixtureId,
+        stageId
+      ) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stage/${stageId}/standings`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stage/${stageId}/standings`;
+        }
+      },
     },
 
     PATCH: {

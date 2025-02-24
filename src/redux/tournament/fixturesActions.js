@@ -96,6 +96,8 @@ export const updateMatch = createAsyncThunk(
         matchData.eventId,
         matchData.fixtureId
       );
+
+
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -137,6 +139,7 @@ export const updateMatchSetCount = createAsyncThunk(
           matchData.eventId,
           matchData.fixtureId
         );
+
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -146,6 +149,49 @@ export const updateMatchSetCount = createAsyncThunk(
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         JSON.stringify(matchData?.formData),
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err?.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const getStandings = createAsyncThunk(
+  "fixture/getStandings",
+  async (matchData, { rejectWithValue }) => {
+    try {
+      const userRole = cookies.get("userRole");
+
+
+      const userAPIEndPoint = API_END_POINTS.tournament.GET.getMatchStandings(
+        userRole,
+        matchData.tour_Id,
+        matchData.eventId,
+        matchData.fixtureId,
+        matchData.stageId
+      );
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
+
         config
       );
 
