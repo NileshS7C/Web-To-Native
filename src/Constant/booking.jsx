@@ -50,7 +50,7 @@ const bookingTableHeaders = [
     key: "total-amount",
     header: "Total Amount",
     render: (item) => {
-      return <p>{item?.totalAmount}</p>;
+      return <p>{item?.finalAmount}</p>;
     },
   },
   {
