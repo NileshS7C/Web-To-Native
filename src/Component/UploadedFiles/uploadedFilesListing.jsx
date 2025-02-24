@@ -10,20 +10,24 @@ const imageTableHeaders = [
     render: (_, index, currentPage) => (currentPage - 1) * 10 + (index + 1),
   },
   {
-    key: "imageKey",
-    header: "Key",
-    render: (item) => <p>{item?.key}</p>,
+    key: "imageUrl",
+    header: "Url",
+    render: (item) => (
+      <img
+        src={item?.url}
+        alt="uploaded files"
+        className="w-[70px] h-[70px] object-contain"
+      />
+    ),
   },
   {
     key: "imageSize",
     header: "Size",
-    render: (item) => item?.size,
-  },
-  {
-    key: "imageUrl",
-    header: "Url",
     render: (item) => (
-      <img src={item?.url} alt="uploaded files" className="w-[70px] h-[70px]" />
+      <p>
+        {item?.size && Math.ceil(parseInt(item?.size) / 1024)}{" "}
+        <span className="font-semibold">kB</span>
+      </p>
     ),
   },
   {
@@ -31,6 +35,7 @@ const imageTableHeaders = [
     header: "Type",
     render: (item) => <p>{item?.type}</p>,
   },
+
   {
     key: "actions",
     header: "Actions",
@@ -49,8 +54,8 @@ export const UploadedFilesListing = ({ currentPage, files, totalFiles }) => {
         data={files}
         pathName="/images"
         evenRowColor="[#FFFFFF]"
-        oddRowColor="blue-400"
-        alternateRowColors="true"
+        oddRowColor="[#FFFFFF]"
+        alternateRowColors={true}
       />
     </div>
   );

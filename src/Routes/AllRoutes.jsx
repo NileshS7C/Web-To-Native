@@ -196,7 +196,7 @@ const AllRoutes = () => {
           <Route path="profile">
             <Route index element={<ProfilePage />} />
           </Route>
-          <Route path="images">
+          <Route path="uploaded-images">
             <Route index element={<UploadedImages />} />
           </Route>
         </Route>

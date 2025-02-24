@@ -22,7 +22,7 @@ export const ImageActions = ({ item }) => {
     if (hasUrlCopied) {
       timerId = setTimeout(() => {
         setHasUrlCopied(false);
-      }, 30000);
+      }, 500);
     }
 
     return () => clearTimeout(timerId);

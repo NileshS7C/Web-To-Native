@@ -11,6 +11,7 @@ import {
   EditIcon,
   ViewIcon,
   cmsIcon,
+  uploadedImageIcon,
 } from "../Assests";
 
 export const months = [
@@ -68,7 +69,7 @@ export const ADMIN_NAVIGATION = [
   // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
   { name: "Venues", icon: venueIcon, path: "venues" },
-  { name: "Images", icon: venueIcon, path: "images" },
+  { name: "Uploaded Images", icon: uploadedImageIcon, path: "images" },
 
   // { name: "User", icon: profileIcon, path: "users" },
   {
