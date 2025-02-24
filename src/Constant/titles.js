@@ -75,6 +75,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname.includes("profile")) {
       return "User Details";
     }
+    if (pathname.includes("players")) {
+      return "Players";
+    }
     return STATIC_TITLES[pathname] || "DASHBOARD";
   };
 
