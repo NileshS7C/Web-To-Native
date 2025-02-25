@@ -92,6 +92,7 @@ const Player = () => {
 
   useEffect(() => {
     setSearchParams({ page: 1 });
+    setPlayerName("");
   }, [skill, gender]);
 
   const getAllPlayers = async (page, genderFilter, skillFilter) => {
