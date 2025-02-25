@@ -57,7 +57,7 @@ const validationSchema = yup.object().shape({
     .number()
     .required()
     .min(1, "Court Number should be greater than 0"),
-  features: yup.array().min(1, "At least feature should be selected"),
+  features: yup.array().min(1, "At least one feature should be selected"),
   price: yup.number().required().min(1, "Price should be greater than 1"),
 
   desktopBannerImages: yup.array().min(1, "Desktop banner image is required."),
@@ -308,7 +308,9 @@ const CourtFileUpload = ({ dispatch }) => {
               <p className="text-xs text-[#353535] mt-1">
                 (Max. File size: 5MB)
               </p>
-              <p className="text-xs text-[#353535] mt-1">(Image size: 600x300)</p>
+              <p className="text-xs text-[#353535] mt-1">
+                (Image size: 600x300)
+              </p>
 
               <Field name="desktopBannerImages">
                 {({ form, field, meta }) => (
@@ -459,24 +461,27 @@ const CourtFeatures = () => {
   const { form, values } = useFormikContext();
 
   return (
-    <div className="flex justify-between">
-      {courtFeatures.map((feature) => (
-        <label
-          key={feature}
-          className="flex items-center gap-2 text-[15px] leading-[18.15px] text-[#232323]"
-          htmlFor="features"
-        >
-          <Field
-            type="checkbox"
-            name="features"
-            id="features"
-            value={feature}
-            checked={values.features.includes(feature)}
-            className="w-4 h-4 border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
-          />
-          {feature}
-        </label>
-      ))}
+    <div className="flex flex-col gap-2.5 justify-between items-start">
+      <div className="flex justify-between w-full">
+        {courtFeatures.map((feature) => (
+          <label
+            key={feature}
+            className="flex items-center gap-2 text-[15px] leading-[18.15px] text-[#232323]"
+            htmlFor="features"
+          >
+            <Field
+              type="checkbox"
+              name="features"
+              id="features"
+              value={feature}
+              checked={values.features.includes(feature)}
+              className="w-4 h-4 border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
+            />
+            {feature}
+          </label>
+        ))}
+      </div>
+      <ErrorMessage name="features" component={TextError} />
     </div>
   );
 };
