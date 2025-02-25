@@ -10,15 +10,10 @@ import useDebounce from "../Hooks/useDebounce";
 import ErrorBanner from "../Component/Common/ErrorBanner";
 import PropTypes from "prop-types";
 
-const SearchPlayers = ({
-  playerName,
-  setPlayerName,
-  setPlayers,
-  setLoading,
-  setError,
-}) => {
+const SearchPlayers = ({ setPlayerName, setPlayers, setLoading, setError }) => {
   const [searchPlayer, setSearchPlayer] = useState("");
   const debouncedValue = useDebounce(searchPlayer, 300);
+  const inputRef = useRef(null);
   useEffect(() => {
     const getPlayers = async (player) => {
       try {
@@ -40,10 +35,20 @@ const SearchPlayers = ({
       getPlayers(debouncedValue);
     }
   }, [debouncedValue]);
-  const handleSearch = (e) => {
-    setPlayerName(e.target.value);
-    setSearchPlayer(e.target.value);
-  };
+
+  const handleSearch = useCallback(
+    (e) => {
+      setPlayerName(e.target.value);
+      setSearchPlayer(e.target.value);
+    },
+    [setPlayerName]
+  );
+
+  useEffect(() => {
+    if (inputRef?.current) {
+      inputRef.current.focus();
+    }
+  }, []);
   return (
     <div className="relative ">
       <img
@@ -52,15 +57,16 @@ const SearchPlayers = ({
         className="absolute left-[25px] top-1/2 transform -translate-y-1/2"
       />
       <input
+        ref={inputRef}
         placeholder="Search Players"
         className=" w-full px-[60px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
         onChange={handleSearch}
-        value={playerName}
+        value={searchPlayer}
+        // onFocus={() => inputRef?.current?.focus()}
       />
     </div>
   );
 };
-
 const Player = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [players, setPlayers] = useState([]);
@@ -132,6 +138,12 @@ const Player = () => {
     <div>
       {/* Filters */}
       <div className="flex justify-between mb-2">
+        <SearchPlayers
+          setPlayerName={setPlayerName}
+          setPlayers={setPlayers}
+          setLoading={setLoading}
+          setError={setError}
+        />
         <div className="flex items-baseline gap-5">
           <p className="text-sm text-[#b8c8eb]">Fitlers: </p>
           <div className="flex space-x-4 mb-4">
@@ -149,13 +161,6 @@ const Player = () => {
             />
           </div>
         </div>
-        <SearchPlayers
-          playerName={playerName}
-          setPlayerName={setPlayerName}
-          setPlayers={setPlayers}
-          setLoading={setLoading}
-          setError={setError}
-        />
       </div>
 
       <DataTable
