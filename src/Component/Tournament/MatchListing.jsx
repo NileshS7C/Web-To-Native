@@ -17,6 +17,7 @@ const MatchListingHeaders = [
     header: "Opponent 1",
     render: (item) => {
       const { opponent1 = "" } = item;
+      console.log(" opponent 1", opponent1)
       let isWinner;
       if (opponent1) {
         isWinner = opponent1.result === "win";
