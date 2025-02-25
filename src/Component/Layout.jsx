@@ -225,7 +225,7 @@ const TournamentActionButton = ({
           />
         ))}
 
-      {ROLES.slice(0, 2).includes(userRole) && (
+      {ROLES.slice(0, 2).includes(userRole) && tournament?.status && (
         <div className="flex items-center gap-2">
           <Button
             className={`${
