@@ -10,7 +10,13 @@ import useDebounce from "../Hooks/useDebounce";
 import ErrorBanner from "../Component/Common/ErrorBanner";
 import PropTypes from "prop-types";
 
-const SearchPlayers = ({ setPlayerName, setPlayers, setLoading, setError }) => {
+const SearchPlayers = ({
+  playerName,
+  setPlayerName,
+  setPlayers,
+  setLoading,
+  setError,
+}) => {
   const [searchPlayer, setSearchPlayer] = useState("");
   const debouncedValue = useDebounce(searchPlayer, 300);
   const inputRef = useRef(null);
@@ -61,8 +67,7 @@ const SearchPlayers = ({ setPlayerName, setPlayers, setLoading, setError }) => {
         placeholder="Search Players"
         className=" w-full px-[60px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
         onChange={handleSearch}
-        value={searchPlayer}
-        // onFocus={() => inputRef?.current?.focus()}
+        value={playerName}
       />
     </div>
   );
@@ -139,6 +144,7 @@ const Player = () => {
       {/* Filters */}
       <div className="flex justify-between mb-2">
         <SearchPlayers
+          playerName={playerName}
           setPlayerName={setPlayerName}
           setPlayers={setPlayers}
           setLoading={setLoading}
