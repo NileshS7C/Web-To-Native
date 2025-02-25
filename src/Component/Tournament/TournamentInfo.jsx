@@ -446,7 +446,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 <TournamentGallery dispatch={dispatch} />
                 <Button
                   className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
-                    status !== "DRAFT" ? "hidden" : ""
+                    status !== "DRAFT" && tournamentId ? "hidden" : ""
                   }`}
                   type="submit"
                   loading={isSubmitting}
