@@ -8,6 +8,8 @@ const NotCreated = ({ message, buttonText, type, disable = false }) => {
       navigate("/tournaments/add");
     } else if (type === "venue") {
       navigate("/venues/new");
+    } else if (type === "organizers") {
+      navigate("/tournament-organisers");
     }
   };
   return (
