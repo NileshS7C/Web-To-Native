@@ -321,7 +321,7 @@ export const ScoreUpdateModal = ({
                       onClick={(e) => handleScoreUpdate(e)}
                       disabled={!showPlayerSelections}
                     >
-                      Forfiet
+                      Forfeit
                     </Button>
                     {!showPlayerSelections && (
                       <Button
@@ -356,7 +356,7 @@ const ForfietCheckBox = ({ handlePlayerSelection }) => {
           handlePlayerSelection(e.target.checked);
         }}
       />
-      <label htmlFor="forfiet">Do you want to forfiet any player?</label>
+      <label htmlFor="forfiet">Do you want to forfeit any player?</label>
     </div>
   );
 };
