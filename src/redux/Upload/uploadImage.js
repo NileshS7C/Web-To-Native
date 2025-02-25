@@ -20,6 +20,10 @@ const uploadSlice = createSlice({
       state.uploadErrorMessage = "";
       state.uplodedData = {};
     },
+
+    setIsUploaded(state) {
+      state.isUploded = true;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -39,6 +43,6 @@ const uploadSlice = createSlice({
   },
 });
 
-export const { cleanUpUpload } = uploadSlice.actions;
+export const { cleanUpUpload, setIsUploaded } = uploadSlice.actions;
 
 export default uploadSlice.reducer;

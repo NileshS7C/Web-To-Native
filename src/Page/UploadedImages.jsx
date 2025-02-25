@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { getUploadedImages } from "../redux/Upload/uploadActions";
 import { UploadedFilesListing } from "../Component/UploadedFiles/uploadedFilesListing";
@@ -19,6 +19,7 @@ export const UploadedImages = () => {
   const [lastFileKey, setLastFileKey] = useState("");
   const [totalFiles, setTotalFiles] = useState(null);
   const currentPage = searchParams.get("page");
+  const { isUploded } = useSelector((state) => state.upload);
 
   useEffect(() => {
     const getFiles = async () => {
@@ -29,7 +30,10 @@ export const UploadedImages = () => {
         setSuccess(false);
 
         const result = await dispatch(
-          getUploadedImages({ lastFileKey, limit: uploadedImageLimit })
+          getUploadedImages({
+            lastFileKey,
+            limit: uploadedImageLimit,
+          })
         ).unwrap();
 
         if (!result?.responseCode) {
@@ -52,6 +56,44 @@ export const UploadedImages = () => {
 
     getFiles();
   }, [currentPage]);
+
+  useEffect(() => {
+    const getFiles = async () => {
+      try {
+        setIsLoading(true);
+        setError(false);
+        setErrorMessage(false);
+        setSuccess(false);
+
+        const result = await dispatch(
+          getUploadedImages({
+            lastFileKey: "",
+            limit: uploadedImageLimit,
+          })
+        ).unwrap();
+
+        if (!result?.responseCode) {
+          setSuccess(true);
+          setLastFileKey(result.data?.lastFileKey);
+          setFiles(result.data?.files);
+          setTotalFiles(result.data?.totalFiles);
+        }
+      } catch (err) {
+        console.log(" error occured while getting the uploaded images", err);
+        setError(true);
+        setErrorMessage(
+          err?.data?.message ||
+            "Oops!, something went wrong while getting the uploaded images."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (isUploded) {
+      getFiles();
+    }
+  }, [isUploded]);
 
   if (isLoading) {
     return (

@@ -10,14 +10,24 @@ const imageTableHeaders = [
     render: (_, index, currentPage) => (currentPage - 1) * 10 + (index + 1),
   },
   {
-    key: "imageUrl",
-    header: "Url",
+    key: "uploadedImage",
+    header: "Image",
     render: (item) => (
       <img
         src={item?.url}
         alt="uploaded files"
         className="w-[70px] h-[70px] object-contain"
       />
+    ),
+  },
+
+  {
+    key: "imageUrl",
+    header: "Url",
+    render: (item) => (
+      <a href={item?.url} target="_blank" className="hover:text-blue-600">
+        {item?.url}
+      </a>
     ),
   },
   {
@@ -52,7 +62,7 @@ export const UploadedFilesListing = ({ currentPage, files, totalFiles }) => {
         currentPage={currentPage}
         onPageChange={onPageChange}
         data={files}
-        pathName="/images"
+        pathName="/uploaded-images"
         evenRowColor="[#FFFFFF]"
         oddRowColor="[#FFFFFF]"
         alternateRowColors={true}

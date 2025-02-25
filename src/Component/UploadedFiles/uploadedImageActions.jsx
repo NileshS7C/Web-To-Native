@@ -29,7 +29,11 @@ export const ImageActions = ({ item }) => {
   }, [hasUrlCopied]);
   return (
     <button onClick={handleCopyUrl}>
-      {hasUrlCopied ? <LuCopyCheck /> : <FaRegCopy />}
+      {hasUrlCopied ? (
+        <LuCopyCheck className="w-[20px] h-[20px]" />
+      ) : (
+        <FaRegCopy className="w-[20px] h-[20px]" />
+      )}
     </button>
   );
 };
