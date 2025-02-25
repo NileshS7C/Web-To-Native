@@ -42,7 +42,7 @@ export const updateVenue = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.put(
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}/users/admin/venues/${id}`,
         JSON.stringify(formData),
         config
@@ -173,8 +173,8 @@ export const deleteVenue = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.delete(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/venues/${id}`,
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/venues/${id}/delete`,
         config
       );
 
@@ -300,7 +300,7 @@ export const updateCourt = createAsyncThunk(
         },
       };
 
-      const response = await axiosInstance.put(
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}/users/admin/courts/${id}`,
         JSON.stringify(formData),
         config
@@ -332,8 +332,8 @@ export const deleteCourt = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.delete(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/courts/${id}`,
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/courts/${id}/delete`,
         config
       );
 

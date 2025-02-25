@@ -103,10 +103,8 @@ export const CourtCreation = () => {
       );
       setInitialState(initialValues);
       dispatch(setCourtStatus(true));
-      setTimeout(() => {
-        navigate(-1);
-        dispatch(hideSuccess());
-      }, 2000);
+      dispatch(hideSuccess());
+      navigate(-1);
     } catch (err) {
       dispatch(setCourtStatus(false));
       dispatch(
@@ -308,7 +306,9 @@ const CourtFileUpload = ({ dispatch }) => {
               <p className="text-xs text-[#353535] mt-1">
                 (Max. File size: 5MB)
               </p>
-              <p className="text-xs text-[#353535] mt-1">(Image size: 600x300)</p>
+              <p className="text-xs text-[#353535] mt-1">
+                (Image size: 600x300)
+              </p>
 
               <Field name="desktopBannerImages">
                 {({ form, field, meta }) => (
