@@ -68,6 +68,7 @@ export const ADMIN_NAVIGATION = [
   // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
   { name: "Venues", icon: venueIcon, path: "venues" },
+  { name: "Players", icon: venueIcon, path: "players" },
   // { name: "User", icon: profileIcon, path: "users" },
   {
     name: "CMS",
@@ -160,6 +161,7 @@ export const notHaveBackButton = [
   "Users",
   "DASHBOARD",
   "User Details",
+  "Players"
 ];
 
 export const ROLES = [
