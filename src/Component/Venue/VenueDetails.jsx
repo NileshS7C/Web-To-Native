@@ -253,6 +253,8 @@ const VenueAvailability = ({
   globalClosingTime,
   globalOpeningTime,
 }) => {
+  const updatedDays = [...days].slice(1);
+
   return (
     <>
       {!allDaysSelected ? (
@@ -273,7 +275,7 @@ const VenueAvailability = ({
             </thead>
 
             <tbody className="divide-y divide-gray-200 bg-white">
-              {days.map((data, index) => {
+              {updatedDays.map((data, index) => {
                 const { day = "", openingTime = "", closingTime = "" } = data;
                 return (
                   <tr key={`${day}`}>
