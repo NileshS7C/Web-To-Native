@@ -39,7 +39,6 @@ import {
   addTournamentStepOne,
   getAll_TO,
   getAllUniqueTags,
-  getSingle_TO,
 } from "../../redux/tournament/tournamentActions";
 import { userLogout } from "../../redux/Authentication/authActions";
 import { showError } from "../../redux/Error/errorSlice";
@@ -56,6 +55,7 @@ import TextError from "../Error/formError";
 import Combopopover from "../Common/Combobox";
 import { rolesWithTournamentOwnerAccess } from "../../Constant/tournament";
 import { useFormikContextFunction } from "../../Providers/formikContext";
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 const requiredTournamentFields = (tournament) => {
   const {
@@ -289,7 +289,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   const { isGettingALLTO, err_IN_TO, tournamentOwners, isGettingTags, tags } =
     useSelector((state) => state.Tournament);
 
-  const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
+  const { singleTournamentOwner = {} } = useOwnerDetailsContext();
 
   const { userRole } = useSelector((state) => state.auth);
 
@@ -307,8 +307,6 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
     }
     if (rolesWithTournamentOwnerAccess.includes(userRole)) {
       dispatch(getAll_TO({ currentPage, limit }));
-    } else if (userRole === "TOURNAMENT_OWNER") {
-      dispatch(getSingle_TO());
     }
     dispatch(getAllUniqueTags());
   }, []);

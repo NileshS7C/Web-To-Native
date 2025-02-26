@@ -38,6 +38,7 @@ import TournamentOrganisersPage from "../Page/TournamentOrganisers";
 import FAQS from "../Page/CMS/Homepage/FAQ";
 import ProfilePage from "../Page/Profile";
 import Player from "../Page/Player";
+import { OwnerDetailContextProvider } from "../Providers/onwerDetailProvider";
 
 const AllRoutes = () => {
   return (
@@ -47,9 +48,11 @@ const AllRoutes = () => {
           path="/"
           element={
             <Authentication>
-              <FormikContextProvider>
-                <Layout />
-              </FormikContextProvider>
+              <OwnerDetailContextProvider>
+                <FormikContextProvider>
+                  <Layout />
+                </FormikContextProvider>
+              </OwnerDetailContextProvider>
             </Authentication>
           }
         >
@@ -78,7 +81,6 @@ const AllRoutes = () => {
           </Route>
           <Route path="home" element={<Home />} />
           <Route path="players" element={<Player />} />
-
 
           {/* CMS Routes */}
           <Route path="cms/homepage/explore" element={<Explore />} />
