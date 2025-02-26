@@ -103,6 +103,7 @@ const initialValues = {
   handle: "",
   venueInfoUrl: "",
   tags: [],
+  phoneNumber: "",
   address: {
     line1: "",
     line2: "",
@@ -170,9 +171,8 @@ const VenueInfo = () => {
     }),
     description: yup.string().required("Description is required."),
     phoneNumber: yup
-      .number()
+      .string()
       .optional()
-      .max(10, "Phone number cannot be more than 10 digits.")
       .test(
         "Invalid-phone-number",
         "Enter a valid phone number",
@@ -496,7 +496,6 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
           onChange={(e) => {
             setFieldValue("phoneNumber", e.target.value);
           }}
-          type="number"
           onWheel={(e) => e.target.blur()}
         />
 
