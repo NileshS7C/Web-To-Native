@@ -11,12 +11,15 @@ export const getPageTitle = (pathname, params, venueData) => {
   };
 
   const getDynamicTitle = () => {
+    if (pathname.includes("/venues/new")) {
+      return "Add Venue";
+    }
     if (pathname.match(/^\/venues\/[\w-]+$/)) {
       return venueData?.name || "Venue Details";
     }
 
-    // Match for venue edit page: /venues/:id/edit
     if (pathname.match(/^\/venues\/\w+\/edit$/)) {
+      // Match for venue edit page: /venues/:id/edit
       return `Edit Venue - ${venueData?.venue?.name || "Venue"}`;
     }
 

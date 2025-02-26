@@ -353,7 +353,11 @@ const VenueInfo = () => {
                 isUploading={isUploading}
               />
               <Button
-                className="w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
+                className={`${
+                  id
+                    ? "hidden"
+                    : "w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
+                }`}
                 type="submit"
                 loading={isLoading}
               >
