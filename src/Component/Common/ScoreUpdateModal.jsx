@@ -276,6 +276,12 @@ export const ScoreUpdateModal = ({
                 onCancel={onCancel}
               />
 
+              <NotificationBanner
+                message="Matches cannot end in a tie. Please ensure a clear winner and loser."
+                messageStyle="text-sm text-[#E82B00]"
+                wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
+              />
+
               {updateError && <ErrorBanner message={errorMessage} />}
 
               {(players?.player1_id == null || players?.player2_id == null) && (
