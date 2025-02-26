@@ -33,7 +33,7 @@ import LocationSearchInput from "../Common/LocationSearch";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import { resetVenueState } from "../../redux/Venue/addVenue";
 import Combopopover from "../Common/Combobox";
-import { venueImageSize } from "../../Constant/app";
+import { phoneRegex, venueImageSize } from "../../Constant/app";
 import { Switch } from "@headlessui/react";
 
 const requiredVenueFields = (venue) => {
@@ -41,6 +41,7 @@ const requiredVenueFields = (venue) => {
     name,
     handle,
     tags,
+    phoneNumber,
     address,
     description,
     availableDays,
@@ -57,6 +58,7 @@ const requiredVenueFields = (venue) => {
     name,
     handle,
     tags,
+    phoneNumber,
     address,
     description,
     availableDays,
@@ -99,7 +101,7 @@ const validateOpenAndCloseTime = (days) => {
 const initialValues = {
   name: "",
   handle: "",
-  venueInfoUrl:"",
+  venueInfoUrl: "",
   tags: [],
   address: {
     line1: "",
@@ -167,6 +169,21 @@ const VenueInfo = () => {
       }),
     }),
     description: yup.string().required("Description is required."),
+    phoneNumber: yup
+      .number()
+      .optional()
+      .max(10, "Phone number cannot be more than 10 digits.")
+      .test(
+        "Invalid-phone-number",
+        "Enter a valid phone number",
+        function (value) {
+          if (!value) {
+            return true;
+          }
+
+          return phoneRegex.test(value);
+        }
+      ),
     availableDays: yup
       .array()
       .test(
@@ -436,7 +453,6 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         <ErrorMessage name="handle" component={TextError} />
       </div>
 
-
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -464,8 +480,28 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         placeholder="Enter Venue Tags"
         label="Venue Tags"
       />
-
       <ErrorMessage name="tags" component={TextError} />
+      <div className="flex flex-col items-start gap-2.5">
+        <label
+          className=" text-[#232323] text-base leading-[19.36px]"
+          htmlFor="phoneNumber"
+        >
+          Phone Number
+        </label>
+        <Field
+          placeholder="Enter Phone Number"
+          id="phoneNumber"
+          name="phoneNumber"
+          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            setFieldValue("phoneNumber", e.target.value);
+          }}
+          type="number"
+          onWheel={(e) => e.target.blur()}
+        />
+
+        <ErrorMessage name="phoneNumber" component={TextError} />
+      </div>
     </div>
   );
 };
@@ -946,7 +982,9 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
             </p>
 
             <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-            <p className="text-xs text-[#353535] mt-1">(Image size: 1200x600)</p>
+            <p className="text-xs text-[#353535] mt-1">
+              (Image size: 1200x600)
+            </p>
 
             <FieldArray name="bannerImages">
               {({ form, field, meta, push }) => (
