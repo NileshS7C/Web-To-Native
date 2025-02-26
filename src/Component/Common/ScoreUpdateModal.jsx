@@ -149,6 +149,7 @@ export const ScoreUpdateModal = ({
         };
       }
     });
+
     setScoreUpdateArray(scoreUpdates);
   }, [players]);
 
@@ -480,8 +481,6 @@ const MatchScoreUpdateSet = ({
           });
 
           handleUpdateFixture(true);
-
-          setFixture(result?.data?.fixture ?? null);
         }
       } catch (err) {
         console.log("Error in deleting the match set", err);
@@ -529,7 +528,6 @@ const MatchScoreUpdateSet = ({
             getScoreData(newSet);
             return newSet;
           });
-          setFixture(result?.data?.fixture ?? null);
 
           handleUpdateFixture(true);
         }
