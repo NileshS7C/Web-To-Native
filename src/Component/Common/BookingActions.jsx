@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
-import { useCookies } from "react-cookie";
 
 import {
   resetConfirmationState,
@@ -12,8 +11,6 @@ import {
   resetActionType,
   setAction,
 } from "../../redux/tournament/bookingSlice";
-import { userLogout } from "../../redux/Authentication/authActions";
-import { getSingle_TO } from "../../redux/tournament/tournamentActions";
 
 import {
   cancelAndRefundBooking,
@@ -25,6 +22,7 @@ import { showSuccess } from "../../redux/Success/successSlice";
 import { bookingLimit } from "../../Constant/tournament";
 import { ActionButtonBooking } from "../../Constant/booking";
 import Button from "./Button";
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 const cancelBooking = async (
   dispatch,
@@ -129,7 +127,6 @@ const BookingActions = ({ id, index, status }) => {
   const { eventId, tournamentId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = searchParams.get("page");
-  const [cookies] = useCookies(["name", "userRole"]);
 
   const [actionType, setActionType] = useState(null);
   const [actionObject, setActionObject] = useState({
@@ -140,7 +137,6 @@ const BookingActions = ({ id, index, status }) => {
   const { rejectionComments } = useSelector((state) => state.Tournament);
   const { isConfirmed } = useSelector((state) => state.confirm);
   const { isBookingCreating } = useSelector((state) => state.tourBookings);
-  const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
 
   const cancelBookingData = {
     categoryId: "",
@@ -151,17 +147,7 @@ const BookingActions = ({ id, index, status }) => {
     categoryId: "",
   };
 
-  useEffect(() => {
-    const userRole = cookies.userRole;
-
-    if (!userRole) {
-      dispatch(userLogout());
-    } else if (userRole === "TOURNAMENT_OWNER") {
-      dispatch(getSingle_TO("TOURNAMENT_OWNER"));
-    } else if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
-      dispatch(getSingle_TO("ADMIN"));
-    }
-  }, []);
+  const { singleTournamentOwner = {} } = useOwnerDetailsContext();
 
   useEffect(() => {
     if (actionType && actionType === "cancel") {

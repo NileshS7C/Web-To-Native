@@ -11,7 +11,6 @@ import {
   setRejectionComments,
 } from "../../redux/tournament/addTournament";
 import {
-  getSingle_TO,
   getSingleTournament,
   handleTournamentDecision,
 } from "../../redux/tournament/tournamentActions";
@@ -31,7 +30,8 @@ import { AcknowledgementText } from "./Acknowledgement/Acknowledgement";
 import { EventCreationModal } from "./Event/EventCreationModal";
 import EventInfo from "./Event/EventInfo";
 import { TournamentInfo } from "./TournamentInfo";
-import { userLogout } from "../../redux/Authentication/authActions";
+
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 const TournamentCreationForm = () => {
   const dispatch = useDispatch();
@@ -46,13 +46,15 @@ const TournamentCreationForm = () => {
     approvalBody,
     verificationErrorMessage,
   } = useSelector((state) => state.Tournament);
-  const { tournament, tournamentEditMode, singleTournamentOwner } = useSelector(
+  const { tournament, tournamentEditMode } = useSelector(
     (state) => state.GET_TOUR
   );
 
   const { isOpen, message, onClose, isConfirmed, type } = useSelector(
     (state) => state.confirm
   );
+
+  const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [cookies] = useCookies(["name", "userRole"]);
   const isAddInThePath = window.location.pathname.includes("/add");
 
@@ -81,18 +83,6 @@ const TournamentCreationForm = () => {
     cookies?.userRole,
     tournament?._id,
   ]);
-
-  useEffect(() => {
-    const userRole = cookies.userRole;
-
-    if (!userRole) {
-      dispatch(userLogout());
-    } else if (userRole === "TOURNAMENT_OWNER") {
-      dispatch(getSingle_TO("TOURNAMENT_OWNER"));
-    } else if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
-      dispatch(getSingle_TO("ADMIN"));
-    }
-  }, []);
 
   useEffect(() => {
     if (tournamentId && singleTournamentOwner) {
