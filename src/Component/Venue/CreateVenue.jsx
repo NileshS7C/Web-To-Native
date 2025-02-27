@@ -35,7 +35,7 @@ import LocationSearchInput from "../Common/LocationSearch";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import { resetVenueState } from "../../redux/Venue/addVenue";
 import Combopopover from "../Common/Combobox";
-import { venueImageSize } from "../../Constant/app";
+import { phoneRegex, venueImageSize } from "../../Constant/app";
 import { Switch } from "@headlessui/react";
 
 const requiredVenueFields = (venue) => {
@@ -43,6 +43,7 @@ const requiredVenueFields = (venue) => {
     name,
     handle,
     tags,
+    phoneNumber,
     address,
     description,
     availableDays,
@@ -59,6 +60,7 @@ const requiredVenueFields = (venue) => {
     name,
     handle,
     tags,
+    phoneNumber,
     address,
     description,
     availableDays,
@@ -103,6 +105,7 @@ const initialValues = {
   handle: "",
   venueInfoUrl: "",
   tags: [],
+  phoneNumber: "",
   address: {
     line1: "",
     line2: "",
@@ -169,6 +172,20 @@ const VenueInfo = () => {
       }),
     }),
     description: yup.string().required("Description is required."),
+    phoneNumber: yup
+      .string()
+      .optional()
+      .test(
+        "Invalid-phone-number",
+        "Enter a valid phone number",
+        function (value) {
+          if (!value) {
+            return true;
+          }
+
+          return phoneRegex.test(value);
+        }
+      ),
     availableDays: yup
       .array()
       .test(
@@ -477,8 +494,27 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         placeholder="Enter Venue Tags"
         label="Venue Tags"
       />
-
       <ErrorMessage name="tags" component={TextError} />
+      <div className="flex flex-col items-start gap-2.5">
+        <label
+          className=" text-[#232323] text-base leading-[19.36px]"
+          htmlFor="phoneNumber"
+        >
+          Phone Number
+        </label>
+        <Field
+          placeholder="Enter Phone Number"
+          id="phoneNumber"
+          name="phoneNumber"
+          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            setFieldValue("phoneNumber", e.target.value);
+          }}
+          onWheel={(e) => e.target.blur()}
+        />
+
+        <ErrorMessage name="phoneNumber" component={TextError} />
+      </div>
     </div>
   );
 };
