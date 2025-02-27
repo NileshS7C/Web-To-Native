@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllBookings } from "../../../redux/tournament/tournamentActions";
@@ -14,7 +14,6 @@ import {
 import ErrorBanner from "../../Common/ErrorBanner";
 import Spinner from "../../Common/Spinner";
 import { bookingLimit } from "../../../Constant/tournament";
-import EmptyBanner from "../../Common/EmptyStateBanner";
 import DataTable from "../../Common/DataTable";
 import { bookingTableHeaders } from "../../../Constant/booking";
 import { Button } from "@headlessui/react";
@@ -28,6 +27,7 @@ function EventRegistrations({ tournament }) {
   const dispatch = useDispatch();
   const location = useLocation();
   const { tournamentId, eventId } = useParams();
+
   const {
     bookings: bookingData,
     bookingError,
