@@ -268,6 +268,11 @@ const approvalBody = {
 
 const hideActionButtons = ["Tournaments", "Add Tournament"];
 
+const roundRobbinModeOptions = [
+  { id: "simple", name: "Simple" },
+  { id: "double", name: "Double" },
+];
+
 export {
   tournamentDetails,
   tournamentEvent,
@@ -281,5 +286,9 @@ export {
   rolesWithTournamentOwnerAccess,
   hideActionButtons,
   tournamentEventTypes,
+
   NotDoublesCategory
+
+  roundRobbinModeOptions,
+
 };

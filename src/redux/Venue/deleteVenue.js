@@ -10,7 +10,16 @@ const initialState = {
 const deleteVenueSlice = createSlice({
   name: "deleteVenue",
   initialState,
- 
+  reducers: {
+    resetDeleteState(state) {
+      state.isDeleted = false;
+    },
+
+    resetErrorState(state) {
+      state.isError = false;
+    },
+  },
+
   extraReducers: (builder) => {
     builder
       .addCase(deleteVenue.pending, (state) => {
@@ -31,5 +40,7 @@ const deleteVenueSlice = createSlice({
       });
   },
 });
+
+export const { resetDeleteState, resetErrorState } = deleteVenueSlice.actions;
 
 export default deleteVenueSlice.reducer;

@@ -22,7 +22,10 @@ import {
 import { crossIcon, calenderIcon } from "../../../Assests";
 import Button from "../../Common/Button";
 
-import { tournamentEvent } from "../../../Constant/tournament";
+import {
+  roundRobbinModeOptions,
+  tournamentEvent,
+} from "../../../Constant/tournament";
 import TextError from "../../Error/formError";
 
 import { formattedDate, parseDate } from "../../../utils/dateUtils";
@@ -49,6 +52,7 @@ const requiredCategoryFields = (category) => {
     categoryName,
     format,
     type,
+    roundRobinMode,
     registrationFee,
     maxPlayers,
     minPlayers,
@@ -61,6 +65,7 @@ const requiredCategoryFields = (category) => {
     categoryName,
     format,
     type,
+    roundRobinMode,
     registrationFee,
     maxPlayers,
     minPlayers,
@@ -74,6 +79,7 @@ const initialValues = {
   categoryName: "",
   format: "",
   type: "",
+  roundRobinMode: "simple",
   registrationFee: 1,
   maxPlayers: 0,
   minPlayers: 1,
@@ -106,6 +112,7 @@ export const EventCreationModal = () => {
       .max(50, "Category name cannot exceed more than 50 characters."),
     format: yup.string().required("Event format is required."),
     type: yup.string().required("Event category is required."),
+    roundRobinMode: yup.string().optional(),
     registrationFee: yup
       .number()
       .required("Registration fee is required.")
@@ -401,6 +408,17 @@ const EventName = () => {
 };
 
 const EventFormat = () => {
+  const { values } = useFormikContext();
+  const [isRoundRobinSelected, setIsRoundRobinSelected] = useState(false);
+
+  useEffect(() => {
+    if (values?.format) {
+      setIsRoundRobinSelected(() => {
+        return values?.format === "RR";
+      });
+    }
+  }, [values]);
+
   return (
     <div className="grid grid-cols-2 gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
@@ -454,6 +472,32 @@ const EventFormat = () => {
         </Field>
         <ErrorMessage name="type" component={TextError} />
       </div>
+
+      {isRoundRobinSelected && (
+        <div className="flex flex-col items-start gap-2.5">
+          <label
+            className="text-base leading-[19.36px] text-[#232323]"
+            htmlFor="roundRobinMode"
+          >
+            Round Robin Type
+          </label>
+          <Field
+            className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            as="select"
+            name="roundRobinMode"
+            id="roundRobinMode"
+          >
+            {roundRobbinModeOptions.map((mode) => {
+              return (
+                <option value={mode?.id} key={mode?.id}>
+                  {mode?.name}
+                </option>
+              );
+            })}
+          </Field>
+          <ErrorMessage name="roundRobinMode" component={TextError} />
+        </div>
+      )}
     </div>
   );
 };
