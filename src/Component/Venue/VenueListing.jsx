@@ -36,8 +36,10 @@ export default function VenueListing() {
   const { isConfirmed, type, confirmationId } = useSelector(
     (state) => state.confirm
   );
+
   useEffect(() => {
     if (isConfirmed && type === "Venue" && confirmationId) {
+      console.log(" i am working inside this venue listing");
       dispatch(deleteVenue(confirmationId));
     }
   }, [isConfirmed, type, confirmationId]);
@@ -130,7 +132,7 @@ export default function VenueListing() {
         pathName="/venues"
         evenRowColor="[#FFFFFF]"
         oddRowColor="blue-100"
-        alternateRowColors= "true"
+        alternateRowColors="true"
         rowPaddingY="5"
       />
     </div>

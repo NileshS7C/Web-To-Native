@@ -1,7 +1,14 @@
-import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { locationIcon } from "../../Assests";
+
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useParams } from "react-router-dom";
+
+import { showSuccess } from "../../redux/Success/successSlice";
+import { showError } from "../../redux/Error/errorSlice";
+
+import { locationIcon } from "../../Assests";
+
 import { Slider } from "../Common/ImageCarousel";
 import Tabs from "../Common/Tabs";
 import { venueTabs as initialVenueTabs, fixedDays } from "../../Constant/venue";
@@ -13,9 +20,7 @@ import {
 } from "../../redux/Venue/getVenues";
 import Button from "../Common/Button";
 import { getSingleVenue, publishVenue } from "../../redux/Venue/venueActions";
-import { useLocation, useParams } from "react-router-dom";
-import { showSuccess } from "../../redux/Success/successSlice";
-import { showError } from "../../redux/Error/errorSlice";
+
 import { SuccessModal } from "../Common/SuccessModal";
 import Spinner from "../Common/Spinner";
 import {
@@ -34,7 +39,7 @@ export default function VenueDescription() {
   const location = useLocation();
   const [venueTabs, setVenueTabs] = useState(initialVenueTabs);
 
-  const { isOpen, message, isConfirmed } = useSelector(
+  const { isOpen, message, isConfirmed, type, confirmationId } = useSelector(
     (state) => state.confirm
   );
   const {
@@ -63,7 +68,7 @@ export default function VenueDescription() {
   }, [id]);
 
   useEffect(() => {
-    if (isConfirmed) {
+    if (isConfirmed && type === "Venue" && !confirmationId) {
       dispatch(publishVenue(id));
       dispatch(onCancel());
     }
@@ -113,6 +118,9 @@ export default function VenueDescription() {
       <div className="py-[15px] px-[20px] bg-[#FFFFFF] rounded-lg">
         <Tabs options={venueTabs} onChange={handleTabChange} />
       </div>
+      {venueWithNoCourt && (
+        <AlertBanner description="You Will Need to Add Courts to publish this venue." />
+      )}
       <SuccessModal />
       <ErrorModal />
       <ConfirmationModal
@@ -124,30 +132,6 @@ export default function VenueDescription() {
       />
       {venueTabs.find((venue) => venue.name === "Overview").current ? (
         <div className="flex flex-col gap-[30px] bg-[#FFFFFF] p-[50px]">
-          {venueWithNoCourt && (
-            <AlertBanner description="You Will Need to Add Courts to publish this venue." />
-          )}
-          <Button
-            className="w-[200px] h-[60px] rounded-lg text-md font-bold text-black disabled:bg-gray-300 bg-white hover:bg-slate-300 shadow-lg"
-            onClick={() => {
-              dispatch(
-                showConfirmation({
-                  message:
-                    "Publishing this venue will make it visible to players. Are you sure you want to proceed?",
-                  type: "venue",
-                })
-              );
-            }}
-            loading={isPublishing}
-            disabled={
-              venue?.status === "PUBLISHED" || venue?.courts?.length === 0
-            }
-          >
-            {venue?.status !== "PUBLISHED"
-              ? "Publish Venue"
-              : "Venue Published"}
-          </Button>
-
           <div className="mb-5">
             <Slider images={venue.bannerImages || []} />
           </div>
