@@ -23,6 +23,7 @@ import { bookingLimit } from "../../Constant/tournament";
 import { ActionButtonBooking } from "../../Constant/booking";
 import Button from "./Button";
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
+import { parseDate } from "../../utils/dateUtils";
 
 const cancelBooking = async (
   dispatch,
@@ -134,9 +135,24 @@ const BookingActions = ({ id, index, status }) => {
     bookingId: "",
   });
   const [actionPending, setActionPending] = useState(false);
+  const [isDisable, setIsDisable] = useState(false);
   const { rejectionComments } = useSelector((state) => state.Tournament);
   const { isConfirmed } = useSelector((state) => state.confirm);
-  const { isBookingCreating } = useSelector((state) => state.tourBookings);
+  const { tournament } = useSelector((state) => state.GET_TOUR);
+
+  useEffect(() => {
+    if (tournament) {
+      const parsedTournamentEndDate =
+        tournament?.endDate && parseDate(tournament?.endDate);
+
+      const endDate = new Date(parsedTournamentEndDate).setHours(0, 0, 0, 0);
+
+      const today = new Date().setHours(0, 0, 0, 0);
+
+      const isDisable = endDate < today;
+      setIsDisable(isDisable);
+    }
+  }, []);
 
   const cancelBookingData = {
     categoryId: "",
@@ -199,6 +215,9 @@ const BookingActions = ({ id, index, status }) => {
   }, [actionType, isConfirmed, actionObject]);
 
   const handleDisable = (item) => {
+    if (isDisable) {
+      return true;
+    }
     if (status === "REFUNDED") {
       return true;
     }
