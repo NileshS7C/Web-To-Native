@@ -8,6 +8,8 @@ import {
 } from "formik";
 import ReactQuill from "react-quill";
 
+import { useFormikContextFunction } from "../../Providers/formikContext";
+
 import TextError from "../Error/formError";
 import { Amenities, Equipment } from "../../Constant/venue";
 import { AiFillQuestionCircle } from "react-icons/ai";
@@ -99,7 +101,7 @@ const validateOpenAndCloseTime = (days) => {
 const initialValues = {
   name: "",
   handle: "",
-  venueInfoUrl:"",
+  venueInfoUrl: "",
   tags: [],
   address: {
     line1: "",
@@ -221,6 +223,8 @@ const VenueInfo = () => {
     rating: yup.array().of(yup.number().min(0).max(5)),
     comments: yup.array().of(yup.string()),
   });
+
+  const { setSubmitForm, setIsSubmitting } = useFormikContextFunction();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading } = useSelector((state) => state.Venue);
@@ -319,40 +323,50 @@ const VenueInfo = () => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      <Form>
-        <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
-          <ErrorModal />
-          <SuccessModal />
-          <VenueBasicInfo />
-          <VenueAddress location={location} />
-          <VenueMetaData
-            isGettingTags={isGettingTags}
-            uniqueTags={uniqueTags}
-            selectedTags={selectedTags}
-          />
-          <VenueDescription />
-          <VenueAvailableDays />
-          <VenueAmenities />
-          <VenueEquipments />
-          <VenueBannerImage
-            dispatch={dispatch}
-            uploadData={uplodedData}
-            isUploading={isUploading}
-          />
-          <VenueLayoutImage
-            dispatch={dispatch}
-            uploadData={uplodedData}
-            isUploading={isUploading}
-          />
-          <Button
-            className="w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
-            type="submit"
-            loading={isLoading}
-          >
-            Save
-          </Button>
-        </div>
-      </Form>
+      {({ isSubmitting, submitForm }) => {
+        setSubmitForm(() => submitForm);
+        setIsSubmitting(isSubmitting);
+        return (
+          <Form>
+            <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
+              <ErrorModal />
+              <SuccessModal />
+              <VenueBasicInfo />
+              <VenueAddress location={location} />
+              <VenueMetaData
+                isGettingTags={isGettingTags}
+                uniqueTags={uniqueTags}
+                selectedTags={selectedTags}
+              />
+              <VenueDescription />
+              <VenueAvailableDays />
+              <VenueAmenities />
+              <VenueEquipments />
+              <VenueBannerImage
+                dispatch={dispatch}
+                uploadData={uplodedData}
+                isUploading={isUploading}
+              />
+              <VenueLayoutImage
+                dispatch={dispatch}
+                uploadData={uplodedData}
+                isUploading={isUploading}
+              />
+              <Button
+                className={`${
+                  id
+                    ? "hidden"
+                    : "w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
+                }`}
+                type="submit"
+                loading={isLoading}
+              >
+                Save
+              </Button>
+            </div>
+          </Form>
+        );
+      }}
     </Formik>
   );
 };
@@ -435,7 +449,6 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         />
         <ErrorMessage name="handle" component={TextError} />
       </div>
-
 
       <div className="flex flex-col items-start gap-2.5">
         <label
@@ -946,7 +959,9 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
             </p>
 
             <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-            <p className="text-xs text-[#353535] mt-1">(Image size: 1200x600)</p>
+            <p className="text-xs text-[#353535] mt-1">
+              (Image size: 1200x600)
+            </p>
 
             <FieldArray name="bannerImages">
               {({ form, field, meta, push }) => (

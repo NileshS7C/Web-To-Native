@@ -9,7 +9,7 @@ import { setTournamentEditMode } from "../redux/tournament/getTournament";
 import { handleTournamentDecision } from "../redux/tournament/tournamentActions";
 import { setApprovalBody } from "../redux/tournament/addTournament";
 
-import { FiEdit3 } from "react-icons/fi";
+import { FiDelete, FiEdit3 } from "react-icons/fi";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 
 import Header from "./Header/header";
@@ -25,11 +25,19 @@ import { SuccessModal } from "./Common/SuccessModal";
 import { ErrorModal } from "./Common/ErrorModal";
 import { approvalBody, hideActionButtons } from "../Constant/tournament";
 import { toggleOrganiserModal } from "../redux/tournament/tournamentOrganiserSlice";
+import { AiFillDelete } from "react-icons/ai";
+import { deleteVenue } from "../redux/Venue/venueActions";
+import { ConfirmationModal } from "./Common/ConfirmationModal";
+import { onCancel, onCofirm } from "../redux/Confirmation/confirmationSlice";
+import { showError } from "../redux/Error/errorSlice";
+import { showSuccess } from "../redux/Success/successSlice";
+import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 
 const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
+  const { submitForm, isSubmitting } = useFormikContextFunction();
   const { tournamentId, eventId, id } = useParams();
   const { venue } = useSelector((state) => state.getVenues);
   const { tournament, tournamentEditMode } = useSelector(
@@ -158,6 +166,17 @@ const Layout = () => {
                   <TournamentOrganiserButtons dispatch={dispatch} />
                 )}
 
+                {(currentTitle === "Venue Details" ||
+                  currentTitle.startsWith("Edit")) && (
+                  <VenueActionButtonWrapper
+                    dispatch={dispatch}
+                    navigate={navigate}
+                    venueId={id}
+                    submitForm={submitForm}
+                    isSubmitting={isSubmitting}
+                  />
+                )}
+
                 {isTournament &&
                   tournament?.status !== "DRAFT" &&
                   !hideActionButtons.includes(currentTitle) && (
@@ -171,6 +190,8 @@ const Layout = () => {
                       setApproveButtonClicked={setApproveButtonClicked}
                       tournamentEditMode={tournamentEditMode}
                       eventId={eventId}
+                      submitForm={submitForm}
+                      isSubmitting={isSubmitting}
                     />
                   )}
               </div>
@@ -211,6 +232,8 @@ const TournamentActionButton = ({
   setApproveButtonClicked,
   tournamentEditMode,
   eventId,
+  submitForm,
+  isSubmitting,
 }) => {
   return (
     <div className="flex items-center gap-2 justify-end ml-auto">
@@ -231,7 +254,9 @@ const TournamentActionButton = ({
         ) : (
           <SaveAndCancelButton
             dispatch={dispatch}
-            setTournamentEditMode={setTournamentEditMode}
+            setEditMode={setTournamentEditMode}
+            submitForm={submitForm}
+            isSubmitting={isSubmitting}
           />
         ))}
 
@@ -279,14 +304,195 @@ const TournamentActionButton = ({
   );
 };
 
-const SaveAndCancelButton = ({ dispatch, setTournamentEditMode }) => {
-  const { submitForm, isSubmitting } = useFormikContextFunction();
+const VenueActionButtonWrapper = ({
+  dispatch,
+  navigate,
+  venueId,
+  submitForm,
+  isSubmitting,
+}) => {
+  const [isDeleteButtonClicked, setIsDeleteButtonClicked] = useState(false);
+  const [isEditInThePath, setIsEditInThePath] = useState(false);
+
+  const location = useLocation();
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { venue, isPublishing } = useSelector((state) => state.getVenues);
+  const { venueEditMode } = useSelector((state) => state.Venue);
+
+  useEffect(() => {
+    if (location?.pathname) {
+      setIsEditInThePath(() => {
+        return location.pathname.includes("/edit");
+      });
+    }
+
+    dispatch(resetVenueEditMode());
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (isDeleteButtonClicked) {
+      dispatch(
+        showConfirmation({
+          message:
+            "Deleting this venue will remove it from your records and any associated data. Are you sure you want to proceed?",
+          type: "Venue",
+          id: venueId,
+        })
+      );
+    }
+  }, [isDeleteButtonClicked]);
+
+  const { isConfirmed, type, confirmationId } = useSelector(
+    (state) => state.confirm
+  );
+
+  useEffect(() => {
+    const deleteTheVenue = async () => {
+      try {
+        setIsDeleting(true);
+        const result = await dispatch(deleteVenue(confirmationId)).unwrap();
+
+        if (result.status === "success") {
+          dispatch(
+            showSuccess({
+              message: "Venue Deleted Successfully.",
+              onClose: "hideSuccess",
+            })
+          );
+
+          navigate("/venues");
+        }
+      } catch (err) {
+        console.log(" Error in deleting the venue", err);
+        dispatch(
+          showError({
+            message:
+              err?.data?.message ||
+              "Oops!, something went wrong while deleting the venue. Please try again later.",
+            onClose: "hideError",
+          })
+        );
+      } finally {
+        setIsDeleting(false);
+        setIsDeleteButtonClicked(false);
+      }
+    };
+    if (isConfirmed && type === "Venue" && confirmationId) {
+      dispatch(onCancel());
+      deleteTheVenue();
+    }
+  }, [isConfirmed]);
+
+  return (
+    <VenueActionButtons
+      dispatch={dispatch}
+      navigate={navigate}
+      venueId={venueId}
+      setIsDeleteButtonClicked={setIsDeleteButtonClicked}
+      venue={venue}
+      isPublishing={isPublishing}
+      isDeleting={isDeleting}
+      isEditInThePath={isEditInThePath}
+      venueEditMode={venueEditMode}
+      submitForm={submitForm}
+      isSubmitting={isSubmitting}
+    />
+  );
+};
+const VenueActionButtons = ({
+  dispatch,
+  navigate,
+  venueId,
+  setIsDeleteButtonClicked,
+  venue,
+  isPublishing,
+  isDeleting,
+  isEditInThePath,
+  venueEditMode,
+  submitForm,
+  isSubmitting,
+}) => {
+  return (
+    <div className="flex items-center gap-2 justify-end ml-auto">
+      {venueEditMode ? (
+        <SaveAndCancelButton
+          dispatch={dispatch}
+          setEditMode={setVenueEditMode}
+          submitForm={submitForm}
+          isSubmitting={isSubmitting}
+        />
+      ) : (
+        <button
+          className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+          type="button"
+          onClick={() => {
+            if (!isEditInThePath) {
+              navigate(`/venues/${venueId}/edit`);
+            } else {
+              dispatch(setVenueEditMode());
+            }
+          }}
+        >
+          <span>Edit Venue</span>
+          <FiEdit3 />
+        </button>
+      )}
+
+      {!isEditInThePath && (
+        <>
+          <Button
+            className="flex items-center justify-center gap-3 px-4 py-2 bg-red-700 shadow-lg text-white ml-auto rounded-[8px] hover:bg-red-500 disabled:bg-red-500"
+            type="button"
+            onClick={() => {
+              setIsDeleteButtonClicked(true);
+            }}
+            loading={isDeleting}
+          >
+            <span>Delete Venue</span>
+            <AiFillDelete />
+          </Button>
+          <Button
+            className="flex items-center justify-center gap-3 px-4 py-2 bg-white shadow-lg text-customTextColor ml-auto rounded-[8px] hover:bg-gray-200 disabled:bg-gray-200"
+            type="button"
+            onClick={() =>
+              dispatch(
+                showConfirmation({
+                  message:
+                    "Publishing this venue will make it visible to players. Are you sure you want to proceed?",
+                  type: "Venue",
+                })
+              )
+            }
+            loading={isPublishing}
+            disabled={
+              venue?.status === "PUBLISHED" || venue?.courts?.length === 0
+            }
+          >
+            <span>
+              {venue?.status !== "PUBLISHED"
+                ? "Publish Venue"
+                : "Venue Published"}
+            </span>
+          </Button>
+        </>
+      )}
+    </div>
+  );
+};
+
+const SaveAndCancelButton = ({
+  dispatch,
+  setEditMode,
+  submitForm,
+  isSubmitting,
+}) => {
   return (
     <div className="flex items-center justify-between gap-2">
       <button
         className="flex items-center justify-center gap-3 px-4 py-2 bg-white shadow-lg text-black ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
         type="button"
-        onClick={() => dispatch(setTournamentEditMode())}
+        onClick={() => dispatch(setEditMode())}
       >
         <span>Cancel</span>
       </button>
@@ -305,7 +511,17 @@ const SaveAndCancelButton = ({ dispatch, setTournamentEditMode }) => {
 
 SaveAndCancelButton.propTypes = {
   dispatch: PropTypes.func,
-  setTournamentEditMode: PropTypes.func,
+  setEditMode: PropTypes.func,
+  submitForm: PropTypes.func,
+  isSubmitting: PropTypes.bool,
+};
+
+VenueActionButtonWrapper.propTypes = {
+  dispatch: PropTypes.func,
+  navigate: PropTypes.func,
+  venueId: PropTypes.string,
+  submitForm: PropTypes.func,
+  isSubmitting: PropTypes.bool,
 };
 
 TournamentActionButton.propTypes = {
@@ -318,6 +534,22 @@ TournamentActionButton.propTypes = {
   setApproveButtonClicked: PropTypes.func,
   tournamentEditMode: PropTypes.bool,
   eventId: PropTypes.string,
+  submitForm: PropTypes.func,
+  isSubmitting: PropTypes.bool,
+};
+
+VenueActionButtons.propTypes = {
+  dispatch: PropTypes.func,
+  navigate: PropTypes.func,
+  venueId: PropTypes.string,
+  setIsDeleteButtonClicked: PropTypes.func,
+  venue: PropTypes.object,
+  isPublishing: PropTypes.bool,
+  isDeleting: PropTypes.bool,
+  isEditInThePath: PropTypes.bool,
+  submitForm: PropTypes.func,
+  isSubmitting: PropTypes.bool,
+  venueEditMode: PropTypes.bool,
 };
 
 export default Layout;
