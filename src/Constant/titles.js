@@ -81,10 +81,9 @@ export const getPageTitle = (pathname, params, venueData) => {
 
     if (pathname.includes("images")) {
       return "Uploaded Images";
-
+    }
     if (pathname.includes("players")) {
       return "Players";
-
     }
     return STATIC_TITLES[pathname] || "DASHBOARD";
   };

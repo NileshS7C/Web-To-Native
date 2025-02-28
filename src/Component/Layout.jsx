@@ -32,7 +32,11 @@ import { approvalBody, hideActionButtons } from "../Constant/tournament";
 import { toggleOrganiserModal } from "../redux/tournament/tournamentOrganiserSlice";
 
 import { showError } from "../redux/Error/errorSlice";
-import { getUploadedImages, uploadImage, uploadImageForCMS } from "../redux/Upload/uploadActions";
+import {
+  getUploadedImages,
+  uploadImage,
+  uploadImageForCMS,
+} from "../redux/Upload/uploadActions";
 import { showSuccess } from "../redux/Success/successSlice";
 import { cleanUpUpload, setIsUploaded } from "../redux/Upload/uploadImage";
 
@@ -40,10 +44,7 @@ import { AiFillDelete } from "react-icons/ai";
 import { deleteVenue } from "../redux/Venue/venueActions";
 import { ConfirmationModal } from "./Common/ConfirmationModal";
 import { onCancel, onCofirm } from "../redux/Confirmation/confirmationSlice";
-import { showError } from "../redux/Error/errorSlice";
-import { showSuccess } from "../redux/Success/successSlice";
 import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
-
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -178,9 +179,9 @@ const Layout = () => {
                   <TournamentOrganiserButtons dispatch={dispatch} />
                 )}
 
-
                 {currentTitle === "Uploaded Images" && (
                   <UploadImageButton dispatch={dispatch} />
+                )}
 
                 {(currentTitle === "Venue Details" ||
                   currentTitle.startsWith("Edit")) && (
@@ -191,7 +192,6 @@ const Layout = () => {
                     submitForm={submitForm}
                     isSubmitting={isSubmitting}
                   />
-
                 )}
 
                 {isTournament &&
