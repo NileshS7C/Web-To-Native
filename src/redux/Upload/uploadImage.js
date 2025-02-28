@@ -7,6 +7,8 @@ const initialState = {
   isErrorInUploading: false,
   uploadErrorMessage: "",
   uplodedData: {},
+  deleteImageDetails: [],
+  deleteImageSuccess: false,
 };
 
 const uploadSlice = createSlice({
@@ -19,6 +21,24 @@ const uploadSlice = createSlice({
       state.isErrorInUploading = false;
       state.uploadErrorMessage = "";
       state.uplodedData = {};
+    },
+
+    setDeleteImageSuccess(state) {
+      state.deleteImageSuccess = true;
+    },
+    resetDeleteImageSuccess(state) {
+      state.deleteImageSuccess = false;
+    },
+
+    setDeleteImageDetails(state, { payload }) {
+      state.deleteImageDetails = payload;
+    },
+
+    setIsUploaded(state) {
+      state.isUploded = true;
+    },
+    resetDeleteImageDetails(state) {
+      state.deleteImageDetails = [];
     },
   },
   extraReducers: (builder) => {
@@ -39,6 +59,13 @@ const uploadSlice = createSlice({
   },
 });
 
-export const { cleanUpUpload } = uploadSlice.actions;
+export const {
+  cleanUpUpload,
+  setIsUploaded,
+  setDeleteImageSuccess,
+  resetDeleteImageSuccess,
+  setDeleteImageDetails,
+  resetDeleteImageDetails,
+} = uploadSlice.actions;
 
 export default uploadSlice.reducer;
