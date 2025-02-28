@@ -43,7 +43,13 @@ const imageTableHeaders = [
   {
     key: "imageType",
     header: "Type",
-    render: (item) => <p>{item?.type}</p>,
+    render: (item) => {
+      const imageType = item?.mimeType
+        ? item.mimeType.split("image/").join("").toUpperCase()
+        : "";
+
+      return <p>{imageType}</p>;
+    },
   },
 
   {
@@ -58,7 +64,7 @@ export const UploadedFilesListing = ({ currentPage, files, totalFiles }) => {
     <div>
       <DataTable
         columns={imageTableHeaders}
-        totalPages={totalFiles || 20}
+        totalPages={totalFiles}
         currentPage={currentPage}
         onPageChange={onPageChange}
         data={files}
@@ -66,6 +72,7 @@ export const UploadedFilesListing = ({ currentPage, files, totalFiles }) => {
         evenRowColor="[#FFFFFF]"
         oddRowColor="[#FFFFFF]"
         alternateRowColors={true}
+        pageLimit={20}
       />
     </div>
   );

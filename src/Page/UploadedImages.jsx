@@ -1,12 +1,21 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
-import { getUploadedImages } from "../redux/Upload/uploadActions";
+import {
+  deleteUploadedImagesListing,
+  getUploadedImages,
+} from "../redux/Upload/uploadActions";
 import { UploadedFilesListing } from "../Component/UploadedFiles/uploadedFilesListing";
 import Spinner from "../Component/Common/Spinner";
 import EmptyBanner from "../Component/Common/EmptyStateBanner";
 import ErrorBanner from "../Component/Common/ErrorBanner";
 import { uploadedImageLimit } from "../Constant/app";
+import { showError } from "../redux/Error/errorSlice";
+import {
+  resetDeleteImageDetails,
+  resetDeleteImageSuccess,
+  setDeleteImageSuccess,
+} from "../redux/Upload/uploadImage";
 
 export const UploadedImages = () => {
   const dispatch = useDispatch();
@@ -16,10 +25,11 @@ export const UploadedImages = () => {
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [files, setFiles] = useState([]);
-  const [lastFileKey, setLastFileKey] = useState("");
   const [totalFiles, setTotalFiles] = useState(null);
   const currentPage = searchParams.get("page");
-  const { isUploded } = useSelector((state) => state.upload);
+  const { isUploded, deleteImageDetails, deleteImageSuccess } = useSelector(
+    (state) => state.upload
+  );
 
   useEffect(() => {
     const getFiles = async () => {
@@ -31,16 +41,15 @@ export const UploadedImages = () => {
 
         const result = await dispatch(
           getUploadedImages({
-            lastFileKey,
+            currentPage: currentPage || 1,
             limit: uploadedImageLimit,
           })
         ).unwrap();
 
-        if (!result?.responseCode) {
+        if (result?.status === "success") {
           setSuccess(true);
-          setLastFileKey(result.data?.lastFileKey);
           setFiles(result.data?.files);
-          setTotalFiles(result.data?.totalFiles);
+          setTotalFiles(result.data?.pagination?.totalFiles);
         }
       } catch (err) {
         console.log(" error occured while getting the uploaded images", err);
@@ -55,45 +64,37 @@ export const UploadedImages = () => {
     };
 
     getFiles();
-  }, [currentPage]);
+  }, [currentPage, isUploded, deleteImageSuccess]);
 
   useEffect(() => {
-    const getFiles = async () => {
+    const deleteImages = async () => {
       try {
-        setIsLoading(true);
-        setError(false);
-        setErrorMessage(false);
-        setSuccess(false);
-
+        dispatch(resetDeleteImageSuccess());
         const result = await dispatch(
-          getUploadedImages({
-            lastFileKey: "",
-            limit: uploadedImageLimit,
-          })
+          deleteUploadedImagesListing({ fileUrls: deleteImageDetails })
         ).unwrap();
 
-        if (!result?.responseCode) {
-          setSuccess(true);
-          setLastFileKey(result.data?.lastFileKey);
-          setFiles(result.data?.files);
-          setTotalFiles(result.data?.totalFiles);
+        if (result?.status === "success") {
+          dispatch(setDeleteImageSuccess());
         }
       } catch (err) {
-        console.log(" error occured while getting the uploaded images", err);
-        setError(true);
-        setErrorMessage(
-          err?.data?.message ||
-            "Oops!, something went wrong while getting the uploaded images."
+        console.log(" error occured while deleting the file", err);
+        dispatch(
+          showError({
+            message:
+              err?.data?.message ||
+              "Something went wrong while deleting the file. Please try again later.",
+            onClose: "hideError",
+          })
         );
       } finally {
-        setIsLoading(false);
+        dispatch(resetDeleteImageDetails());
       }
     };
-
-    if (isUploded) {
-      getFiles();
+    if (deleteImageDetails.length > 0) {
+      deleteImages();
     }
-  }, [isUploded]);
+  }, [deleteImageDetails]);
 
   if (isLoading) {
     return (

@@ -31,7 +31,7 @@ import { ErrorModal } from "./Common/ErrorModal";
 import { approvalBody, hideActionButtons } from "../Constant/tournament";
 import { toggleOrganiserModal } from "../redux/tournament/tournamentOrganiserSlice";
 import { showError } from "../redux/Error/errorSlice";
-import { getUploadedImages, uploadImage } from "../redux/Upload/uploadActions";
+import { getUploadedImages, uploadImage, uploadImageForCMS } from "../redux/Upload/uploadActions";
 import { showSuccess } from "../redux/Success/successSlice";
 import { cleanUpUpload, setIsUploaded } from "../redux/Upload/uploadImage";
 
@@ -342,7 +342,7 @@ const UploadImageButton = ({ dispatch }) => {
         return;
       }
 
-      const result = await dispatch(uploadImage(uploadedFile)).unwrap();
+      const result = await dispatch(uploadImageForCMS(uploadedFile)).unwrap();
 
       if (result?.status === "success") {
         dispatch(
@@ -374,7 +374,7 @@ const UploadImageButton = ({ dispatch }) => {
   return (
     <div>
       <Button
-        className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+        className="flex w-[200px] items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
         onClick={handleButtonClicked}
         loading={isUploading}
       >

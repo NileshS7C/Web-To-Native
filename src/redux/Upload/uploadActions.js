@@ -35,6 +35,40 @@ export const uploadImage = createAsyncThunk(
   }
 );
 
+export const uploadImageForCMS = createAsyncThunk(
+  "upload/uploadImage",
+  async (file, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("uploaded-file", file);
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/upload-file?folder=cms`,
+        formData,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
 export const deleteUploadedImage = createAsyncThunk(
   "upload/deleteUploadedImage",
   async (file, { rejectWithValue }) => {
@@ -69,9 +103,41 @@ export const deleteUploadedImage = createAsyncThunk(
   }
 );
 
+export const deleteUploadedImagesListing = createAsyncThunk(
+  "upload/deleteUploadedImage",
+  async (files, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/delete-files`,
+        files,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
 export const getUploadedImages = createAsyncThunk(
   "upload/getUploadedImages",
-  async ({ lastFileKey, limit }, { rejectWithValue }) => {
+  async ({ currentPage, limit }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -79,16 +145,12 @@ export const getUploadedImages = createAsyncThunk(
         },
       };
 
-      let url;
-
-      if (!lastFileKey) {
-        url = `${import.meta.env.VITE_BASE_URL}/list-files?limit=${limit}`;
-      } else {
-        url = `${
+      const response = await axiosInstance.get(
+        `${
           import.meta.env.VITE_BASE_URL
-        }/list-files?lastFileKey=${lastFileKey}&limit=${limit}`;
-      }
-      const response = await axiosInstance.get(url, config);
+        }/list-files?page=${currentPage}&limit=${limit}`,
+        config
+      );
 
       return response.data;
     } catch (err) {

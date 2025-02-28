@@ -3,8 +3,12 @@ import { useEffect, useState } from "react";
 
 import { FaRegCopy } from "react-icons/fa";
 import { LuCopyCheck } from "react-icons/lu";
+import { MdDeleteOutline } from "react-icons/md";
+import { setDeleteImageDetails } from "../../redux/Upload/uploadImage";
+import { useDispatch } from "react-redux";
 
 export const ImageActions = ({ item }) => {
+  const dispatch = useDispatch();
   const [hasUrlCopied, setHasUrlCopied] = useState(false);
   const [hasError, setHasError] = useState(false);
   const handleCopyUrl = async () => {
@@ -27,14 +31,23 @@ export const ImageActions = ({ item }) => {
 
     return () => clearTimeout(timerId);
   }, [hasUrlCopied]);
+
+  const handleDeleteFile = (item) => {
+    dispatch(setDeleteImageDetails([item?.url]));
+  };
   return (
-    <button onClick={handleCopyUrl}>
-      {hasUrlCopied ? (
-        <LuCopyCheck className="w-[20px] h-[20px]" />
-      ) : (
-        <FaRegCopy className="w-[20px] h-[20px]" />
-      )}
-    </button>
+    <div>
+      <button onClick={handleCopyUrl}>
+        {hasUrlCopied ? (
+          <LuCopyCheck className="w-[20px] h-[20px]" />
+        ) : (
+          <FaRegCopy className="w-[20px] h-[20px]" />
+        )}
+      </button>
+      <button onClick={() => handleDeleteFile(item)}>
+        <MdDeleteOutline className="w-[20px] h-[20px]" />
+      </button>
+    </div>
   );
 };
 
