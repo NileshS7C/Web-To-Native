@@ -11,6 +11,7 @@ import {
   EditIcon,
   ViewIcon,
   cmsIcon,
+  PlayerIcon,
 } from "../Assests";
 
 export const months = [
@@ -68,6 +69,7 @@ export const ADMIN_NAVIGATION = [
   // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
   { name: "Venues", icon: venueIcon, path: "venues" },
+  { name: "Players", icon: PlayerIcon, path: "players" },
   // { name: "User", icon: profileIcon, path: "users" },
   {
     name: "CMS",
@@ -160,6 +162,7 @@ export const notHaveBackButton = [
   "Users",
   "DASHBOARD",
   "User Details",
+  "Players"
 ];
 
 export const ROLES = [

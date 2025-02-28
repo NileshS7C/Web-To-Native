@@ -8,6 +8,8 @@ import {
 } from "formik";
 import ReactQuill from "react-quill";
 
+import { useFormikContextFunction } from "../../Providers/formikContext";
+
 import TextError from "../Error/formError";
 import { Amenities, Equipment } from "../../Constant/venue";
 import { AiFillQuestionCircle } from "react-icons/ai";
@@ -33,7 +35,7 @@ import LocationSearchInput from "../Common/LocationSearch";
 import { uploadImage } from "../../redux/Upload/uploadActions";
 import { resetVenueState } from "../../redux/Venue/addVenue";
 import Combopopover from "../Common/Combobox";
-import { venueImageSize } from "../../Constant/app";
+import { phoneRegex, venueImageSize } from "../../Constant/app";
 import { Switch } from "@headlessui/react";
 
 const requiredVenueFields = (venue) => {
@@ -41,6 +43,7 @@ const requiredVenueFields = (venue) => {
     name,
     handle,
     tags,
+    phoneNumber,
     address,
     description,
     availableDays,
@@ -57,6 +60,7 @@ const requiredVenueFields = (venue) => {
     name,
     handle,
     tags,
+    phoneNumber,
     address,
     description,
     availableDays,
@@ -99,8 +103,9 @@ const validateOpenAndCloseTime = (days) => {
 const initialValues = {
   name: "",
   handle: "",
-  venueInfoUrl:"",
+  venueInfoUrl: "",
   tags: [],
+  phoneNumber: "",
   address: {
     line1: "",
     line2: "",
@@ -167,6 +172,20 @@ const VenueInfo = () => {
       }),
     }),
     description: yup.string().required("Description is required."),
+    phoneNumber: yup
+      .string()
+      .optional()
+      .test(
+        "Invalid-phone-number",
+        "Enter a valid phone number",
+        function (value) {
+          if (!value) {
+            return true;
+          }
+
+          return phoneRegex.test(value);
+        }
+      ),
     availableDays: yup
       .array()
       .test(
@@ -221,6 +240,8 @@ const VenueInfo = () => {
     rating: yup.array().of(yup.number().min(0).max(5)),
     comments: yup.array().of(yup.string()),
   });
+
+  const { setSubmitForm, setIsSubmitting } = useFormikContextFunction();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading } = useSelector((state) => state.Venue);
@@ -319,40 +340,50 @@ const VenueInfo = () => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      <Form>
-        <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
-          <ErrorModal />
-          <SuccessModal />
-          <VenueBasicInfo />
-          <VenueAddress location={location} />
-          <VenueMetaData
-            isGettingTags={isGettingTags}
-            uniqueTags={uniqueTags}
-            selectedTags={selectedTags}
-          />
-          <VenueDescription />
-          <VenueAvailableDays />
-          <VenueAmenities />
-          <VenueEquipments />
-          <VenueBannerImage
-            dispatch={dispatch}
-            uploadData={uplodedData}
-            isUploading={isUploading}
-          />
-          <VenueLayoutImage
-            dispatch={dispatch}
-            uploadData={uplodedData}
-            isUploading={isUploading}
-          />
-          <Button
-            className="w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
-            type="submit"
-            loading={isLoading}
-          >
-            Save
-          </Button>
-        </div>
-      </Form>
+      {({ isSubmitting, submitForm }) => {
+        setSubmitForm(() => submitForm);
+        setIsSubmitting(isSubmitting);
+        return (
+          <Form>
+            <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
+              <ErrorModal />
+              <SuccessModal />
+              <VenueBasicInfo />
+              <VenueAddress location={location} />
+              <VenueMetaData
+                isGettingTags={isGettingTags}
+                uniqueTags={uniqueTags}
+                selectedTags={selectedTags}
+              />
+              <VenueDescription />
+              <VenueAvailableDays />
+              <VenueAmenities />
+              <VenueEquipments />
+              <VenueBannerImage
+                dispatch={dispatch}
+                uploadData={uplodedData}
+                isUploading={isUploading}
+              />
+              <VenueLayoutImage
+                dispatch={dispatch}
+                uploadData={uplodedData}
+                isUploading={isUploading}
+              />
+              <Button
+                className={`${
+                  id
+                    ? "hidden"
+                    : "w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
+                }`}
+                type="submit"
+                loading={isLoading}
+              >
+                Save
+              </Button>
+            </div>
+          </Form>
+        );
+      }}
     </Formik>
   );
 };
@@ -436,7 +467,6 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         <ErrorMessage name="handle" component={TextError} />
       </div>
 
-
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -464,8 +494,27 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         placeholder="Enter Venue Tags"
         label="Venue Tags"
       />
-
       <ErrorMessage name="tags" component={TextError} />
+      <div className="flex flex-col items-start gap-2.5">
+        <label
+          className=" text-[#232323] text-base leading-[19.36px]"
+          htmlFor="phoneNumber"
+        >
+          Phone Number
+        </label>
+        <Field
+          placeholder="Enter Phone Number"
+          id="phoneNumber"
+          name="phoneNumber"
+          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            setFieldValue("phoneNumber", e.target.value);
+          }}
+          onWheel={(e) => e.target.blur()}
+        />
+
+        <ErrorMessage name="phoneNumber" component={TextError} />
+      </div>
     </div>
   );
 };
@@ -946,7 +995,9 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
             </p>
 
             <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-            <p className="text-xs text-[#353535] mt-1">(Image size: 1200x600)</p>
+            <p className="text-xs text-[#353535] mt-1">
+              (Image size: 1200x600)
+            </p>
 
             <FieldArray name="bannerImages">
               {({ form, field, meta, push }) => (

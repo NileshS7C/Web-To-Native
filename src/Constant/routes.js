@@ -106,6 +106,14 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match`;
         }
       },
+
+      fixtureMatchSetCount: (type, tournamentId, categoryId, fixtureId) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/set-match-count`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/set-match-count`;
+        }
+      },
     },
 
     GET: {
@@ -192,6 +200,20 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}`;
         }
       },
+
+      getMatchStandings: (
+        type,
+        tournamentId,
+        categoryId,
+        fixtureId,
+        stageId
+      ) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stage/${stageId}/standings`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stage/${stageId}/standings`;
+        }
+      },
     },
 
     PATCH: {
@@ -228,6 +250,13 @@ export const API_END_POINTS = {
 
     PUT: {},
   },
+  players: {
+    GET : {
+      getAllPlayers: () => {
+        return 'api/users/admin/players';
+      }
+    }
+  }
 };
 
 export const parentRoutes = ["Tournaments", "Venues", "Users"];

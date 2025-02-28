@@ -16,6 +16,7 @@ const DataTable = ({
   oddRowColor = "none",
   onClick = null,
   rowTextAlignment = "left",
+  rowsInOnePage,
 }) => {
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
@@ -136,6 +137,7 @@ const DataTable = ({
           onPageChange={onPageChange}
           hasLink={true}
           pathName={pathName}
+          rowsInOnePage={rowsInOnePage}
         />
       )}
     </div>

@@ -16,6 +16,12 @@ const MatchListingHeaders = [
     key: "participant1",
     header: "Opponent 1",
     render: (item) => {
+      const { opponent1 = "" } = item;
+      console.log(" opponent 1", opponent1)
+      let isWinner;
+      if (opponent1) {
+        isWinner = opponent1.result === "win";
+      }
       return (
         <div className="flex items-center justify-center gap-2">
           <img
@@ -24,6 +30,11 @@ const MatchListingHeaders = [
             className="w-[30px] h-[30px] rounded-full"
           />
           <p className="text-matchTextColor font-semibold">{item?.player1}</p>
+          {isWinner && (
+            <span className="inline-flex flex-1 max-w-fit font-semibold items-center rounded-2xl  px-2 py-1 text-xs ring-2 ring-inset ">
+              Winner
+            </span>
+          )}
         </div>
       );
     },
@@ -51,6 +62,11 @@ const MatchListingHeaders = [
     key: "participant2",
     header: "Opponent 2",
     render: (item) => {
+      const { opponent2 = "" } = item;
+      let isWinner;
+      if (opponent2) {
+        isWinner = opponent2.result === "win";
+      }
       return (
         <div className="flex items-center justify-center gap-2">
           <img
@@ -59,6 +75,11 @@ const MatchListingHeaders = [
             className="w-[30px] h-[30px]  rounded-full"
           />
           <p className="text-matchTextColor font-semibold">{item?.player2}</p>
+          {isWinner && (
+            <span className="inline-flex flex-1 max-w-fit font-semibold items-center rounded-2xl  px-2 py-1 text-xs ring-2 ring-inset ">
+              Winner
+            </span>
+          )}
         </div>
       );
     },
@@ -74,6 +95,16 @@ export const MatchesListing = () => {
   const [totalRounds, setTotalRounds] = useState(0);
   const [showScoreUpdateModal, setShowScoreUpdateModal] = useState(false);
   const [currentMatchClicked, setCurrentMatchClicked] = useState(null);
+
+  const [bracketName, setBracketName] = useState(null);
+  const [currentRoundData, setCurrentRoundData] = useState(null);
+
+  const [updateFixture, setUpdateFixture] = useState(null);
+  const [players, setPlayers] = useState({});
+
+  const handleUpdateFixture = (value) => {
+    setUpdateFixture(value);
+  };
 
   const handleChangeRounds = (type) => {
     if (type === "back") {
@@ -93,10 +124,43 @@ export const MatchesListing = () => {
   }, []);
 
   useEffect(() => {
+    if (updateFixture) {
+      dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+    }
+  }, [updateFixture]);
+
+  useEffect(() => {
+    if (currentRoundData && fixture?.format === "DE") {
+      const group_id = currentRoundData[0].group_id;
+
+      switch (group_id) {
+        case 0: {
+          setBracketName("Winner Bracket");
+          break;
+        }
+        case 1: {
+          setBracketName("Looser Bracket");
+          break;
+        }
+
+        case 2: {
+          setBracketName("Grand Finale");
+          break;
+        }
+        default: {
+          setBracketName("");
+        }
+      }
+    }
+  }, [currentRoundData, fixture]);
+
+  useEffect(() => {
     if (fixture && currentRound) {
       const currentRoundId = fixture?.bracketData?.round.filter(
         (item) => item?.id?.toString() === (currentRound - 1)?.toString()
       );
+
+      setCurrentRoundData(currentRoundId);
 
       const currentRoundMatches = currentRoundId.flatMap((round) => {
         const match = fixture.bracketData.match.filter(
@@ -159,11 +223,22 @@ export const MatchesListing = () => {
 
       setPlayerData(playerData);
 
-      setTotalRounds(fixture?.bracketData?.round.length);
-    }
-  }, [fixture, currentRound]);
+      setPlayers(() => {
+        const currentMatchId = currentMatchClicked?.matchId;
 
-  if (isFetchingFixture) {
+        const currentPlayers = playerData?.find(
+          (player) => String(player?.matchId) === String(currentMatchId)
+        );
+
+        return currentPlayers;
+      });
+
+      setTotalRounds(fixture?.bracketData?.round.length);
+      setUpdateFixture(null);
+    }
+  }, [fixture, currentRound, updateFixture, currentMatchClicked]);
+
+  if (isFetchingFixture && !showScoreUpdateModal) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spinner />
@@ -191,6 +266,9 @@ export const MatchesListing = () => {
 
             <p className="text-matchTextColor font-bold text-sm sm:text-md:text-xl lg:text-2xl">
               Round <span>{currentRound}</span>
+              <span className="inline-flex justify-center font-semibold flex-1 w-full items-center rounded-2xl  px-2 py-1 text-xs  ring-1 ring-inset">
+                {bracketName}
+              </span>
             </p>
 
             <button
@@ -214,17 +292,19 @@ export const MatchesListing = () => {
             rowPaddingY="4"
             alternateRowColors={true}
             evenRowColor="[#FFFFFF]"
-            oddRowColor="blue-400"
+            oddRowColor="blue-200"
             onClick={handleMatchUpdateButton}
           />
 
           <ScoreUpdateModal
             isOpen={showScoreUpdateModal}
             onCancel={setShowScoreUpdateModal}
-            players={currentMatchClicked}
+            players={players}
             fixtureId={fixture?._id}
             tournamentId={tournamentId}
             eventId={eventId}
+            currentMatchId={currentMatchClicked?.matchId}
+            handleUpdateFixture={handleUpdateFixture}
           />
         </>
       )}

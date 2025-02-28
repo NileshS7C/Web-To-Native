@@ -4,16 +4,17 @@ import {
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
 } from "@heroicons/react/20/solid";
-import { rowsInOnePage } from "../../Constant/app";
 
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+
 export const Pagination = ({
   currentPage,
   total,
   onPageChange,
   hasLink = false,
   pathName = "",
+  rowsInOnePage = 10,
 }) => {
   const dispatch = useDispatch();
   const totalPages = Math.ceil(total / rowsInOnePage);
@@ -168,4 +169,5 @@ Pagination.propTypes = {
   onPageChange: PropTypes.func,
   hasLink: PropTypes.bool,
   pathName: PropTypes.string,
+  rowsInOnePage: PropTypes.number,
 };
