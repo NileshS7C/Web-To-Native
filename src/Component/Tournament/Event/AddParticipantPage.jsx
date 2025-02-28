@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
@@ -47,12 +48,12 @@ const SearchPlayerWrapper = ({ id, setSelectedPlayer }) => {
   );
 };
 
-const AddUserModalTitle = () => {
+const AddUserModalTitle = ({ isPlayerExist }) => {
   const dispatch = useDispatch();
   return (
     <div className="flex items-center justify-between mb-[30px]">
       <p className="text-[18px] leading-[21.7px] font-[600] text-[#343C6A]">
-        Add New User
+        {!isPlayerExist ? "Add New User" : "Add Existing User"}
       </p>
       <button
         onClick={() => dispatch(toggleBookingModal())}
@@ -86,7 +87,6 @@ const AddParticipants = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [isPlayerExist, setIsPlayerExist] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [selectedPlayerNames, setSelectedPlayerNames] = useState([]);
   const { showConfirmBookingModal, category } = useSelector(
     (state) => state.event
   );
@@ -194,9 +194,8 @@ const AddParticipants = () => {
     if (selectedPlayer?.player) {
       let updatedValues = {};
       let bookingItems = [{ categoryId: eventId }];
-      const { name, phone, _id } = selectedPlayer.player;
-      if (selectedPlayer.id === "player") {
-        setSelectedPlayerNames((prev) => [...prev, name]);
+      const { name, phone, _id } = selectedPlayer?.player;
+      if (selectedPlayer?.id === "player") {
         updatedValues = {
           ...updatedValues,
           name,
@@ -208,8 +207,7 @@ const AddParticipants = () => {
         setInitialState((prevState) => ({ ...prevState, ...updatedValues }));
       }
 
-      if (selectedPlayer.id === "partner") {
-        setSelectedPlayerNames((prev) => [...prev, name]);
+      if (selectedPlayer?.id === "partner") {
         const bookingItems = [
           {
             categoryId: eventId,
@@ -223,11 +221,11 @@ const AddParticipants = () => {
         updatedValues = { ...updatedValues, bookingItems };
 
         setInitialState((prevState) => ({ ...prevState, ...updatedValues }));
+      } else {
+        setInitialState((prevState) => ({ ...prevState, bookingItems }));
       }
-
-      setInitialState((prevState) => ({ ...prevState, bookingItems }));
     }
-  }, [selectedPlayer]);
+  }, [selectedPlayer?.id]);
 
   useEffect(() => {
     if (showConfirmBookingModal) {
@@ -264,7 +262,7 @@ const AddParticipants = () => {
                 className="relative transform overflow-hidden rounded-lg bg-white pb-2 px-2 xl:px-4 xl:pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-full sm:max-w-md lg:max-w-[60%] xl:max-w-[30%]   sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
               >
                 <div className="w-full bg-[#FFFFFF] p-[10px] lg:px-[20px] overflow-y-auto">
-                  <AddUserModalTitle />
+                  <AddUserModalTitle isPlayerExist={isPlayerExist} />
 
                   {hasError && <ErrorBanner message={bookingErrorMessage} />}
 
@@ -275,26 +273,20 @@ const AddParticipants = () => {
                       />
                       {isPlayerExist && (
                         <>
-                          <div className="border-2 bg-gray-200 p-3 w-full mb-2 rounded-lg">
-                            <p className="text-md">
-                              Final Selected{" "}
-                              {selectedPlayerNames?.length > 1
-                                ? "players"
-                                : "player"}
-                              : {selectedPlayerNames.join(", ")}
-                            </p>
-                          </div>
                           <p>Select Player</p>
                           <SearchPlayerWrapper
                             id="player"
                             setSelectedPlayer={setSelectedPlayer}
                           />
-
-                          <p>Select Partner</p>
-                          <SearchPlayerWrapper
-                            id="partner"
-                            setSelectedPlayer={setSelectedPlayer}
-                          />
+                          {!NotDoublesCategory.includes(category?.type) && (
+                            <>
+                              <p>Select Partner</p>
+                              <SearchPlayerWrapper
+                                id="partner"
+                                setSelectedPlayer={setSelectedPlayer}
+                              />
+                            </>
+                          )}
                         </>
                       )}
 
@@ -432,6 +424,19 @@ const AddParticipants = () => {
       )}
     </Formik>
   );
+};
+
+PlayerExistenceSelector.PropTypes = {
+  handlePlayerExist: PropTypes.func,
+};
+
+SearchPlayerWrapper.PropTypes = {
+  id: String,
+  setSelectedPlayer: PropTypes.func,
+};
+
+AddUserModalTitle.propTypes = {
+  isPlayerExist: PropTypes.bool,
 };
 
 export default AddParticipants;

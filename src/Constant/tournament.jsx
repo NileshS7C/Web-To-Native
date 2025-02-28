@@ -286,9 +286,6 @@ export {
   rolesWithTournamentOwnerAccess,
   hideActionButtons,
   tournamentEventTypes,
-
-  NotDoublesCategory
-
+  NotDoublesCategory,
   roundRobbinModeOptions,
-
 };

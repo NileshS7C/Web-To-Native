@@ -1,18 +1,21 @@
 import { SearchBox } from "./SearchBox";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useDebounce from "../../Hooks/useDebounce";
 import usePlayerSearch from "../../Hooks/usePlayerSearch";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { ImSpinner2 } from "react-icons/im";
 import PropTypes from "prop-types";
+import { CreateTags } from "./CreateTags";
 
 const SearchedPlayerListing = ({
   players,
+  setSelectedPlayer,
   selectedPlayerId,
   setSelectedPlayerId,
   setSelectedPlayerName,
   loading,
   error,
+  id,
 }) => {
   if (loading) {
     return (
@@ -34,82 +37,148 @@ const SearchedPlayerListing = ({
       const isSelected = selectedPlayerId === player?._id;
 
       return (
-        <li
+        <button
           key={player?.id}
-          className={`relative list-none cursor-pointer py-2 pr-9 pl-3 select-none ${
-            isSelected
-              ? "bg-violet-200 text-indigo-700 font-semibold"
-              : "text-gray-900"
-          }  focus-visible:bg-indigo-600 focus-visible:text-white`}
+          type="button"
           onClick={() => {
             setSelectedPlayerId(player?._id);
             setSelectedPlayerName(player);
+            setSelectedPlayer({ name: player?.name, id, key: player?._id });
           }}
+          className="w-full text-left"
         >
-          <div className="flex gap-2.5 items-center ">
-            <img
-              src={player?.profilePic}
-              className="w-[40px] h-[40px] object-contain rounded-md"
-              alt="profile pic"
-            />
-            <span>{player?.name ?? ""}</span>
-            <span>{player?.phone ?? ""}</span>
-          </div>
+          <li
+            className={`relative list-none cursor-pointer py-2 pr-9 pl-3 select-none ${
+              isSelected
+                ? "bg-violet-200 text-indigo-700 font-semibold"
+                : "text-gray-900"
+            }  focus-visible:bg-indigo-600 focus-visible:text-white`}
+          >
+            <div className="flex gap-2.5 items-center ">
+              <img
+                src={player?.profilePic}
+                className="w-[40px] h-[40px] object-contain rounded-md"
+                alt="profile pic"
+              />
+              <span>{player?.name ?? ""}</span>
+              <span>{player?.phone ?? ""}</span>
+            </div>
 
-          {isSelected && (
-            <span className="absolute inset-y-0 right-0 top-1/2 transform -translate-y-1/2  items-center pr-4 text-indigo-600 group-data-focus:text-white group-data-selected:flex">
-              <CheckIcon className="size-5" />
-            </span>
-          )}
-        </li>
+            {isSelected && (
+              <span className="absolute inset-y-0 right-0 top-1/2 transform -translate-y-1/2  items-center pr-4 text-indigo-600 group-data-focus:text-white group-data-selected:flex">
+                <CheckIcon className="size-5" />
+              </span>
+            )}
+          </li>
+        </button>
       );
     })
   ) : (
-    <p className="inline-flex items-center w-full justify-center text-lg align-middle mt-4 p-2 border-2 border-blue-400 rounded-md ">
+    <p className="inline-flex items-center w-full justify-center text-lg align-middle mt-4 p-2 rounded-md ">
       No Player Found
     </p>
   );
 };
 
-export const SearchPlayer = ({ setChoosenPlayer }) => {
+export const SearchPlayer = ({ id, setChoosenPlayer }) => {
   const [searchValue, setSearchValue] = useState("");
   const [selectedPlayerId, setSelectedPlayerId] = useState(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const searchPlayerRef = useRef(null);
 
   const handleInputChange = (e) => {
     setSearchValue(e?.target?.value);
   };
 
   const debouncedValue = useDebounce(searchValue);
-
   const { loading, error, players } = usePlayerSearch(debouncedValue);
 
+  useEffect(() => {
+    if (selectedPlayerId) {
+      setIsFocused(false);
+    }
+  }, [selectedPlayerId]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        searchPlayerRef.current &&
+        !searchPlayerRef.current.contains(e.target)
+      ) {
+        setIsFocused(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleRemoveTags = useCallback(
+    (tagId) => {
+      setSelectedPlayer("");
+      if (tagId === selectedPlayerId) {
+        setSelectedPlayerId(null);
+      }
+    },
+    [selectedPlayerId]
+  );
+
   return (
-    <div className="flex flex-col items-center gap-2.5 justify-between w-full ">
-      <div className="w-full">
+    <div
+      className="flex flex-col items-center gap-2.5 justify-between w-full "
+      ref={searchPlayerRef}
+    >
+      <div className="w-full relative">
         <SearchBox
           placeholder="Search Player"
           onInputChange={handleInputChange}
+          onFocus={() => setIsFocused(true)}
         />
 
-        <div className="h-[20vh] overflow-auto mt-4">
-          <SearchedPlayerListing
-            players={players}
-            selectedPlayerId={selectedPlayerId}
-            setSelectedPlayerId={setSelectedPlayerId}
-            setSelectedPlayerName={setChoosenPlayer}
-            loading={loading}
-            error={error}
+        {isFocused && (
+          <div className="absolute z-10 h-[20vh] overflow-auto mt-4 w-full shadow-lg bg-[#FFFFFF] border-2 border-blue-100 rounded-lg scrollbar-hide">
+            <SearchedPlayerListing
+              players={players}
+              setSelectedPlayer={setSelectedPlayer}
+              selectedPlayerId={selectedPlayerId}
+              setSelectedPlayerId={setSelectedPlayerId}
+              setSelectedPlayerName={setChoosenPlayer}
+              loading={loading}
+              error={error}
+              id={id}
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-start justify-start w-full">
+        {selectedPlayer && (
+          <CreateTags
+            selectedTag={[selectedPlayer]}
+            handleRemoveTag={handleRemoveTags}
           />
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
+SearchPlayer.propTypes = {
+  id: PropTypes.string,
+  setChoosenPlayer: PropTypes.func,
+};
+
 SearchedPlayerListing.propTypes = {
   players: PropTypes.array,
+  setSelectedPlayer: PropTypes.func,
   selectedPlayerId: PropTypes.string,
   setSelectedPlayerId: PropTypes.func,
+  setSelectedPlayerName: PropTypes.func,
   loading: PropTypes.bool,
   error: PropTypes.string,
+  id: PropTypes.string,
 };
