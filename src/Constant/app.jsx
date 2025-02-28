@@ -11,7 +11,11 @@ import {
   EditIcon,
   ViewIcon,
   cmsIcon,
+
   uploadedImageIcon,
+
+  PlayerIcon,
+
 } from "../Assests";
 
 export const months = [
@@ -69,7 +73,11 @@ export const ADMIN_NAVIGATION = [
   // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
   { name: "Venues", icon: venueIcon, path: "venues" },
+
   { name: "Uploaded Images", icon: uploadedImageIcon, path: "images" },
+
+
+  { name: "Players", icon: PlayerIcon, path: "players" },
 
   // { name: "User", icon: profileIcon, path: "users" },
   {
@@ -165,7 +173,11 @@ export const notHaveBackButton = [
   "Users",
   "DASHBOARD",
   "User Details",
+
   "Uploaded Images",
+
+  "Players"
+
 ];
 
 export const ROLES = [

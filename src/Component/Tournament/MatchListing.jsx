@@ -16,6 +16,12 @@ const MatchListingHeaders = [
     key: "participant1",
     header: "Opponent 1",
     render: (item) => {
+      const { opponent1 = "" } = item;
+      console.log(" opponent 1", opponent1)
+      let isWinner;
+      if (opponent1) {
+        isWinner = opponent1.result === "win";
+      }
       return (
         <div className="flex items-center justify-center gap-2">
           <img
@@ -24,6 +30,11 @@ const MatchListingHeaders = [
             className="w-[30px] h-[30px] rounded-full"
           />
           <p className="text-matchTextColor font-semibold">{item?.player1}</p>
+          {isWinner && (
+            <span className="inline-flex flex-1 max-w-fit font-semibold items-center rounded-2xl  px-2 py-1 text-xs ring-2 ring-inset ">
+              Winner
+            </span>
+          )}
         </div>
       );
     },
@@ -51,6 +62,11 @@ const MatchListingHeaders = [
     key: "participant2",
     header: "Opponent 2",
     render: (item) => {
+      const { opponent2 = "" } = item;
+      let isWinner;
+      if (opponent2) {
+        isWinner = opponent2.result === "win";
+      }
       return (
         <div className="flex items-center justify-center gap-2">
           <img
@@ -59,6 +75,11 @@ const MatchListingHeaders = [
             className="w-[30px] h-[30px]  rounded-full"
           />
           <p className="text-matchTextColor font-semibold">{item?.player2}</p>
+          {isWinner && (
+            <span className="inline-flex flex-1 max-w-fit font-semibold items-center rounded-2xl  px-2 py-1 text-xs ring-2 ring-inset ">
+              Winner
+            </span>
+          )}
         </div>
       );
     },
@@ -271,7 +292,7 @@ export const MatchesListing = () => {
             rowPaddingY="4"
             alternateRowColors={true}
             evenRowColor="[#FFFFFF]"
-            oddRowColor="blue-400"
+            oddRowColor="blue-200"
             onClick={handleMatchUpdateButton}
           />
 

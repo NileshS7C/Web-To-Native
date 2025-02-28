@@ -250,6 +250,13 @@ export const API_END_POINTS = {
 
     PUT: {},
   },
+  players: {
+    GET : {
+      getAllPlayers: () => {
+        return 'api/users/admin/players';
+      }
+    }
+  }
 };
 
 export const parentRoutes = ["Tournaments", "Venues", "Users"];

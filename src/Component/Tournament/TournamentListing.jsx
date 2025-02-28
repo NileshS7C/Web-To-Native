@@ -8,10 +8,7 @@ import {
 
 import Tabs from "../Common/Tabs";
 import { useEffect } from "react";
-import {
-  getAllTournaments,
-  getSingle_TO,
-} from "../../redux/tournament/tournamentActions";
+import { getAllTournaments } from "../../redux/tournament/tournamentActions";
 import Spinner from "../Common/Spinner";
 import PropTypes from "prop-types";
 import { useSearchParams } from "react-router-dom";
@@ -23,6 +20,7 @@ import {
   resetEditMode,
 } from "../../redux/tournament/getTournament";
 import { formattedDate } from "../../utils/dateUtils";
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 const SearchEvents = () => {
   return (
@@ -44,27 +42,12 @@ function TournamentListing() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const [cookies] = useCookies(["name", "userRole"]);
-  const {
-    tournaments,
-    totalTournaments,
-    isGettingTournament,
-    selectedFilter,
-    singleTournamentOwner,
-  } = useSelector((state) => state.GET_TOUR);
+  const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
+    useSelector((state) => state.GET_TOUR);
   const selectedTab = searchParams.get("tab");
   const currentPage = searchParams.get("page");
-  useEffect(() => {
-    dispatch(resetEditMode());
-    const userRole = cookies.userRole;
 
-    if (!userRole) {
-      dispatch(userLogout());
-    } else if (userRole === "TOURNAMENT_OWNER") {
-      dispatch(getSingle_TO("TOURNAMENT_OWNER"));
-    } else if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
-      dispatch(getSingle_TO("ADMIN"));
-    }
-  }, []);
+  const { singleTournamentOwner = {} } = useOwnerDetailsContext();
 
   useEffect(() => {
     const userRole = cookies.userRole;

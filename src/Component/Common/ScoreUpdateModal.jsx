@@ -149,6 +149,7 @@ export const ScoreUpdateModal = ({
         };
       }
     });
+
     setScoreUpdateArray(scoreUpdates);
   }, [players]);
 
@@ -275,6 +276,12 @@ export const ScoreUpdateModal = ({
                 onCancel={onCancel}
               />
 
+              <NotificationBanner
+                message="Matches cannot end in a tie. Please ensure a clear winner and loser."
+                messageStyle="text-sm text-[#E82B00]"
+                wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
+              />
+
               {updateError && <ErrorBanner message={errorMessage} />}
 
               {(players?.player1_id == null || players?.player2_id == null) && (
@@ -321,7 +328,7 @@ export const ScoreUpdateModal = ({
                       onClick={(e) => handleScoreUpdate(e)}
                       disabled={!showPlayerSelections}
                     >
-                      Forfiet
+                      Forfeit
                     </Button>
                     {!showPlayerSelections && (
                       <Button
@@ -356,7 +363,7 @@ const ForfietCheckBox = ({ handlePlayerSelection }) => {
           handlePlayerSelection(e.target.checked);
         }}
       />
-      <label htmlFor="forfiet">Do you want to forfiet any player?</label>
+      <label htmlFor="forfiet">Do you want to forfeit any player?</label>
     </div>
   );
 };
@@ -480,8 +487,6 @@ const MatchScoreUpdateSet = ({
           });
 
           handleUpdateFixture(true);
-
-          setFixture(result?.data?.fixture ?? null);
         }
       } catch (err) {
         console.log("Error in deleting the match set", err);
@@ -529,7 +534,6 @@ const MatchScoreUpdateSet = ({
             getScoreData(newSet);
             return newSet;
           });
-          setFixture(result?.data?.fixture ?? null);
 
           handleUpdateFixture(true);
         }

@@ -97,7 +97,6 @@ export const updateMatch = createAsyncThunk(
         matchData.fixtureId
       );
 
-
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -174,7 +173,6 @@ export const getStandings = createAsyncThunk(
   async (matchData, { rejectWithValue }) => {
     try {
       const userRole = cookies.get("userRole");
-
 
       const userAPIEndPoint = API_END_POINTS.tournament.GET.getMatchStandings(
         userRole,

@@ -72,11 +72,15 @@ export const MatchStandings = ({ tournamentId, eventId }) => {
           err?.data?.message ||
             "Oops!, something went wrong while getting the standings."
         );
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    getMatchStandings();
-  }, []);
+    if (fixture) {
+      getMatchStandings();
+    }
+  }, [fixture]);
 
   if (error) {
     return <ErrorBanner message={errorMessage} />;
@@ -104,7 +108,7 @@ export const MatchStandings = ({ tournamentId, eventId }) => {
         headerTextAlign="middle"
         alternateRowColors={true}
         evenRowColor="[#FFFFFF]"
-        oddRowColor="blue-400"
+        oddRowColor="blue-200"
       />
     </div>
   );

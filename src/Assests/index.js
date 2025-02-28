@@ -31,4 +31,8 @@ export { default as dummyImage } from "./header/dummyPlayerImage.svg";
 export { default as backIcon } from "./Tournament/backIcon.svg";
 export { default as forwardIcon } from "./Tournament/forwardIcon.svg";
 export { default as cmsIcon } from "./header/cmsIcon.png";
+
 export { default as uploadedImageIcon } from "./Venue/uploaded-image-icon.png";
+
+export {default as PlayerIcon} from "./header/players.png"
+

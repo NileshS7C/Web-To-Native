@@ -39,7 +39,6 @@ export const CourtListing = ({
     if (isConfirmed && type === "Court" && confirmationId) {
       dispatch(deleteCourt(confirmationId));
       dispatch(resetConfirmationState());
-      navigate("/venues");
     }
   }, [isConfirmed, type, confirmationId]);
 
