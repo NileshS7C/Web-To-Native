@@ -4,7 +4,13 @@ import ErrorBanner from "../Common/ErrorBanner";
 import { TournamentOrganiserCreation } from "../Common/TournamentOrganiserModal";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
-import { passRegex, phoneRegex } from "../../Constant/app";
+import { passRegex, phoneRegex, rowsInOnePage } from "../../Constant/app";
+import { Link, useSearchParams } from "react-router-dom";
+import { TournamentOrganiserActions } from "../Common/TournamentOrganisersActions";
+import { useEffect, useState } from "react";
+import { toggleOrganiserModal } from "../../redux/tournament/tournamentOrganiserSlice";
+import { getTournamentOrganiser } from "../../redux/tournament/tournamentOrganiserActions";
+import { getAll_TO } from "../../redux/tournament/tournamentActions";
 
 const initialValues = {
   name: "",
@@ -29,59 +35,6 @@ const initialValues = {
   },
 };
 
-const validationSchema = yup.object().shape({
-  name: yup
-    .string()
-    .required("Organiser name is required.")
-    .min(3, "Name should have atleast 3 characters.")
-    .max(50, "Name should have less than 50 characters."),
-
-  email: yup.string().email().required("Organiser email is required."),
-  phone: yup
-    .string()
-    .matches(phoneRegex, "Invalid phone number.")
-    .required("Organiser phone is required."),
-  password: yup
-    .string()
-    .matches(
-      passRegex,
-      " Password must have at least 8 characters, including uppercase, lowercase, a number, and a special character."
-    )
-    .required("Organiser Password is required."),
-  ownerDetails: yup.object().shape({
-    brandName: yup.string().required("Brand Name is required."),
-    brandEmail: yup.string().required("Brand email is required."),
-    brandPhone: yup.number().required("Brand phone is required."),
-    address: yup.object().shape({
-      line1: yup
-        .string()
-        .required("Line 1 address is required.")
-        .max(100, "Line 1 of the address cannot exceed 50 characters."),
-      line2: yup
-        .string()
-        .optional()
-        .max(100, "Line 2 of the address cannot exceed 50 characters."),
-      city: yup.string().required("City is required."),
-      state: yup.string().required("State is required."),
-      postalCode: yup
-        .string()
-        .required("Postal Code is required.")
-        .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
-      location: yup.object().shape({
-        type: yup
-          .string()
-          .oneOf(["Point"], "Location type must be 'Point'.")
-          .required("Location type is required."),
-        coordinates: yup
-          .array()
-          .of(yup.number().required("Each coordinate must be a number."))
-          .length(2, "Location must be provided.")
-          .required("Location is required."),
-      }),
-    }),
-  }),
-});
-
 const TournamentOrganisersHeaders = [
   {
     key: "tour_org_name",
@@ -89,7 +42,15 @@ const TournamentOrganisersHeaders = [
     render: (item) => {
       return (
         <div className="flex flex-col">
-          <p className="text-customColor font-semibold">{item?.name}</p>
+          <Link
+            className="text-customColor font-semibold"
+            to={{
+              pathname: "/tournament-organisers",
+              search: `${item.id}`,
+            }}
+          >
+            {item?.name}
+          </Link>
         </div>
       );
     },
@@ -127,6 +88,14 @@ const TournamentOrganisersHeaders = [
       );
     },
   },
+
+  {
+    key: "tour_org_actions",
+    header: "Actions",
+    render: (item) => {
+      return <TournamentOrganiserActions id={item?.id} />;
+    },
+  },
 ];
 
 export const TournamentOrganisersListing = ({
@@ -135,9 +104,128 @@ export const TournamentOrganisersListing = ({
   total,
   currentPage,
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const organiserId = searchParams.get("organiserId");
+  const validationSchema = yup.object().shape({
+    name: yup
+      .string()
+      .required("Organiser name is required.")
+      .min(3, "Name should have atleast 3 characters.")
+      .max(50, "Name should have less than 50 characters."),
+
+    email: yup.string().email().required("Organiser email is required."),
+    phone: yup
+      .string()
+      .matches(phoneRegex, "Invalid phone number.")
+      .required("Organiser phone is required."),
+    password:
+      !organiserId &&
+      yup
+        .string()
+        .matches(
+          passRegex,
+          " Password must have at least 8 characters, including uppercase, lowercase, a number, and a special character."
+        )
+        .required("Organiser Password is required."),
+    ownerDetails: yup.object().shape({
+      brandName: yup.string().required("Brand Name is required."),
+      brandEmail: yup.string().required("Brand email is required."),
+      brandPhone: yup.number().required("Brand phone is required."),
+      address: yup.object().shape({
+        line1: yup
+          .string()
+          .required("Line 1 address is required.")
+          .max(100, "Line 1 of the address cannot exceed 50 characters."),
+        line2: yup
+          .string()
+          .optional()
+          .max(100, "Line 2 of the address cannot exceed 50 characters."),
+        city: yup.string().required("City is required."),
+        state: yup.string().required("State is required."),
+        postalCode: yup
+          .string()
+          .required("Postal Code is required.")
+          .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
+        location: yup.object().shape({
+          type: yup
+            .string()
+            .oneOf(["Point"], "Location type must be 'Point'.")
+            .required("Location type is required."),
+          coordinates: yup
+            .array()
+            .of(yup.number().required("Each coordinate must be a number."))
+            .length(2, "Location must be provided.")
+            .required("Location is required."),
+        }),
+      }),
+    }),
+  });
   const dispatch = useDispatch();
+  const [hasError, setHasError] = useState(false);
+  const [initalState, setInitialState] = useState(initialValues);
+  const [actionPending, setActionPending] = useState(false);
   const { openOrganiserModal } = useSelector((state) => state.tour_Org);
   const { location } = useSelector((state) => state.location);
+
+  useEffect(() => {
+    const getOrganiserDetails = async (id) => {
+      try {
+        setActionPending(true);
+        setHasError(false);
+
+        const result = await dispatch(getTournamentOrganiser(id)).unwrap();
+
+        if (!result?.responseCode) {
+          const {
+            owner: {
+              ownerUserType,
+              updatedAt,
+              address: {
+                location: { is_location_exact, ...updatedLocation },
+                ...updatedAddress
+              },
+              ...updatedOwnerDetails
+            },
+          } = result?.data;
+
+          setInitialState(() => ({
+            name: result.data?.name,
+            phone: result.data?.phone,
+            email: result.data?.email,
+            password: result.data?.password,
+            ownerDetails: {
+              ...updatedOwnerDetails,
+              address: { ...updatedAddress, location: updatedLocation },
+            },
+          }));
+        }
+      } catch (err) {
+        console.log("Error occured while getting the organiser details", err);
+        setHasError(true);
+      } finally {
+        setActionPending(false);
+      }
+    };
+    if (organiserId) {
+      dispatch(toggleOrganiserModal());
+      getOrganiserDetails(organiserId);
+    }
+  }, [organiserId]);
+
+  useEffect(() => {
+    if (!openOrganiserModal) {
+      setSearchParams((prevParams) => {
+        const updatedParams = new URLSearchParams(prevParams);
+
+        console.log(" updated params", updatedParams);
+        updatedParams.delete("organiserId");
+
+        return updatedParams;
+      });
+      setInitialState({ ...initialValues });
+    }
+  }, [openOrganiserModal]);
+
   if (error) {
     return (
       <ErrorBanner message="Opps! Some thing went wrong while getting the tournament owners." />
@@ -148,9 +236,11 @@ export const TournamentOrganisersListing = ({
       <TournamentOrganiserCreation
         dispatch={dispatch}
         isOpen={openOrganiserModal}
-        initialValues={initialValues}
+        initialValues={initalState}
         location={location}
         validationSchema={validationSchema}
+        organiserId={organiserId}
+        actionPending={actionPending}
       />
       <DataTable
         data={owners}
