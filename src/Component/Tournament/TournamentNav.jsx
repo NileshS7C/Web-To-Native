@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useCookies } from "react-cookie";
 
 import {
+  resetArchiveState,
   resetVerificationState,
   setApprovalBody,
   setFormOpen,
@@ -11,6 +12,7 @@ import {
   setRejectionComments,
 } from "../../redux/tournament/addTournament";
 import {
+  archiveTournament,
   getSingleTournament,
   handleTournamentDecision,
 } from "../../redux/tournament/tournamentActions";
@@ -50,9 +52,10 @@ const TournamentCreationForm = () => {
     (state) => state.GET_TOUR
   );
 
-  const { isOpen, message, onClose, isConfirmed, type } = useSelector(
-    (state) => state.confirm
-  );
+  const { isOpen, message, onClose, isConfirmed, type, withComments } =
+    useSelector((state) => state.confirm);
+
+  const { archived } = useSelector((state) => state.Tournament);
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [cookies] = useCookies(["name", "userRole"]);
@@ -108,10 +111,30 @@ const TournamentCreationForm = () => {
       );
 
       dispatch(setApprovalBody(rejectionBody));
-      dispatch(resetConfirmationState());
+
       dispatch(setRejectionComments(""));
     }
   }, [isConfirmed, tournamentId]);
+
+  useEffect(() => {
+    if (isConfirmed && tournament && type === "Archive") {
+      dispatch(archiveTournament(tournamentId));
+      dispatch(resetConfirmationState());
+    }
+  }, [isConfirmed, tournamentId]);
+
+  useEffect(() => {
+    if (archived) {
+      dispatch(
+        getSingleTournament({
+          tournamentId,
+          ownerId: singleTournamentOwner?.id,
+        })
+      );
+
+      dispatch(resetArchiveState());
+    }
+  }, [archived]);
 
   useEffect(() => {
     if (verificationSuccess && tournamentId) {
@@ -193,7 +216,7 @@ const TournamentCreationForm = () => {
               className={`tab-button ${
                 currentStep === "acknowledgement" ? "active" : ""
               } disabled:opacity-50 disabled:cursor-not-allowed`}
-              disabled={!tournamentId}
+              disabled={!tournamentId || tournament?.status === "ARCHIVED"}
               onClick={() => dispatch(setFormOpen("acknowledgement"))}
             >
               Acknowledgement
@@ -207,7 +230,7 @@ const TournamentCreationForm = () => {
           onConfirm={onCofirm}
           isLoading={false}
           message={message}
-          withComments={type !== "Event"}
+          withComments={withComments}
         />
 
         {currentStep === "basic info" && (
