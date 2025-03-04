@@ -42,6 +42,46 @@ export const addTournamentStepOne = createAsyncThunk(
   }
 );
 
+export const searchTournament = createAsyncThunk(
+  "Tournament/searchTournament",
+  async ({ ...rest }, { rejectWithValue }) => {
+    try {
+      const userAPIEndPoint = API_END_POINTS.tournament.GET.searchTournaments(
+        rest.ownerId,
+        rest.type
+      );
+
+      const { type, ownerId, ...updatedParams } = rest;
+
+      const formattedParams = formatURL(updatedParams);
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}?${formattedParams}`,
+
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
 export const submitFinalTournament = createAsyncThunk(
   "Tournament/submitFinalTournament",
   async (formData, { rejectWithValue }) => {

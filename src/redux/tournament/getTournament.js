@@ -4,6 +4,7 @@ import {
   getAllTournaments,
   getSingle_TO,
   getSingleTournament,
+  searchTournament,
 } from "./tournamentActions";
 
 const initialState = {
@@ -75,6 +76,27 @@ const getTournament = createSlice({
         state.totalTournaments = payload.data.total;
       })
       .addCase(getAllTournaments.rejected, (state, { payload }) => {
+        state.isGettingTournament = false;
+        state.isSuccess = false;
+        state.hasErrorInTournament = true;
+        state.tournaments = [];
+      });
+
+    builder
+      .addCase(searchTournament.pending, (state) => {
+        state.isGettingTournament = true;
+        state.isSuccess = false;
+        state.hasErrorInTournament = false;
+        state.tournaments = [];
+      })
+      .addCase(searchTournament.fulfilled, (state, { payload }) => {
+        state.isGettingTournament = false;
+        state.isSuccess = true;
+        state.hasErrorInTournament = false;
+        state.tournaments = payload.data.tournaments;
+        state.totalTournaments = payload.data.total;
+      })
+      .addCase(searchTournament.rejected, (state, { payload }) => {
         state.isGettingTournament = false;
         state.isSuccess = false;
         state.hasErrorInTournament = true;
