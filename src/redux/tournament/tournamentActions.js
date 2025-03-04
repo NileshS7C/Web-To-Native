@@ -127,6 +127,7 @@ export const getSingle_TO = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
       };
       const response = await axiosInstance.get(
         `${import.meta.env.VITE_BASE_URL}${userEndPoint}`,

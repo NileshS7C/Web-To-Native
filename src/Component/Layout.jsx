@@ -122,7 +122,7 @@ const Layout = () => {
     <div className="flex flex-col min-h-screen ">
       <Header />
       <div className="flex flex-1 bg-[#F5F7FA]">
-        <div className="w-[250px] hidden lg:block h-auto bg-[#FFFFFF]">
+        <div className="w-[250px] min-w-fit hidden lg:block h-auto bg-[#FFFFFF]">
           <NavBar />
         </div>
         <div className="flex-1 p-[50px] overflow-auto">
