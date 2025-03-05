@@ -234,7 +234,7 @@ export const TournamentFixture = ({ tournament }) => {
         </Button>
       </div>
 
-      <div className="w-full flex  flex-col justify-center items-start flex-1 rounded-md">
+      <div className="w-full flex gap-4 flex-col justify-center items-start flex-1 rounded-md">
         <Button
           className="w-[200px] h-[50px] ml-auto text-white text-[14px] rounded-lg disabled:bg-blue-400"
           onClick={handleCreateFixture}
