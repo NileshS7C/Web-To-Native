@@ -113,7 +113,7 @@ export const CourtActionButtonGroup = [
 ];
 
 const ActionButtonCourt = [
-  { name: "Veiw", icon: ViewIcon, action: "view" },
+  { name: "View", icon: ViewIcon, action: "view" },
   { name: "Edit", icon: EditIcon, action: "edit" },
   { name: "Delete", icon: DeleteIcon, action: "delete" },
 ];
