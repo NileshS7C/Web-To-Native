@@ -13,6 +13,7 @@ const Amenities = [
   "Artificial Turf",
   "Warm Up",
   "Flood Lights",
+  "Cafeteria",
 ];
 
 const venueLimit = 10;
