@@ -1112,7 +1112,7 @@ const TournamentSponserTable = ({ isDisable }) => {
       {({ push, remove, form }) => (
         <div className="grid grid-cols-1  gap-2.5">
           <p className="text-base text-[#232323] justify-self-start">
-            Sponsers
+            Sponsors
           </p>
           <table className="border-[1px] border-[#EAECF0] rounded-[8px] table-auto">
             <thead>
@@ -1368,7 +1368,7 @@ const TournamentBookingDates = () => {
           className="text-base leading-[19.36px]"
           htmlFor="bookingStartDate"
         >
-          Booking Start Date
+          Registration Start Date
         </label>
 
         <div className="relative">
@@ -1404,7 +1404,7 @@ const TournamentBookingDates = () => {
       </div>
       <div className="flex flex-col items-start gap-2.5">
         <label className="text-base leading-[19.36px]" htmlFor="bookingEndDate">
-          Booking End Date
+          Registration End Date
         </label>
         <div className="relative">
           <Field name="bookingEndDate">

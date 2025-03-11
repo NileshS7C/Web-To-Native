@@ -115,7 +115,7 @@ export const AcknowledgementText = ({ ownerUserId }) => {
         isOpen={isOpen}
         isLoading={false}
         setIsOpen={setIsOpen}
-        message="after submission changes are not allowed by the tournament owner."
+        message="After submission changes are not allowed by the tournament owner."
       />
 
       <TournamentSuccessPopUp open={showSuccessPop} />

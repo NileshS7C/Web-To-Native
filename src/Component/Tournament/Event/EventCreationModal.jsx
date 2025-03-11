@@ -537,7 +537,7 @@ const SelectPlayers = () => {
           Min Players
         </label>
         <Field
-          placeholder="Enter Registration Fees"
+          placeholder="Min Player Count"
           className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
           id="minPlayers"
           name="minPlayers"
@@ -778,7 +778,7 @@ const EventTimings = () => {
           className="text-[16px] leading-[19.3px] text-[#232323]"
           htmlFor="categoryStartDate"
         >
-          Approximate Date
+          Tournament Date
         </label>
         <div className="relative">
           <Field name="categoryStartDate">
