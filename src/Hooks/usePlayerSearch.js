@@ -15,7 +15,7 @@ function usePlayerSearch(value) {
           `${import.meta.env.VITE_BASE_URL}/search-players?search=${value}`
         );
 
-        setPlayers(response?.data?.data);
+        setPlayers(response?.data?.data?.players || []);
       } catch (err) {
         console.log("Error in getting the player information", err);
         setError("Failed to get the players.");

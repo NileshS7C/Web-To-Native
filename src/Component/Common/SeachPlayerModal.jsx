@@ -45,7 +45,7 @@ const SearchedPlayerListing = ({
             setSelectedPlayerName(player);
             setSelectedPlayer({ name: player?.name, id, key: player?._id });
           }}
-          className="w-full text-left"
+          className="w-full text-left p-2"
         >
           <li
             className={`relative list-none cursor-pointer py-2 pr-9 pl-3 select-none ${
@@ -54,13 +54,16 @@ const SearchedPlayerListing = ({
                 : "text-gray-900"
             }  focus-visible:bg-indigo-600 focus-visible:text-white`}
           >
-            <div className="flex gap-2.5 items-center ">
-              <img
-                src={player?.profilePic}
-                className="w-[40px] h-[40px] object-contain rounded-md"
-                alt="profile pic"
-              />
-              <span>{player?.name ?? ""}</span>
+            <div className="flex justify-between items-center ">
+              <div className="flex items-center gap-2.5">
+                <img
+                  src={player?.profilePic}
+                  className="w-[40px] h-[40px] object-contain rounded-md"
+                  alt="profile pic"
+                />
+                <span>{player?.name ?? ""}</span>
+              </div>
+
               <span>{player?.phone ?? ""}</span>
             </div>
 
@@ -80,11 +83,12 @@ const SearchedPlayerListing = ({
   );
 };
 
-export const SearchPlayer = ({ id, setChoosenPlayer }) => {
+export const SearchPlayer = ({ id, setChoosenPlayer, setRemovedPlayer }) => {
   const [searchValue, setSearchValue] = useState("");
   const [selectedPlayerId, setSelectedPlayerId] = useState(null);
   const [isFocused, setIsFocused] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [removed, setRemoved] = useState(null);
   const searchPlayerRef = useRef(null);
 
   const handleInputChange = (e) => {
@@ -119,6 +123,8 @@ export const SearchPlayer = ({ id, setChoosenPlayer }) => {
 
   const handleRemoveTags = useCallback(
     (tagId) => {
+      setRemovedPlayer(selectedPlayer);
+      setRemoved(selectedPlayer);
       setSelectedPlayer("");
       if (tagId === selectedPlayerId) {
         setSelectedPlayerId(null);
@@ -126,6 +132,12 @@ export const SearchPlayer = ({ id, setChoosenPlayer }) => {
     },
     [selectedPlayerId]
   );
+
+  useEffect(() => {
+    if (selectedPlayer) {
+      setSearchValue("");
+    }
+  }, [selectedPlayer]);
 
   return (
     <div
@@ -137,6 +149,7 @@ export const SearchPlayer = ({ id, setChoosenPlayer }) => {
           placeholder="Search Player"
           onInputChange={handleInputChange}
           onFocus={() => setIsFocused(true)}
+          value={searchValue}
         />
 
         {isFocused && (
@@ -170,6 +183,7 @@ export const SearchPlayer = ({ id, setChoosenPlayer }) => {
 SearchPlayer.propTypes = {
   id: PropTypes.string,
   setChoosenPlayer: PropTypes.func,
+  setRemovedPlayer: PropTypes.func,
 };
 
 SearchedPlayerListing.propTypes = {
