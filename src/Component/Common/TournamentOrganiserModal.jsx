@@ -131,46 +131,48 @@ export const TournamentOrganiserCreation = ({
             transition
             className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
-            {actionPending && (
-              <div className="flex items-center justify-center h-full w-full">
-                <Spinner />
-              </div>
-            )}
-            {!actionPending && (
-              <div className="flex flex-col justify-between flex-1 items-center gap-3 w-full ">
-                <OrganiserModalTitle
-                  onCancel={() => dispatch(toggleOrganiserModal())}
-                />
+            <div className="flex w-full">
+              {actionPending && (
+                <div className="flex items-center justify-center h-full w-full">
+                  <Spinner />
+                </div>
+              )}
+              {!actionPending && (
+                <div className="flex flex-col justify-between flex-1 items-between gap-3 w-full ">
+                  <OrganiserModalTitle
+                    onCancel={() => dispatch(toggleOrganiserModal())}
+                  />
 
-                {hasError && <ErrorBanner message={errorMessage} />}
-                <Formik
-                  enableReinitialize={true}
-                  initialValues={initialValues}
-                  validationSchema={validationSchema}
-                  onSubmit={handleSubmit}
-                >
-                  {({ isSubmitting }) => (
-                    <Form>
-                      <div className="flex flex-col justify-between w-full gap-4 flex-1">
-                        <OrganiserBasicDetails />
-                        <OrganiserPhoneAndPassword />
-                        <BrandEmailAndPhone />
-                        <BrandPhoneAndLocation />
-                        <OrganiserAddress location={location} />
+                  {hasError && <ErrorBanner message={errorMessage} />}
+                  <Formik
+                    enableReinitialize={true}
+                    initialValues={initialValues}
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
+                  >
+                    {({ isSubmitting }) => (
+                      <Form>
+                        <div className="flex flex-col justify-between w-full gap-4 flex-1">
+                          <OrganiserBasicDetails />
+                          <OrganiserPhoneAndPassword />
+                          <BrandEmailAndPhone />
+                          <BrandPhoneAndLocation />
+                          <OrganiserAddress location={location} />
 
-                        <Button
-                          className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
-                          type="submit"
-                          loading={isSubmitting}
-                        >
-                          Save
-                        </Button>
-                      </div>
-                    </Form>
-                  )}
-                </Formik>
-              </div>
-            )}
+                          <Button
+                            className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
+                            type="submit"
+                            loading={isSubmitting}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      </Form>
+                    )}
+                  </Formik>
+                </div>
+              )}
+            </div>
           </DialogPanel>
         </div>
       </div>
