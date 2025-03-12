@@ -26,7 +26,7 @@ export default function FeaturedVenues() {
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:flex-col gap-4">
                 <div className="sm:flex-auto text-left">
-                    <h1 className="text-base font-semibold text-gray-900">Featured Venues</h1>
+                    <h1 className="text-base font-semibold text-gray-900">Featured Venue</h1>
                 </div>
                 <div className="flex items-end justify-between w-full">
                     <VenueSectionInfo sectionInfo={venuesData} />
