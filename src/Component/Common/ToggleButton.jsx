@@ -1,6 +1,7 @@
 import { Switch } from "@headlessui/react";
 
 export default function ToggleButton({ enabled, setEnabled, type }) {
+  console.log(" enable", enabled);
   return (
     <Switch
       checked={enabled}
@@ -14,8 +15,9 @@ export default function ToggleButton({ enabled, setEnabled, type }) {
     >
       <span
         aria-hidden="true"
-        className={`absolute left-0 inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition duration-200 ease-in-out
-        ${enabled ? "translate-x-5 bg-indigo-500" : "translate-x-0"}`}
+        className={`absolute left-0 inline-block h-5 w-5 transform rounded-full   shadow-sm transition duration-200 ease-in-out ${
+          enabled ? "translate-x-5 bg-indigo-500" : "translate-x-0 bg-white"
+        }`}
       />
     </Switch>
   );
