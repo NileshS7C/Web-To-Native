@@ -6,6 +6,7 @@ import { CheckIcon } from "@heroicons/react/20/solid";
 import { ImSpinner2 } from "react-icons/im";
 import PropTypes from "prop-types";
 import { CreateTags } from "./CreateTags";
+import { dummmyProfileIcon } from "../../Assests";
 
 const SearchedPlayerListing = ({
   players,
@@ -57,7 +58,7 @@ const SearchedPlayerListing = ({
             <div className="flex justify-between items-center ">
               <div className="flex items-center gap-2.5">
                 <img
-                  src={player?.profilePic}
+                  src={player?.profilePic || dummmyProfileIcon}
                   className="w-[40px] h-[40px] object-contain rounded-md"
                   alt="profile pic"
                 />
