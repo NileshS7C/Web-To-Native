@@ -98,7 +98,10 @@ export default function TournamentListingModal({ tournamentData, isOpen, onClose
                                         <input
                                             type="checkbox"
                                             checked={selectedItems.some(selectedItem => selectedItem._id === item._id)}
-                                            onChange={() => handleSelectItem(item)}
+                                            onChange={() => {
+                                                e.stopPropagation();
+                                                handleSelectItem(item)
+                                            }}
                                             className="checkbox accent-blue-500"
                                         />
                                         <div className="item-details flex flex-row justify-between w-full text-left gap-4">
