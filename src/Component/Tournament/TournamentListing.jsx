@@ -227,8 +227,6 @@ function TournamentListing(props) {
         <Tabs options={initialTour_Tabs} hasLink={true} />
       </div>
 
-      <div className="flex justify-start w-[40%]"></div>
-
       <div className="flex flex-col gap-2.5 justify-end items-end">
         {selectedTab && selectedTab === "upcoming" && (
           <FilterGroup
