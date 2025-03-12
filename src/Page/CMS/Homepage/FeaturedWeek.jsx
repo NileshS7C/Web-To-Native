@@ -14,6 +14,7 @@ export default function FeaturedWeek() {
     const [link, setLink] = useState("");
     const [image, setImage] = useState("");
     const [newImageFile, setNewImageFile] = useState(null);
+    const [originalWeekData, setOriginalWeekData] = useState(null);
 
     const fetchWeekData = async () => {
         try {
@@ -22,7 +23,7 @@ export default function FeaturedWeek() {
             };
             const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=featuredThisWeek`, config);
             const data = response.data.data[0];
-            
+            setOriginalWeekData(data);
             setWeekData(data);
             setHeading(data.heading);
             setSubHeading(data.subHeading);
@@ -58,6 +59,19 @@ export default function FeaturedWeek() {
             console.error(error);
         }
     };
+    const handleDiscard = () => {
+        if (originalWeekData) {
+            setWeekData(originalWeekData);
+            setHeading(originalWeekData.heading);
+            setSubHeading(originalWeekData.subHeading);
+            setButtonText(originalWeekData.buttonText);
+            setLink(originalWeekData.link);
+            setImage(originalWeekData.image);
+            setNewImageFile(null);
+        }
+        setIsEditing(false);
+    };
+    
 
     return (
         <div className="px-4 sm:px-6 lg:px-8">
@@ -72,7 +86,7 @@ export default function FeaturedWeek() {
                     ) : (
                         <div className="flex gap-2">
                             <button className="bg-green-500 text-white px-3 py-2 rounded" onClick={handleSave}>Save</button>
-                            <button className="bg-gray-500 text-white px-3 py-2 rounded" onClick={() => setIsEditing(false)}>Discard</button>
+                            <button className="bg-gray-500 text-white px-3 py-2 rounded" onClick={handleDiscard}>Discard</button>
                         </div>
                     )}
                 </div>
