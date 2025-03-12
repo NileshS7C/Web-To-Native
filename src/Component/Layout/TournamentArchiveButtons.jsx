@@ -2,21 +2,21 @@ import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { useOwnerDetailsContext } from "../Providers/onwerDetailProvider";
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
-import { showError } from "../redux/Error/errorSlice";
-import { showSuccess } from "../redux/Success/successSlice";
-import { resetArchiveState } from "../redux/tournament/addTournament";
+import { showError } from "../../redux/Error/errorSlice";
+import { showSuccess } from "../../redux/Success/successSlice";
+import { resetArchiveState } from "../../redux/tournament/addTournament";
 import {
   resetConfirmationState,
   showConfirmation,
-} from "../redux/Confirmation/confirmationSlice";
+} from "../../redux/Confirmation/confirmationSlice";
 import {
   getSingleTournament,
   submitFinalTournament,
-} from "../redux/tournament/tournamentActions";
+} from "../../redux/tournament/tournamentActions";
 
-import Button from "./Common/Button";
+import Button from "../Common/Button";
 
 /**
  * A buttons Component to dispaly the publish and unpublished buttons
