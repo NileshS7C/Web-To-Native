@@ -274,31 +274,32 @@ const TournamentActionButton = ({
 }) => {
   return (
     <div className="flex gap-2.5 items-center">
-      {tournament?.status !== "ARCHIVED" && (
-        <div className="flex items-center gap-2 justify-end ml-auto">
-          {!eventId &&
-            (!tournamentEditMode ? (
-              <button
-                className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
-                type="button"
-                onClick={() => dispatch(setTournamentEditMode())}
-                disabled={
-                  !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
-                  tournament?.status !== "REJECTED"
-                }
-              >
-                <span>Edit Tournament</span>
-                <FiEdit3 />
-              </button>
-            ) : (
-              <SaveAndCancelButton
-                dispatch={dispatch}
-                setEditMode={setTournamentEditMode}
-                submitForm={submitForm}
-                isSubmitting={isSubmitting}
-              />
-            ))}
-          {ROLES.slice(0, 2).includes(userRole) && tournament?.status && (
+      <div className="flex items-center gap-2 justify-end ml-auto">
+        {!eventId &&
+          (!tournamentEditMode ? (
+            <button
+              className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+              type="button"
+              onClick={() => dispatch(setTournamentEditMode())}
+              disabled={
+                !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
+                tournament?.status !== "REJECTED"
+              }
+            >
+              <span>Edit Tournament</span>
+              <FiEdit3 />
+            </button>
+          ) : (
+            <SaveAndCancelButton
+              dispatch={dispatch}
+              setEditMode={setTournamentEditMode}
+              submitForm={submitForm}
+              isSubmitting={isSubmitting}
+            />
+          ))}
+        {ROLES.slice(0, 2).includes(userRole) &&
+          tournament?.status &&
+          tournament?.status !== "ARCHIVED" && (
             <div className="flex items-center gap-2">
               <Button
                 className={`${
@@ -339,8 +340,7 @@ const TournamentActionButton = ({
               </Button>
             </div>
           )}
-        </div>
-      )}
+      </div>
 
       <div>
         <ArchiveButtons tournament={tournament} dispatch={dispatch} />

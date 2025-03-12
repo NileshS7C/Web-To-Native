@@ -192,7 +192,7 @@ const TournamentCreationForm = () => {
         />
       )}
 
-      <div className="flex flex-col pl-[50px] pr-[30px]  bg-[#FFFFFF] rounded-3xl">
+      <div className="flex flex-col pl-[50px] pr-[30px]  bg-[#FFFFFF] rounded-3xl w-full">
         <div className="py-[50px] ">
           <div className="flex items-center  border-b-[1px] border-[#EDEDED] gap-[67px] ">
             <button
