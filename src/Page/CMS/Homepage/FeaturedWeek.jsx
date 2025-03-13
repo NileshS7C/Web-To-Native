@@ -22,24 +22,37 @@ export default function FeaturedWeek() {
       const config = {
         headers: { "Content-Type": "application/json" },
       };
+  
       const response = await axiosInstance.get(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/users/admin/homepage-sections?section=featuredThisWeek`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=featuredThisWeek`,
         config
       );
-      const data = response.data.data[0];
-      setOriginalWeekData(data);
-      setWeekData(data);
-      setHeading(data.heading);
-      setSubHeading(data.subHeading);
-      setButtonText(data.buttonText);
-      setLink(data.link);
-      setImage(data.image);
+  
+      const data = response.data?.data?.length ? response.data.data[0] : null;
+  
+      if (data) {
+        setOriginalWeekData(data);
+        setWeekData(data);
+        setHeading(data.heading || "");
+        setSubHeading(data.subHeading || "");
+        setButtonText(data.buttonText || "");
+        setLink(data.link || "");
+        setImage(data.image || "");
+      } else {
+        // Handle empty response case
+        setOriginalWeekData(null);
+        setWeekData(null);
+        setHeading("");
+        setSubHeading("");
+        setButtonText("");
+        setLink("");
+        setImage("");
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching week data:", error);
     }
   };
+  
 
   useEffect(() => {
     fetchWeekData();
