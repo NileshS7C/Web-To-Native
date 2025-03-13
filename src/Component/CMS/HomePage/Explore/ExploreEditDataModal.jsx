@@ -14,10 +14,15 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
     const [imagePreview, setImagePreview] = useState(null);
     const [loading, setLoading] = useState(false);
     useEffect(() => {
-        if (selectedCard?.image) {
-            setImagePreview(selectedCard.image);
+        if (!isOpen) {
+            setImagePreview(null);  
+        } else if (selectedCard?.image) {
+            setImagePreview(selectedCard.image);  
+        } else {
+            setImagePreview(null);  
         }
-    }, [selectedCard]);
+    }, [isOpen, selectedCard]);
+    
 
     const validationSchema = Yup.object().shape({
         title: Yup.string().required("Title is required"),
