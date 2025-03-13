@@ -8,7 +8,7 @@ import axiosInstance from '../../../../Services/axios';
 export default function ContentFAQ({ faqsData, fetchHomepageSections }) {
     const [deleteModal, setDeleteModal] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
-    const [faqs, setFaqs] = useState(faqsData?.faqs || []);
+    const [faqs, setFaqs] = useState([]);
 
     // Sync local state with faqsData changes
     useEffect(() => {
