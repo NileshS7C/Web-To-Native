@@ -32,7 +32,7 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-between  pt-[20px] pb-[31px] px-[32px]">
+    <div className="flex items-center justify-between bg-[#FFFFFF]  pt-[20px] pb-[31px] px-[32px] sticky top-0">
       <div className="">
         <img src={pickleBayLogo} alt="pickle bay" />
       </div>
