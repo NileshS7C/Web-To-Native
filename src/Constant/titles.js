@@ -44,7 +44,7 @@ export const getPageTitle = (pathname, params, venueData) => {
     }
 
     if (pathname.includes("/dashboard")) {
-      return "DashBoard";
+      return "Dashboard";
     }
 
     if (pathname.includes("/venue-organisers")) {
