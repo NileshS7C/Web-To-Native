@@ -83,8 +83,6 @@ const Layout = () => {
   });
   const [approveButtonClicked, setApproveButtonClicked] = useState(false);
 
-  const { submitForm, isSubmitting } = useFormikContextFunction();
-
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
 
