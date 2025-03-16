@@ -59,7 +59,7 @@ const SearchedPlayerListing = ({
               <div className="flex items-center gap-2.5">
                 <img
                   src={player?.profilePic || dummmyProfileIcon}
-                  className="w-[40px] h-[40px] object-contain rounded-md"
+                  className="w-[30px] h-[30px] object-contain rounded-md"
                   alt="profile pic"
                 />
                 <span>{player?.name ?? ""}</span>
