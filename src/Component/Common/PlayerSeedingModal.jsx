@@ -7,10 +7,7 @@ import { useEffect, useState } from "react";
 import { RiDeleteBinLine } from "react-icons/ri";
 import Button from "./Button";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getFixture,
-  updateSeeding,
-} from "../../redux/tournament/fixturesActions";
+import {getFixture,updateSeeding,} from "../../redux/tournament/fixturesActions";
 import { showSuccess } from "../../redux/Success/successSlice";
 import ErrorBanner from "./ErrorBanner";
 import { useParams } from "react-router-dom";
@@ -91,7 +88,7 @@ export const PlayerSelectionModal = ({
   const { eventId, tournamentId } = useParams();
   const [seededPlayers, setSeededPlayers] = useState([]);
   const [selections, setSelections] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittings, setisSubmittings] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);
 
@@ -128,7 +125,7 @@ export const PlayerSelectionModal = ({
 
   const handlePlayerSeeding = async () => {
     try {
-      setIsSubmitting(true);
+      setisSubmittings(true);
       setHasError(false);
       setErrorMessage("");
 
@@ -168,7 +165,7 @@ export const PlayerSelectionModal = ({
           "Oops! something went wrong while seeding the players. Please try again."
       );
     } finally {
-      setIsSubmitting(false);
+      setisSubmittings(false);
       onCancel(false);
     }
   };
@@ -176,7 +173,7 @@ export const PlayerSelectionModal = ({
   useEffect(() => {
     if (!isOpen) {
       setHasError(false);
-      setIsSubmitting(false);
+      setisSubmittings(false);
       setErrorMessage("");
       setSeededPlayers([]);
     }
@@ -212,7 +209,7 @@ export const PlayerSelectionModal = ({
               <Button
                 className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
                 type="submit"
-                loading={isSubmitting}
+                loading={isSubmittings}
                 onClick={handlePlayerSeeding}
                 disabled={!seededPlayers?.length}
               >
