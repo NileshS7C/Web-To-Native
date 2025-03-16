@@ -50,6 +50,7 @@ const tournamentEvent = {
   },
 };
 
+const NotDoublesCategory = ["MS", "WS", "MIS"];
 const AvailableDays = [
   "All",
   "Monday",
@@ -285,5 +286,6 @@ export {
   rolesWithTournamentOwnerAccess,
   hideActionButtons,
   tournamentEventTypes,
+  NotDoublesCategory,
   roundRobbinModeOptions,
 };
