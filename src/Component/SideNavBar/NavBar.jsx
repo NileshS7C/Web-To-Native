@@ -85,6 +85,10 @@ export const NavBar = () => {
                   if (menu.children) {
                     // Toggle the menu if it has children
                     toggleMenu(menu.name);
+
+                    if (menu.name === "CMS" && expandedMenus.CMS) {
+                      navigate("/");
+                    }
                   } else {
                     // Navigate if it doesn't have children
                     dispatch(setNavigation(menu.name));
