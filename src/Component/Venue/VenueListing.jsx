@@ -93,7 +93,6 @@ export default function VenueListing() {
 
   useEffect(() => {
     if (isConfirmed && type === "Venue" && confirmationId) {
-      console.log(" i am working inside this venue listing");
       dispatch(deleteVenue(confirmationId));
     }
   }, [isConfirmed, type, confirmationId]);
@@ -207,9 +206,6 @@ export default function VenueListing() {
           />
         </div>
       )}
-
-
-
     </div>
   );
 }

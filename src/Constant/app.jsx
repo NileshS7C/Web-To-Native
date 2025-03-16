@@ -11,11 +11,8 @@ import {
   EditIcon,
   ViewIcon,
   cmsIcon,
-
   uploadedImageIcon,
-
   PlayerIcon,
-
 } from "../Assests";
 
 export const months = [
@@ -75,7 +72,6 @@ export const ADMIN_NAVIGATION = [
   { name: "Venues", icon: venueIcon, path: "venues" },
 
   { name: "Uploaded Images", icon: uploadedImageIcon, path: "images" },
-
 
   { name: "Players", icon: PlayerIcon, path: "players" },
 
@@ -147,6 +143,10 @@ export const ActionButtonGroup = [
   { name: "View", icon: ViewIcon, action: "view" },
 ];
 
+export const TournamentOrganiserActionButtons = [
+  { name: "Edit", icon: EditIcon, action: "edit" },
+];
+
 export const rowsInOnePage = 10;
 
 export const uploadedImageLimit = 20;
@@ -176,8 +176,7 @@ export const notHaveBackButton = [
 
   "Uploaded Images",
 
-  "Players"
-
+  "Players",
 ];
 
 export const ROLES = [
