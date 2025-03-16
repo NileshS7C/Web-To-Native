@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  archiveTournament,
   getAll_TO,
   getAllUniqueTags,
   handleTournamentDecision,
@@ -39,6 +40,10 @@ const tournamentSlice = createSlice({
     isNotEditable: false,
     isConfirmed: false,
     approvalBody: { action: "APPROVE", rejectionComments: "" },
+    pendingArchive: false,
+    archived: false,
+    archivedError: false,
+    archivedErrorMessage: "",
   },
 
   reducers: {
@@ -81,6 +86,13 @@ const tournamentSlice = createSlice({
       state.verificationSuccess = false;
       state.verificationError = false;
       state.verificationErrorMessage = "  ";
+    },
+
+    resetArchiveState(state) {
+      state.archived = false;
+      state.archivedError = false;
+      state.archivedErrorMessage = false;
+      state.archived = false;
     },
 
     removeFiles: {
@@ -196,6 +208,26 @@ const tournamentSlice = createSlice({
         state.verificationError = true;
         state.verificationErrorMessage = payload.data.message;
       });
+
+    builder
+      .addCase(archiveTournament.pending, (state) => {
+        state.pendingArchive = true;
+        state.archived = false;
+        state.archivedError = false;
+        state.archivedErrorMessage = "";
+      })
+      .addCase(archiveTournament.fulfilled, (state) => {
+        state.pendingArchive = false;
+        state.archived = true;
+        state.archivedError = false;
+        state.archivedErrorMessage = "";
+      })
+      .addCase(archiveTournament.rejected, (state, { payload }) => {
+        state.pendingArchive = false;
+        state.archived = false;
+        state.archivedError = true;
+        state.archivedErrorMessage = payload?.data?.message;
+      });
   },
 });
 export const {
@@ -215,5 +247,6 @@ export const {
   setIsConfirmed,
   resetVerificationState,
   setApprovalBody,
+  resetArchiveState,
 } = tournamentSlice.actions;
 export default tournamentSlice.reducer;

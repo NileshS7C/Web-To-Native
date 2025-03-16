@@ -42,6 +42,45 @@ export const addTournamentStepOne = createAsyncThunk(
   }
 );
 
+export const archiveTournament = createAsyncThunk(
+  "Tournament/archiveTournament",
+  async (tour_Id, { rejectWithValue }) => {
+    try {
+      const userRole = cookies.get("userRole");
+
+      const userAPIEndPoint = API_END_POINTS.tournament.POST.archiveTournament(
+        userRole,
+        tour_Id
+      );
+
+      console.log(" user end Point", userAPIEndPoint);
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
 export const submitFinalTournament = createAsyncThunk(
   "Tournament/submitFinalTournament",
   async (formData, { rejectWithValue }) => {
