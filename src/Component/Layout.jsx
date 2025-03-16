@@ -11,6 +11,7 @@ import { setApprovalBody } from "../redux/tournament/addTournament";
 
 import { FiEdit3 } from "react-icons/fi";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
+import { AiFillDelete } from "react-icons/ai";
 
 import Header from "./Header/header";
 import { NavBar } from "./SideNavBar/NavBar";
@@ -41,11 +42,10 @@ import {
 } from "../redux/Upload/uploadActions";
 import { showSuccess } from "../redux/Success/successSlice";
 import { cleanUpUpload, setIsUploaded } from "../redux/Upload/uploadImage";
-
-import { AiFillDelete } from "react-icons/ai";
 import { deleteVenue } from "../redux/Venue/venueActions";
 
 import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
+import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
 
 const hiddenRoutes = [
   "/cms/homepage/featured-tournaments",
@@ -71,6 +71,9 @@ const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
+
+  const [tagColor, setTagColor] = useState("");
+  const { submitForm, isSubmitting } = useFormikContextFunction();
   const { tournamentId, eventId, id } = useParams();
   const navRef = useRef(null);
 
@@ -140,6 +143,18 @@ const Layout = () => {
   }, [approvalBody, tournamentId, approveButtonClicked]);
 
   useEffect(() => {
+    if (tournament) {
+      if (tournament?.status === "PUBLISHED") {
+        setTagColor("bg-green-50 text-[#41C588] ring-green-600/20");
+      } else if (tournament?.status === "DRAFT") {
+        setTagColor("bg-orange-100 text-[#FF791A] ring-orange-600/20");
+      } else {
+        setTagColor("bg-gray-300 text-[#5D5D5D] ring-gray-600/20");
+      }
+    }
+  }, [tournament]);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
 
@@ -187,8 +202,15 @@ const Layout = () => {
 
             {!shouldHideTitleBar && (
               <div className="flex items-center justify-between w-full">
-                <p className="text-[#343C6A] font-semibold text-[22px]">
+                <p className="inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-[22px]">
                   {currentTitle}
+                  {tournamentId && (
+                    <span
+                      className={`inline-flex flex-1 w-full items-center rounded-2xl  px-2 py-1 text-xs font-medium  ring-1 ring-inset  ${tagColor}`}
+                    >
+                      {tournament?.status}
+                    </span>
+                  )}
                 </p>
 
                 {currentTitle === "Tournaments" && (
@@ -291,70 +313,78 @@ const TournamentActionButton = ({
   isSubmitting,
 }) => {
   return (
-    <div className="flex items-center gap-2 justify-end ml-auto">
-      {!eventId &&
-        (!tournamentEditMode ? (
-          <button
-            className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
-            type="button"
-            onClick={() => dispatch(setTournamentEditMode())}
-            disabled={
-              !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
-              tournament?.status !== "REJECTED"
-            }
-          >
-            <span>Edit Tournament</span>
-            <FiEdit3 />
-          </button>
-        ) : (
-          <SaveAndCancelButton
-            dispatch={dispatch}
-            setEditMode={setTournamentEditMode}
-            submitForm={submitForm}
-            isSubmitting={isSubmitting}
-          />
-        ))}
+    <div className="flex gap-2.5 items-center">
+      <div className="flex items-center gap-2 justify-end ml-auto">
+        {!eventId &&
+          (!tournamentEditMode ? (
+            <button
+              className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+              type="button"
+              onClick={() => dispatch(setTournamentEditMode())}
+              disabled={
+                !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
+                tournament?.status !== "REJECTED"
+              }
+            >
+              <span>Edit Tournament</span>
+              <FiEdit3 />
+            </button>
+          ) : (
+            <SaveAndCancelButton
+              dispatch={dispatch}
+              setEditMode={setTournamentEditMode}
+              submitForm={submitForm}
+              isSubmitting={isSubmitting}
+            />
+          ))}
+        {ROLES.slice(0, 2).includes(userRole) &&
+          tournament?.status &&
+          tournament?.status !== "ARCHIVED" && (
+            <div className="flex items-center gap-2">
+              <Button
+                className={`${
+                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+                type="button"
+                onClick={() => {
+                  setApproveButtonClicked(true);
+                  const updatedBody = {
+                    ...approvalBody,
+                    action: "APPROVE",
+                    rejectionComments: "",
+                  };
+                  dispatch(setApprovalBody(updatedBody));
+                }}
+                loading={changingDecision && approvalBody.action === "APPROVE"}
+              >
+                Accept Tournament
+              </Button>
+              <Button
+                className={`${
+                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+                type="button"
+                onClick={() => {
+                  dispatch(
+                    showConfirmation({
+                      message:
+                        "Are you sure you want to reject this tournament? This action cannot be undone.",
+                      type: "Tour",
+                      withComments: true,
+                    })
+                  );
+                }}
+                loading={changingDecision && approvalBody.action !== "APPROVE"}
+              >
+                Reject Tournament
+              </Button>
+            </div>
+          )}
+      </div>
 
-      {ROLES.slice(0, 2).includes(userRole) && tournament?.status && (
-        <div className="flex items-center gap-2">
-          <Button
-            className={`${
-              tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-            } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
-            type="button"
-            onClick={() => {
-              setApproveButtonClicked(true);
-              const updatedBody = {
-                ...approvalBody,
-                action: "APPROVE",
-                rejectionComments: "",
-              };
-              dispatch(setApprovalBody(updatedBody));
-            }}
-            loading={changingDecision && approvalBody.action === "APPROVE"}
-          >
-            Accept Tournament
-          </Button>
-          <Button
-            className={`${
-              tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-            } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
-            type="button"
-            onClick={() => {
-              dispatch(
-                showConfirmation({
-                  message:
-                    "Are you sure you want to reject this tournament? This action cannot be undone.",
-                  type: "Tour",
-                })
-              );
-            }}
-            loading={changingDecision && approvalBody.action !== "APPROVE"}
-          >
-            Reject Tournament
-          </Button>
-        </div>
-      )}
+      <div>
+        <ArchiveButtons tournament={tournament} dispatch={dispatch} />
+      </div>
     </div>
   );
 };
