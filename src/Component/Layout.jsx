@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
@@ -32,7 +32,7 @@ import {
 import Button from "./Common/Button";
 import { SuccessModal } from "./Common/SuccessModal";
 import { ErrorModal } from "./Common/ErrorModal";
-import { approvalBody, hideActionButtons } from "../Constant/tournament";
+import { hideActionButtons } from "../Constant/tournament";
 import { toggleOrganiserModal } from "../redux/tournament/tournamentOrganiserSlice";
 
 import { showError } from "../redux/Error/errorSlice";
@@ -43,30 +43,81 @@ import {
 import { showSuccess } from "../redux/Success/successSlice";
 import { cleanUpUpload, setIsUploaded } from "../redux/Upload/uploadImage";
 import { deleteVenue } from "../redux/Venue/venueActions";
+
 import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
+
+const hiddenRoutes = [
+  "/cms/homepage/featured-tournaments",
+  "/cms/homepage/featured-venues",
+  "/cms/homepage/explore",
+  "/cms/static-pages/help-&-faqs",
+  "/cms/homepage/featured-week",
+  "/cms/homepage/why-choose-picklebay",
+  "/cms/homepage/destination-dink",
+  "/cms/homepage/build-courts",
+  "/cms/homepage/journal",
+  "/cms/homepage/news-&-update",
+  "/cms/homepage/faqs",
+  "/cms/static-pages/picklebay-guidelines",
+  "/cms/static-pages/privacy-policy",
+  "/cms/static-pages/refunds-&-cancellation",
+  "/cms/static-pages/terms-&-condition",
+  "/cms/blogs/blog-posts",
+  "/cms/blogs/blog-posts/new",
+];
 
 const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
+
   const [tagColor, setTagColor] = useState("");
   const { submitForm, isSubmitting } = useFormikContextFunction();
   const { tournamentId, eventId, id } = useParams();
-  const { venue } = useSelector((state) => state.getVenues);
-  const { tournament, tournamentEditMode } = useSelector(
-    (state) => state.GET_TOUR
-  );
+  const navRef = useRef(null);
 
+  const [shouldScroll, setShouldScroll] = useState({
+    nav: false,
+    page: false,
+  });
   const [approveButtonClicked, setApproveButtonClicked] = useState(false);
+
+  const { submitForm, isSubmitting } = useFormikContextFunction();
+
+  const [cookies, setCookies] = useCookies();
+  const userRole = cookies["userRole"];
+
+  const { venue } = useSelector((state) => state.getVenues);
   const { changingDecision, verificationSuccess, approvalBody } = useSelector(
     (state) => state.Tournament
   );
   const { category } = useSelector((state) => state.event);
-  const isTournament = window.location.pathname.includes("/tournaments");
+  const { tournament, tournamentEditMode } = useSelector(
+    (state) => state.GET_TOUR
+  );
 
-  const [cookies, setCookies] = useCookies();
-  const userRole = cookies["userRole"];
+  const handleMouseEnter = useCallback(() => {
+    setShouldScroll((prev) => ({ ...prev, nav: true, page: false }));
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setShouldScroll((prev) => ({ ...prev, nav: false, page: true }));
+  }, []);
+
+  useEffect(() => {
+    if (!navRef.current) return;
+
+    navRef.current.addEventListener("mouseenter", handleMouseEnter);
+    navRef.current.addEventListener("mouseleave", handleMouseLeave);
+
+    return () => {
+      navRef.current?.removeEventListener("mouseenter", handleMouseEnter);
+      navRef.current?.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, [navRef]);
+
+  const isTournament = window.location.pathname.includes("/tournaments");
 
   const currentTitle = getPageTitle(
     location.pathname,
@@ -107,38 +158,27 @@ const Layout = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
 
-  // Define the custom route where the div should be hidden
-  const hiddenRoutes = [
-    "/cms/homepage/featured-tournaments",
-    "/cms/homepage/featured-venues",
-    "/cms/homepage/explore",
-    "/cms/static-pages/help-&-faqs",
-    "/cms/homepage/featured-week",
-    "/cms/homepage/why-choose-picklebay",
-    "/cms/homepage/destination-dink",
-    "/cms/homepage/build-courts",
-    "/cms/homepage/journal",
-    "/cms/homepage/news-&-update",
-    "/cms/homepage/faqs",
-    "/cms/static-pages/picklebay-guidelines",
-    "/cms/static-pages/privacy-policy",
-    "/cms/static-pages/refunds-&-cancellation",
-    "/cms/static-pages/terms-&-condition",
-    "/cms/blogs/blog-posts",
-    "/cms/blogs/blog-posts/new",
-  ];
   const shouldHideTitleBar =
     hiddenRoutes.includes(location.pathname) ||
     location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
 
   return (
-    <div className="flex flex-col min-h-screen ">
+    <div className="flex flex-col h-screen">
       <Header />
-      <div className="flex flex-1 bg-[#F5F7FA]">
-        <div className="w-[250px] hidden lg:block h-auto bg-[#FFFFFF]">
+      <div className="flex flex-1 bg-[#F5F7FA] overflow-hidden">
+        <div
+          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${
+            shouldScroll.nav ? "overflow-auto" : "overflow-hidden"
+          }  scrollbar-hide`}
+          ref={navRef}
+        >
           <NavBar />
         </div>
-        <div className="flex-1 p-[50px] overflow-auto">
+        <div
+          className={`flex-1 p-[50px] h-full ${
+            shouldScroll.page ? "overflow-auto" : "overflow-hidden"
+          } scrollbar-hide`}
+        >
           <div className="flex gap-2.5 items-center mb-4 ">
             {!notHaveBackButton.includes(currentTitle) && (
               <button

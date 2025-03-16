@@ -115,7 +115,7 @@ export const NavBar = () => {
     });
 
   return (
-    <div className="grid grid-rows-auto gap-2 auto-rows-[60px] justify-items-start px-[10px] text-md font-normal text-[#232323] bg-[#FFFFFF]">
+    <div className="grid grid-rows-auto gap-2 auto-rows-[60px] justify-items-start px-[10px] text-md font-normal text-[#232323] bg-[#FFFFFF] ">
       {navigationBar && renderMenuItems(navigationBar)}
     </div>
   );
