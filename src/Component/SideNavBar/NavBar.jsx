@@ -41,10 +41,21 @@ export const NavBar = () => {
   }, [cookies?.userRole]);
 
   const toggleMenu = (menuName) => {
-    setExpandedMenus((prev) => ({
-      ...prev,
-      [menuName]: !prev[menuName],
-    }));
+    setExpandedMenus((prev) => {
+      if (prev.CMS && menuName === "CMS") {
+        const updateState = { ...prev };
+        const keys = Object.keys(prev);
+        keys.forEach((key) => {
+          updateState[key] = false;
+        });
+
+        return updateState;
+      }
+      return {
+        ...prev,
+        [menuName]: !prev[menuName],
+      };
+    });
   };
 
   const renderMenuItems = (menuItems, parentPath = "") =>
@@ -63,7 +74,11 @@ export const NavBar = () => {
           >
             <div className="flex items-center gap-2">
               {menu.icon && (
-                <img src={menu.icon} alt={menu.name.toLowerCase()} className="w-[20px] h-[20px]"/>
+                <img
+                  src={menu.icon}
+                  alt={menu.name.toLowerCase()}
+                  className="w-[20px] h-[20px]"
+                />
               )}
               <button
                 onClick={() => {

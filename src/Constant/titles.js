@@ -78,6 +78,10 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname.includes("profile")) {
       return "User Details";
     }
+
+    if (pathname.includes("images")) {
+      return "Uploaded Images";
+    }
     if (pathname.includes("players")) {
       return "Players";
     }

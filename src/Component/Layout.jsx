@@ -16,7 +16,12 @@ import Header from "./Header/header";
 import { NavBar } from "./SideNavBar/NavBar";
 
 import { getPageTitle } from "../Constant/titles";
-import { notHaveBackButton, ROLES } from "../Constant/app";
+import {
+  notHaveBackButton,
+  ROLES,
+  uploadedImageLimit,
+  venueImageSize,
+} from "../Constant/app";
 import { backRoute } from "../utils/tournamentUtils";
 
 import { showConfirmation } from "../redux/Confirmation/confirmationSlice";
@@ -25,12 +30,20 @@ import { SuccessModal } from "./Common/SuccessModal";
 import { ErrorModal } from "./Common/ErrorModal";
 import { approvalBody, hideActionButtons } from "../Constant/tournament";
 import { toggleOrganiserModal } from "../redux/tournament/tournamentOrganiserSlice";
+
+import { showError } from "../redux/Error/errorSlice";
+import {
+  getUploadedImages,
+  uploadImage,
+  uploadImageForCMS,
+} from "../redux/Upload/uploadActions";
+import { showSuccess } from "../redux/Success/successSlice";
+import { cleanUpUpload, setIsUploaded } from "../redux/Upload/uploadImage";
+
 import { AiFillDelete } from "react-icons/ai";
 import { deleteVenue } from "../redux/Venue/venueActions";
 import { ConfirmationModal } from "./Common/ConfirmationModal";
 import { onCancel, onCofirm } from "../redux/Confirmation/confirmationSlice";
-import { showError } from "../redux/Error/errorSlice";
-import { showSuccess } from "../redux/Success/successSlice";
 import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 
 const Layout = () => {
@@ -164,6 +177,10 @@ const Layout = () => {
 
                 {currentTitle === "Tournament Organisers" && (
                   <TournamentOrganiserButtons dispatch={dispatch} />
+                )}
+
+                {currentTitle === "Uploaded Images" && (
+                  <UploadImageButton dispatch={dispatch} />
                 )}
 
                 {(currentTitle === "Venue Details" ||
@@ -505,6 +522,94 @@ const SaveAndCancelButton = ({
       >
         <span>Save</span>
       </Button>
+    </div>
+  );
+};
+
+const UploadImageButton = ({ dispatch }) => {
+  const [isUploading, setIsUploading] = useState(false);
+  const uploadImageRef = useRef(null);
+  const handleButtonClicked = () => {
+    uploadImageRef.current.click();
+  };
+
+  const handleFileUpload = async (e) => {
+    const uploadedFile = e.target.files[0];
+    try {
+      setIsUploading(true);
+
+      if (!uploadedFile.type.startsWith("image/")) {
+        dispatch(
+          showError({
+            message: "Invalid Image Provided.",
+            onClose: "hideError",
+          })
+        );
+
+        return;
+      }
+
+      const maxSize = venueImageSize;
+
+      if (uploadedFile.size > maxSize) {
+        dispatch(
+          showError({
+            message: `Uploaded File size is greater than ${maxSize} kB.`,
+            onClose: "hideError",
+          })
+        );
+
+        return;
+      }
+
+      const result = await dispatch(uploadImageForCMS(uploadedFile)).unwrap();
+
+      if (result?.status === "success") {
+        dispatch(
+          getUploadedImages({ lastFileKey: "", limit: uploadedImageLimit })
+        );
+        dispatch(setIsUploaded());
+        dispatch(
+          showSuccess({
+            message: "File uploaded SuccessFully.",
+            onClose: "hideSuccess",
+          })
+        );
+      }
+    } catch (err) {
+      console.log(" Error in uploading the file", err);
+      dispatch(
+        showError({
+          message:
+            err?.data?.message ||
+            "Oops!, something went wrong while uploading the file. Please try again later.",
+          onClose: "hideError",
+        })
+      );
+    } finally {
+      setIsUploading(false);
+      dispatch(cleanUpUpload());
+    }
+  };
+  return (
+    <div>
+      <Button
+        className="flex w-[200px] items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+        onClick={handleButtonClicked}
+        loading={isUploading}
+      >
+        Upload Image
+      </Button>
+
+      <input
+        ref={uploadImageRef}
+        id="uploadImage"
+        name="uploadImage"
+        onChange={handleFileUpload}
+        value=""
+        type="file"
+        className="hidden"
+      />
     </div>
   );
 };

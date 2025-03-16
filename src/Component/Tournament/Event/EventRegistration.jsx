@@ -80,7 +80,7 @@ function EventRegistrations({ tournament }) {
           onClick={() => {
             dispatch(toggleBookingModal());
           }}
-          disabled={fixture}
+          disabled={fixture?.status === "PUBLISHED"}
         >
           Add Participant
         </Button>

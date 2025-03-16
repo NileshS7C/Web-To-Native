@@ -236,12 +236,12 @@ export const TournamentFixture = ({ tournament }) => {
 
       <div className="w-full flex gap-4 flex-col justify-center items-start flex-1 rounded-md">
         <Button
-          className="w-[200px] h-[50px] ml-auto text-white text-[14px] rounded-lg disabled:bg-blue-400"
+          className="w-[200px] h-[50px] ml-auto text-white text-md rounded-lg disabled:bg-blue-400"
           onClick={handleCreateFixture}
           loading={isCreatingFixture}
-          disabled={fixture}
+          disabled={fixture?.status === "PUBLISHED"}
         >
-          Create Fixture
+          {fixture ? "Recreate Fixture" : "Create Fixture"}
         </Button>
         <div className="brackets-viewer"></div>
         <ErrorModal />
