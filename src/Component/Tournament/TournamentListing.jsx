@@ -194,16 +194,6 @@ function TournamentListing(props) {
             })
           );
           break;
-
-        default:
-          dispatch(
-            getAllTournaments({
-              page: currentPage || 1,
-              limit: 10,
-              type: userRole,
-              ownerId: singleTournamentOwner?.id,
-            })
-          );
       }
     }
   }, [
@@ -258,7 +248,7 @@ function TournamentListingWrapper() {
   const selectedTab = searchParams.get("tab");
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [searchInput, setSearchInput] = useState("");
-
+  const { userRole: role } = useSelector((state) => state.auth);
   return (
     <div className="flex flex-col gap-5">
       <div className="flex w-[40%]">
@@ -266,7 +256,7 @@ function TournamentListingWrapper() {
           dispatch={dispatch}
           page={currentPage || 1}
           limit={10}
-          type={cookies?.userRole}
+          type={cookies?.userRole || role}
           searchInput={searchInput}
           setSearchInput={setSearchInput}
           singleTournamentOwner={singleTournamentOwner}
