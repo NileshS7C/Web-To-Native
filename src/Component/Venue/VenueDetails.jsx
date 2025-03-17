@@ -260,14 +260,19 @@ const VenueAvailability = ({
 
             <tbody className="divide-y divide-gray-200 bg-white">
               {updatedDays.map((data, index) => {
-                const { day = "", openingTime = "", closingTime = "" } = data;
+                const {
+                  day = "",
+                  openingTime = "",
+                  closingTime = "",
+                  active,
+                } = data;
                 return (
                   <tr key={`${day}`}>
                     <td className="text-left" scope="row">
                       {fixedDays[index]}
                     </td>
-                    <td className="text-left">{openingTime}</td>
-                    <td className="text-left">{closingTime}</td>
+                    <td className="text-left">{active && openingTime}</td>
+                    <td className="text-left">{active && closingTime}</td>
                   </tr>
                 );
               })}

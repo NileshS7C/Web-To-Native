@@ -1,126 +1,169 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import axiosInstance from '../../../../Services/axios';
+import axiosInstance from "../../../../Services/axios";
 
-export default function TournamentListingModal({ tournamentData, isOpen, onClose, fetchHomepageSections }) {
-    const [selectedItems, setSelectedItems] = useState([]);
-    const [alreadySelected, setAlreadySelected] = useState([]);
-    const [tournamentsData, setTournamentsData] = useState([]);
+export default function TournamentListingModal({
+  tournamentData,
+  isOpen,
+  onClose,
+  fetchHomepageSections,
+}) {
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [alreadySelected, setAlreadySelected] = useState([]);
+  const [tournamentsData, setTournamentsData] = useState([]);
 
-    useEffect(() => {
-        if (isOpen) {
-            GetAllTournaments();
-        }
-    }, [isOpen]);
+  useEffect(() => {
+    if (isOpen) {
+      GetAllTournaments();
+    }
+  }, [isOpen]);
 
-    const GetAllTournaments = async () => {
-        try {
-            const config = {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            };
-            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/public/tournaments`, config);
+  const GetAllTournaments = async () => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BASE_URL}/public/tournaments`,
+        config
+      );
 
-            setTournamentsData(response.data.data.tournaments);
+      setTournamentsData(response.data.data.tournaments);
 
-            if (tournamentData?.tournaments) {
-                const formattedSelected = tournamentData.tournaments.map(item => item.tournamentID);
-                setAlreadySelected(formattedSelected);
-                setSelectedItems(formattedSelected);
-            }
-        } catch (error) {
-            console.error("Error fetching tournaments:", error);
-        }
+      if (tournamentData?.tournaments) {
+        const formattedSelected = tournamentData.tournaments.map(
+          (item) => item.tournamentID
+        );
+        setAlreadySelected(formattedSelected);
+        setSelectedItems(formattedSelected);
+      }
+    } catch (error) {
+      console.error("Error fetching tournaments:", error);
+    }
+  };
+
+  const handleSelectItem = (item) => {
+    setSelectedItems((prevSelected) => {
+      if (prevSelected.some((selectedItem) => selectedItem._id === item._id)) {
+        return prevSelected.filter(
+          (selectedItem) => selectedItem._id !== item._id
+        );
+      } else {
+        return [...prevSelected, item];
+      }
+    });
+  };
+
+  const handleSave = async () => {
+    const formattedData = selectedItems.map((item, index) => ({
+      tournamentID: item._id,
+      position: index,
+    }));
+
+    const payload = {
+      sectionTitle: tournamentData.sectionTitle,
+      isVisible: tournamentData.isVisible,
+      tournaments: formattedData,
     };
 
-    const handleSelectItem = (item) => {
-        setSelectedItems(prevSelected => {
-            if (prevSelected.some(selectedItem => selectedItem._id === item._id)) {
-                return prevSelected.filter(selectedItem => selectedItem._id !== item._id);
-            } else {
-                return [...prevSelected, item];
-            }
-        });
-    };
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/homepage-sections/tournament`,
+        JSON.stringify(payload),
+        config
+      );
+      if (response.data?.data?.length) {
+        const allTournaments = response.data.data.flatMap(
+          (section) => section.tournaments
+        );
+        setTournamentsData(allTournaments);
+      }
+    } catch (error) {
+      console.error("Error updating tournaments:", error);
+    }
 
-    const handleSave = async () => {
-        const formattedData = selectedItems.map((item, index) => ({
-            tournamentID: item._id,
-            position: index,
-        }));
+    fetchHomepageSections();
+    onClose();
+  };
 
-        const payload = {
-            sectionTitle: tournamentData.sectionTitle,
-            isVisible: tournamentData.isVisible,
-            tournaments: formattedData,
-        };
+  const handleDiscard = () => {
+    setSelectedItems(alreadySelected);
+    onClose();
+  };
 
-        try {
-            const config = {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            };
-            const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/tournament`, JSON.stringify(payload), config);
-            if (response.data?.data?.length) {
-                const allTournaments = response.data.data.flatMap(section => section.tournaments);
-                setTournamentsData(allTournaments);
-            }
-        } catch (error) {
-            console.error("Error updating tournaments:", error);
-        }
-
-        fetchHomepageSections();
-        onClose();
-    };
-
-    const handleDiscard = () => {
-        setSelectedItems(alreadySelected);
-        onClose();
-    };
-
-    return (
-        <Dialog open={isOpen} onClose={onClose} className="relative z-10">
-            <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
-            <div className="fixed inset-0 z-10 w-screen">
-                <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                    <DialogPanel className="modal-content w-[70%] mx-auto p-4 bg-white rounded-lg">
-                        <div className="data-list overflow-y-auto my-4 flex flex-col gap-2 min-h-[60vh] max-h-[60vh] rounded-lg border border-gray-300 p-2">
-                            {tournamentsData.length > 0 ? (
-                                tournamentsData.map((item) => (
-                                    <div
-                                        key={item._id}
-                                        className={`item flex items-center gap-4 p-3 border border-gray-300 rounded-md cursor-pointer transition-all 
-                ${selectedItems.some(selectedItem => selectedItem._id === item._id) ? 'bg-blue-100 border-[#1570EF]' : 'hover:bg-gray-100'}`}
-                                        onClick={() => handleSelectItem(item)}
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedItems.some(selectedItem => selectedItem._id === item._id)}
-                                            onChange={() => handleSelectItem(item)}
-                                            className="checkbox accent-blue-500"
-                                        />
-                                        <div className="item-details flex flex-row justify-between w-full text-left gap-4">
-                                            <h4 className='w-[40%] font-medium'>{item.tournamentName}</h4>
-                                            <p className='w-[40%] text-gray-600'>{item.handle}</p>
-                                            <p className='w-[10%] text-gray-600'>{item.startDate}</p>
-                                            <p className='w-[10%] text-gray-600'>{item.endDate}</p>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-gray-500 text-center py-4">No tournaments available</p>
-                            )}
-                        </div>
-
-                        <div className="modal-footer flex justify-end gap-2">
-                            <button onClick={handleDiscard} className="px-4 py-2 bg-gray-400 rounded-md">Discard</button>
-                            <button onClick={handleSave} className="px-4 py-2 bg-blue-500 text-white rounded-md">Save</button>
-                        </div>
-                    </DialogPanel>
-                </div>
+  return (
+    <Dialog open={isOpen} onClose={onClose} className="relative z-10">
+      <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
+      <div className="fixed inset-0 z-10 w-screen">
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <DialogPanel className="modal-content w-[70%] mx-auto p-4 bg-white rounded-lg">
+            <div className="data-list overflow-y-auto my-4 flex flex-col gap-2 min-h-[60vh] max-h-[60vh] rounded-lg border border-gray-300 p-2">
+              {tournamentsData.length > 0 ? (
+                tournamentsData.map((item) => (
+                  <div
+                    key={item._id}
+                    className={`item flex items-center gap-4 p-3 border border-gray-300 rounded-md cursor-pointer transition-all 
+                ${
+                  selectedItems.some(
+                    (selectedItem) => selectedItem._id === item._id
+                  )
+                    ? "bg-blue-100 border-[#1570EF]"
+                    : "hover:bg-gray-100"
+                }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.some(
+                        (selectedItem) => selectedItem._id === item._id
+                      )}
+                      onChange={() => {
+                        handleSelectItem(item);
+                      }}
+                      className="checkbox accent-blue-500"
+                    />
+                    <div className="item-details flex flex-row justify-between w-full text-left gap-4">
+                      <h4 className="w-[40%] font-medium">
+                        {item.tournamentName}
+                      </h4>
+                      <p className="w-[40%] text-gray-600">{item.handle}</p>
+                      <p className="w-[10%] text-gray-600">{item.startDate}</p>
+                      <p className="w-[10%] text-gray-600">{item.endDate}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">
+                  No tournaments available
+                </p>
+              )}
             </div>
-        </Dialog>
-    );
+
+            <div className="modal-footer flex justify-end gap-2">
+              <button
+                onClick={handleDiscard}
+                className="px-4 py-2 bg-gray-400 rounded-md"
+              >
+                Discard
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md"
+              >
+                Save
+              </button>
+            </div>
+          </DialogPanel>
+        </div>
+      </div>
+    </Dialog>
+  );
 }

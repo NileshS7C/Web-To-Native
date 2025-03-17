@@ -38,6 +38,14 @@ export const API_END_POINTS = {
         }
       },
 
+      archiveTournament: (type, tour_Id) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tour_Id}/archive`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tour_Id}/archive`;
+        }
+      },
+
       verifyTournament: (tournamentId) => {
         return `/users/admin/tournaments/${tournamentId}/verify`;
       },

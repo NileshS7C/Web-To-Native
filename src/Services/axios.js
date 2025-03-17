@@ -7,99 +7,31 @@ const cookies = new Cookies();
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
-// Create base axios instance without interceptors
 const axiosInstance = axios.create({
   baseURL,
   timeout: 5000,
   withCredentials: true,
 });
 
-const getRefreshTokenFromCookies = () => {
-  return cookies.get("refreshToken");
-};
-
-// Initialize refresh token state
-let isRefreshing = false;
-let refreshSubscribers = [];
-
-// Configure interceptors after store is available
-export const setupAxiosInterceptors = (
-  getState,
-  dispatch,
-  refreshTokensAction
-) => {
-  // Request interceptor
-  axiosInstance.interceptors.request.use(
-    (config) => {
-      const state = getState();
-      const token = state.auth?.accessToken; // Get token from your auth state
-
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
-
-  // Response interceptor
+export const setupAxiosInterceptors = (dispatch) => {
   axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
-      const originalRequest = error.config;
-
-      if (error.response?.status !== 401 || originalRequest._retry) {
-        return Promise.reject(error);
-      }
-
-      if (error.response?.status === 403) {
-        dispatch(userLogout());
-        cookies.remove("refreshToken", { path: "/" });
-        cookies.remove("userRole", { path: "/" });
-        cookies.remove("name", { path: "/" });
-        return Promise.reject(error);
-      }
-
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          refreshSubscribers.push((error, token) => {
-            if (error) {
-              reject(error);
-            } else {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-              resolve(axiosInstance(originalRequest));
-            }
-          });
-        });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
       try {
-        const refreshToken = getRefreshTokenFromCookies();
+        const originalRequest = error.config;
 
-        const response = await axios.put(
-          `${baseURL}/users/auth/update-refresh-access`,
-          {
-            refreshToken,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${refreshToken}`, // Include refresh token in header
-            },
-          }
-        );
+        if (error.response?.status !== 401 || originalRequest._retry) {
+          return Promise.reject(error);
+        }
 
-        const tokens = response.data;
-        await dispatch(refreshTokensAction(tokens));
-        refreshSubscribers.forEach((cb) => cb(null, tokens.data.accessToken));
-        refreshSubscribers = [];
-        originalRequest.headers.Authorization = `Bearer ${tokens.data.accessToken}`;
+        if (error.response?.status === 403) {
+          dispatch(userLogout());
+          cookies.remove("userRole", { path: "/" });
+          return Promise.reject(error);
+        }
+        originalRequest._retry = true;
         return axiosInstance(originalRequest);
       } catch (error) {
-        refreshSubscribers.forEach((cb) => cb(error, null));
-        refreshSubscribers = [];
         dispatch(
           showError({
             message: "User unauthorized!",
@@ -107,16 +39,9 @@ export const setupAxiosInterceptors = (
           })
         );
         dispatch(userLogout());
-
-        cookies.remove("refreshToken", { path: "/" });
         cookies.remove("userRole", { path: "/" });
-        cookies.remove("name", { path: "/" });
-
-        // Optionally redirect the user to login
         window.location.href = "/login";
         return Promise.reject(error);
-      } finally {
-        isRefreshing = false;
       }
     }
   );

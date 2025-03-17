@@ -11,11 +11,8 @@ import {
   EditIcon,
   ViewIcon,
   cmsIcon,
-
   uploadedImageIcon,
-
   PlayerIcon,
-
 } from "../Assests";
 
 export const months = [
@@ -58,7 +55,7 @@ export const menus = [
 ];
 
 export const ADMIN_NAVIGATION = [
-  { name: "DashBoard", icon: overviewIcon, path: "" },
+  { name: "Dashboard", icon: overviewIcon, path: "" },
   {
     name: "Tournament Organisers",
     icon: tournamentIcon,
@@ -75,7 +72,6 @@ export const ADMIN_NAVIGATION = [
   { name: "Venues", icon: venueIcon, path: "venues" },
 
   { name: "Uploaded Images", icon: uploadedImageIcon, path: "images" },
-
 
   { name: "Players", icon: PlayerIcon, path: "players" },
 
@@ -118,7 +114,7 @@ export const ADMIN_NAVIGATION = [
 ];
 
 export const TOURNAMENT_OWNER_NAVIGATION = [
-  { name: "DashBoard", icon: overviewIcon, path: "" },
+  { name: "Dashboard", icon: overviewIcon, path: "" },
   // {
   //   name: "Tournament Organisers",
   //   icon: tournamentIcon,
@@ -134,7 +130,7 @@ export const TOURNAMENT_OWNER_NAVIGATION = [
 ];
 
 export const VENUE_OWNER_NAVIGATION = [
-  { name: "DashBoard", icon: overviewIcon, path: "" },
+  { name: "Dashboard", icon: overviewIcon, path: "" },
   // { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
   // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Venues", icon: venueIcon, path: "venues" },
@@ -145,6 +141,10 @@ export const ActionButtonGroup = [
   { name: "Edit", icon: EditIcon, action: "edit" },
   { name: "Delete", icon: DeleteIcon, action: "delete" },
   { name: "View", icon: ViewIcon, action: "view" },
+];
+
+export const TournamentOrganiserActionButtons = [
+  { name: "Edit", icon: EditIcon, action: "edit" },
 ];
 
 export const rowsInOnePage = 10;
@@ -176,8 +176,7 @@ export const notHaveBackButton = [
 
   "Uploaded Images",
 
-  "Players"
-
+  "Players",
 ];
 
 export const ROLES = [

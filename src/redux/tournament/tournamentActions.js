@@ -54,14 +54,46 @@ export const searchTournament = createAsyncThunk(
       const { type, ownerId, ...updatedParams } = rest;
 
       const formattedParams = formatURL(updatedParams);
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}?${formattedParams}`
+      );
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const archiveTournament = createAsyncThunk(
+  "Tournament/archiveTournament",
+  async (tour_Id, { rejectWithValue }) => {
+    try {
+      const userRole = cookies.get("userRole");
+
+      const userAPIEndPoint = API_END_POINTS.tournament.POST.archiveTournament(
+        userRole,
+        tour_Id
+      );
+
+      console.log(" user end Point", userAPIEndPoint);
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.get(
-        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}?${formattedParams}`,
 
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         config
       );
 
@@ -167,6 +199,7 @@ export const getSingle_TO = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
       };
       const response = await axiosInstance.get(
         `${import.meta.env.VITE_BASE_URL}${userEndPoint}`,

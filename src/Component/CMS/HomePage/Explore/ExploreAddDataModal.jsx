@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Dialog,
     DialogBackdrop,
@@ -13,6 +13,10 @@ import axiosInstance from "../../../../Services/axios";
 export default function ExploreAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setImagePreview(null);  
+    }, [isOpen]);
 
     // Validation Schema
     const validationSchema = Yup.object().shape({
