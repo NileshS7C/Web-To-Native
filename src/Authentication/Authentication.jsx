@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 
 const Authentication = ({ children }) => {
-  const [cookies] = useCookies(["refreshToken"]);
-  const { accessToken } = useSelector((state) => state.auth);
-  if (cookies?.refreshToken || accessToken) {
+  const [cookies, setCookies] = useCookies(["userRole"]);
+
+  if (cookies?.userRole) {
     return children;
   }
-  return <Navigate to="/login" replace />;
+
+  return <Navigate to="/login" replace={true} />;
 };
 
 export default Authentication;

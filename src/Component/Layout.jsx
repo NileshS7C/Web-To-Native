@@ -163,6 +163,7 @@ const Layout = () => {
   return (
     <div className="flex flex-col h-screen">
       <Header />
+
       <div className="flex flex-1 bg-[#F5F7FA] overflow-hidden">
         <div
           className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${
@@ -170,6 +171,7 @@ const Layout = () => {
           }  scrollbar-hide`}
           ref={navRef}
         >
+
           <NavBar />
         </div>
         <div

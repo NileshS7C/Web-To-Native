@@ -2,6 +2,7 @@ import { createContext, useContext, useMemo, useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingle_TO } from "../redux/tournament/tournamentActions";
+import { userLogout } from "../redux/Authentication/authActions";
 
 const OnwerDetailsContext = createContext(null);
 
