@@ -18,14 +18,12 @@ function TournamentOrganisersPage() {
   );
 
   useEffect(() => {
-    if (currentPage) {
-      dispatch(
-        getAll_TO({
-          currentPage,
-          limit: rowsInOnePage,
-        })
-      );
-    }
+    dispatch(
+      getAll_TO({
+        currentPage: currentPage || 1,
+        limit: rowsInOnePage,
+      })
+    );
   }, [currentPage]);
 
   if (isGettingALLTO) {
