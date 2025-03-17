@@ -218,15 +218,7 @@ const Login = () => {
 };
 
 const WrapperLogin = () => {
-  const [cookies] = useCookies(["refreshToken"]);
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (cookies?.refreshToken) {
-      navigate("/");
-    }
-  }, []);
-
-  return <>{!cookies?.refreshToken && <Login />}</>;
+  return <>{<Login />}</>;
 };
 
 export default WrapperLogin;
