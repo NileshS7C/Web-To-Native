@@ -21,7 +21,7 @@ export default function Explore() {
         }
     };
     useEffect(() => { fetchExploreSection() }, [])
- 
+
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:flex-col gap-4">

@@ -3,7 +3,10 @@ import { useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Formik, Form, ErrorMessage, Field, useFormikContext } from "formik";
 
-import { createTournamentOwner } from "../../redux/tournament/tournamentOrganiserActions";
+import {
+  createTournamentOwner,
+  updateTournamentOwner,
+} from "../../redux/tournament/tournamentOrganiserActions";
 import { resetGlobalLocation } from "../../redux/Location/locationSlice";
 import { toggleOrganiserModal } from "../../redux/tournament/tournamentOrganiserSlice";
 import { showSuccess } from "../../redux/Success/successSlice";
@@ -16,9 +19,11 @@ import TextError from "../Error/formError";
 import Button from "./Button";
 import ErrorBanner from "./ErrorBanner";
 import LocationSearchInput from "./LocationSearch";
+import Spinner from "./Spinner";
 
 import {
   TournamentOragniserModalTitle,
+  passRegex,
   rowsInOnePage,
 } from "../../Constant/app";
 
@@ -29,20 +34,49 @@ export const TournamentOrganiserCreation = ({
   initialValues,
   location,
   validationSchema,
+  organiserId,
+  actionPending,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
     try {
       setSubmitting(true);
       setHasError(false);
       setErrorMessage("");
-      const result = await dispatch(createTournamentOwner(values)).unwrap();
+      let updadatedValues;
+
+      if (organiserId) {
+        const { password } = values;
+        if (password) {
+          const isValid = passRegex.test(password);
+          if (!isValid) {
+            return setFieldError(
+              "password",
+              "Password must have at least 8 characters, including uppercase, lowercase, a number, and a special character."
+            );
+          }
+          updadatedValues = values;
+        } else {
+          const { password, ...restOfValues } = values;
+          updadatedValues = restOfValues;
+        }
+      }
+      const result = !organiserId
+        ? await dispatch(createTournamentOwner(values)).unwrap()
+        : await dispatch(
+            updateTournamentOwner({
+              formData: updadatedValues,
+              ownerId: organiserId,
+            })
+          ).unwrap();
       if (!result.responseCode) {
         dispatch(
           showSuccess({
-            message: "Tournament Organiser created successfully.",
+            message: !organiserId
+              ? "Tournament Organiser created successfully."
+              : "Tournament Organiser updated successfully.",
             onClose: "hideSuccess",
           })
         );
@@ -97,37 +131,47 @@ export const TournamentOrganiserCreation = ({
             transition
             className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
-            <div className="flex flex-col justify-between flex-1 items-center gap-3 w-full ">
-              <OrganiserModalTitle
-                onCancel={() => dispatch(toggleOrganiserModal())}
-              />
+            <div className="flex w-full">
+              {actionPending && (
+                <div className="flex items-center justify-center h-full w-full">
+                  <Spinner />
+                </div>
+              )}
+              {!actionPending && (
+                <div className="flex flex-col justify-between flex-1 items-between gap-3 w-full ">
+                  <OrganiserModalTitle
+                    onCancel={() => dispatch(toggleOrganiserModal())}
+                  />
 
-              {hasError && <ErrorBanner message={errorMessage} />}
-              <Formik
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-              >
-                {({ isSubmitting }) => (
-                  <Form>
-                    <div className="flex flex-col justify-between w-full gap-4 flex-1">
-                      <OrganiserBasicDetails />
-                      <OrganiserPhoneAndPassword />
-                      <BrandEmailAndPhone />
-                      <BrandPhoneAndLocation />
-                      <OrganiserAddress location={location} />
+                  {hasError && <ErrorBanner message={errorMessage} />}
+                  <Formik
+                    enableReinitialize={true}
+                    initialValues={initialValues}
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
+                  >
+                    {({ isSubmitting }) => (
+                      <Form>
+                        <div className="flex flex-col justify-between w-full gap-4 flex-1">
+                          <OrganiserBasicDetails />
+                          <OrganiserPhoneAndPassword />
+                          <BrandEmailAndPhone />
+                          <BrandPhoneAndLocation />
+                          <OrganiserAddress location={location} />
 
-                      <Button
-                        className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
-                        type="submit"
-                        loading={isSubmitting}
-                      >
-                        Save
-                      </Button>
-                    </div>
-                  </Form>
-                )}
-              </Formik>
+                          <Button
+                            className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
+                            type="submit"
+                            loading={isSubmitting}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      </Form>
+                    )}
+                  </Formik>
+                </div>
+              )}
             </div>
           </DialogPanel>
         </div>
@@ -450,4 +494,6 @@ TournamentOrganiserCreation.propTypes = {
   initialValues: PropTypes.object,
   location: PropTypes.object,
   validationSchema: PropTypes.object,
+  organiserId: PropTypes.string,
+  actionPending: PropTypes.bool,
 };

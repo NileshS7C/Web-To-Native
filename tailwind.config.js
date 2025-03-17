@@ -29,5 +29,17 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        ".scrollbar-hide": {
+          "-ms-overflow-style": "none", // Hide scrollbar in IE and Edge
+          "scrollbar-width": "none", // Hide scrollbar in Firefox
+          "&::-webkit-scrollbar": {
+            display: "none", // Hide scrollbar in Chrome, Safari, and Edge
+          },
+        },
+      });
+    },
+  ],
 };

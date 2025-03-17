@@ -50,6 +50,7 @@ const tournamentEvent = {
   },
 };
 
+const NotDoublesCategory = ["MS", "WS", "MIS"];
 const AvailableDays = [
   "All",
   "Monday",
@@ -268,8 +269,8 @@ const approvalBody = {
 const hideActionButtons = ["Tournaments", "Add Tournament"];
 
 const roundRobbinModeOptions = [
-  { id: "simple", name: "Simple" },
-  { id: "double", name: "Double" },
+  { id: "simple", name: "Single" },
+  { id: "double", name: "Doubles" },
 ];
 
 export {
@@ -285,5 +286,6 @@ export {
   rolesWithTournamentOwnerAccess,
   hideActionButtons,
   tournamentEventTypes,
+  NotDoublesCategory,
   roundRobbinModeOptions,
 };

@@ -40,9 +40,8 @@ import ProfilePage from "../Page/Profile";
 
 import { UploadedImages } from "../Page/UploadedImages";
 
-import Player from "../Page/Player";
+import PlayersManager from "../Page/Player";
 import { OwnerDetailContextProvider } from "../Providers/onwerDetailProvider";
-
 
 const AllRoutes = () => {
   return (
@@ -84,7 +83,7 @@ const AllRoutes = () => {
             </Route>
           </Route>
           <Route path="home" element={<Home />} />
-          <Route path="players" element={<Player />} />
+          <Route path="players" element={<PlayersManager />} />
 
           {/* CMS Routes */}
           <Route path="cms/homepage/explore" element={<Explore />} />
