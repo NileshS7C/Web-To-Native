@@ -139,6 +139,14 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/owner/${ownerId}`;
         }
       },
+
+      searchTournaments: (ownerId, type) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/search`;
+        } else {
+          return `/users/tournament-owner/tournaments/owner/${ownerId}/search`;
+        }
+      },
       tournamentById: (type, tournamentId, ownerId) => {
         if (ADMINROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}`;

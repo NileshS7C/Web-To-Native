@@ -42,6 +42,38 @@ export const addTournamentStepOne = createAsyncThunk(
   }
 );
 
+export const searchTournament = createAsyncThunk(
+  "Tournament/searchTournament",
+  async ({ ...rest }, { rejectWithValue }) => {
+    try {
+      const userAPIEndPoint = API_END_POINTS.tournament.GET.searchTournaments(
+        rest.ownerId,
+        rest.type
+      );
+
+      const { type, ownerId, ...updatedParams } = rest;
+
+      const formattedParams = formatURL(updatedParams);
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}?${formattedParams}`
+      );
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
 export const archiveTournament = createAsyncThunk(
   "Tournament/archiveTournament",
   async (tour_Id, { rejectWithValue }) => {
@@ -59,6 +91,7 @@ export const archiveTournament = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
+
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         config
@@ -189,8 +222,6 @@ export const getSingle_TO = createAsyncThunk(
     }
   }
 );
-
-
 
 export const getAllUniqueTags = createAsyncThunk(
   "Tournament/getAllUniqueTags",
