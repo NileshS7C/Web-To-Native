@@ -93,9 +93,10 @@ function TournamentListing(props) {
 
   const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
     useSelector((state) => state.GET_TOUR);
+  const { userRole: role } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    const userRole = cookies?.userRole;
+    const userRole = cookies?.userRole || role;
     if (!searchInput) {
       dispatch(
         getAllTournaments({
@@ -115,7 +116,7 @@ function TournamentListing(props) {
   }, [selectedFilter, selectedTab]);
 
   useEffect(() => {
-    const userRole = cookies.userRole;
+    const userRole = cookies.userRole || role;
 
     if (singleTournamentOwner && !searchInput) {
       switch (selectedTab) {
