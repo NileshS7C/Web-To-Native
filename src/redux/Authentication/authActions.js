@@ -23,7 +23,7 @@ export const userLogin = createAsyncThunk(
         config
       );
 
-      cookies.set("userRole", response.data.data.user.roleName, {
+      cookies.set("userRole", response.data.data?.user?.roleName, {
         path: "/",
         maxAge: 24 * 60 * 60,
         sameSite: "strict",
@@ -85,7 +85,7 @@ export const userLogout = createAsyncThunk(
 
       cookies.remove("userRole", { path: "/" });
 
-      return null;
+      return true;
     } catch (err) {
       if (err.response) {
         return rejectWithValue({

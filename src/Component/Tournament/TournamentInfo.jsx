@@ -296,12 +296,13 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   const { isSuccess, isGettingTournament } = useSelector(
     (state) => state.GET_TOUR
   );
+  const { userRole: role } = useSelector((state) => state.auth);
 
   const currentPage = 1;
   const limit = 100;
 
   useEffect(() => {
-    const userRole = cookies?.userRole;
+    const userRole = cookies?.userRole || role;
     if (!userRole) {
       dispatch(userLogout());
     }

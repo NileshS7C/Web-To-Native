@@ -1,4 +1,4 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   ADMIN_NAVIGATION,
   TOURNAMENT_OWNER_NAVIGATION,
@@ -17,6 +17,7 @@ export const NavBar = () => {
   const navigate = useNavigate();
   const [cookies] = useCookies(["userRole"]);
   const location = useLocation();
+  const { userRole: role } = useSelector((state) => state.auth);
 
   const [expandedMenus, setExpandedMenus] = useState({});
 
@@ -43,8 +44,8 @@ export const NavBar = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (cookies?.userRole) {
-      switch (cookies.userRole) {
+    if (cookies?.userRole || role) {
+      switch (cookies.userRole || role) {
         case "SUPER_ADMIN":
           setNavigationBar(ADMIN_NAVIGATION);
           break;
@@ -59,7 +60,7 @@ export const NavBar = () => {
           break;
       }
     }
-  }, [cookies?.userRole]);
+  }, [cookies?.userRole , role]);
 
   const toggleMenu = (menuName) => {
     setCurrentMenu(menuName);

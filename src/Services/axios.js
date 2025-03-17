@@ -24,7 +24,7 @@ export const setupAxiosInterceptors = (dispatch) => {
           return Promise.reject(error);
         }
 
-        if (error.response?.status === 403) {
+        if (error.response?.status === 403 || error.response?.status === 401) {
           dispatch(userLogout());
           cookies.remove("userRole", { path: "/" });
           return Promise.reject(error);

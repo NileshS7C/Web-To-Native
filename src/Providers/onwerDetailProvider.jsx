@@ -13,19 +13,18 @@ export const useOwnerDetailsContext = () => {
 export const OwnerDetailContextProvider = ({ children }) => {
   const dispatch = useDispatch();
   const [cookies, setCookies] = useCookies(["name", "userRole"]);
+  const { userRole: role } = useSelector((state) => state.auth);
   const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
 
   useEffect(() => {
-    const userRole = cookies.userRole;
+    const userRole = cookies?.userRole || role;
 
-    if (!userRole) {
-      dispatch(userLogout());
-    } else if (userRole === "TOURNAMENT_OWNER") {
+    if (userRole === "TOURNAMENT_OWNER") {
       dispatch(getSingle_TO("TOURNAMENT_OWNER"));
     } else if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
       dispatch(getSingle_TO("ADMIN"));
     }
-  }, [cookies?.userRole]);
+  }, [cookies?.userRole, role]);
   const value = useMemo(
     () => ({
       singleTournamentOwner,

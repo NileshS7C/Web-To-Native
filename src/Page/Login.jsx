@@ -179,10 +179,13 @@ const Login = () => {
     if (isValidationError) return;
     try {
       await dispatch(userLogin(loginData)).unwrap();
+
+      console.log(" I am redirecting");
       navigate("/", {
         replace: true,
       });
     } catch (error) {
+      console.log(" error in login", error);
       dispatch(
         showError({
           message:
@@ -218,7 +221,7 @@ const Login = () => {
 };
 
 const WrapperLogin = () => {
-  return <>{<Login />}</>;
+  return <Login />;
 };
 
 export default WrapperLogin;
