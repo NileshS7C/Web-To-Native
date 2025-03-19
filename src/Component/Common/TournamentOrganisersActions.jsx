@@ -11,11 +11,9 @@ export const TournamentOrganiserActions = ({ id }) => {
 
   const handlers = {
     edit: () => {
-      setSearchParams((prevParams) => {
-        const newParams = new URLSearchParams(prevParams);
-        newParams.set("organiserId", id);
-        return newParams;
-      });
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set("organiserId", id);
+      navigate(`/tournament-organisers?${newSearchParams.toString()}`);
     },
     delete: () => {
       dispatch(
