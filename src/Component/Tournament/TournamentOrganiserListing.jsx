@@ -162,7 +162,7 @@ export const TournamentOrganisersListing = ({
   });
   const dispatch = useDispatch();
   const [hasError, setHasError] = useState(false);
-  const [initalState, setInitialState] = useState(initialValues);
+  const [initialState, setInitialState] = useState(initialValues);
   const [actionPending, setActionPending] = useState(false);
   const { openOrganiserModal } = useSelector((state) => state.tour_Org);
   const { location } = useSelector((state) => state.location);
@@ -172,52 +172,61 @@ export const TournamentOrganisersListing = ({
       try {
         setActionPending(true);
         setHasError(false);
-
+  
+        console.log("Fetching organiser details for ID:", id);
         const result = await dispatch(getTournamentOrganiser(id)).unwrap();
-
-        if (!result?.responseCode) {
-          const {
-            owner: {
-              ownerUserType,
-              updatedAt,
-              address: {
-                location: { is_location_exact, ...updatedLocation },
-                ...updatedAddress
-              },
-              ...updatedOwnerDetails
-            },
-          } = result?.data;
-
-          setInitialState(() => ({
-            name: result.data?.name,
-            phone: result.data?.phone,
-            email: result.data?.email,
-            password: result.data?.password,
-            ownerDetails: {
-              ...updatedOwnerDetails,
-              address: { ...updatedAddress, location: updatedLocation },
-            },
-          }));
+  
+        if (!result || result.responseCode) {
+          console.log("No valid data returned.");
+          setHasError(true);
+          return;
         }
+  
+        console.log("Fetched data:", result.data);
+  
+        const ownerDetails = result?.data?.owner || {};
+        const address = ownerDetails?.address || {};
+        const location = address?.location || {};
+  
+        const { is_location_exact, ...updatedLocation } = location;
+        const { ownerUserType, ...updatedOwnerDetails } = ownerDetails;
+  
+        const updatedData = {
+          name: result.data?.name || "",
+          phone: result.data?.phone || "",
+          email: result.data?.email || "",
+          password: "", // Do not fetch password for security
+          ownerDetails: {
+            ...updatedOwnerDetails,
+            address: {
+              ...address,
+              location: updatedLocation, // Excludes `is_location_exact`
+            },
+          },
+        };
+  
+        setInitialState(updatedData);
+  
+        // ✅ Always open the modal when editing
+        dispatch(toggleOrganiserModal(true));
       } catch (err) {
-        console.log("Error occured while getting the organiser details", err);
+        console.log("Error occurred while getting the organiser details", err);
         setHasError(true);
       } finally {
         setActionPending(false);
       }
     };
+  
     if (organiserId) {
-      dispatch(toggleOrganiserModal());
       getOrganiserDetails(organiserId);
     }
-  }, [organiserId]);
-
+  }, [organiserId]); // ✅ Removed initialState from dependencies
+  
   useEffect(() => {
     if (!openOrganiserModal) {
       setSearchParams((prevParams) => {
         const updatedParams = new URLSearchParams(prevParams);
 
-        console.log(" updated params", updatedParams);
         updatedParams.delete("organiserId");
 
         return updatedParams;
@@ -236,7 +245,7 @@ export const TournamentOrganisersListing = ({
       <TournamentOrganiserCreation
         dispatch={dispatch}
         isOpen={openOrganiserModal}
-        initialValues={initalState}
+        initialValues={initialState}
         location={location}
         validationSchema={validationSchema}
         organiserId={organiserId}
