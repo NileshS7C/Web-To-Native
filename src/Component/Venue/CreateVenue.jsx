@@ -446,6 +446,13 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
     }
   }, [values.name]);
 
+  useEffect(() => {
+    if (values.venueInfoUrl) {
+      setFieldValue("venueInfoUrl", values.venueInfoUrl);
+    }
+  }, [values.venueInfoUrl]);
+
+
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
