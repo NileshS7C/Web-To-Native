@@ -10,4 +10,8 @@ export default defineConfig({
   optimizeDeps: {
     include: ["react-quill"],
   },
+
+  preview: {
+    allowedHosts: ["uat.picklebay.com"],
+  },
 });
