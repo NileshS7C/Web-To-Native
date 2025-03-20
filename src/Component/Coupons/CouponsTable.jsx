@@ -25,7 +25,6 @@ const CoponsTable = ({
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
   }
-  console.log("columns", columns);
 
   return (
     <div className="flex flex-col gap-2.5 justify-start">

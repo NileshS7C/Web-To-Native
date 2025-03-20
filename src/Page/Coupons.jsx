@@ -46,7 +46,6 @@ const Coupons = () => {
       );
 
       setCoupons(response?.data?.data || []);
-      console.log("response>>", response);
     } catch (error) {
       console.error("Error fetching Coupons:", error);
       setError("Failed to load Coupons.");
@@ -88,7 +87,14 @@ const Coupons = () => {
   );
 };
 
-const DiscountCoupons = ({ coupons, handlePageChange, currentPage, loading, error, limit }) => {
+const DiscountCoupons = ({
+  coupons,
+  handlePageChange,
+  currentPage,
+  loading,
+  error,
+  limit,
+}) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -119,7 +125,17 @@ const DiscountCoupons = ({ coupons, handlePageChange, currentPage, loading, erro
   );
 };
 
-const CouponsQueryTools = ({ searchTerm, setSearchTerm, setCoupons, setLoading, setError, currentPage, status, setStatus, limit }) => {
+const CouponsQueryTools = ({
+  searchTerm,
+  setSearchTerm,
+  setCoupons,
+  setLoading,
+  setError,
+  currentPage,
+  status,
+  setStatus,
+  limit,
+}) => {
   const couponFilters = [
     { id: "all", title: "All" },
     { id: "active", title: "Active" },
@@ -128,17 +144,39 @@ const CouponsQueryTools = ({ searchTerm, setSearchTerm, setCoupons, setLoading, 
 
   return (
     <div className="flex justify-between mb-2">
-      <SearchCoupons searchTerm={searchTerm} setSearchTerm={setSearchTerm} setCoupons={setCoupons} setLoading={setLoading} setError={setError} currentPage={currentPage} limit={limit} />
+      <SearchCoupons
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        setCoupons={setCoupons}
+        setLoading={setLoading}
+        setError={setError}
+        currentPage={currentPage}
+        limit={limit}
+      />
       <div className="flex items-baseline gap-5">
         <div className="flex space-x-4 mb-4">
-          <FilterGroup title="Filter By Coupon Type:" options={couponFilters} selectedValue={status} onChange={setStatus} defaultValue="all" />
+          <FilterGroup
+            title="Filter By Coupon Type:"
+            options={couponFilters}
+            selectedValue={status}
+            onChange={setStatus}
+            defaultValue="all"
+          />
         </div>
       </div>
     </div>
   );
 };
 
-const SearchCoupons = ({ searchTerm, setSearchTerm, setCoupons, setLoading, setError, currentPage, limit }) => {
+const SearchCoupons = ({
+  searchTerm,
+  setSearchTerm,
+  setCoupons,
+  setLoading,
+  setError,
+  currentPage,
+  limit,
+}) => {
   const debouncedValue = useDebounce(searchTerm, 300);
   const inputRef = useRef(null);
 
@@ -150,7 +188,11 @@ const SearchCoupons = ({ searchTerm, setSearchTerm, setCoupons, setLoading, setE
 
   return (
     <div className="relative">
-      <img src={searchIcon} alt="Search" className="absolute left-[25px] top-1/2 transform -translate-y-1/2" />
+      <img
+        src={searchIcon}
+        alt="Search"
+        className="absolute left-[25px] top-1/2 transform -translate-y-1/2"
+      />
       <input
         ref={inputRef}
         placeholder="Search Coupons"
