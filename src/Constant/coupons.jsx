@@ -30,7 +30,17 @@ const couponsTableHeaders = [
     {
         key: 'Status',
         header: 'Status',
-        render: (item) => item.isActive ? "Active" : "Expaired"
+        render: (item) => (
+            <span
+                className={`inline-flex items-center rounded-2xl px-3 py-2 text-xs font-medium ring-1 ring-inset
+                    ${item.isActive 
+                        ? "bg-green-50 text-[#41C588] ring-green-600/20" 
+                        : "bg-gray-50 text-gray-500 ring-gray-400/20"
+                    }`}
+            >
+                {item.isActive ? "Active" : "Expired"}
+            </span>
+        )
     },
 ];
 
