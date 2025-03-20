@@ -54,6 +54,7 @@ const requiredVenueFields = (venue) => {
     equipments,
     bannerImages,
     layoutImages,
+    venueInfoUrl, 
   } = venue;
 
   return {
@@ -71,6 +72,7 @@ const requiredVenueFields = (venue) => {
     equipments,
     bannerImages,
     layoutImages,
+    venueInfoUrl, 
   };
 };
 
@@ -245,6 +247,7 @@ const VenueInfo = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading } = useSelector((state) => state.Venue);
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { id } = useParams();
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.Venue);
@@ -348,26 +351,29 @@ const VenueInfo = () => {
             <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
               <ErrorModal />
               <SuccessModal />
-              <VenueBasicInfo />
-              <VenueAddress location={location} />
+              <VenueBasicInfo id={id}/>
+              <VenueAddress location={location} id={id}/>
               <VenueMetaData
                 isGettingTags={isGettingTags}
                 uniqueTags={uniqueTags}
                 selectedTags={selectedTags}
+                id={id}
               />
-              <VenueDescription />
-              <VenueAvailableDays />
-              <VenueAmenities />
-              <VenueEquipments />
+              <VenueDescription id={id}/>
+              <VenueAvailableDays id={id}/>
+              <VenueAmenities id={id}/>
+              <VenueEquipments id={id}/>
               <VenueBannerImage
                 dispatch={dispatch}
                 uploadData={uplodedData}
                 isUploading={isUploading}
+                id={id}
               />
               <VenueLayoutImage
                 dispatch={dispatch}
                 uploadData={uplodedData}
                 isUploading={isUploading}
+                id={id}
               />
               <Button
                 className={`${
@@ -388,8 +394,9 @@ const VenueInfo = () => {
   );
 };
 
-const VenueBasicInfo = () => {
+const VenueBasicInfo = ({id}) => {
   const { setFieldValue } = useFormikContext();
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
 
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
@@ -401,6 +408,7 @@ const VenueBasicInfo = () => {
           Venue Name
         </label>
         <Field
+disabled={id ? !venueEditMode : false}
           placeholder="Enter Venue Name"
           id="name"
           name="name"
@@ -430,9 +438,11 @@ const VenueBasicInfo = () => {
   );
 };
 
-const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
+const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags, id}) => {
   const [venueHandle, setVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
+  console.log("values venue", values);
   useEffect(() => {
     if (values.name) {
       const { name } = values;
@@ -456,6 +466,7 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
           Venue Handle
         </label>
         <Field
+disabled={id ? !venueEditMode : false}
           placeholder="Enter Venue Handle"
           id="handle"
           name="handle"
@@ -475,6 +486,7 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
           Redirection Link
         </label>
         <Field
+disabled={id ? !venueEditMode : false}
           placeholder="Enter Venue redirection link"
           id="venueInfoUrl"
           name="venueInfoUrl"
@@ -503,6 +515,7 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
           Phone Number
         </label>
         <Field
+disabled={id ? !venueEditMode : false}
           placeholder="Enter Phone Number"
           id="phoneNumber"
           name="phoneNumber"
@@ -519,8 +532,9 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
   );
 };
 
-const VenueAddress = ({ location }) => {
+const VenueAddress = ({ location, id }) => {
   const { setFieldValue } = useFormikContext();
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   useEffect(() => {
     if (location.city || location.state) {
       setFieldValue("address.line1", location?.address_line1);
@@ -549,6 +563,7 @@ const VenueAddress = ({ location }) => {
             Line 1
           </label>
           <Field
+disabled={id ? !venueEditMode : false}
             placeholder="Enter Venue Address"
             id="address.line1"
             name="address.line1"
@@ -562,6 +577,7 @@ const VenueAddress = ({ location }) => {
             Line 2
           </label>
           <Field
+disabled={id ? !venueEditMode : false}
             placeholder="Enter Venue Address"
             id="address.line2"
             name="address.line2"
@@ -577,6 +593,7 @@ const VenueAddress = ({ location }) => {
             City
           </label>
           <Field
+disabled={id ? !venueEditMode : false}
             placeholder="Enter Venue Address"
             id="address.city"
             name="address.city"
@@ -590,6 +607,7 @@ const VenueAddress = ({ location }) => {
             State
           </label>
           <Field
+disabled={id ? !venueEditMode : false}
             placeholder="Enter Venue Address"
             id="address.state"
             name="address.state"
@@ -608,6 +626,7 @@ const VenueAddress = ({ location }) => {
             Pincode
           </label>
           <Field
+disabled={id ? !venueEditMode : false}
             placeholder="Enter Venue Address"
             id="address.postalCode"
             name="address.postalCode"
@@ -621,7 +640,8 @@ const VenueAddress = ({ location }) => {
   );
 };
 
-const VenueDescription = () => {
+const VenueDescription = ({id}) => {
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { values, setFieldValue } = useFormikContext();
 
   useEffect(() => {
@@ -656,7 +676,8 @@ const VenueDescription = () => {
   );
 };
 
-const VenueAvailableDays = () => {
+const VenueAvailableDays = ({id}) => {
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { values, setFieldValue } = useFormikContext();
   const handleToggle = useCallback(
     (day, index) => {
@@ -764,6 +785,7 @@ const VenueAvailableDays = () => {
                   <label className="flex flex-col items-start gap-2.5 justify-center">
                     Opening Time
                     <Field
+disabled={id ? !venueEditMode : false}
                       type="time"
                       name={`availableDays[${index}].openingTime`}
                       className="w-full px-3 py-2 border rounded"
@@ -777,6 +799,7 @@ const VenueAvailableDays = () => {
                   <label className="flex flex-col items-start gap-2.5">
                     Closing Time
                     <Field
+disabled={id ? !venueEditMode : false}
                       type="time"
                       name={`availableDays[${index}].closingTime`}
                       className="w-full px-3 py-2 border rounded"
@@ -798,7 +821,8 @@ const VenueAvailableDays = () => {
   );
 };
 
-const VenueAmenities = () => {
+const VenueAmenities = ({id}) => {
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { values } = useFormikContext();
 
   return (
@@ -818,6 +842,7 @@ const VenueAmenities = () => {
                   key={`value-${index}`}
                 >
                   <Field
+disabled={id ? !venueEditMode : false}
                     type="checkbox"
                     name="amenities"
                     value={value}
@@ -844,7 +869,8 @@ const VenueAmenities = () => {
   );
 };
 
-const VenueEquipments = () => {
+const VenueEquipments = ({id}) => {
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   return (
     <div className="flex flex-col items-start gap-2.5">
       <div className="flex gap-[10px]">
@@ -865,6 +891,7 @@ const VenueEquipments = () => {
                 >
                   <label className="text-[15px] text-[#232323] leading-[18.15px]  flex items-center gap-[10px] p-[20px] ">
                     <Field
+disabled={id ? !venueEditMode : false}
                       type="checkbox"
                       name="equipments"
                       checked={form.values.equipments.includes(value)}
@@ -884,7 +911,8 @@ const VenueEquipments = () => {
   );
 };
 
-const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
+const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
   useEffect(() => {
@@ -1020,7 +1048,8 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading }) => {
     </div>
   );
 };
-const VenueLayoutImage = ({ dispatch, uploadData, isUploading }) => {
+const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
 
