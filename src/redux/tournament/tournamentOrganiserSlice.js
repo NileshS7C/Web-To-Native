@@ -8,8 +8,8 @@ const tour_organiser_slice = createSlice({
   name: "tour_Org",
   initialState,
   reducers: {
-    toggleOrganiserModal: (state, action) => {
-      state.openOrganiserModal = action.payload !== undefined ? action.payload : !state.openOrganiserModal;
+    toggleOrganiserModal(state) {
+      state.openOrganiserModal = !state.openOrganiserModal;
     },
   },
 });

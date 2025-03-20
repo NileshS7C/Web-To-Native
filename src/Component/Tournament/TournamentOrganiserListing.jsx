@@ -29,7 +29,7 @@ const initialValues = {
       postalCode: "",
       location: {
         type: "Point",
-        coordinates: ["", ""],
+        coordinates: [null, null],
       },
     },
   },
@@ -146,23 +146,25 @@ export const TournamentOrganisersListing = ({
           .string()
           .required("Postal Code is required.")
           .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
-        location: yup.object().shape({
-          type: yup
-            .string()
-            .oneOf(["Point"], "Location type must be 'Point'.")
-            .required("Location type is required."),
-          coordinates: yup
-            .array()
-            .of(yup.number().required("Each coordinate must be a number."))
-            .length(2, "Location must be provided.")
-            .required("Location is required."),
-        }),
+          location: !organiserId
+          ? yup.object().shape({
+              type: yup
+                .string()
+                .oneOf(["Point"], "Location type must be 'Point'.")
+                .required("Location type is required."),
+              coordinates: yup
+                .array()
+                .of(yup.number().required("Each coordinate must be a number."))
+                .length(2, "Location must be provided.")
+                .required("Location is required."),
+            })
+          : yup.object().optional(),
       }),
     }),
   });
   const dispatch = useDispatch();
   const [hasError, setHasError] = useState(false);
-  const [initialState, setInitialState] = useState(initialValues);
+  const [initalState, setInitialState] = useState(initialValues);
   const [actionPending, setActionPending] = useState(false);
   const { openOrganiserModal } = useSelector((state) => state.tour_Org);
   const { location } = useSelector((state) => state.location);
@@ -173,44 +175,49 @@ export const TournamentOrganisersListing = ({
         setActionPending(true);
         setHasError(false);
   
-        console.log("Fetching organiser details for ID:", id);
         const result = await dispatch(getTournamentOrganiser(id)).unwrap();
+        console.log("API Response:", result);
   
-        if (!result || result.responseCode) {
-          console.log("No valid data returned.");
-          setHasError(true);
-          return;
-        }
+        if (result?.data) {
+          const { owner, ...otherData } = result.data;
   
-        console.log("Fetched data:", result.data);
+          // Remove disallowed fields
+          const { ownerUserType, ...filteredOwner } = owner;
   
-        const ownerDetails = result?.data?.owner || {};
-        const address = ownerDetails?.address || {};
-        const location = address?.location || {};
+          // Ensure location coordinates are valid numbers
+          const coordinates = owner?.address?.location?.coordinates
+            ? owner.address.location.coordinates.map(coord => Number(coord) || 0)
+            : [0, 0]; // Default to [0, 0] if missing
   
-        const { is_location_exact, ...updatedLocation } = location;
-        const { ownerUserType, ...updatedOwnerDetails } = ownerDetails;
-  
-        const updatedData = {
-          name: result.data?.name || "",
-          phone: result.data?.phone || "",
-          email: result.data?.email || "",
-          password: "", // Do not fetch password for security
-          ownerDetails: {
-            ...updatedOwnerDetails,
-            address: {
-              ...address,
-              location: updatedLocation, // Excludes `is_location_exact`
+          // Construct new state object
+          const newState = {
+            name: otherData?.name || "",
+            phone: otherData?.phone || "",
+            email: otherData?.email || "",
+            password: "", // Reset password field
+            ownerDetails: {
+              brandName: filteredOwner?.brandName || "",
+              brandEmail: filteredOwner?.brandEmail || "",
+              brandPhone: filteredOwner?.brandPhone || "",
+              address: {
+                line1: owner?.address?.line1 || "",
+                line2: owner?.address?.line2 || "",
+                city: owner?.address?.city || "",
+                state: owner?.address?.state || "",
+                postalCode: owner?.address?.postalCode || "",
+                location: {
+                  type: "Point",
+                  coordinates: coordinates,
+                },
+              },
             },
-          },
-        };
+          };
   
-        setInitialState(updatedData);
-  
-        // ✅ Always open the modal when editing
-        dispatch(toggleOrganiserModal(true));
+          console.log("Updated state before setting:", newState);
+          setInitialState(newState);
+        }
       } catch (err) {
-        console.log("Error occurred while getting the organiser details", err);
+        console.error("Error fetching organiser details:", err);
         setHasError(true);
       } finally {
         setActionPending(false);
@@ -218,15 +225,35 @@ export const TournamentOrganisersListing = ({
     };
   
     if (organiserId) {
-      getOrganiserDetails(organiserId);
-    }
-  }, [organiserId]); // ✅ Removed initialState from dependencies
+      console.log("Fetching organiser details for ID:", organiserId);
   
+      setInitialState(initialValues); // Reset state first
+      dispatch(toggleOrganiserModal()); // Open modal
+      getOrganiserDetails(organiserId); // Fetch organiser details
+    }
+  }, [organiserId, dispatch]);
+  
+  // Reset the form when the modal closes
+  useEffect(() => {
+    if (!openOrganiserModal) {
+      setSearchParams((prevParams) => {
+        const updatedParams = new URLSearchParams(prevParams);
+        updatedParams.delete("organiserId");
+        return updatedParams;
+      });
+  
+      setInitialState({ ...initialValues });
+    }
+  }, [openOrganiserModal]);
+  
+  
+
   useEffect(() => {
     if (!openOrganiserModal) {
       setSearchParams((prevParams) => {
         const updatedParams = new URLSearchParams(prevParams);
 
+        console.log(" updated params", updatedParams);
         updatedParams.delete("organiserId");
 
         return updatedParams;
@@ -243,9 +270,10 @@ export const TournamentOrganisersListing = ({
   return (
     <div className="rounded-lg">
       <TournamentOrganiserCreation
+        key={organiserId}
         dispatch={dispatch}
         isOpen={openOrganiserModal}
-        initialValues={initialState}
+        initialValues={initalState}
         location={location}
         validationSchema={validationSchema}
         organiserId={organiserId}
