@@ -176,25 +176,22 @@ export const TournamentOrganisersListing = ({
         setHasError(false);
   
         const result = await dispatch(getTournamentOrganiser(id)).unwrap();
-        console.log("API Response:", result);
   
         if (result?.data) {
           const { owner, ...otherData } = result.data;
   
-          // Remove disallowed fields
           const { ownerUserType, ...filteredOwner } = owner;
   
-          // Ensure location coordinates are valid numbers
           const coordinates = owner?.address?.location?.coordinates
             ? owner.address.location.coordinates.map(coord => Number(coord) || 0)
-            : [0, 0]; // Default to [0, 0] if missing
+            : [0, 0];
   
           // Construct new state object
           const newState = {
             name: otherData?.name || "",
             phone: otherData?.phone || "",
             email: otherData?.email || "",
-            password: "", // Reset password field
+            password: "", 
             ownerDetails: {
               brandName: filteredOwner?.brandName || "",
               brandEmail: filteredOwner?.brandEmail || "",
@@ -213,7 +210,6 @@ export const TournamentOrganisersListing = ({
             },
           };
   
-          console.log("Updated state before setting:", newState);
           setInitialState(newState);
         }
       } catch (err) {
@@ -225,11 +221,10 @@ export const TournamentOrganisersListing = ({
     };
   
     if (organiserId) {
-      console.log("Fetching organiser details for ID:", organiserId);
   
-      setInitialState(initialValues); // Reset state first
-      dispatch(toggleOrganiserModal()); // Open modal
-      getOrganiserDetails(organiserId); // Fetch organiser details
+      setInitialState(initialValues);
+      dispatch(toggleOrganiserModal());
+      getOrganiserDetails(organiserId); 
     }
   }, [organiserId, dispatch]);
   
@@ -253,7 +248,6 @@ export const TournamentOrganisersListing = ({
       setSearchParams((prevParams) => {
         const updatedParams = new URLSearchParams(prevParams);
 
-        console.log(" updated params", updatedParams);
         updatedParams.delete("organiserId");
 
         return updatedParams;
