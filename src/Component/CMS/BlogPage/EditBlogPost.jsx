@@ -16,6 +16,7 @@ export default function EditBlogPost() {
   const [image, setImage] = useState("");
   const [writerName, setWriterName] = useState("");
   const [writerShortName, setWriterShortName] = useState("");
+  const [writerDesignation, setWriterDesignation] = useState("");
   const [writerImage, setWriterImage] = useState("");
   const [tags, setTags] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -49,7 +50,8 @@ export default function EditBlogPost() {
         setPublishDate(data.publishDate);
         setImage(data.featureImage);
         setWriterName(data.writerName);
-        setWriterShortName(data.writerShortname);
+        setWriterShortName(data.writerShortname); 
+        setWriterDesignation(data.writerDesignation);
         setWriterImage(data.writerImage);
         setTags(data.tag);
       } catch (error) {
@@ -134,6 +136,7 @@ export default function EditBlogPost() {
         featureImage: image,
         writerName,
         writerShortname: writerShortName,
+        writerDesignation: writerDesignation,
         writerImage,
         tag: tags,
       };
@@ -360,6 +363,20 @@ export default function EditBlogPost() {
                     placeholder="Enter writer short description"
                     value={writerShortName}
                     onChange={(e) => setWriterShortName(e.target.value)}
+                    className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    disabled={!isEditing}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 text-left">
+                    Writer Designation
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter writer designation"
+                    value={writerDesignation}
+                    onChange={(e) => setWriterDesignation(e.target.value)}
                     className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     disabled={!isEditing}
                   />
