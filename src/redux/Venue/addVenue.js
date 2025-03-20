@@ -32,6 +32,7 @@ const venueSlice = createSlice({
       state.isSuccess = false;
       state.errorMessage = "";
       state.location = {};
+      state.venueEditMode = false;
     },
     setTabs(state, { payload }) {
       console.log(" payload", payload);
