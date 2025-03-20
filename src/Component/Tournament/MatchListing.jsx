@@ -24,6 +24,7 @@ const MatchListingHeaders = [
       if (opponent1) {
         isWinner = opponent1.result === "win";
       }
+
       const profilePic = profilePics1.length > 0 ? profilePics1[0].profilePic : dummmyProfileIcon;
       
       return (
@@ -197,7 +198,7 @@ export const MatchesListing = () => {
             opponent1?.id != null
               ? participantsById.get(opponent1?.id)?.players.map((player) => ({
                   name: player.name,
-                  profilePic: player.profilePic,
+                  profilePic: player.profilePic || dummmyProfileIcon,
                 })) || []
               : [];
       
@@ -205,7 +206,7 @@ export const MatchesListing = () => {
             opponent2?.id != null
               ? participantsById.get(opponent2.id)?.players.map((player) => ({
                   name: player.name,
-                  profilePic: player.profilePic,
+                  profilePic: player.profilePic || dummmyProfileIcon,
                 })) || []
               : [];
 
