@@ -85,6 +85,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname.includes("players")) {
       return "Players";
     }
+    if (pathname.includes("coupons")) {
+      return "Coupons";
+    }
     return STATIC_TITLES[pathname] || "DASHBOARD";
   };
 

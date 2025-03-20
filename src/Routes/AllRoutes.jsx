@@ -43,6 +43,7 @@ import { UploadedImages } from "../Page/UploadedImages";
 
 import PlayersManager from "../Page/Player";
 import { OwnerDetailContextProvider } from "../Providers/onwerDetailProvider";
+import Coupons from "../Page/Coupons";
 
 const AllRoutes = () => {
   return (
@@ -85,6 +86,7 @@ const AllRoutes = () => {
           </Route>
           <Route path="home" element={<Home />} />
           <Route path="players" element={<PlayersManager />} />
+          <Route path="coupons" element={<Coupons />} />
 
           {/* CMS Routes */}
           <Route path="cms/homepage/explore" element={<Explore />} />
