@@ -5,7 +5,7 @@ import Spinner from "./Spinner";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import PropTypes from "prop-types";
 
-const CreateTags = ({ selectedTag, handleRemoveTag }) => {
+ const CreateTags = ({ selectedTag, handleRemoveTag }) => {
   return (
     <>
       {selectedTag.map((tag, index) => (

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 function useDebounce(value, delay) {
-  const [debouncedRange, setDebouncedRange] = useState(value);
+  const [debouncedRange, setDebouncedRange] = useState(value?.trim());
 
   useEffect(() => {
     if (value) {
@@ -14,7 +14,7 @@ function useDebounce(value, delay) {
     } else {
       setDebouncedRange(undefined);
     }
-  }, [value, delay]);
+  }, [value?.trim(), delay]);
 
   return debouncedRange;
 }

@@ -6,7 +6,7 @@ import {
   onFilterChange,
 } from "../../redux/Venue/getVenues";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { tableHeaders, venueFilters, venueLimit } from "../../Constant/venue";
 
 import DataTable from "../Common/DataTable";
@@ -84,6 +84,7 @@ export default function VenueListing() {
   const { isDeleting, isDeleted, isError, errorMessage } = useSelector(
     (state) => state.deleteVenue
   );
+
   const { venues, totalVenues, selectedFilter, isLoading, isSuccess } =
     useSelector((state) => state.getVenues);
 
@@ -93,14 +94,19 @@ export default function VenueListing() {
 
   useEffect(() => {
     if (isConfirmed && type === "Venue" && confirmationId) {
-      console.log(" i am working inside this venue listing");
       dispatch(deleteVenue(confirmationId));
     }
   }, [isConfirmed, type, confirmationId]);
 
   useEffect(() => {
-    setSearchParams({ page: 1 });
-  }, [selectedFilter]);
+    if (venueName?.trim()) {
+      setSearchParams({ page: 1 });
+    }
+
+    if (selectedFilter && !venueName) {
+      setSearchParams({ page: 1 });
+    }
+  }, [selectedFilter, venueName?.trim()]);
 
   useEffect(() => {
     if (!venueName) {
@@ -207,9 +213,6 @@ export default function VenueListing() {
           />
         </div>
       )}
-
-
-
     </div>
   );
 }

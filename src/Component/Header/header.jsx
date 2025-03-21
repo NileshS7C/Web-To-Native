@@ -3,15 +3,23 @@ import { userProfileIcon, pickleBayLogo } from "../../Assests";
 import { userLogout } from "../../redux/Authentication/authActions";
 import { useCookies } from "react-cookie";
 import { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const detailRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const [cookies] = useCookies();
-  const handleUserLogout = () => {
-    dispatch(userLogout());
+  const handleUserLogout = async () => {
+    const result = await dispatch(userLogout()).unwrap();
+
+    if (result) {
+      navigate("/login", {
+        replace: true,
+      });
+    }
   };
 
   const toggleDropDown = () => {
@@ -32,7 +40,7 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-between  pt-[20px] pb-[31px] px-[32px]">
+    <div className="flex items-center justify-between bg-[#FFFFFF]  pt-[20px] pb-[31px] px-[32px] sticky top-0">
       <div className="">
         <img src={pickleBayLogo} alt="pickle bay" />
       </div>

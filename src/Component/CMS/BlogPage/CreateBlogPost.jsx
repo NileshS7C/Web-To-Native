@@ -17,6 +17,7 @@ export default function CreateBlogPost() {
   const [imageError, setImageError] = useState("");
   const [writerName, setWriterName] = useState("");
   const [writerShortName, setWriterShortName] = useState("");
+  const [writerDesignation, setWriterDesignation] = useState("");
   const [writerImage, setWriterImage] = useState("");
   const [writerImageError, setWriterImageError] = useState("");
   const [tag, setTag] = useState("");
@@ -114,6 +115,7 @@ export default function CreateBlogPost() {
       featureImage: image,
       writerName,
       writerShortname: writerShortName,
+      writerDesignation: writerDesignation,
       writerImage,
       tag: tags,
       publishDate,
@@ -135,8 +137,10 @@ export default function CreateBlogPost() {
         throw new Error("Failed to save blog post.");
       }
 
-      const handle = response.data.data.handle;
-      navigate(`/cms/blogs/blog-posts/${handle}`);
+      const newHandle = response.data.data.handle;
+      navigate(`/cms/blogs/blog-posts`);
+
+
     } catch (error) {
       if (error?.response?.data?.errors.length > 0) {
         setSaveError(error?.response?.data?.errors[0]?.message);
@@ -308,6 +312,20 @@ export default function CreateBlogPost() {
                 placeholder="Enter writer short description"
                 value={writerShortName}
                 onChange={(e) => setWriterShortName(e.target.value)}
+                className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            {/* Writer Short Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 text-left">
+                Writer Designation
+              </label>
+              <input
+                type="text"
+                placeholder="Enter writer designation"
+                value={writerDesignation}
+                onChange={(e) => setWriterDesignation(e.target.value)}
                 className="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
             </div>

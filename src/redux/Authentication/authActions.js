@@ -13,6 +13,8 @@ export const userLogin = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
+
+        withCredentials: true,
       };
 
       const response = await axios.post(
@@ -21,20 +23,7 @@ export const userLogin = createAsyncThunk(
         config
       );
 
-      cookies.set("refreshToken", response.data.data.refreshToken, {
-        path: "/",
-        maxAge: 24 * 60 * 60,
-        sameSite: "strict",
-        secure: true,
-      });
-      cookies.set("userRole", response.data.data.user.roleName, {
-        path: "/",
-        maxAge: 24 * 60 * 60,
-        sameSite: "strict",
-        secure: true,
-      });
-
-      cookies.set("name", response.data?.data?.user?.name, {
+      cookies.set("userRole", response.data.data?.user?.roleName, {
         path: "/",
         maxAge: 24 * 60 * 60,
         sameSite: "strict",
@@ -83,21 +72,20 @@ export const userLogout = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      const refreshToken = cookies.get("refreshToken");
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
-        data: {
-          refreshToken,
-        },
       };
 
-      await axiosInstance.post("/users/auth/logout", config);
-      cookies.remove("refreshToken", { path: "/" });
+      await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/users/auth/logout`,
+        config
+      );
+
       cookies.remove("userRole", { path: "/" });
-      cookies.remove("name", { path: "/" });
-      return null;
+
+      return true;
     } catch (err) {
       if (err.response) {
         return rejectWithValue({

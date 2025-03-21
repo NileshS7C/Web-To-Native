@@ -12,20 +12,19 @@ import { rowsInOnePage } from "../Constant/app";
 function TournamentOrganisersPage() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = searchParams.get("page");
   const { isGettingALLTO, err_IN_TO, tournamentOwners } = useSelector(
     (state) => state.Tournament
   );
 
-  let currentPage = 1;
-
   useEffect(() => {
     dispatch(
       getAll_TO({
-        currentPage: searchParams.get("page") || 1,
+        currentPage: currentPage || 1,
         limit: rowsInOnePage,
       })
     );
-  }, []);
+  }, [currentPage]);
 
   if (isGettingALLTO) {
     return (
@@ -40,7 +39,6 @@ function TournamentOrganisersPage() {
       <NotCreated
         message="Currently No tournament organisers are present. Please create the tournament organisers to get started."
         buttonText="Add Tournament Organiser"
-        // disable={true}
         type="organizers"
       />
     );
@@ -51,7 +49,7 @@ function TournamentOrganisersPage() {
       owners={tournamentOwners?.owners ?? []}
       error={err_IN_TO}
       total={tournamentOwners?.total || 0}
-      currentPage={currentPage}
+      currentPage={currentPage || 1}
     />
   );
 }

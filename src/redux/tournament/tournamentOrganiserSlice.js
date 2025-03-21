@@ -15,5 +15,4 @@ const tour_organiser_slice = createSlice({
 });
 
 export const { toggleOrganiserModal } = tour_organiser_slice.actions;
-
 export default tour_organiser_slice.reducer;

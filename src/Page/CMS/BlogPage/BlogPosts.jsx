@@ -24,6 +24,7 @@ export default function BlogPosts() {
             import.meta.env.VITE_BASE_URL
           }/users/admin/blogs?page=${page}&limit=${limit}`
         );
+        console.log("response", response);
 
         if (response.status !== 200) {
           throw new Error("Failed to fetch blog posts.");
@@ -124,8 +125,8 @@ export default function BlogPosts() {
             {/* Previous Group Button */}
             <button
               className="px-3 py-2 text-sm bg-gray-300 rounded-md hover:bg-gray-400 disabled:bg-gray-200"
-              onClick={() => setPage(startPage - paginationGroupSize)}
-              disabled={startPage === 1}
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              disabled={page === 1}
             >
               &laquo;
             </button>
@@ -148,8 +149,8 @@ export default function BlogPosts() {
             {/* Next Group Button */}
             <button
               className="px-3 py-2 text-sm bg-gray-300 rounded-md hover:bg-gray-400 disabled:bg-gray-200"
-              onClick={() => setPage(endPage + 1)}
-              disabled={endPage === totalPages}
+              onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={page === totalPages}
             >
               &raquo;
             </button>

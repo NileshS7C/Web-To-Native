@@ -25,7 +25,8 @@ import BuildCourts from "../Page/CMS/Homepage/BuildCourts";
 import NewsUpdates from "../Page/CMS/Homepage/NewsUpdates";
 
 import TournamentCreationForm from "../Component/Tournament/TournamentNav";
-import TournamentListing from "../Component/Tournament/TournamentListing";
+// import TournamentListing from "../Component/Tournament/TournamentListing";
+import TournamentListingWrapper from "../Component/Tournament/TournamentListing";
 import EventDetailPage from "../Component/Tournament/Event/EventDetails";
 import NotFound from "../Component/Common/NotFound";
 import WrapperLogin from "../Page/Login";
@@ -40,9 +41,8 @@ import ProfilePage from "../Page/Profile";
 
 import { UploadedImages } from "../Page/UploadedImages";
 
-import Player from "../Page/Player";
+import PlayersManager from "../Page/Player";
 import { OwnerDetailContextProvider } from "../Providers/onwerDetailProvider";
-
 
 const AllRoutes = () => {
   return (
@@ -71,7 +71,7 @@ const AllRoutes = () => {
             }
           />
           <Route path="tournaments">
-            <Route index element={<TournamentListing />} />
+            <Route index element={<TournamentListingWrapper />} />
             <Route path="add">
               <Route index element={<TournamentCreationForm />} />
             </Route>
@@ -84,7 +84,7 @@ const AllRoutes = () => {
             </Route>
           </Route>
           <Route path="home" element={<Home />} />
-          <Route path="players" element={<Player />} />
+          <Route path="players" element={<PlayersManager />} />
 
           {/* CMS Routes */}
           <Route path="cms/homepage/explore" element={<Explore />} />
