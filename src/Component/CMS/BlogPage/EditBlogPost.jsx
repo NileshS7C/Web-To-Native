@@ -42,7 +42,7 @@ export default function EditBlogPost() {
             `Blog with handle ${handle} does not exist.`
           );
         }
-        const data = response.data.data.find((blog) => blog.handle === handle);
+        const data = response.data.data;
 
         setTitle(data.blogName);
         setContent(data.description);

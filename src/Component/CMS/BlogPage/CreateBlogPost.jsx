@@ -137,8 +137,10 @@ export default function CreateBlogPost() {
         throw new Error("Failed to save blog post.");
       }
 
-      const handle = response.data.data.handle;
-      navigate(`/cms/blogs/blog-posts/${handle}`);
+      const newHandle = response.data.data.handle;
+      navigate(`/cms/blogs/blog-posts`);
+
+
     } catch (error) {
       if (error?.response?.data?.errors.length > 0) {
         setSaveError(error?.response?.data?.errors[0]?.message);
