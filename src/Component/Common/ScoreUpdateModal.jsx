@@ -619,7 +619,7 @@ const PlayerDetails = ({ players }) => {
     <div className="flex items-center justify-center md:justify-between flex-wrap  p-2 mt-2 rounded-md bg-[#5B8DFF1A]">
       <div className="flex flex-col items-center gap-2">
         <img
-          src={dummyImage}
+          src={players?.profilePics1[0]?.profilePic}
           alt="opponent 1"
           className="w-[100px] h-[100px] object-cover"
         />
@@ -634,7 +634,7 @@ const PlayerDetails = ({ players }) => {
       />
       <div className="flex flex-col items-center gap-2">
         <img
-          src={dummyImage}
+          src={players?.profilePics2[0]?.profilePic}
           alt="opponent 1"
           className="w-[100px] h-[100px] object-cover"
         />
