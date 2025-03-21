@@ -7,6 +7,10 @@ export default defineConfig({
     extensions: [".js", ".jsx", ".json"],
   },
 
+  build: {
+    chunkSizeWarningLimit: 1000, // Increase size limit to 1000kb
+  },
+
   optimizeDeps: {
     include: ["react-quill"],
   },

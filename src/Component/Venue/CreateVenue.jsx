@@ -785,11 +785,10 @@ const VenueAvailableDays = ({id}) => {
                   <label className="flex flex-col items-start gap-2.5 justify-center">
                     Opening Time
                     <Field
-disabled={id ? !venueEditMode : false}
                       type="time"
                       name={`availableDays[${index}].openingTime`}
                       className="w-full px-3 py-2 border rounded"
-                      disabled={!dayObj.active}
+                      disabled={(id ? !venueEditMode : false) || !dayObj.active}
                     />
                     <ErrorMessage
                       name={`availableDays[${index}].openingTime`}
@@ -799,11 +798,10 @@ disabled={id ? !venueEditMode : false}
                   <label className="flex flex-col items-start gap-2.5">
                     Closing Time
                     <Field
-disabled={id ? !venueEditMode : false}
                       type="time"
                       name={`availableDays[${index}].closingTime`}
                       className="w-full px-3 py-2 border rounded"
-                      disabled={!dayObj.active}
+                      disabled={(id ? !venueEditMode : false) || !dayObj.active}
                     />
                     <ErrorMessage
                       name={`availableDays[${index}].closingTime`}
