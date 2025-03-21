@@ -331,11 +331,15 @@ const TournamentActionButton = ({
             </button>
           ) : (
             <SaveAndCancelButton
-              dispatch={dispatch}
-              setEditMode={setTournamentEditMode}
-              submitForm={submitForm}
-              isSubmitting={isSubmitting}
-            />
+            dispatch={dispatch}
+            setEditMode={() => dispatch(setTournamentEditMode(false))} 
+            submitForm={async () => {
+              await submitForm();
+              dispatch(setTournamentEditMode(false));
+            }}
+            isSubmitting={isSubmitting}
+          />
+          
           ))}
         {ROLES.slice(0, 2).includes(userRole) &&
           tournament?.status &&

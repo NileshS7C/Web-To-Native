@@ -10,22 +10,27 @@ import DataTable from "../Common/DataTable";
 import EmptyBanner from "../Common/EmptyStateBanner";
 import { backIcon, dummyImage, forwardIcon } from "../../Assests";
 import { ScoreUpdateModal } from "../Common/ScoreUpdateModal";
+import {dummmyProfileIcon} from "../../Assests";
 
 const MatchListingHeaders = [
   {
     key: "participant1",
     header: "Opponent 1",
     render: (item) => {
-      const { opponent1 = "" } = item;
+      // const { opponent1 = "" } = item;
+      const { opponent1 = "", profilePics1 = [] } = item;
       console.log(" opponent 1", opponent1)
       let isWinner;
       if (opponent1) {
         isWinner = opponent1.result === "win";
       }
+
+      const profilePic = profilePics1.length > 0 ? profilePics1[0].profilePic : dummmyProfileIcon;
+      
       return (
         <div className="flex items-center justify-center gap-2">
           <img
-            src={dummyImage}
+             src={profilePic}
             alt="playerImage"
             className="w-[30px] h-[30px] rounded-full"
           />
@@ -62,15 +67,17 @@ const MatchListingHeaders = [
     key: "participant2",
     header: "Opponent 2",
     render: (item) => {
-      const { opponent2 = "" } = item;
+      // const { opponent2 = "" } = item;
+      const { opponent2 = "", profilePics2 = [] } = item;
       let isWinner;
       if (opponent2) {
         isWinner = opponent2.result === "win";
       }
+      const profilePic = profilePics2.length > 0 ? profilePics2[0].profilePic : dummmyProfileIcon; 
       return (
         <div className="flex items-center justify-center gap-2">
           <img
-            src={dummyImage}
+            src={profilePic}
             alt="playerImage"
             className="w-[30px] h-[30px]  rounded-full"
           />
@@ -187,13 +194,30 @@ export const MatchesListing = () => {
               fixture?.bracketData?.participant.map((p) => [p.id, p])
             );
 
+            const profilePics1 =
+            opponent1?.id != null
+              ? participantsById.get(opponent1?.id)?.players.map((player) => ({
+                  name: player.name,
+                  profilePic: player.profilePic || dummmyProfileIcon,
+                })) || []
+              : [];
+      
+          const profilePics2 =
+            opponent2?.id != null
+              ? participantsById.get(opponent2.id)?.players.map((player) => ({
+                  name: player.name,
+                  profilePic: player.profilePic || dummmyProfileIcon,
+                })) || []
+              : [];
+
             const matchGames = fixture?.bracketData?.match_game.filter(
               (game) => game?.parent_id?.toString() === id?.toString()
             );
 
             const players = [opponent1?.id, opponent2?.id]
               .map((id) => participantsById.get(id))
-              .filter(Boolean);
+              .filter(Boolean);              
+             
 
             return players.length
               ? [
@@ -215,6 +239,8 @@ export const MatchesListing = () => {
                     time: metaData.time || "",
                     court: metaData.court || "",
                     matchGames,
+                    profilePics1,
+                    profilePics2,
                   },
                 ]
               : [];

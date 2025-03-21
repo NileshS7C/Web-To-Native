@@ -29,7 +29,7 @@ const initialValues = {
       postalCode: "",
       location: {
         type: "Point",
-        coordinates: ["", ""],
+        coordinates: [null, null],
       },
     },
   },
@@ -146,17 +146,19 @@ export const TournamentOrganisersListing = ({
           .string()
           .required("Postal Code is required.")
           .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
-        location: yup.object().shape({
-          type: yup
-            .string()
-            .oneOf(["Point"], "Location type must be 'Point'.")
-            .required("Location type is required."),
-          coordinates: yup
-            .array()
-            .of(yup.number().required("Each coordinate must be a number."))
-            .length(2, "Location must be provided.")
-            .required("Location is required."),
-        }),
+          location: !organiserId
+          ? yup.object().shape({
+              type: yup
+                .string()
+                .oneOf(["Point"], "Location type must be 'Point'.")
+                .required("Location type is required."),
+              coordinates: yup
+                .array()
+                .of(yup.number().required("Each coordinate must be a number."))
+                .length(2, "Location must be provided.")
+                .required("Location is required."),
+            })
+          : yup.object().optional(),
       }),
     }),
   });
@@ -172,52 +174,80 @@ export const TournamentOrganisersListing = ({
       try {
         setActionPending(true);
         setHasError(false);
-
+  
         const result = await dispatch(getTournamentOrganiser(id)).unwrap();
-
-        if (!result?.responseCode) {
-          const {
-            owner: {
-              ownerUserType,
-              updatedAt,
-              address: {
-                location: { is_location_exact, ...updatedLocation },
-                ...updatedAddress
-              },
-              ...updatedOwnerDetails
-            },
-          } = result?.data;
-
-          setInitialState(() => ({
-            name: result.data?.name,
-            phone: result.data?.phone,
-            email: result.data?.email,
-            password: result.data?.password,
+  
+        if (result?.data) {
+          const { owner, ...otherData } = result.data;
+  
+          const { ownerUserType, ...filteredOwner } = owner;
+  
+          const coordinates = owner?.address?.location?.coordinates
+            ? owner.address.location.coordinates.map(coord => Number(coord) || 0)
+            : [0, 0];
+  
+          // Construct new state object
+          const newState = {
+            name: otherData?.name || "",
+            phone: otherData?.phone || "",
+            email: otherData?.email || "",
+            password: "", 
             ownerDetails: {
-              ...updatedOwnerDetails,
-              address: { ...updatedAddress, location: updatedLocation },
+              brandName: filteredOwner?.brandName || "",
+              brandEmail: filteredOwner?.brandEmail || "",
+              brandPhone: filteredOwner?.brandPhone || "",
+              address: {
+                line1: owner?.address?.line1 || "",
+                line2: owner?.address?.line2 || "",
+                city: owner?.address?.city || "",
+                state: owner?.address?.state || "",
+                postalCode: owner?.address?.postalCode || "",
+                location: {
+                  type: "Point",
+                  coordinates: coordinates,
+                },
+              },
             },
-          }));
+          };
+  
+          setInitialState(newState);
         }
       } catch (err) {
-        console.log("Error occured while getting the organiser details", err);
+        console.error("Error fetching organiser details:", err);
         setHasError(true);
       } finally {
         setActionPending(false);
       }
     };
+  
     if (organiserId) {
+  
+      setInitialState(initialValues);
       dispatch(toggleOrganiserModal());
-      getOrganiserDetails(organiserId);
+      getOrganiserDetails(organiserId); 
     }
-  }, [organiserId]);
+  }, [organiserId, dispatch]);
+  
+  // Reset the form when the modal closes
+  useEffect(() => {
+    if (!openOrganiserModal) {
+      setSearchParams((prevParams) => {
+        const updatedParams = new URLSearchParams(prevParams);
+        updatedParams.delete("organiserId");
+        return updatedParams;
+      });
+  
+      setInitialState({ ...initialValues });
+    }
+  }, [openOrganiserModal]);
+  
+  
 
   useEffect(() => {
     if (!openOrganiserModal) {
       setSearchParams((prevParams) => {
         const updatedParams = new URLSearchParams(prevParams);
 
-        console.log(" updated params", updatedParams);
         updatedParams.delete("organiserId");
 
         return updatedParams;
@@ -234,6 +264,7 @@ export const TournamentOrganisersListing = ({
   return (
     <div className="rounded-lg">
       <TournamentOrganiserCreation
+        key={organiserId}
         dispatch={dispatch}
         isOpen={openOrganiserModal}
         initialValues={initalState}
