@@ -36,5 +36,7 @@ export { default as uploadedImageIcon } from "./Venue/uploaded-image-icon.png";
 
 export {default as PlayerIcon} from "./header/players.png"
 export {default as dummmyProfileIcon } from "./App/partner-icon.svg"
+export {default as AccordianIcon } from "./Coupons/accordian-icon.svg"
+export {default as TimeIcon } from "./Coupons/time-icon.svg"
 export {default as couponsIcon } from "./Coupons/coupons-icon.svg"
 
