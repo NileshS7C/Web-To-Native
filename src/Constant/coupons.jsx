@@ -1,4 +1,5 @@
 import { formattedDate } from "../utils/dateUtils";
+import { MdDeleteOutline } from "react-icons/md";
 
 const couponsTableHeaders = [
     {
@@ -41,6 +42,17 @@ const couponsTableHeaders = [
                 {item.isActive ? "Active" : "Expired"}
             </span>
         )
+    },
+    {
+        key: "actions",
+        header: "Actions",
+        render: (item) => (
+          <button onClick={() => handleDelete(item.code)}>
+            <MdDeleteOutline className="h-5 w-5" />
+          </button>
+        ),
+        className: "text-left",
+        cellClassName: "text-left",
     },
 ];
 

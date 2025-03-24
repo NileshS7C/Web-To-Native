@@ -8,6 +8,7 @@ import useDebounce from "../Hooks/useDebounce";
 import ErrorBanner from "../Component/Common/ErrorBanner";
 import CouponsTable from "../Component/Coupons/CouponsTable";
 import FilterGroup from "../Component/Common/FilterGroup";
+import { MdDeleteOutline } from "react-icons/md";
 
 const Coupons = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -16,6 +17,7 @@ const Coupons = () => {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [refresh, setRefresh] = useState(false);
 
   let currentPage = parseInt(searchParams.get("page")) || 1;
   const limit = 20;
@@ -56,7 +58,7 @@ const Coupons = () => {
 
   useEffect(() => {
     getAllCoupons(currentPage, status, debouncedSearchTerm);
-  }, [currentPage, status, debouncedSearchTerm]);
+  }, [currentPage, status, debouncedSearchTerm, refresh]);
 
   const handlePageChange = (newPage) => {
     setSearchParams({ page: newPage });
@@ -77,11 +79,13 @@ const Coupons = () => {
       />
       <DiscountCoupons
         coupons={coupons}
+        setCoupons={setCoupons} 
         handlePageChange={handlePageChange}
         currentPage={currentPage}
         loading={loading}
         error={error}
         limit={limit}
+        setRefresh={setRefresh} 
       />
     </div>
   );
@@ -94,7 +98,46 @@ const DiscountCoupons = ({
   loading,
   error,
   limit,
+  setCoupons,
+  setRefresh,
 }) => {
+  const handleDelete = async (code) => {
+    try {
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/discounts/delete/${code}`
+      );
+
+      if (response.status === 200) {
+        console.log("Coupon deleted successfully:", code);
+        setRefresh((prev) => !prev); 
+      } else {
+        console.error("Failed to delete coupon:", response.data);
+      }
+    } catch (error) {
+      console.error("Error deleting coupon:", error);
+    }
+  };
+
+  
+
+  const columns = couponsTableHeaders.map((col) => {
+    if (col.key === "actions") {
+      return {
+        ...col,
+        render: (item) => {
+          return (
+            <button onClick={() => handleDelete(item.code)}>
+              <MdDeleteOutline className="h-5 w-5" />
+            </button>
+          );
+        },
+      }
+    }
+    return col;
+  });
+
+
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -110,7 +153,7 @@ const DiscountCoupons = ({
   return (
     <div>
       <CouponsTable
-        columns={couponsTableHeaders}
+        columns={columns} 
         data={coupons?.discounts}
         currentPage={currentPage}
         totalPages={coupons.total}

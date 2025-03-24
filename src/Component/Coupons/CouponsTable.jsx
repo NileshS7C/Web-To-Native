@@ -16,6 +16,7 @@ const CoponsTable = ({
   oddRowColor = "none",
   onClick = null,
   rowTextAlignment = "left",
+  handleDelete, 
 
   pageLimit = 10,
 
@@ -25,6 +26,9 @@ const CoponsTable = ({
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
   }
+
+  console.log("columns", columns);
+  console.log("data", data);
 
   return (
     <div className="flex flex-col gap-2.5 justify-start">
@@ -165,6 +169,7 @@ CoponsTable.propTypes = {
   oddRowColor: PropTypes.string,
   onClick: PropTypes.func,
   rowTextAlignment: PropTypes.string,
+  handleDelete: PropTypes.func,
 };
 
 export default CoponsTable;
