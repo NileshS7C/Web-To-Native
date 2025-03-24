@@ -87,6 +87,7 @@ export const getPageTitle = (pathname, params, venueData) => {
     }
     if (pathname.includes("coupons/new")) {
       return "Create a discount coupon";
+
     }
     return STATIC_TITLES[pathname] || "DASHBOARD";
   };

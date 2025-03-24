@@ -13,6 +13,7 @@ import {
   cmsIcon,
   uploadedImageIcon,
   PlayerIcon,
+  couponsIcon
 } from "../Assests";
 
 export const months = [
@@ -74,6 +75,7 @@ export const ADMIN_NAVIGATION = [
   { name: "Uploaded Images", icon: uploadedImageIcon, path: "images" },
 
   { name: "Players", icon: PlayerIcon, path: "players" },
+  { name: "Coupons", icon: couponsIcon, path: "coupons" },
 
   // { name: "User", icon: profileIcon, path: "users" },
   {
@@ -177,6 +179,7 @@ export const notHaveBackButton = [
   "Uploaded Images",
 
   "Players",
+  "Coupons"
 ];
 
 export const ROLES = [

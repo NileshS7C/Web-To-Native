@@ -234,6 +234,15 @@ const Layout = () => {
                     Add New Venue
                   </Button>
                 )}
+                {currentTitle === "Coupons" && (
+                  <Button
+                    type="button"
+                    className="block rounded-md  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    onClick={() => console.log('Add new coupons clicked')}
+                  >
+                    Add New Coupon
+                  </Button>
+                )}
 
                 {currentTitle === "Tournament Organisers" && (
                   <TournamentOrganiserButtons dispatch={dispatch} />
