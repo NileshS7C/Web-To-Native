@@ -78,16 +78,17 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname.includes("profile")) {
       return "User Details";
     }
-
     if (pathname.includes("images")) {
       return "Uploaded Images";
     }
     if (pathname.includes("players")) {
       return "Players";
     }
+    if (pathname.includes("coupons")) {
+      return "Coupons";
+    }
     if (pathname.includes("coupons/new")) {
       return "Create a discount coupon";
-
     }
     return STATIC_TITLES[pathname] || "DASHBOARD";
   };
