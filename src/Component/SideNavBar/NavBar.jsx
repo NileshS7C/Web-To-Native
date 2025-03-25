@@ -1,9 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import {
-  ADMIN_NAVIGATION,
-  TOURNAMENT_OWNER_NAVIGATION,
-  VENUE_OWNER_NAVIGATION,
-} from "../../Constant/app";
+import { ADMIN_NAVIGATION, TOURNAMENT_OWNER_NAVIGATION, VENUE_OWNER_NAVIGATION } from "../../Constant/app";
 import { setNavigation } from "../../redux/NavBar/navSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
@@ -18,11 +14,8 @@ export const NavBar = () => {
   const [cookies] = useCookies(["userRole"]);
   const location = useLocation();
   const { userRole: role } = useSelector((state) => state.auth);
-
   const [expandedMenus, setExpandedMenus] = useState({});
-
   const [currentMenu, setCurrentMenu] = useState("Dashboard");
-
   const [navigationBar, setNavigationBar] = useState(null);
 
   useEffect(() => {
@@ -60,7 +53,7 @@ export const NavBar = () => {
           break;
       }
     }
-  }, [cookies?.userRole , role]);
+  }, [cookies?.userRole, role]);
 
   const toggleMenu = (menuName) => {
     setCurrentMenu(menuName);
@@ -104,11 +97,9 @@ export const NavBar = () => {
       return (
         <div key={`${menu.name}`} className="w-full">
           <div
-            className={`flex items-center gap-2 py-[15px] px-[10px] w-full ${
-              menu.children ? "justify-between" : ""
-            } ${
-              shouldBeActive ? "bg-[#5B8DFF1A] rounded-md text-blue-500" : ""
-            }`}
+            className={`flex items-center gap-2 py-[15px] px-[10px] w-full ${menu.children ? "justify-between" : ""
+              } ${shouldBeActive ? "bg-[#5B8DFF1A] rounded-md text-blue-500" : ""
+              }`}
           >
             <div className="flex items-center gap-2">
               {menu.icon && (
@@ -140,9 +131,8 @@ export const NavBar = () => {
             </div>
             {menu.children && (
               <ChevronRightIcon
-                className={`w-5 h-5 text-gray-500 transform ${
-                  expandedMenus[menu.name] ? "rotate-90" : ""
-                }`}
+                className={`w-5 h-5 text-gray-500 transform ${expandedMenus[menu.name] ? "rotate-90" : ""
+                  }`}
                 onClick={() => toggleMenu(menu.name)}
               />
             )}

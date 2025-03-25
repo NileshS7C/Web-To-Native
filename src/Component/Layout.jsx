@@ -167,7 +167,7 @@ const Layout = () => {
       <div className="flex flex-1 bg-[#F5F7FA] overflow-hidden">
         <div
           className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${
-            shouldScroll.nav ? "overflow-auto" : "overflow-hidden"
+            shouldScroll.nav ? "overflow-auto" : "overflow-auto"
           }  scrollbar-hide`}
           ref={navRef}
         >
@@ -176,11 +176,11 @@ const Layout = () => {
         </div>
         <div
           className={`flex-1 p-[50px] h-full ${
-            shouldScroll.page ? "overflow-auto" : "overflow-hidden"
+            shouldScroll.page ? "overflow-auto" : "overflow-auto"
           } scrollbar-hide`}
         >
           <div className="flex gap-2.5 items-center mb-4 ">
-            {!notHaveBackButton.includes(currentTitle) && (
+            {!notHaveBackButton.includes(currentTitle) && !location.pathname.includes('/coupons/') && (
               <button
                 onClick={() =>
                   navigate(
@@ -232,6 +232,15 @@ const Layout = () => {
                     onClick={() => navigate("/venues/new")}
                   >
                     Add New Venue
+                  </Button>
+                )}
+                {currentTitle === "Coupons" && location.pathname === "/coupons" && (
+                  <Button
+                    type="button"
+                    className="block rounded-md  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    onClick={() => navigate("/coupons/new")}
+                  >
+                    Add New Coupon
                   </Button>
                 )}
 
