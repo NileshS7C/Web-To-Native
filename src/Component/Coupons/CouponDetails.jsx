@@ -43,7 +43,7 @@ const CouponDetails = () => {
 
       {/* Show form when coupon is available */}
       {selectedCoupon && (
-        <div className="p-4 border rounded-lg bg-white shadow-md">
+        <div className="p-4">
           <CouponsFormData
             mode="edit"
             formData={selectedCoupon.data}
