@@ -4,7 +4,7 @@ import usePlayerSearch from "../../Hooks/usePlayerSearch";
 import useAllPlayers from "../../Hooks/useAllPlayers";
 import { nanoid } from "@reduxjs/toolkit";
 
-const AddPlayers = ({ setAddedPlayers }) => {
+const AddPlayers = ({ setAddedPlayers, checkCoupon=false, isabled}) => {
     const [inputValue, setInputValue] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
     const [selectedPlayers, setSelectedPlayers] = useState([]);
@@ -79,6 +79,7 @@ const AddPlayers = ({ setAddedPlayers }) => {
                         placeholder="Search customers"
                         value={inputValue}
                         onChange={handleInputChange}
+                        disabled={isabled}
                     />
 
                     {/* Dropdown */}
@@ -129,16 +130,20 @@ const AddPlayers = ({ setAddedPlayers }) => {
                 <div className="mt-4">
                     {selectedPlayers.map((player) => (
                         <div key={nanoid()} className="flex items-center justify-between bg-white p-2 rounded-lg mt-2 border">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center">
                                 <p className="font-medium text-sm capitalize">{player.name}</p>
-                                <p className="font-medium text-xs opacity-50">{player.email}</p>
+                                <p className={`font-medium text-xs opacity-50 ${checkCoupon ? 'ml-4' : 'ml-2'}`}>
+                                    {checkCoupon ? player.phone : player.email}
+                                </p>
                             </div>
-                            <button
-                                className="text-red-500 font-bold text-lg"
-                                onClick={() => handleSelectPlayer(player)}
-                            >
-                                ✕
-                            </button>
+                            {!checkCoupon && (
+                                <button
+                                    className="text-red-500 font-bold text-lg"
+                                    onClick={() => handleSelectPlayer(player)}
+                                >
+                                    ✕
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>

@@ -47,7 +47,11 @@ const couponsTableHeaders = [
         key: "actions",
         header: "Actions",
         render: (item) => (
-          <button onClick={() => handleDelete(item.code)}>
+          <button 
+            onClick={() => {
+                handleDelete(item.code);
+            }}
+        >
             <MdDeleteOutline className="h-5 w-5" />
           </button>
         ),

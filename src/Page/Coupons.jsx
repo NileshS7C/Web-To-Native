@@ -79,13 +79,13 @@ const Coupons = () => {
       />
       <DiscountCoupons
         coupons={coupons}
-        setCoupons={setCoupons} 
+        setCoupons={setCoupons}
         handlePageChange={handlePageChange}
         currentPage={currentPage}
         loading={loading}
         error={error}
         limit={limit}
-        setRefresh={setRefresh} 
+        setRefresh={setRefresh}
       />
     </div>
   );
@@ -108,8 +108,7 @@ const DiscountCoupons = ({
       );
 
       if (response.status === 200) {
-        console.log("Coupon deleted successfully:", code);
-        setRefresh((prev) => !prev); 
+        setRefresh((prev) => !prev);
       } else {
         console.error("Failed to delete coupon:", response.data);
       }
@@ -117,8 +116,6 @@ const DiscountCoupons = ({
       console.error("Error deleting coupon:", error);
     }
   };
-
-  
 
   const columns = couponsTableHeaders.map((col) => {
     if (col.key === "actions") {
@@ -131,13 +128,11 @@ const DiscountCoupons = ({
             </button>
           );
         },
-      }
+      };
     }
     return col;
   });
 
-
-  
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -153,7 +148,7 @@ const DiscountCoupons = ({
   return (
     <div>
       <CouponsTable
-        columns={columns} 
+        columns={columns}
         data={coupons?.discounts}
         currentPage={currentPage}
         totalPages={coupons.total}

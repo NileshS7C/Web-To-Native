@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { Pagination } from "../Common/Pagination";
+import { useNavigate } from "react-router-dom";
 
 const CoponsTable = ({
   columns = [],
@@ -17,6 +18,7 @@ const CoponsTable = ({
   onClick = null,
   rowTextAlignment = "left",
   handleDelete, 
+  onRowClick,
 
   pageLimit = 10,
 
@@ -26,9 +28,7 @@ const CoponsTable = ({
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
   }
-
-  console.log("columns", columns);
-  console.log("data", data);
+  const navigate = useNavigate();
 
   return (
     <div className="flex flex-col gap-2.5 justify-start">
@@ -70,7 +70,14 @@ const CoponsTable = ({
                   return (
                     <tr
                       key={item?.id || item?._id || index}
-                      className={`block text-sm text-[#667085] md:border-t-2 md:h-[55px] md:table-row md:shadow-none shadow-lg align-middle ${backgroundRowColor}`}
+                      className={`cursor-pointer block text-sm text-[#667085] md:border-t-2 md:h-[55px] md:table-row md:shadow-none shadow-lg align-middle ${backgroundRowColor}`}
+                      onClick={(event) => {
+                        const clickedColumn = event.target.closest("td")?.getAttribute("data-column");
+                        if (clickedColumn === "actions") return;
+                    
+                        if (onRowClick) onRowClick(item);
+                        navigate(`/coupons/${item.code}`);
+                      }}
                     >
                       <div className="md:hidden flex flex-col bg-white rounded-xl">
                         {columns.map((column, colIndex) => {
@@ -111,6 +118,7 @@ const CoponsTable = ({
                             key={`${item?.id || item?._id || index}-${
                               column.key || colIndex
                             }`}
+                            data-column={column.key}
                             className={`text-${rowTextAlignment} py-${rowPaddingY}  hidden md:table-cell ${
                               column.key === "serialNumber"
                                 ? "text-[#2B2F38]"
@@ -170,6 +178,7 @@ CoponsTable.propTypes = {
   onClick: PropTypes.func,
   rowTextAlignment: PropTypes.string,
   handleDelete: PropTypes.func,
+  onRowClick: PropTypes.func,
 };
 
 export default CoponsTable;
