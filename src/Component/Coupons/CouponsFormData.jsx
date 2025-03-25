@@ -221,7 +221,7 @@ const CouponsFormData = ({ mode = "view", formData, setFormData }) => {
   const isDisabled = formData && Object.keys(formData).length > 0;
 
   return (
-    <div>
+    <div className="max-w-[70%]">
       <div className="bg-white p-4 rounded-lg shadow-md">
         <p className="text-left font-semibold font-general text-base">
           Amount off Registration
