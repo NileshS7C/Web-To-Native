@@ -180,7 +180,7 @@ const Layout = () => {
           } scrollbar-hide`}
         >
           <div className="flex gap-2.5 items-center mb-4 ">
-            {!notHaveBackButton.includes(currentTitle) && (
+            {!notHaveBackButton.includes(currentTitle) && !location.pathname.includes('/coupons/') && (
               <button
                 onClick={() =>
                   navigate(
