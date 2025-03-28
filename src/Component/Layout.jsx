@@ -23,6 +23,7 @@ import {
   uploadedImageLimit,
   venueImageSize,
 } from "../Constant/app";
+import { aboutUsPageRoutes } from "../Constant/Cms/aboutUsPage";
 import { backRoute } from "../utils/tournamentUtils";
 
 import {
@@ -65,6 +66,8 @@ const hiddenRoutes = [
   "/cms/static-pages/terms-&-condition",
   "/cms/blogs/blog-posts",
   "/cms/blogs/blog-posts/new",
+
+  ...aboutUsPageRoutes,
 ];
 
 const Layout = () => {
@@ -171,7 +174,6 @@ const Layout = () => {
           }  scrollbar-hide`}
           ref={navRef}
         >
-
           <NavBar />
         </div>
         <div
@@ -180,21 +182,22 @@ const Layout = () => {
           } scrollbar-hide`}
         >
           <div className="flex gap-2.5 items-center mb-4 ">
-            {!notHaveBackButton.includes(currentTitle) && !location.pathname.includes('/coupons/') && (
-              <button
-                onClick={() =>
-                  navigate(
-                    backRoute(location, {
-                      tournamentId,
-                      id,
-                      status: tournament?.status,
-                    })
-                  )
-                }
-              >
-                <ArrowLeftIcon width="24px" height="24px" color="#343C6A" />
-              </button>
-            )}
+            {!notHaveBackButton.includes(currentTitle) &&
+              !location.pathname.includes("/coupons/") && (
+                <button
+                  onClick={() =>
+                    navigate(
+                      backRoute(location, {
+                        tournamentId,
+                        id,
+                        status: tournament?.status,
+                      })
+                    )
+                  }
+                >
+                  <ArrowLeftIcon width="24px" height="24px" color="#343C6A" />
+                </button>
+              )}
 
             <ErrorModal />
 
@@ -234,15 +237,16 @@ const Layout = () => {
                     Add New Venue
                   </Button>
                 )}
-                {currentTitle === "Coupons" && location.pathname === "/coupons" && (
-                  <Button
-                    type="button"
-                    className="block rounded-md  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    onClick={() => navigate("/coupons/new")}
-                  >
-                    Add New Coupon
-                  </Button>
-                )}
+                {currentTitle === "Coupons" &&
+                  location.pathname === "/coupons" && (
+                    <Button
+                      type="button"
+                      className="block rounded-md  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      onClick={() => navigate("/coupons/new")}
+                    >
+                      Add New Coupon
+                    </Button>
+                  )}
 
                 {currentTitle === "Tournament Organisers" && (
                   <TournamentOrganiserButtons dispatch={dispatch} />
@@ -340,15 +344,14 @@ const TournamentActionButton = ({
             </button>
           ) : (
             <SaveAndCancelButton
-            dispatch={dispatch}
-            setEditMode={() => dispatch(setTournamentEditMode(false))} 
-            submitForm={async () => {
-              await submitForm();
-              dispatch(setTournamentEditMode(false));
-            }}
-            isSubmitting={isSubmitting}
-          />
-          
+              dispatch={dispatch}
+              setEditMode={() => dispatch(setTournamentEditMode(false))}
+              submitForm={async () => {
+                await submitForm();
+                dispatch(setTournamentEditMode(false));
+              }}
+              isSubmitting={isSubmitting}
+            />
           ))}
         {ROLES.slice(0, 2).includes(userRole) &&
           tournament?.status &&

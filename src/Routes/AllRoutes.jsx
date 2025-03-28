@@ -46,6 +46,7 @@ import { OwnerDetailContextProvider } from "../Providers/onwerDetailProvider";
 import CreateCoupons from "../Component/Coupons/CreateCoupons";
 import CouponDetails from "../Component/Coupons/CouponDetails";
 import Coupons from "../Page/Coupons";
+import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
 
 const AllRoutes = () => {
   return (
@@ -140,6 +141,16 @@ const AllRoutes = () => {
             path="cms/static-pages/picklebay-guidelines"
             element={<Guidelines />}
           />
+
+          {/* About us page routes */}
+
+          <Route path="cms">
+            <Route path="about-us-page">
+              {aboutUsNav.map((nav) => (
+                <Route key={nav.path} path={nav.path} element={nav.element} />
+              ))}
+            </Route>
+          </Route>
 
           {/* Ends Here */}
 
