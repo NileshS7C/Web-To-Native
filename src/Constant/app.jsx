@@ -195,6 +195,7 @@ export const notHaveBackButton = [
 
   "Players",
   "Coupons",
+  "Mission & Vision",
 ];
 
 export const ROLES = [
