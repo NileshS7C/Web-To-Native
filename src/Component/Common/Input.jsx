@@ -11,6 +11,7 @@ export const Input = ({
   disabled,
   ...props
 }) => {
+  console.log(" name", name)
   return (
     <input
       type={type}
