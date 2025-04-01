@@ -20,6 +20,29 @@ import { CiEdit } from "react-icons/ci";
 import { IoMdTrash } from "react-icons/io";
 import { ImSpinner5 } from "react-icons/im";
 
+const checkValidURI = async (uri) => {
+  try {
+    new URL(uri);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
+const validators = {
+  link: async (value) => {
+    if (!value) return false;
+    return await checkValidURI(value);
+  },
+  title: (value) => {
+    return value && value.trim().length >= 3;
+  },
+  image: async (value) => {
+    if (!value) return false;
+    return await checkValidURI(value);
+  },
+};
+
 export const TopSection = () => {
   const [form, setForm] = useState({
     title: "",
@@ -41,29 +64,6 @@ export const TopSection = () => {
     image: false,
     title: false,
   });
-
-  const validators = {
-    link: async (value) => {
-      if (!value) return false;
-      return await checkValidURI(value);
-    },
-    title: (value) => {
-      return value && value.trim().length >= 3;
-    },
-    image: async (value) => {
-      if (!value) return false;
-      return await checkValidURI(value);
-    },
-  };
-
-  const checkValidURI = async (uri) => {
-    try {
-      new URL(uri);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  };
 
   useEffect(() => {
     let newErrors;
