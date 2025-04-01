@@ -24,7 +24,7 @@ export const Input = ({
       }`}
       ref={ref}
       onChange={onChange}
-      value={value}
+      value={type === "file" ? "" : value}
       disabled={disabled}
     />
   );
