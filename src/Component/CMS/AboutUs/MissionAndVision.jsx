@@ -336,7 +336,7 @@ const ImageUpload = ({
             height="100px"
           />
           {isUploading && (
-            <ImSpinner5 className="absolute top-0 -right-10 w-[20px] h-[20px]" />
+            <ImSpinner5 className="absolute top-0 -right-10 w-[20px] h-[20px] animate-spin" />
           )}
           <button onClick={handleRemoveImage} type="button">
             <IoMdTrash className="absolute top-0 -right-4" />
