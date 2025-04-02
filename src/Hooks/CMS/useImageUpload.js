@@ -13,13 +13,21 @@ export const useImageUpload = () => {
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const handleFileUpload = async (e) => {
-    console.log(" i am working inside this function");
     setIsError(false);
     setUploadError("");
     const uploadedFile = e.target.files[0];
 
-    if (!uploadedFile.type.startsWith("image/")) {
-      setUploadError("File should be a valid image type.");
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/webp",
+      "image/gif",
+      "image/svg+xml",
+      "image/avif",
+    ];
+    if (!allowedTypes.includes(uploadedFile.type)) {
+      setUploadError("File should be a PNG, JPEG, JPG or WEBP image.");
       return;
     }
 
