@@ -1,6 +1,7 @@
 import MissionAndVisionWrapper from "../../Component/CMS/AboutUs/MissionAndVision";
 import { TopSection } from "../../Component/CMS/AboutUs/TopSection";
 import FAQ from "../../Page/CMS/StaticPages/FAQ";
+import GreenBannerWrapper from "../../Component/CMS/AboutUs/GreenBanner";
 
 export const aboutUsPageRoutes = [
   "/cms/about-us-page/top-section",
@@ -26,7 +27,7 @@ export const aboutUsNav = [
   },
   {
     path: "banner-section",
-    element: <FAQ />,
+    element: <GreenBannerWrapper />,
   },
   {
     path: "how-it-works",

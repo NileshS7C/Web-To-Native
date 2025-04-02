@@ -195,6 +195,7 @@ export const notHaveBackButton = [
 
   "Players",
   "Coupons",
+  "Banner Section",
   "Mission & Vision",
 ];
 

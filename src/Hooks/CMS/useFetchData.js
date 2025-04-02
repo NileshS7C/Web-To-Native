@@ -38,7 +38,6 @@ export const useFetchData = (actionMethod, isSubmitted) => {
       );
     } finally {
       setLoading(false);
-      setSuccess(false);
     }
   };
 
