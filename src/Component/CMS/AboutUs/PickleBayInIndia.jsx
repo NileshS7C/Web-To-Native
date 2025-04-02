@@ -22,6 +22,7 @@ import DataTable from "../../Common/DataTable";
 import { CiEdit } from "react-icons/ci";
 import { ImSpinner5 } from "react-icons/im";
 import { IoMdTrash } from "react-icons/io";
+import SwitchToggle from "../HomePage/SwitchToggle";
 
 const columns = [
   {
@@ -69,12 +70,16 @@ const PickleBayInIndia = () => {
   const [isError, setIsError] = useState(false);
   const [selectedPicklebayInIndia, setSelectedPicklebayInIndia] =
     useState(null);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isCancelled, setIsCancelled] = useState(false);
+  const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
 
   const { submitFormData, submissionError, isSubmitted } = useSubmitForm();
   const { data, error, errorMessage, success } = useFetchData(
     getAboutUsPageData({ type: "picklebayInIndia" }),
     isSubmitted
   );
+  const [isVisible, setIsVisible] = useState(data ? data[0]?.isVisible : false);
   const {
     handleFileUpload,
     isUploading,
@@ -165,16 +170,63 @@ const PickleBayInIndia = () => {
     setOpenModal(false);
     resetForm();
   };
+
+  useEffect(() => {
+    setIsVisible(data ? data[0]?.isVisible : false);
+  }, [data]);
+
+  const handleToggleVisibility = () => {
+    setConfirmationModalOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    setConfirmationModalOpen(false);
+    setIsConfirmed(true);
+
+    const updatedMissionVision = {
+      ...data[0],
+      isVisible: !data[0].isVisible,
+    };
+
+    const { _id, sectionType, updatedAt, ...updatedValues } =
+      updatedMissionVision;
+
+    await submitFormData(
+      submitAboutUsForm({
+        type: "picklebayInIndia",
+        body: updatedValues,
+      })
+    );
+  };
+
+  const handleCancel = () => {
+    setConfirmationModalOpen(false);
+    setIsCancelled(true);
+  };
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col">
         <Page title="Picklebay In India " />
-        <Button
-          className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
-          onClick={handleAddNew}
-        >
-          Add New
-        </Button>
+        <div className="flex justify-between items-center mb-3">
+          <div className="flex items-center gap-2 mb-3">
+            <p className="text-md font-semibold">Current Section Visibility</p>
+            <SwitchToggle enabled={isVisible} onChange={() => {}} />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
+              onClick={handleToggleVisibility}
+            >
+              Toggle Visibility
+            </Button>
+            <Button
+              className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
+              onClick={handleAddNew}
+            >
+              Add New
+            </Button>
+          </div>
+        </div>
       </div>
 
       <Modal open={openModal} onClose={handleCloseModal} title="Add New">
@@ -193,6 +245,36 @@ const PickleBayInIndia = () => {
         currentPage={1}
         handleEdit={handleEdit}
       />
+
+      <Modal
+        open={confirmationModalOpen}
+        onClose={() => {
+          setConfirmationModalOpen(false);
+          setIsConfirmed(false);
+        }}
+      >
+        <div className="flex flex-col gap-5">
+          <p>
+            {`Are you sure you want to turn ${
+              isVisible ? "off" : "on"
+            } the visibility of the section?`}
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="px-4 py-2 rounded-lg shadow-md bg-red-700 hover:bg-red-400 active:bg-red-500"
+              onClick={handleConfirm}
+            >
+              Confirm
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {showToast && (
         <Toast
