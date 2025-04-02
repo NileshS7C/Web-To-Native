@@ -3,6 +3,8 @@ import MissionAndVisionWrapper from "../../Component/CMS/AboutUs/MissionAndVisio
 import { TopSection } from "../../Component/CMS/AboutUs/TopSection";
 import FAQ from "../../Page/CMS/StaticPages/FAQ";
 import GreenBannerWrapper from "../../Component/CMS/AboutUs/GreenBanner";
+import BottomSection from "../../Component/CMS/AboutUs/BottomSection";
+import ImageTextSection from "../../Component/CMS/AboutUs/ImageTextSection";
 import PicklebayInNews from "../../Component/CMS/AboutUs/PicklebayInNews";
 import PickleBayInIndia from "../../Component/CMS/AboutUs/PickleBayInIndia";
 import KeyVerticalSection from "../../Component/CMS/AboutUs/KeyVerticalSection";
@@ -60,6 +62,6 @@ export const aboutUsNav = [
   },
   {
     path: "bottom-section",
-    element: <FAQ />,
+    element: <ImageTextSection />,
   },
 ];
