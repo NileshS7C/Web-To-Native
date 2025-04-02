@@ -1,3 +1,4 @@
+import MissionAndVisionWrapper from "../../Component/CMS/AboutUs/MissionAndVision";
 import { TopSection } from "../../Component/CMS/AboutUs/TopSection";
 import FAQ from "../../Page/CMS/StaticPages/FAQ";
 import GreenBannerWrapper from "../../Component/CMS/AboutUs/GreenBanner";
@@ -21,8 +22,8 @@ export const aboutUsNav = [
     element: <TopSection />,
   },
   {
-    path: "misson-&-vision",
-    element: <FAQ />,
+    path: "mission-and-vision",
+    element: <MissionAndVisionWrapper />,
   },
   {
     path: "banner-section",

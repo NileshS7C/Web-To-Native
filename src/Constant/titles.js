@@ -93,7 +93,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname.includes("/cms/about-us-page/banner-section")) {
       return "Banner Section";
     }
-
+    if (pathname.includes("/cms/about-us-page/mission-and-vision")) {
+      return "Mission & Vision";
+    }
     return STATIC_TITLES[pathname] || "DASHBOARD";
   };
 
