@@ -8,7 +8,7 @@ export const Page = ({ title, primaryAction }) => {
   };
   return (
     <div className="flex justify-start mb-[20px]">
-      <h1 className="font-bold text-[24px]">{title}</h1>
+      <h1 className="font-bold text-[24px] text-[#343C6A]">{title}</h1>
       {primaryAction && (
         <button onClick={handleNavigation}>{BackwardIcon}</button>
       )}

@@ -16,6 +16,7 @@ import Card from "../../Common/Card";
 import { Toast } from "../../Common/Toast";
 
 import { CiEdit } from "react-icons/ci";
+import { Page } from "../../Common/PageTitle";
 
 const initialValues = {
   heading: "",
@@ -32,6 +33,7 @@ const GreenBannerWrapper = () => {
   const [showToast, setShowToast] = useState(false);
   const [isError, setIsError] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [errorToastMessage, setErrorToastMessage] = useState("");
 
   const { submitFormData, submissionError, isSubmitted } = useSubmitForm();
 
@@ -43,7 +45,7 @@ const GreenBannerWrapper = () => {
   useEffect(() => {
     if (error || submissionError) {
       setShowToast(true);
-      setToastMessage(errorMessage || submissionError);
+      setErrorToastMessage(errorMessage || submissionError);
       setIsError(true);
     }
   }, [error, submissionError]);
@@ -67,8 +69,19 @@ const GreenBannerWrapper = () => {
         heading: data[0].heading,
         subHeading: data[0].subHeading,
       }));
+
+      setDisableForms({
+        heading: true,
+        subHeading: true,
+      });
+      setEditButtonClicked(false);
     } else {
       setInitialState(initialValues);
+      setDisableForms({
+        heading: false,
+        subHeading: false,
+      });
+      setEditButtonClicked(true);
     }
   }, [data]);
 
@@ -94,6 +107,7 @@ const GreenBannerWrapper = () => {
 
   return (
     <div className="w-10/12">
+      <Page title="Banner Section" />
       <BannerSectionForm
         initialState={initialState}
         handleSubmit={handleSubmit}
@@ -103,7 +117,13 @@ const GreenBannerWrapper = () => {
         data={data}
       />
 
-      {showToast && <Toast successMessage={toastMessage} error={isError} />}
+      {showToast && (
+        <Toast
+          successMessage={toastMessage}
+          error={isError ? errorToastMessage : null}
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </div>
   );
 };
@@ -122,52 +142,58 @@ const BannerSectionForm = ({
       onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ resetForm, isSubmitting }) => (
-        <Card>
-          {data?.length > 0 && (
-            <div className="flex justify-end">
-              <button onClick={handleEdit}>
-                <span>
-                  <CiEdit />
-                </span>
-              </button>
-            </div>
-          )}
-
-          <Form>
-            <div className="flex flex-col gap-2.5">
-              <Heading disabled={disableForms.heading} />
-              <SubHeading disabled={disableForms.subHeading} />
-              <div className="flex justify-between mt-3">
-                <Button
-                  className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200"
-                  type="button"
-                  onClick={() => {
-                    resetForm();
-                  }}
-                  disabled={!editButtonClicked}
-                >
-                  Clear
-                </Button>
-                <Button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg shadow-md bg-gray-600  text-white hover:bg-gray-400 active:bg-gray-200"
-                  disabled={!editButtonClicked || isSubmitting}
-                  loading={isSubmitting}
-                >
-                  Submit
-                </Button>
+      {({ resetForm, isSubmitting, values }) => {
+        const hasAnyValue = Object.values(values).some((value) => value !== "");
+        return (
+          <Card>
+            {data?.length > 0 && (
+              <div className="flex justify-end">
+                <button onClick={handleEdit}>
+                  <span>
+                    <CiEdit />
+                  </span>
+                </button>
               </div>
-            </div>
-          </Form>
-        </Card>
-      )}
+            )}
+
+            <Form>
+              <div className="flex flex-col gap-2.5">
+                <Heading disabled={disableForms.heading} />
+                <SubHeading disabled={disableForms.subHeading} />
+                <div className="flex justify-between mt-3">
+                  <Button
+                    className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200"
+                    type="button"
+                    onClick={() => {
+                      resetForm();
+                    }}
+                    disabled={!hasAnyValue || !editButtonClicked}
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="px-4 py-2 rounded-lg shadow-md bg-gray-600  text-white hover:bg-gray-400 active:bg-gray-200"
+                    disabled={
+                      data?.length > 0
+                        ? !editButtonClicked
+                        : !hasAnyValue || isSubmitting || !editButtonClicked
+                    }
+                    loading={isSubmitting}
+                  >
+                    Submit
+                  </Button>
+                </div>
+              </div>
+            </Form>
+          </Card>
+        );
+      }}
     </Formik>
   );
 };
 
 const Heading = ({ disabled }) => {
-  console.log(" disablesd", disabled);
   return (
     <Field name="heading" id="heading" type="text">
       {({ field }) => (

@@ -10,7 +10,7 @@ export const Toast = ({ error, timeout = 3000, onClose, successMessage }) => {
     }, timeout);
 
     return () => clearTimeout(timer);
-  }, [timeout, onClose]);
+  }, [timeout, onClose, error, successMessage]);
 
   if (!visible) return null;
 

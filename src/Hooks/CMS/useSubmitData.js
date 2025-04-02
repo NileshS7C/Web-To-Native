@@ -25,7 +25,7 @@ export const useSubmitForm = () => {
     } catch (err) {
       console.log(" Error occured while submitting the form", err);
       setSubmissionError(
-        err?.data?.message ??
+        err?.data?.errors.map((error) => error.message).join(", ") ??
           "Something went wrong while submitting the form. Please try again later."
       );
     } finally {
