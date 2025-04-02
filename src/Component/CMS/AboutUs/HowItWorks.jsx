@@ -1,22 +1,27 @@
+import { useState, useEffect } from "react";
 import { Field, Formik, Form } from "formik";
 import PropTypes from "prop-types";
+
+import { useSubmitForm } from "../../../Hooks/CMS/useSubmitData";
+import { useFetchData } from "../../../Hooks/CMS/useFetchData";
+import { useImageUpload } from "../../../Hooks/CMS/useImageUpload";
+
+import {
+  getAboutUsPageData,
+  submitAboutUsForm,
+} from "../../../redux/AboutUs/aboutUsActions";
+
 import { Input } from "../../Common/Input";
 import Card from "../../Common/Card";
 import { Page } from "../../Common/PageTitle";
 import Button from "../../Common/Button";
-import { useSubmitForm } from "../../../Hooks/CMS/useSubmitData";
-import { useFetchData } from "../../../Hooks/CMS/useFetchData";
-import { getAboutUsPageData } from "../../../redux/AboutUs/aboutUsActions";
+import { Modal } from "../../Common/Modal";
+import { Toast } from "../../Common/Toast";
 import DataTable from "../../Common/DataTable";
+
 import { CiEdit } from "react-icons/ci";
 import { ImSpinner5 } from "react-icons/im";
 import { IoMdTrash } from "react-icons/io";
-import { submitAboutUsForm } from "../../../redux/AboutUs/aboutUsActions";
-import { useImageUpload } from "../../../Hooks/CMS/useImageUpload";
-
-import { Modal } from "../../Common/Modal";
-import { useState, useEffect } from "react";
-import { Toast } from "../../Common/Toast";
 
 const columns = [
   {
