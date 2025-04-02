@@ -36,7 +36,7 @@ const tournamentEvent = {
     { name: "Mix Doubles", shortName: "MID" },
   ],
 
-  skillLevels: ["Select Skill Level", "Beginner", "Intermediate", "Advanced"],
+  skillLevels: ["Select Skill Level", "Beginner", "Intermediate", "Advanced", "All Levels"],
   grandFinales: [1, 2, 3],
   roundRobins: {
     playCount: [1, 2, 3],
