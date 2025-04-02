@@ -22,7 +22,7 @@ import { Page } from "../../Common/PageTitle";
 import { CiEdit } from "react-icons/ci";
 import { IoMdTrash } from "react-icons/io";
 import { ImSpinner5 } from "react-icons/im";
-
+import SwitchToggle from "../HomePage/SwitchToggle";
 const initialValues = {
   heading: "",
   subHeading: "",
@@ -84,6 +84,10 @@ const MissionAndVisionWrapper = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isCancelled, setIsCancelled] = useState(false);
+  const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(data ? data[0]?.isVisible : false);
 
   const handleEdit = useCallback(
     (id) => {
@@ -91,6 +95,7 @@ const MissionAndVisionWrapper = () => {
         (item) => item.position === id
       );
       setSelectedMissionVision(selectedMissionVision);
+
       setInitialState({
         heading: selectedMissionVision?.heading || "",
         subHeading: selectedMissionVision?.subHeading || "",
@@ -183,15 +188,60 @@ const MissionAndVisionWrapper = () => {
     resetForm();
   };
 
+  useEffect(() => {
+    setIsVisible(data ? data[0]?.isVisible : false);
+  }, [data]);
+
+  const handleToggleVisibility = () => {
+    setConfirmationModalOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    setConfirmationModalOpen(false);
+    setIsConfirmed(true);
+
+    const updatedMissionVision = {
+      ...data[0],
+      isVisible: !data[0].isVisible,
+    };
+
+    const { _id, sectionType, updatedAt, ...updatedValues } =
+      updatedMissionVision;
+
+    await submitFormData(
+      submitAboutUsForm({
+        type: "missionVision",
+        body: updatedValues,
+      })
+    );
+  };
+
+  const handleCancel = () => {
+    setConfirmationModalOpen(false);
+    setIsCancelled(true);
+  };
+
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex justify-end">
-        <Button
-          className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
-          onClick={handleAddMission}
-        >
-          Add Mission
-        </Button>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 mb-3">
+          <p className="text-md font-semibold">Current Section Visibility</p>
+          <SwitchToggle enabled={isVisible} onChange={() => {}} />
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button
+            className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
+            onClick={handleToggleVisibility}
+          >
+            Toggle Visibility
+          </Button>
+          <Button
+            className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
+            onClick={handleAddMission}
+          >
+            Add Mission
+          </Button>
+        </div>
       </div>
 
       <MissionAndVisionTable data={data} handleEdit={handleEdit} />
@@ -211,6 +261,37 @@ const MissionAndVisionWrapper = () => {
           handleImageChange={handleFileUpload}
           isUploading={isUploading}
         />
+      </Modal>
+
+      <Modal
+        open={confirmationModalOpen}
+        onClose={() => {
+          setConfirmationModalOpen(false);
+          setIsConfirmed(false);
+        }}
+      >
+        <div className="flex flex-col gap-5">
+          <p>
+            {" "}
+            {`Are you sure you want to turn ${
+              isVisible ? "off" : "on"
+            } the visibility of the section?`}
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="px-4 py-2 rounded-lg shadow-md bg-red-700 hover:bg-red-400 active:bg-red-500"
+              onClick={handleConfirm}
+            >
+              Confirm
+            </Button>
+          </div>
+        </div>
       </Modal>
       {showToast && (
         <Toast
@@ -252,7 +333,7 @@ const MissionAndVisionForm = ({
       onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ isSubmitting, values }) => (
+      {({ isSubmitting, values, setFieldValue }) => (
         <Form>
           <Card>
             <div className="flex flex-col gap-2.5">
