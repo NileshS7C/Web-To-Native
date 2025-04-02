@@ -413,12 +413,26 @@ SubHeading.propTypes = {
   disabled: PropTypes.bool.isRequired,
 };
 
+KeyVerticalForm.propTypes = {
+  initialState: PropTypes.object.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  handleFileUpload: PropTypes.func.isRequired,
+  isUploading: PropTypes.bool.isRequired,
+  uploadError: PropTypes.string.isRequired,
+  handleRemoveImage: PropTypes.func.isRequired,
+};
+
 ImageUpload.propTypes = {
   disabled: PropTypes.bool.isRequired,
+  handleFileUpload: PropTypes.func.isRequired,
+  isUploading: PropTypes.bool.isRequired,
+  uploadError: PropTypes.string.isRequired,
+  handleRemoveImage: PropTypes.func.isRequired,
 };
 
 NumberInput.propTypes = {
   disabled: PropTypes.bool.isRequired,
+  handleFileUpload: PropTypes.func.isRequired,
 };
 
 export default KeyVerticalSection;
