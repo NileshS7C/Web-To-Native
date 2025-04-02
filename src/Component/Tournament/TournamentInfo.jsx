@@ -19,7 +19,7 @@ import "react-quill/dist/quill.snow.css";
 
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { MdOutlineModeEditOutline } from "react-icons/md";
-import { IoMdTrash, IoIosCloseCircleOutline } from "react-icons/io";
+import { IoMdTrash, IoIosCloseCircleOutline, IoMdAdd } from "react-icons/io";
 import { ImSpinner2 } from "react-icons/im";
 
 import {
@@ -80,6 +80,8 @@ const requiredTournamentFields = (tournament) => {
     bookingEndDate,
     sponsors,
     tournamentGallery,
+    instagramHandle,
+    whatToExpect,
   } = tournament;
 
   const updatedTournamentLocation = {
@@ -104,6 +106,8 @@ const requiredTournamentFields = (tournament) => {
     bookingEndDate,
     sponsors,
     tournamentGallery,
+    instagramHandle,
+    whatToExpect,
   };
 };
 
@@ -137,6 +141,8 @@ const initialValues = {
   bookingEndDate: null,
   sponsors: [],
   tournamentGallery: [],
+  instagramHandle: "",
+  whatToExpect: [{ title: "", description: "" }],
 };
 
 export const TournamentInfo = ({ tournament, status, isDisable }) => {
@@ -275,6 +281,13 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
         }
       ),
     sponserName: yup.string(),
+    instagramHandle: yup.string().nullable(),
+    whatToExpect: yup.array().of(
+      yup.object().shape({
+        title: yup.string().required("Title is required"),
+        description: yup.string().required("Description is required"),
+      })
+    ),
   });
 
   const dispatch = useDispatch();
@@ -435,6 +448,8 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 <TournamentAddress location={location} />
                 <TournamentDescription isDisable={isDisable} />
                 <TournamentPrerequisite isDisable={isDisable} />
+                <TournamentInstagramHandle isDisable={isDisable} />
+                <TournamentWhatToExpect isDisable={isDisable} />
                 <TournamentDates />
                 <TournamentFileUpload
                   dispatch={dispatch}
@@ -444,9 +459,8 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 <TournamentBookingDates />
                 <TournamentGallery dispatch={dispatch} />
                 <Button
-                  className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
-                    status !== "DRAFT" && tournamentId ? "hidden" : ""
-                  }`}
+                  className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${status !== "DRAFT" && tournamentId ? "hidden" : ""
+                    }`}
                   type="submit"
                   loading={isSubmitting}
                   disabled={tournamentId && !isDisable}
@@ -519,12 +533,12 @@ const TournamentBasicInfo = ({
             <option>Select Tournament Owner</option>
             {!isGettingALLTO && tournamentOwners?.owners?.length > 0
               ? tournamentOwners.owners.map((owner, index) => {
-                  return (
-                    <option key={`${owner.name}_${index}`} value={owner.name}>
-                      {owner.name}
-                    </option>
-                  );
-                })
+                return (
+                  <option key={`${owner.name}_${index}`} value={owner.name}>
+                    {owner.name}
+                  </option>
+                );
+              })
               : []}
 
             {isGettingALLTO && <ImSpinner2 width="20px" height="20px" />}
@@ -810,6 +824,96 @@ const TournamentPrerequisite = ({ isDisable }) => {
         readOnly={!isDisable}
       />
       ;
+    </div>
+  );
+};
+
+const TournamentInstagramHandle = ({ isDisable }) => {
+  const { values, setFieldValue } = useFormikContext();
+
+  return (
+    <div className="grid grid-cols-1 gap-2">
+      <label
+        className="text-base leading-[19.36px] justify-self-start"
+        htmlFor="instagramHandle"
+      >
+        Instagram Handle
+      </label>
+      <Field
+        placeholder="Enter Instagram Handle"
+        id="instagramHandle"
+        name="instagramHandle"
+        className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <ErrorMessage name="instagramHandle" component={TextError} />
+    </div>
+  );
+};
+
+const TournamentWhatToExpect = ({ isDisable }) => {
+  const { values, setFieldValue } = useFormikContext();
+
+  return (
+    <div className="grid grid-cols-1 gap-2.5">
+      <p className="text-base text-[#232323] justify-self-start">
+        What to Expect
+      </p>
+      <FieldArray name="whatToExpect">
+        {({ push, remove }) => (
+          <div className="flex flex-col gap-4">
+            <table className="border-[1px] border-[#EAECF0] rounded-[8px] table-auto">
+              <thead>
+                <tr className="text-sm text-[#667085] bg-[#F9FAFB] font-[500] border-b-[1px] h-[44px]">
+                  <th className="text-left p-2">S.No.</th>
+                  <th className="text-left p-2">Title</th>
+                  <th className="text-left p-2">Description</th>
+                  <th className="text-left p-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {values.whatToExpect?.map((item, index) => (
+                  <tr key={index} className="border-b-[1px] border-[#EAECF0]">
+                    <td className="p-2">{index + 1}</td>
+                    <td className="p-2">
+                      <Field
+                        placeholder="Enter Title"
+                        name={`whatToExpect.${index}.title`}
+                        className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[40px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <Field
+                        placeholder="Enter Description"
+                        name={`whatToExpect.${index}.description`}
+                        className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[40px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="text-red-600 hover:text-red-800"
+                        disabled={!isDisable}
+                      >
+                        <IoMdTrash className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button
+              type="button"
+              onClick={() => push({ title: "", description: "" })}
+              className="self-end px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center gap-2"
+              disabled={!isDisable}
+            >
+              <IoMdAdd /> Add Expectation
+            </button>
+          </div>
+        )}
+      </FieldArray>
+      <ErrorMessage name="whatToExpect" component={TextError} />
     </div>
   );
 };
@@ -1449,8 +1553,8 @@ const TournamentGallery = ({ dispatch }) => {
   useEffect(() => {
     const previewImages = values?.tournamentGallery?.length
       ? values.tournamentGallery.map((url) => ({
-          preview: url,
-        }))
+        preview: url,
+      }))
       : [];
     setPreviews(previewImages);
   }, [values?.tournamentGallery]);
