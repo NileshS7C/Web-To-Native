@@ -380,12 +380,18 @@ const ImageUpload = ({
   );
 };
 
+TeamMemberTable.propTypes = {
+  data: PropTypes.array.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  handleEdit: PropTypes.func.isRequired,
+};
+
 TeamSectionForm.propTypes = {
   initialState: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   handleFileUpload: PropTypes.func.isRequired,
   isUploading: PropTypes.bool.isRequired,
-  handleRemoveImage: PropTypes.func.isRequired,
+  previewURL: PropTypes.string.isRequired,
 };
 
 ImageUpload.propTypes = {
