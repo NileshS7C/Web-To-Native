@@ -3,6 +3,10 @@ import MissionAndVisionWrapper from "../../Component/CMS/AboutUs/MissionAndVisio
 import { TopSection } from "../../Component/CMS/AboutUs/TopSection";
 import FAQ from "../../Page/CMS/StaticPages/FAQ";
 import GreenBannerWrapper from "../../Component/CMS/AboutUs/GreenBanner";
+import BottomSection from "../../Component/CMS/AboutUs/BottomSection";
+import ImageTextSection from "../../Component/CMS/AboutUs/ImageTextSection";
+
+
 
 export const aboutUsPageRoutes = [
   "/cms/about-us-page/top-section",
@@ -48,6 +52,6 @@ export const aboutUsNav = [
   },
   {
     path: "bottom-section",
-    element: <FAQ />,
+    element: <ImageTextSection />,
   },
 ];
