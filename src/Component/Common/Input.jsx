@@ -11,6 +11,7 @@ export const Input = ({
   disabled,
   ...props
 }) => {
+  console.log(" name", name)
   return (
     <input
       type={type}
@@ -23,7 +24,7 @@ export const Input = ({
       }`}
       ref={ref}
       onChange={onChange}
-      value={value}
+      value={type === "file" ? "" : value}
       disabled={disabled}
     />
   );
