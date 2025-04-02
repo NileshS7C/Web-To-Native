@@ -57,7 +57,7 @@ const columns = [
     key: "number",
     header: "Number",
     render: (data) => {
-      return <div>{data.number}</div>;
+      return <div>{data.svg}</div>;
     },
   },
   {
