@@ -5,8 +5,10 @@ import FAQ from "../../Page/CMS/StaticPages/FAQ";
 import GreenBannerWrapper from "../../Component/CMS/AboutUs/GreenBanner";
 import BottomSection from "../../Component/CMS/AboutUs/BottomSection";
 import ImageTextSection from "../../Component/CMS/AboutUs/ImageTextSection";
-
-
+import PicklebayInNews from "../../Component/CMS/AboutUs/PicklebayInNews";
+import PickleBayInIndia from "../../Component/CMS/AboutUs/PickleBayInIndia";
+import KeyVerticalSection from "../../Component/CMS/AboutUs/KeyVerticalSection";
+import TeamSection from "../../Component/CMS/AboutUs/MeetTheTeamSection";
 
 export const aboutUsPageRoutes = [
   "/cms/about-us-page/top-section",
@@ -44,11 +46,19 @@ export const aboutUsNav = [
   },
   {
     path: "meet-the-team",
-    element: <FAQ />,
+    element: <TeamSection />,
+  },
+  {
+    path: "key-section",
+    element: <KeyVerticalSection />,
   },
   {
     path: "picklebay-in-india",
-    element: <FAQ />,
+    element:<PickleBayInIndia />,
+  },
+  {
+    path: "picklebay-in-news",
+    element: <PicklebayInNews />,
   },
   {
     path: "bottom-section",

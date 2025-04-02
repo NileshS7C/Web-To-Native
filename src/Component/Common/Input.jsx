@@ -9,9 +9,9 @@ export const Input = ({
   onChange,
   value,
   disabled,
+  placeholder,
   ...props
 }) => {
-  console.log(" name", name)
   return (
     <input
       type={type}
@@ -26,6 +26,7 @@ export const Input = ({
       onChange={onChange}
       value={type === "file" ? "" : value}
       disabled={disabled}
+      placeholder={placeholder}
     />
   );
 };
@@ -36,4 +37,8 @@ Input.propTypes = {
   name: PropTypes.name,
   type: PropTypes.string,
   ref: PropTypes.any,
+  placeholder: PropTypes.string,
+  onChange: PropTypes.func,
+  value: PropTypes.string,
+  disabled: PropTypes.bool,
 };
