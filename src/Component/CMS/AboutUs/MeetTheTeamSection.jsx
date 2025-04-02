@@ -20,6 +20,7 @@ import { CiEdit } from "react-icons/ci";
 import { IoMdTrash } from "react-icons/io";
 import { ImSpinner5 } from "react-icons/im";
 import PropTypes from "prop-types";
+import SwitchToggle from "../HomePage/SwitchToggle";
 
 const columns = [
   {
@@ -80,6 +81,9 @@ const TeamSection = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isCancelled, setIsCancelled] = useState(false);
+  const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const {
     handleFileUpload,
     isUploading,
@@ -94,6 +98,7 @@ const TeamSection = () => {
     getAboutUsPageData({ type: "ourTeam" }),
     isSubmitted
   );
+  const [isVisible, setIsVisible] = useState(data ? data[0]?.isVisible : false);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(true);
@@ -175,16 +180,63 @@ const TeamSection = () => {
     }
   }, [error, uploadError, submissionError]);
 
+  useEffect(() => {
+    setIsVisible(data ? data[0]?.isVisible : false);
+  }, [data]);
+
+  const handleToggleVisibility = () => {
+    setConfirmationModalOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    setConfirmationModalOpen(false);
+    setIsConfirmed(true);
+
+    const updatedMissionVision = {
+      ...data[0],
+      isVisible: !data[0].isVisible,
+    };
+
+    const { _id, sectionType, updatedAt, ...updatedValues } =
+      updatedMissionVision;
+
+    await submitFormData(
+      submitAboutUsForm({
+        type: "ourTeam",
+        body: updatedValues,
+      })
+    );
+  };
+
+  const handleCancel = () => {
+    setConfirmationModalOpen(false);
+    setIsCancelled(true);
+  };
+
   return (
     <div>
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col">
         <Page title="Meet The Team" />
-        <Button
-          className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
-          onClick={handleAddMember}
-        >
-          Add Team Member
-        </Button>
+        <div className="flex justify-between items-center mb-3">
+          <div className="flex items-center gap-2 mb-3">
+            <p className="text-md font-semibold">Current Section Visibility</p>
+            <SwitchToggle enabled={isVisible} onChange={() => {}} />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
+              onClick={handleToggleVisibility}
+            >
+              Toggle Visibility
+            </Button>
+            <Button
+              className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
+              onClick={handleAddMember}
+            >
+              Add Team Member
+            </Button>
+          </div>
+        </div>
       </div>
       <TeamMemberTable data={data} currentPage={1} handleEdit={handleEdit} />
       <Modal
@@ -203,6 +255,35 @@ const TeamSection = () => {
           isUploading={isUploading}
           previewURL={previewURL}
         />
+      </Modal>
+      <Modal
+        open={confirmationModalOpen}
+        onClose={() => {
+          setConfirmationModalOpen(false);
+          setIsConfirmed(false);
+        }}
+      >
+        <div className="flex flex-col gap-5">
+          <p>
+            {`Are you sure you want to turn ${
+              isVisible ? "off" : "on"
+            } the visibility of the section?`}
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="px-4 py-2 rounded-lg shadow-md bg-red-700 hover:bg-red-400 active:bg-red-500"
+              onClick={handleConfirm}
+            >
+              Confirm
+            </Button>
+          </div>
+        </div>
       </Modal>
       {showToast && (
         <Toast
