@@ -1,3 +1,4 @@
+import HowItWorksWrapper from "../../Component/CMS/AboutUs/HowItWorks";
 import { TopSection } from "../../Component/CMS/AboutUs/TopSection";
 import FAQ from "../../Page/CMS/StaticPages/FAQ";
 
@@ -29,7 +30,7 @@ export const aboutUsNav = [
   },
   {
     path: "how-it-works",
-    element: <FAQ />,
+    element: <HowItWorksWrapper />,
   },
   {
     path: "founder-section",
