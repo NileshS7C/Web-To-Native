@@ -57,6 +57,8 @@ import { rolesWithTournamentOwnerAccess } from "../../Constant/tournament";
 import { useFormikContextFunction } from "../../Providers/formikContext";
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
+import { MdDeleteOutline } from "react-icons/md";
+
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -459,8 +461,9 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 <TournamentBookingDates />
                 <TournamentGallery dispatch={dispatch} />
                 <Button
-                  className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${status !== "DRAFT" && tournamentId ? "hidden" : ""
-                    }`}
+                  className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
+                    status !== "DRAFT" && tournamentId ? "hidden" : ""
+                  }`}
                   type="submit"
                   loading={isSubmitting}
                   disabled={tournamentId && !isDisable}
@@ -533,12 +536,12 @@ const TournamentBasicInfo = ({
             <option>Select Tournament Owner</option>
             {!isGettingALLTO && tournamentOwners?.owners?.length > 0
               ? tournamentOwners.owners.map((owner, index) => {
-                return (
-                  <option key={`${owner.name}_${index}`} value={owner.name}>
-                    {owner.name}
-                  </option>
-                );
-              })
+                  return (
+                    <option key={`${owner.name}_${index}`} value={owner.name}>
+                      {owner.name}
+                    </option>
+                  );
+                })
               : []}
 
             {isGettingALLTO && <ImSpinner2 width="20px" height="20px" />}
@@ -853,67 +856,89 @@ const TournamentInstagramHandle = ({ isDisable }) => {
 const TournamentWhatToExpect = ({ isDisable }) => {
   const { values, setFieldValue } = useFormikContext();
 
+  const handleAddRow = () => {
+    setFieldValue("whatToExpect", [
+      ...values.whatToExpect,
+      { title: "", description: "" },
+    ]);
+  };
+
+  const handleDeleteRow = (index) => {
+    const updatedWhatToExpect = values.whatToExpect.filter(
+      (_, i) => i !== index
+    );
+    setFieldValue("whatToExpect", updatedWhatToExpect);
+  };
+
   return (
-    <div className="grid grid-cols-1 gap-2.5">
-      <p className="text-base text-[#232323] justify-self-start">
-        What to Expect
-      </p>
-      <FieldArray name="whatToExpect">
-        {({ push, remove }) => (
-          <div className="flex flex-col gap-4">
-            <table className="border-[1px] border-[#EAECF0] rounded-[8px] table-auto">
-              <thead>
-                <tr className="text-sm text-[#667085] bg-[#F9FAFB] font-[500] border-b-[1px] h-[44px]">
-                  <th className="text-left p-2">S.No.</th>
-                  <th className="text-left p-2">Title</th>
-                  <th className="text-left p-2">Description</th>
-                  <th className="text-left p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {values.whatToExpect?.map((item, index) => (
-                  <tr key={index} className="border-b-[1px] border-[#EAECF0]">
-                    <td className="p-2">{index + 1}</td>
-                    <td className="p-2">
-                      <Field
-                        placeholder="Enter Title"
-                        name={`whatToExpect.${index}.title`}
-                        className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[40px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </td>
-                    <td className="p-2">
-                      <Field
-                        placeholder="Enter Description"
-                        name={`whatToExpect.${index}.description`}
-                        className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[40px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </td>
-                    <td className="p-2">
+    <div className="grid grid-cols-1 gap-4">
+      <div className="flex justify-between items-center">
+        <p className="text-base leading-[19.36px]">What to Expect</p>
+        {isDisable && (
+          <button
+            type="button"
+            onClick={handleAddRow}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Add New
+          </button>
+        )}
+      </div>
+
+      <div className="overflow-x-auto rounded-md">
+        <table className="min-w-full border-collapse rounded-md">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2 text-left">Title</th>
+              <th className="border p-2 text-left">Description</th>
+              {isDisable && <th className="border p-2 text-center">Actions</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {values.whatToExpect.map((item, index) => (
+              <tr key={index}>
+                <td className="border p-2">
+                  <Field
+                    name={`whatToExpect.${index}.title`}
+                    placeholder="Enter title"
+                    className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={!isDisable}
+                  />
+                  <ErrorMessage
+                    name={`whatToExpect.${index}.title`}
+                    component={TextError}
+                  />
+                </td>
+                <td className="border p-2">
+                  <Field
+                    name={`whatToExpect.${index}.description`}
+                    placeholder="Enter description"
+                    className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={!isDisable}
+                  />
+                  <ErrorMessage
+                    name={`whatToExpect.${index}.description`}
+                    component={TextError}
+                  />
+                </td>
+                {isDisable && (
+                  <td className="border p-2">
+                    <div className="flex justify-center gap-2">
                       <button
                         type="button"
-                        onClick={() => remove(index)}
-                        className="text-red-600 hover:text-red-800"
-                        disabled={!isDisable}
+                        onClick={() => handleDeleteRow(index)}
+                        disabled={values.whatToExpect.length === 1}
                       >
-                        <IoMdTrash className="w-5 h-5" />
+                        <MdDeleteOutline className="w-6 h-6" />
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <button
-              type="button"
-              onClick={() => push({ title: "", description: "" })}
-              className="self-end px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center gap-2"
-              disabled={!isDisable}
-            >
-              <IoMdAdd /> Add Expectation
-            </button>
-          </div>
-        )}
-      </FieldArray>
-      <ErrorMessage name="whatToExpect" component={TextError} />
+                    </div>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
@@ -1553,8 +1578,8 @@ const TournamentGallery = ({ dispatch }) => {
   useEffect(() => {
     const previewImages = values?.tournamentGallery?.length
       ? values.tournamentGallery.map((url) => ({
-        preview: url,
-      }))
+          preview: url,
+        }))
       : [];
     setPreviews(previewImages);
   }, [values?.tournamentGallery]);
@@ -1712,5 +1737,8 @@ TournamentAddress.propTypes = {
 };
 
 TournamentSponserTable.propTypes = {
+  isDisable: PropTypes.bool,
+};
+TournamentWhatToExpect.propTypes = {
   isDisable: PropTypes.bool,
 };
