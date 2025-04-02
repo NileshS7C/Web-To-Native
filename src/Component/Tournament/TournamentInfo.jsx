@@ -19,7 +19,7 @@ import "react-quill/dist/quill.snow.css";
 
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { MdOutlineModeEditOutline } from "react-icons/md";
-import { IoMdTrash, IoIosCloseCircleOutline } from "react-icons/io";
+import { IoMdTrash, IoIosCloseCircleOutline, IoMdAdd } from "react-icons/io";
 import { ImSpinner2 } from "react-icons/im";
 
 import {
@@ -57,6 +57,8 @@ import { rolesWithTournamentOwnerAccess } from "../../Constant/tournament";
 import { useFormikContextFunction } from "../../Providers/formikContext";
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
+import { MdDeleteOutline } from "react-icons/md";
+
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -80,6 +82,8 @@ const requiredTournamentFields = (tournament) => {
     bookingEndDate,
     sponsors,
     tournamentGallery,
+    instagramHandle,
+    whatToExpect,
   } = tournament;
 
   const updatedTournamentLocation = {
@@ -104,6 +108,8 @@ const requiredTournamentFields = (tournament) => {
     bookingEndDate,
     sponsors,
     tournamentGallery,
+    instagramHandle,
+    whatToExpect,
   };
 };
 
@@ -137,6 +143,8 @@ const initialValues = {
   bookingEndDate: null,
   sponsors: [],
   tournamentGallery: [],
+  instagramHandle: "",
+  whatToExpect: [{ title: "", description: "" }],
 };
 
 export const TournamentInfo = ({ tournament, status, isDisable }) => {
@@ -275,6 +283,13 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
         }
       ),
     sponserName: yup.string(),
+    instagramHandle: yup.string().nullable(),
+    whatToExpect: yup.array().of(
+      yup.object().shape({
+        title: yup.string().required("Title is required"),
+        description: yup.string().required("Description is required"),
+      })
+    ),
   });
 
   const dispatch = useDispatch();
@@ -435,6 +450,8 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 <TournamentAddress location={location} />
                 <TournamentDescription isDisable={isDisable} />
                 <TournamentPrerequisite isDisable={isDisable} />
+                <TournamentInstagramHandle isDisable={isDisable} />
+                <TournamentWhatToExpect isDisable={isDisable} />
                 <TournamentDates />
                 <TournamentFileUpload
                   dispatch={dispatch}
@@ -810,6 +827,118 @@ const TournamentPrerequisite = ({ isDisable }) => {
         readOnly={!isDisable}
       />
       ;
+    </div>
+  );
+};
+
+const TournamentInstagramHandle = ({ isDisable }) => {
+  const { values, setFieldValue } = useFormikContext();
+
+  return (
+    <div className="grid grid-cols-1 gap-2">
+      <label
+        className="text-base leading-[19.36px] justify-self-start"
+        htmlFor="instagramHandle"
+      >
+        Instagram Handle
+      </label>
+      <Field
+        placeholder="Enter Instagram Handle"
+        id="instagramHandle"
+        name="instagramHandle"
+        className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <ErrorMessage name="instagramHandle" component={TextError} />
+    </div>
+  );
+};
+
+const TournamentWhatToExpect = ({ isDisable }) => {
+  const { values, setFieldValue } = useFormikContext();
+
+  const handleAddRow = () => {
+    setFieldValue("whatToExpect", [
+      ...values.whatToExpect,
+      { title: "", description: "" },
+    ]);
+  };
+
+  const handleDeleteRow = (index) => {
+    const updatedWhatToExpect = values.whatToExpect.filter(
+      (_, i) => i !== index
+    );
+    setFieldValue("whatToExpect", updatedWhatToExpect);
+  };
+
+  return (
+    <div className="grid grid-cols-1 gap-4">
+      <div className="flex justify-between items-center">
+        <p className="text-base leading-[19.36px]">What to Expect</p>
+        {isDisable && (
+          <button
+            type="button"
+            onClick={handleAddRow}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Add New
+          </button>
+        )}
+      </div>
+
+      <div className="overflow-x-auto rounded-md">
+        <table className="min-w-full border-collapse rounded-md">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2 text-left">Title</th>
+              <th className="border p-2 text-left">Description</th>
+              {isDisable && <th className="border p-2 text-center">Actions</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {values.whatToExpect.map((item, index) => (
+              <tr key={index}>
+                <td className="border p-2">
+                  <Field
+                    name={`whatToExpect.${index}.title`}
+                    placeholder="Enter title"
+                    className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={!isDisable}
+                  />
+                  <ErrorMessage
+                    name={`whatToExpect.${index}.title`}
+                    component={TextError}
+                  />
+                </td>
+                <td className="border p-2">
+                  <Field
+                    name={`whatToExpect.${index}.description`}
+                    placeholder="Enter description"
+                    className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={!isDisable}
+                  />
+                  <ErrorMessage
+                    name={`whatToExpect.${index}.description`}
+                    component={TextError}
+                  />
+                </td>
+                {isDisable && (
+                  <td className="border p-2">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteRow(index)}
+                        disabled={values.whatToExpect.length === 1}
+                      >
+                        <MdDeleteOutline className="w-6 h-6" />
+                      </button>
+                    </div>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
@@ -1608,5 +1737,8 @@ TournamentAddress.propTypes = {
 };
 
 TournamentSponserTable.propTypes = {
+  isDisable: PropTypes.bool,
+};
+TournamentWhatToExpect.propTypes = {
   isDisable: PropTypes.bool,
 };
