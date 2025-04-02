@@ -90,7 +90,7 @@ const KeyVerticalSection = () => {
 
   const { submitFormData, submissionError, isSubmitted } = useSubmitForm();
   const { data, error, errorMessage, success } = useFetchData(
-    getAboutUsPageData({ type: "howItWorks" }),
+    getAboutUsPageData({ type: "keyVerticals" }),
     isSubmitted
   );
   const {
@@ -162,23 +162,27 @@ const KeyVerticalSection = () => {
     setSubmitting(true);
     let updatedHowItWorks;
     if (selectedHowItWorks) {
-      updatedHowItWorks = data[0]?.howItWorks.map((item) =>
-        item.position === selectedHowItWorks.position
-          ? { ...values, position: selectedHowItWorks.position }
-          : item
-      );
+      updatedHowItWorks = {
+        keyVerticals: data[0]?.keyVerticals.map((item) =>
+          item.position === selectedHowItWorks.position
+            ? { ...values, position: selectedHowItWorks.position }
+            : item
+        ),
+      };
     } else {
-      const nextPosition = (data[0]?.howItWorks?.length || 0) + 1;
-      updatedHowItWorks = [
-        ...(data[0]?.howItWorks || []),
-        { ...values, position: nextPosition },
-      ];
+      const nextPosition = (data[0]?.keyVerticals?.length || 0) + 1;
+      updatedHowItWorks = {
+        keyVerticals: [
+          ...(data[0]?.keyVerticals || []),
+          { ...values, position: nextPosition },
+        ],
+      };
     }
 
     await submitFormData(
       submitAboutUsForm({
-        type: "howItWorks",
-        body: { howItWorks: updatedHowItWorks },
+        type: "keyVerticals",
+        body: updatedHowItWorks,
       })
     );
 
@@ -224,7 +228,7 @@ const KeyVerticalSection = () => {
 const KeyVerticalTable = ({ data, currentPage, handleEdit }) => {
   return (
     <DataTable
-      data={data ? data[0]?.howItWorks : []}
+      data={data ? data[0]?.keyVerticals : []}
       columns={columns}
       currentPage={currentPage || 1}
       pathName="/venues"
