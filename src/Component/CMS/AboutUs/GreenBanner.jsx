@@ -17,10 +17,12 @@ import { Toast } from "../../Common/Toast";
 
 import { CiEdit } from "react-icons/ci";
 import { Page } from "../../Common/PageTitle";
+import SwitchToggle from "../HomePage/SwitchToggle";
 
 const initialValues = {
   heading: "",
   subHeading: "",
+  isVisible: true,
 };
 
 const GreenBannerWrapper = () => {
@@ -68,6 +70,7 @@ const GreenBannerWrapper = () => {
         ...prev,
         heading: data[0].heading,
         subHeading: data[0].subHeading,
+        isVisible: data[0].isVisible,
       }));
 
       setDisableForms({
@@ -80,6 +83,7 @@ const GreenBannerWrapper = () => {
       setDisableForms({
         heading: false,
         subHeading: false,
+        isVisible: true,
       });
       setEditButtonClicked(true);
     }
@@ -142,15 +146,27 @@ const BannerSectionForm = ({
       onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ resetForm, isSubmitting, values }) => {
+      {({ resetForm, isSubmitting, values, setFieldValue }) => {
         const hasAnyValue = Object.values(values).some((value) => value !== "");
         return (
           <Card>
             {data?.length > 0 && (
-              <div className="flex justify-end">
+              <div className="flex justify-between items-center gap-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-md font-semibold">
+                    Toggle Section Visibility
+                  </p>
+                  <SwitchToggle
+                    enabled={values.isVisible}
+                    onChange={() => {
+                      if (!editButtonClicked) return;
+                      setFieldValue("isVisible", !values.isVisible);
+                    }}
+                  />
+                </div>
                 <button onClick={handleEdit}>
                   <span>
-                    <CiEdit />
+                    <CiEdit className="w-6 h-6" />
                   </span>
                 </button>
               </div>
