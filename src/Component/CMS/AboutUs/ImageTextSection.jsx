@@ -16,12 +16,14 @@ import Button from "../../Common/Button";
 import { Toast } from "../../Common/Toast";
 import { IoMdTrash } from "react-icons/io";
 import { ImSpinner5 } from "react-icons/im";
+import SwitchToggle from "../HomePage/SwitchToggle";
 
 const initialValues = {
   image: "",
   heading: "",
   subHeading: "",
   link: "/contact-us",
+  isVisible: true,
 };
 
 const ImageTextSection = () => {
@@ -81,6 +83,8 @@ const ImageTextSection = () => {
         heading: data[0].heading || "",
         subHeading: data[0].subHeading || "",
         link: data[0].link || "/contact-us",
+        isVisible:
+          typeof data[0]?.isVisible === "boolean" ? data[0].isVisible : true,
       });
     }
   }, [data]);
@@ -139,9 +143,22 @@ const ImageTextSectionForm = ({
       enableReinitialize
       onSubmit={handleSubmit}
     >
-      {({ isSubmitting, values }) => {
+      {({ isSubmitting, values, setFieldValue }) => {
         return (
           <Card>
+            <div className="flex justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <p className="text-md font-semibold line-clamp-4">
+                  Toggle Visibility
+                </p>
+                <SwitchToggle
+                  enabled={values.isVisible}
+                  onChange={() => {
+                    setFieldValue("isVisible", !values.isVisible);
+                  }}
+                />
+              </div>
+            </div>
             <Form className="flex flex-col gap-4">
               <ImageUpload
                 handleImageChange={handleFileUpload}
