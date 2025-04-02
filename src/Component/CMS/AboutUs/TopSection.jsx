@@ -19,6 +19,7 @@ import TextError from "../../Error/formError";
 import { CiEdit } from "react-icons/ci";
 import { IoMdTrash } from "react-icons/io";
 import { ImSpinner5 } from "react-icons/im";
+import SwitchToggle from "../HomePage/SwitchToggle";
 
 const checkValidURI = async (uri) => {
   try {
@@ -48,6 +49,7 @@ export const TopSection = () => {
     title: "",
     image: "",
     link: "",
+    isVisible: true,
   });
 
   const [editButtonClicked, setEditButtonClicked] = useState(null);
@@ -124,6 +126,7 @@ export const TopSection = () => {
         title: data[0]?.title ?? "",
         image: data[0]?.image ?? "",
         link: data[0]?.link ?? "",
+        isVisible: data[0]?.isVisible ?? true,
       }));
 
       setDisableForms((prev) => ({
@@ -193,11 +196,27 @@ export const TopSection = () => {
           </div>
         ) : (
           <Card>
-            <div className="flex justify-end">
+            <div className="flex justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <p className="text-md font-semibold line-clamp-4">
+                  Toggle Visibility
+                </p>
+                <SwitchToggle
+                  enabled={form?.isVisible}
+                  onChange={() => {
+                    if (editButtonClicked) return;
+                    setForm((prev) => ({
+                      ...prev,
+                      isVisible: !prev.isVisible,
+                    }));
+                  }}
+                />
+              </div>
+
               {data?.length > 0 && (
                 <button onClick={handleEditButton}>
                   <span>
-                    <CiEdit />
+                    <CiEdit className="w-6 h-6" />
                   </span>
                 </button>
               )}
