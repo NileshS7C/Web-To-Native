@@ -352,7 +352,6 @@ MissionAndVisionTable.propTypes = {
   currentPage: PropTypes.number,
   handleEdit: PropTypes.func.isRequired,
 };
-5;
 
 MissionAndVisionForm.propTypes = {
   initialState: PropTypes.object.isRequired,
