@@ -3,6 +3,7 @@ import MissionAndVisionWrapper from "../../Component/CMS/AboutUs/MissionAndVisio
 import { TopSection } from "../../Component/CMS/AboutUs/TopSection";
 import FAQ from "../../Page/CMS/StaticPages/FAQ";
 import GreenBannerWrapper from "../../Component/CMS/AboutUs/GreenBanner";
+import PicklebayInNews from "../../Component/CMS/AboutUs/PicklebayInNews";
 
 export const aboutUsPageRoutes = [
   "/cms/about-us-page/top-section",
@@ -45,6 +46,10 @@ export const aboutUsNav = [
   {
     path: "picklebay-in-india",
     element: <FAQ />,
+  },
+  {
+    path: "picklebay-in-news",
+    element: <PicklebayInNews />,
   },
   {
     path: "bottom-section",
