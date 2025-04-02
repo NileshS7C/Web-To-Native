@@ -16,7 +16,7 @@ export const Toast = ({ error, timeout = 3000, onClose, successMessage }) => {
 
   return (
     <div
-      className={`fixed bottom-10 left-1/2 p-4 shadow-lg animate-fade-in rounded-lg
+      className={`fixed bottom-10 left-1/2 p-4 shadow-lg animate-fade-in rounded-lg z-[9999]
         ${error ? "bg-red-500 text-white" : "bg-gray-800 text-white"}`}
     >
       <div className="flex items-center">
