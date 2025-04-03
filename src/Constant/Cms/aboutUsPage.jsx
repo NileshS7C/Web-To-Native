@@ -1,14 +1,13 @@
 import HowItWorksWrapper from "../../Component/CMS/AboutUs/HowItWorks";
 import MissionAndVisionWrapper from "../../Component/CMS/AboutUs/MissionAndVision";
 import { TopSection } from "../../Component/CMS/AboutUs/TopSection";
-import FAQ from "../../Page/CMS/StaticPages/FAQ";
 import GreenBannerWrapper from "../../Component/CMS/AboutUs/GreenBanner";
-import BottomSection from "../../Component/CMS/AboutUs/BottomSection";
 import ImageTextSection from "../../Component/CMS/AboutUs/ImageTextSection";
 import PicklebayInNews from "../../Component/CMS/AboutUs/PicklebayInNews";
 import PickleBayInIndia from "../../Component/CMS/AboutUs/PickleBayInIndia";
 import KeyVerticalSection from "../../Component/CMS/AboutUs/KeyVerticalSection";
 import TeamSection from "../../Component/CMS/AboutUs/MeetTheTeamSection";
+import FounderSection from "../../Component/CMS/AboutUs/FounderDetails";
 
 export const aboutUsPageRoutes = [
   "/cms/about-us-page/top-section",
@@ -42,7 +41,7 @@ export const aboutUsNav = [
   },
   {
     path: "founder-section",
-    element: <FAQ />,
+    element: <FounderSection />,
   },
   {
     path: "meet-the-team",
@@ -54,7 +53,7 @@ export const aboutUsNav = [
   },
   {
     path: "picklebay-in-india",
-    element:<PickleBayInIndia />,
+    element: <PickleBayInIndia />,
   },
   {
     path: "picklebay-in-news",
