@@ -157,10 +157,21 @@ const HowItWorksWrapper = () => {
   const handleRemoveImage = () => {
     setInitialState((prev) => ({ ...prev, image: "" }));
   };
-
   useEffect(() => {
     if (previewURL) {
-      setInitialState((prev) => ({ ...prev, image: previewURL }));
+      const fileExtension = previewURL.split(".").pop().toLowerCase();
+      let fileTypeKey;
+      if (["svg"].includes(fileExtension)) {
+        fileTypeKey = "svg";
+      } else if (
+        ["jpg", "jpeg", "png", "gif", "webp"].includes(fileExtension)
+      ) {
+        fileTypeKey = "image";
+      }
+      setInitialState((prev) => ({
+        ...prev,
+        [fileTypeKey]: previewURL,
+      }));
     }
   }, [previewURL]);
 
@@ -333,7 +344,7 @@ const HowItWorksForm = ({
       enableReinitialize
       onSubmit={handleSubmit}
     >
-      {({ isSubmitting, values }) => {
+      {({ isSubmitting }) => {
         return (
           <Card>
             <Form>
@@ -413,7 +424,9 @@ const ImageUpload = ({
               type="file"
               id="image"
               accept="image/*"
-              onChange={handleFileUpload}
+              onChange={(e) => {
+                handleFileUpload(e);
+              }}
               disabled={disabled}
               className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-2 file:px-4
@@ -459,7 +472,9 @@ const NumberInput = ({ disabled, handleFileUpload }) => {
               type="file"
               id="svg"
               accept=".svg"
-              onChange={handleFileUpload}
+              onChange={(e) => {
+                handleFileUpload(e);
+              }}
               disabled={disabled}
               className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-2 file:px-4
