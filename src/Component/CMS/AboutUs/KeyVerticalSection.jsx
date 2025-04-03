@@ -159,7 +159,20 @@ const KeyVerticalSection = () => {
 
   useEffect(() => {
     if (previewURL) {
-      setInitialState((prev) => ({ ...prev, image: previewURL }));
+      const fileExtension = previewURL.split(".").pop().toLowerCase();
+      let fileTypeKey;
+      if (["svg"].includes(fileExtension)) {
+        fileTypeKey = "svg";
+      } else if (
+        ["jpg", "jpeg", "png", "gif", "webp"].includes(fileExtension)
+      ) {
+        fileTypeKey = "image";
+      }
+
+      setInitialState((prev) => ({
+        ...prev,
+        [fileTypeKey]: previewURL,
+      }));
     }
   }, [previewURL]);
 
