@@ -13,6 +13,7 @@ import {
   cmsIcon,
   uploadedImageIcon,
   PlayerIcon,
+  couponsIcon,
 } from "../Assests";
 
 export const months = [
@@ -74,6 +75,7 @@ export const ADMIN_NAVIGATION = [
   { name: "Uploaded Images", icon: uploadedImageIcon, path: "images" },
 
   { name: "Players", icon: PlayerIcon, path: "players" },
+  { name: "Coupons", icon: couponsIcon, path: "coupons" },
 
   // { name: "User", icon: profileIcon, path: "users" },
   {
@@ -93,6 +95,21 @@ export const ADMIN_NAVIGATION = [
           { name: "Journal" },
           { name: "News & Update" },
           { name: "FAQS" },
+        ],
+      },
+      {
+        name: "About Us Page",
+        children: [
+          { name: "Top section" },
+          { name: "Mission and vision" },
+          { name: "Banner section" },
+          { name: "How it works" },
+          { name: "Founder section" },
+          { name: "Meet the team" },
+          { name: "Key section" },
+          { name: "Picklebay in India" },
+          { name: "Picklebay in news" },
+          { name: "Bottom section" },
         ],
       },
       {
@@ -177,6 +194,9 @@ export const notHaveBackButton = [
   "Uploaded Images",
 
   "Players",
+  "Coupons",
+  "Banner Section",
+  "Mission & Vision",
 ];
 
 export const ROLES = [

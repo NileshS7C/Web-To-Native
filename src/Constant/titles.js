@@ -78,12 +78,23 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname.includes("profile")) {
       return "User Details";
     }
-
     if (pathname.includes("images")) {
       return "Uploaded Images";
     }
     if (pathname.includes("players")) {
       return "Players";
+    }
+    if (pathname == "/coupons") {
+      return "Coupons";
+    }
+    if (pathname.includes("/coupons/")) {
+      return "Coupon Detail";
+    }
+    if (pathname.includes("/cms/about-us-page/banner-section")) {
+      return "Banner Section";
+    }
+    if (pathname.includes("/cms/about-us-page/mission-and-vision")) {
+      return "Mission & Vision";
     }
     return STATIC_TITLES[pathname] || "DASHBOARD";
   };
