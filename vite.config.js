@@ -16,6 +16,6 @@ export default defineConfig({
   },
 
   preview: {
-    allowedHosts: ["uat.picklebay.com"],
+    allowedHosts: ["admin.uat.picklebay.com"],
   },
 });
