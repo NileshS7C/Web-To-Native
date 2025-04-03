@@ -367,9 +367,8 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       if (!result.responseCode && isAddInThePath) {
         dispatch(setFormOpen("event"));
         navigate(`/tournaments/${result?.data?.tournament._id}/add`);
+        resetForm();
       }
-
-      resetForm();
     } catch (error) {
       console.log(" error", error);
 
