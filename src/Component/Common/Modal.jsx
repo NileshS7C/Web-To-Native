@@ -16,7 +16,7 @@ export const Modal = ({ open, onClose, title, children }) => {
             transition
             className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in w-full max-w-xs sm:max-w-md lg:max-w-lg sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
-            <div className="flex flex-col h-[80vh] max-h-[800px]">
+            <div className="flex flex-col max-h-[80vh] ">
               <div className="flex justify-between items-center sticky top-0 bg-white py-2 z-10">
                 <h2 className="text-lg font-medium leading-6 text-gray-900">
                   {title}

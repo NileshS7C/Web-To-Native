@@ -132,14 +132,17 @@ const FounderSection = () => {
                   handleImageChange={handleFileUpload}
                   isUploading={isUploading}
                 />
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  loading={isSubmitting}
-                  className="px-4 py-2 rounded-lg shadow-md bg-gray-600 text-white hover:bg-gray-400 active:bg-gray-200"
-                >
-                  Submit
-                </Button>
+
+                <div className="mt-12">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    loading={isSubmitting}
+                    className="px-4 py-2 rounded-lg shadow-md bg-gray-600 text-white hover:bg-gray-400 active:bg-gray-200"
+                  >
+                    Submit
+                  </Button>
+                </div>
               </Form>
             )}
           </Formik>
