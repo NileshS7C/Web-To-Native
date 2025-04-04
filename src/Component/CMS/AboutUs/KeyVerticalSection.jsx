@@ -342,6 +342,7 @@ const KeyVerticalSection = () => {
         <Toast
           successMessage={!isError ? toastMessage : null}
           error={isError ? toastMessage : null}
+          onClose={() => setShowToast(false)}
         />
       )}
     </div>
@@ -559,10 +560,7 @@ const NumberInput = ({ disabled, handleFileUpload }) => {
                   alt="SVG Preview"
                   className="w-full h-full object-contain"
                 />
-                <button
-                  onClick={() => setFieldValue("svg", "")}
-                  type="button"
-                >
+                <button onClick={() => setFieldValue("svg", "")} type="button">
                   <IoMdTrash className="absolute top-1/2 -right-4" />
                 </button>
               </div>

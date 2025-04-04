@@ -327,6 +327,7 @@ const PicklebayInNews = () => {
         <Toast
           successMessage={!isError ? toastMessage : null}
           error={isError ? toastMessage : null}
+          onClose={() => setShowToast(false)}
         />
       )}
     </div>
