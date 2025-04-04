@@ -23,6 +23,7 @@ import { CiEdit } from "react-icons/ci";
 import { ImSpinner5 } from "react-icons/im";
 import { IoMdTrash } from "react-icons/io";
 import SwitchToggle from "../HomePage/SwitchToggle";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const columns = [
   {
@@ -48,11 +49,20 @@ const columns = [
   {
     key: "action",
     header: "Action",
-    render: (data, index, currentPage, onClick) => {
+    render: (data, index, currentPage, onClick, onDelete) => {
       return (
-        <button onClick={() => onClick(data)}>
-          <CiEdit />
-        </button>
+        <div className="flex items-center space-x-3">
+          <button onClick={() => onClick(data)}>
+            <CiEdit className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => {
+              onDelete(data);
+            }}
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
       );
     },
   },
@@ -119,6 +129,37 @@ const PickleBayInIndia = () => {
       image: data.image,
     }));
   };
+
+  const handleDelete = async (item) => {
+    setSelectedPicklebayInIndia(item);
+  
+    const updatedPicklebayList = data[0]?.picklebayInIndia?.filter(
+      (entry) => entry.position !== item.position
+    );
+  
+    const reindexedList = updatedPicklebayList.map((entry, index) => ({
+      ...entry,
+      position: index + 1,
+    }));
+  
+    const payload = {
+      ...data[0],
+      picklebayInIndia: reindexedList,
+    };
+  
+    const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
+  
+    await submitFormData(
+      submitAboutUsForm({
+        type: "picklebayInIndia",
+        body: cleanedPayload,
+      })
+    );
+  
+    setSelectedPicklebayInIndia(null);
+    setOpenModal(false);
+  };
+  
 
   const handleAddNew = () => {
     setOpenModal(true);
@@ -244,6 +285,7 @@ const PickleBayInIndia = () => {
         data={data}
         currentPage={1}
         handleEdit={handleEdit}
+        handleDelete={handleDelete}
       />
 
       <Modal
@@ -286,7 +328,7 @@ const PickleBayInIndia = () => {
   );
 };
 
-const PickleBayInIndiaTable = ({ data, currentPage, handleEdit }) => {
+const PickleBayInIndiaTable = ({ data, currentPage, handleEdit, handleDelete }) => {
   return (
     <DataTable
       data={data ? data[0]?.picklebayInIndia : []}
@@ -298,6 +340,7 @@ const PickleBayInIndiaTable = ({ data, currentPage, handleEdit }) => {
       alternateRowColors="true"
       rowPaddingY="3"
       onClick={handleEdit}
+      onDelete={handleDelete}
     />
   );
 };
@@ -422,6 +465,7 @@ PickleBayInIndiaTable.propTypes = {
   data: PropTypes.array.isRequired,
   currentPage: PropTypes.number.isRequired,
   handleEdit: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
 };
 
 export default PickleBayInIndia;
