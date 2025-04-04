@@ -27,7 +27,7 @@ export default function TournamentSectionInfo({ sectionInfo }) {
     }
 
     const updatedFeatures = sectionDetails.tournaments.map((tournament) => ({
-      tournamentID: tournament._id,
+      tournamentID: tournament.tournamentID._id,
       position: tournament.position,
     }));
 
