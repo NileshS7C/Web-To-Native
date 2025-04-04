@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Field, Formik, Form } from "formik";
 import PropTypes from "prop-types";
+import { useFormikContext } from "formik";
 
 import { useSubmitForm } from "../../../Hooks/CMS/useSubmitData";
 import { useFetchData } from "../../../Hooks/CMS/useFetchData";
@@ -23,6 +24,7 @@ import { CiEdit } from "react-icons/ci";
 import { ImSpinner5 } from "react-icons/im";
 import { IoMdTrash } from "react-icons/io";
 import SwitchToggle from "../HomePage/SwitchToggle";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const columns = [
   {
@@ -58,17 +60,28 @@ const columns = [
     key: "number",
     header: "Number",
     render: (data) => {
-      return <div>{data.svg}</div>;
+      return (
+        <img src={data.svg} alt="how it works svg" width={50} height={50} />
+      );
     },
   },
   {
     key: "action",
     header: "Action",
-    render: (data, index, currentPage, onClick) => {
+    render: (data, index, currentPage, onClick, onDelete) => {
       return (
-        <button onClick={() => onClick(data)}>
-          <CiEdit />
-        </button>
+        <div className="flex items-center space-x-3">
+          <button onClick={() => onClick(data)}>
+            <CiEdit className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => {
+              onDelete(data);
+            }}
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
       );
     },
   },
@@ -91,6 +104,7 @@ const HowItWorksWrapper = () => {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [edit, setEdit] = useState(false);
 
   const { submitFormData, submissionError, isSubmitted } = useSubmitForm();
   const { data, error, errorMessage, success } = useFetchData(
@@ -132,6 +146,7 @@ const HowItWorksWrapper = () => {
 
   const handleEdit = (data) => {
     setSelectedHowItWorks(data);
+    setEdit(true);
     setOpenModal(true);
     setInitialState((prev) => ({
       ...prev,
@@ -142,27 +157,49 @@ const HowItWorksWrapper = () => {
     }));
   };
 
+  const handleDelete = async (item) => {
+    setSelectedHowItWorks(item);
+
+    const updatedHowItWorks = data[0]?.howItWorks?.filter(
+      (howItem) => howItem.position !== item.position
+    );
+
+    const reindexedHowItWorks = updatedHowItWorks.map((item, index) => ({
+      ...item,
+      position: index + 1,
+    }));
+
+    const payload = {
+      ...data[0],
+      howItWorks: reindexedHowItWorks,
+    };
+
+    const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
+
+    await submitFormData(
+      submitAboutUsForm({
+        type: "howItWorks",
+        body: cleanedPayload,
+      })
+    );
+
+    setSelectedHowItWorks(null);
+    setOpenModal(false);
+  };
+
   const handleAddNew = () => {
     setOpenModal(true);
     setInitialState(initialValues);
     setSelectedHowItWorks(null);
+    setEdit(false);
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
     setInitialState(initialValues);
     selectedHowItWorks(null);
+    setEdit(false);
   };
-
-  const handleRemoveImage = () => {
-    setInitialState((prev) => ({ ...prev, image: "" }));
-  };
-
-  useEffect(() => {
-    if (previewURL) {
-      setInitialState((prev) => ({ ...prev, image: previewURL }));
-    }
-  }, [previewURL]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(true);
@@ -225,6 +262,7 @@ const HowItWorksWrapper = () => {
     setConfirmationModalOpen(false);
     setIsCancelled(true);
   };
+
   return (
     <div className="w-full">
       <div className="flex flex-col">
@@ -258,11 +296,18 @@ const HowItWorksWrapper = () => {
           handleFileUpload={handleFileUpload}
           isUploading={isUploading}
           uploadError={uploadError}
-          handleRemoveImage={handleRemoveImage}
+          openModal={openModal}
+          previewURL={previewURL}
+          edit={edit}
         />
       </Modal>
 
-      <HowItWorksTable data={data} currentPage={1} handleEdit={handleEdit} />
+      <HowItWorksTable
+        data={data}
+        currentPage={1}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
 
       <Modal
         open={confirmationModalOpen}
@@ -298,13 +343,14 @@ const HowItWorksWrapper = () => {
         <Toast
           successMessage={!isError ? toastMessage : null}
           error={isError ? toastMessage : null}
+          onClose={() => setShowToast(false)}
         />
       )}
     </div>
   );
 };
 
-const HowItWorksTable = ({ data, currentPage, handleEdit }) => {
+const HowItWorksTable = ({ data, currentPage, handleEdit, handleDelete }) => {
   return (
     <DataTable
       data={data ? data[0]?.howItWorks : []}
@@ -316,6 +362,7 @@ const HowItWorksTable = ({ data, currentPage, handleEdit }) => {
       alternateRowColors="true"
       rowPaddingY="3"
       onClick={handleEdit}
+      onDelete={handleDelete}
     />
   );
 };
@@ -325,15 +372,21 @@ const HowItWorksForm = ({
   handleFileUpload,
   isUploading,
   uploadError,
-  handleRemoveImage,
+  openModal,
+  previewURL,
+  edit,
 }) => {
   return (
     <Formik
       initialValues={initialState}
-      enableReinitialize
+      enableReinitialize={true}
       onSubmit={handleSubmit}
     >
       {({ isSubmitting, values }) => {
+        const hasValue = Object.values(values).some(
+          (value) => value !== null && value !== undefined && value !== ""
+        );
+
         return (
           <Card>
             <Form>
@@ -345,7 +398,9 @@ const HowItWorksForm = ({
                   handleFileUpload={handleFileUpload}
                   isUploading={isUploading}
                   uploadError={uploadError}
-                  handleRemoveImage={handleRemoveImage}
+                  openModal={openModal}
+                  previewURL={previewURL}
+                  edit={edit}
                 />
                 <NumberInput
                   disabled={false}
@@ -355,7 +410,7 @@ const HowItWorksForm = ({
                   <Button
                     type="submit"
                     className="px-4 py-2 rounded-lg shadow-md bg-gray-600 text-white hover:bg-gray-400 active:bg-gray-200"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !hasValue}
                     loading={isSubmitting}
                   >
                     Submit
@@ -401,19 +456,46 @@ const ImageUpload = ({
   handleFileUpload,
   isUploading,
   uploadError,
-  handleRemoveImage,
+  openModal,
+  previewURL,
+  edit,
 }) => {
+  const { setFieldValue } = useFormikContext();
+  useEffect(() => {
+    if (previewURL) {
+      const fileExtension = previewURL.split(".").pop().toLowerCase();
+      let fileTypeKey;
+      if (["svg"].includes(fileExtension)) {
+        fileTypeKey = "svg";
+      } else if (
+        ["jpg", "jpeg", "png", "gif", "webp"].includes(fileExtension)
+      ) {
+        fileTypeKey = "image";
+      }
+
+      setFieldValue(fileTypeKey, previewURL);
+    }
+  }, [previewURL]);
+
+  useEffect(() => {
+    if (openModal && !edit) {
+      setFieldValue("image", "");
+      setFieldValue("svg", "");
+    }
+  }, [openModal, edit]);
   return (
     <Field name="image" id="image" type="file" accept="image/*">
       {({ field, form }) => (
         <div className="flex flex-col gap-2 items-start">
           <label htmlFor="image">Left Side Image</label>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 relative">
             <input
               type="file"
               id="image"
               accept="image/*"
-              onChange={handleFileUpload}
+              onChange={(e) => {
+                handleFileUpload(e);
+              }}
               disabled={disabled}
               className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-2 file:px-4
@@ -436,11 +518,13 @@ const ImageUpload = ({
               </div>
             )}
             {isUploading && (
-              <ImSpinner5 className="absolute top-0 -right-10 w-[20px] h-[20px] animate-spin" />
+              <ImSpinner5 className="absolute top-1/2 -right-2 w-[20px] h-[20px] animate-spin" />
             )}
-            <button onClick={handleRemoveImage} type="button">
-              <IoMdTrash className="absolute top-0 -right-4" />
-            </button>
+            {field.value && (
+              <button onClick={() => setFieldValue("image", "")} type="button">
+                <IoMdTrash className="absolute top-1/2" />
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -449,6 +533,7 @@ const ImageUpload = ({
 };
 
 const NumberInput = ({ disabled, handleFileUpload }) => {
+  const { setFieldValue } = useFormikContext();
   return (
     <Field name="svg" id="svg" type="text">
       {({ field }) => (
@@ -459,7 +544,9 @@ const NumberInput = ({ disabled, handleFileUpload }) => {
               type="file"
               id="svg"
               accept=".svg"
-              onChange={handleFileUpload}
+              onChange={(e) => {
+                handleFileUpload(e);
+              }}
               disabled={disabled}
               className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-2 file:px-4
@@ -469,7 +556,7 @@ const NumberInput = ({ disabled, handleFileUpload }) => {
                 hover:file:bg-gray-100"
             />
             {field.value && (
-              <div className="w-12 h-12">
+              <div className="w-12 h-12 relative">
                 <img
                   src={
                     typeof field.value === "string"
@@ -479,6 +566,9 @@ const NumberInput = ({ disabled, handleFileUpload }) => {
                   alt="SVG Preview"
                   className="w-full h-full object-contain"
                 />
+                <button onClick={() => setFieldValue("svg", "")} type="button">
+                  <IoMdTrash className="absolute top-1/2 -right-4" />
+                </button>
               </div>
             )}
           </div>

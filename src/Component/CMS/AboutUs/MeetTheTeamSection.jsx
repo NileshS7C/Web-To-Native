@@ -1,4 +1,4 @@
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field, useFormikContext } from "formik";
 import Card from "../../Common/Card";
 import { Input } from "../../Common/Input";
 import { Page } from "../../Common/PageTitle";
@@ -21,6 +21,7 @@ import { IoMdTrash } from "react-icons/io";
 import { ImSpinner5 } from "react-icons/im";
 import PropTypes from "prop-types";
 import SwitchToggle from "../HomePage/SwitchToggle";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const columns = [
   {
@@ -56,11 +57,20 @@ const columns = [
   {
     header: "Action",
     key: "action",
-    render: (item, index, currentPage, onClick) => {
+    render: (item, index, currentPage, onClick, onDelete) => {
       return (
-        <button onClick={() => onClick(item)}>
-          <CiEdit className="w-6 h-6" />
-        </button>
+        <div className="flex items-center space-x-3">
+          <button onClick={() => onClick(item)}>
+            <CiEdit className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => {
+              onDelete(item);
+            }}
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
       );
     },
   },
@@ -136,6 +146,7 @@ const TeamSection = () => {
   const handleAddMember = () => {
     setOpenModal(true);
     setInitialState(initialValues);
+    setEditButtonClicked(false);
   };
 
   const handleEdit = (data) => {
@@ -149,6 +160,36 @@ const TeamSection = () => {
       details: data.details,
     }));
     setEditButtonClicked(true);
+  };
+
+  const handleDelete = async (item) => {
+    setSelectedMember(item);
+
+    const updatedTeam = data[0]?.ourTeam?.filter(
+      (member) => member.position !== item.position
+    );
+
+    const reindexedTeam = updatedTeam.map((member, index) => ({
+      ...member,
+      position: index + 1,
+    }));
+
+    const payload = {
+      ...data[0],
+      ourTeam: reindexedTeam,
+    };
+
+    const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
+
+    await submitFormData(
+      submitAboutUsForm({
+        type: "ourTeam",
+        body: cleanedPayload,
+      })
+    );
+
+    setSelectedMember(null);
+    setOpenModal(false);
   };
 
   const handleCloseModal = () => {
@@ -238,7 +279,12 @@ const TeamSection = () => {
           </div>
         </div>
       </div>
-      <TeamMemberTable data={data} currentPage={1} handleEdit={handleEdit} />
+      <TeamMemberTable
+        data={data}
+        currentPage={1}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -254,6 +300,8 @@ const TeamSection = () => {
           handleFileUpload={handleFileUpload}
           isUploading={isUploading}
           previewURL={previewURL}
+          openModal={openModal}
+          edit={editButtonClicked}
         />
       </Modal>
       <Modal
@@ -296,7 +344,7 @@ const TeamSection = () => {
   );
 };
 
-const TeamMemberTable = ({ data, currentPage, handleEdit }) => {
+const TeamMemberTable = ({ data, currentPage, handleEdit, handleDelete }) => {
   return (
     <DataTable
       data={data ? data[0]?.ourTeam : []}
@@ -308,6 +356,7 @@ const TeamMemberTable = ({ data, currentPage, handleEdit }) => {
       alternateRowColors="true"
       rowPaddingY="3"
       onClick={handleEdit}
+      onDelete={handleDelete}
     />
   );
 };
@@ -318,6 +367,8 @@ const TeamSectionForm = ({
   handleFileUpload,
   isUploading,
   previewURL,
+  openModal,
+  edit,
 }) => {
   return (
     <Formik
@@ -326,13 +377,6 @@ const TeamSectionForm = ({
       onSubmit={handleSubmit}
     >
       {({ isSubmitting, values, setFieldValue }) => {
-        const handleImageUpload = async (event, file) => {
-          await handleFileUpload(event, file);
-          if (previewURL) {
-            setFieldValue("image", previewURL);
-          }
-        };
-
         const handleRemoveImage = () => {
           setFieldValue("image", "");
         };
@@ -344,10 +388,12 @@ const TeamSectionForm = ({
               <Designation />
               <TeamMemberDetails />
               <ImageUpload
-                handleImageChange={handleImageUpload}
+                handleImageChange={handleFileUpload}
                 isUploading={isUploading}
-                values={values}
                 handleRemoveImage={handleRemoveImage}
+                previewURL={previewURL}
+                openModal={openModal}
+                edit={edit}
               />
 
               <div className="flex justify-end mt-3">
@@ -410,54 +456,80 @@ const TeamMemberDetails = () => {
 };
 
 const ImageUpload = ({
-  values,
   handleRemoveImage,
   handleImageChange,
   isUploading,
+  previewURL,
+  edit,
+  openModal,
 }) => {
-  console.log(" values", values);
+  const { setFieldValue } = useFormikContext();
+  useEffect(() => {
+    if (previewURL) {
+      const fileExtension = previewURL.split(".").pop().toLowerCase();
+      let fileTypeKey;
+      if (["svg"].includes(fileExtension)) {
+        fileTypeKey = "svg";
+      } else if (
+        ["jpg", "jpeg", "png", "gif", "webp"].includes(fileExtension)
+      ) {
+        fileTypeKey = "image";
+      }
+
+      setFieldValue(fileTypeKey, previewURL);
+    }
+  }, [previewURL]);
+
+  useEffect(() => {
+    if (openModal && !edit) {
+      setFieldValue("image", "");
+    }
+  }, [openModal, edit]);
   return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor="image">Team Member Image</label>
-      <div className="flex items-center gap-4">
-        <input
-          type="file"
-          id="image"
-          accept="image/*"
-          onChange={(event) => {
-            const file = event.currentTarget.files[0];
-            handleImageChange(event, file);
-          }}
-          className="block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-full file:border-0
-            file:text-sm file:font-semibold
-            file:bg-gray-50 file:text-gray-700
-            hover:file:bg-gray-100"
-        />
-        {values.image && (
-          <div className="w-[100px] relative">
-            <img
-              src={values.image}
-              alt="preview team member"
-              width="100px"
-              height="100px"
-              className="rounded-lg object-cover"
+    <Field name="image" id="image" type="file" accept="image/*">
+      {({ field }) => (
+        <div className="flex flex-col gap-2 items-start">
+          <label htmlFor="image">Left Side Image</label>
+          <div className="flex items-center gap-4 relative">
+            <input
+              type="file"
+              id="image"
+              accept="image/*"
+              onChange={(e) => {
+                handleImageChange(e);
+              }}
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-gray-50 file:text-gray-700
+                hover:file:bg-gray-100"
             />
-            {isUploading && (
-              <ImSpinner5 className="absolute top-0 -right-10 w-[20px] h-[20px] animate-spin" />
+            {field.value && (
+              <div className="w-32 h-32">
+                <img
+                  src={
+                    typeof field.value === "string"
+                      ? field.value
+                      : URL.createObjectURL(field.value)
+                  }
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
             )}
-            <button
-              onClick={handleRemoveImage}
-              type="button"
-              className="absolute top-0 -right-4 text-red-500 hover:text-red-700"
-            >
-              <IoMdTrash className="w-5 h-5" />
-            </button>
+            {isUploading && (
+              <ImSpinner5 className="absolute top-1/2 -right-2 w-[20px] h-[20px] animate-spin" />
+            )}
+            {field.value && (
+              <button onClick={handleRemoveImage} type="button">
+                <IoMdTrash className="absolute top-1/2" />
+              </button>
+            )}
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </Field>
   );
 };
 
@@ -465,6 +537,7 @@ TeamMemberTable.propTypes = {
   data: PropTypes.array.isRequired,
   currentPage: PropTypes.number.isRequired,
   handleEdit: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
 };
 
 TeamSectionForm.propTypes = {
@@ -473,13 +546,17 @@ TeamSectionForm.propTypes = {
   handleFileUpload: PropTypes.func.isRequired,
   isUploading: PropTypes.bool.isRequired,
   previewURL: PropTypes.string.isRequired,
+  edit: PropTypes.bool.isRequired,
+  openModal: PropTypes.bool.isRequired,
 };
 
 ImageUpload.propTypes = {
-  values: PropTypes.string.isRequired,
   handleRemoveImage: PropTypes.func.isRequired,
   handleImageChange: PropTypes.func.isRequired,
   isUploading: PropTypes.bool.isRequired,
+  previewURL: PropTypes.string.isRequired,
+  edit: PropTypes.bool.isRequired,
+  openModal: PropTypes.bool.isRequired,
 };
 
 export default TeamSection;

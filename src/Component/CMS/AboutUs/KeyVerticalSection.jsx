@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Field, Formik, Form } from "formik";
+import { Field, Formik, Form, useFormikContext } from "formik";
 import PropTypes from "prop-types";
 
 import { useSubmitForm } from "../../../Hooks/CMS/useSubmitData";
@@ -23,6 +23,7 @@ import { CiEdit } from "react-icons/ci";
 import { ImSpinner5 } from "react-icons/im";
 import { IoMdTrash } from "react-icons/io";
 import SwitchToggle from "../HomePage/SwitchToggle";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const columns = [
   {
@@ -64,11 +65,20 @@ const columns = [
   {
     key: "action",
     header: "Action",
-    render: (data, index, currentPage, onClick) => {
+    render: (data, index, currentPage, onClick, onDelete) => {
       return (
-        <button onClick={() => onClick(data)}>
-          <CiEdit />
-        </button>
+        <div className="flex items-center space-x-3">
+          <button onClick={() => onClick(data)}>
+            <CiEdit className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => {
+              onDelete(data);
+            }}
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
       );
     },
   },
@@ -91,6 +101,7 @@ const KeyVerticalSection = () => {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [edit, setEdit] = useState(false);
 
   const { submitFormData, submissionError, isSubmitted } = useSubmitForm();
   const { data, error, errorMessage, success } = useFetchData(
@@ -139,29 +150,52 @@ const KeyVerticalSection = () => {
       subHeading: data.subHeading,
       svg: data.svg,
     }));
+    setEdit(true);
+  };
+
+  const handleDelete = async (item) => {
+    setSelectedHowItWorks(item);
+
+    const updatedVerticals = data[0]?.keyVerticals?.filter(
+      (vertical) => vertical.position !== item.position
+    );
+
+    const reindexedVerticals = updatedVerticals.map((vertical, index) => ({
+      ...vertical,
+      position: index + 1,
+    }));
+
+    const payload = {
+      ...data[0],
+      keyVerticals: reindexedVerticals,
+    };
+
+    const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
+
+    await submitFormData(
+      submitAboutUsForm({
+        type: "keyVerticals",
+        body: cleanedPayload,
+      })
+    );
+
+    setSelectedHowItWorks(null);
+    setOpenModal(false);
   };
 
   const handleAddNew = () => {
     setOpenModal(true);
     setInitialState(initialValues);
     setSelectedHowItWorks(null);
+    setEdit(false);
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
     setInitialState(initialValues);
     selectedHowItWorks(null);
+    setEdit(false);
   };
-
-  const handleRemoveImage = () => {
-    setInitialState((prev) => ({ ...prev, image: "" }));
-  };
-
-  useEffect(() => {
-    if (previewURL) {
-      setInitialState((prev) => ({ ...prev, image: previewURL }));
-    }
-  }, [previewURL]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(true);
@@ -261,11 +295,18 @@ const KeyVerticalSection = () => {
           handleFileUpload={handleFileUpload}
           isUploading={isUploading}
           uploadError={uploadError}
-          handleRemoveImage={handleRemoveImage}
+          previewURL={previewURL}
+          openModal={openModal}
+          edit={edit}
         />
       </Modal>
 
-      <KeyVerticalTable data={data} currentPage={1} handleEdit={handleEdit} />
+      <KeyVerticalTable
+        data={data}
+        currentPage={1}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
 
       <Modal
         open={confirmationModalOpen}
@@ -301,13 +342,14 @@ const KeyVerticalSection = () => {
         <Toast
           successMessage={!isError ? toastMessage : null}
           error={isError ? toastMessage : null}
+          onClose={() => setShowToast(false)}
         />
       )}
     </div>
   );
 };
 
-const KeyVerticalTable = ({ data, currentPage, handleEdit }) => {
+const KeyVerticalTable = ({ data, currentPage, handleEdit, handleDelete }) => {
   return (
     <DataTable
       data={data ? data[0]?.keyVerticals : []}
@@ -319,6 +361,7 @@ const KeyVerticalTable = ({ data, currentPage, handleEdit }) => {
       alternateRowColors="true"
       rowPaddingY="3"
       onClick={handleEdit}
+      onDelete={handleDelete}
     />
   );
 };
@@ -329,6 +372,9 @@ const KeyVerticalForm = ({
   isUploading,
   uploadError,
   handleRemoveImage,
+  previewURL,
+  openModal,
+  edit,
 }) => {
   return (
     <Formik
@@ -348,7 +394,9 @@ const KeyVerticalForm = ({
                   handleFileUpload={handleFileUpload}
                   isUploading={isUploading}
                   uploadError={uploadError}
-                  handleRemoveImage={handleRemoveImage}
+                  previewURL={previewURL}
+                  openModal={openModal}
+                  edit={edit}
                 />
                 <NumberInput
                   disabled={false}
@@ -404,14 +452,40 @@ const ImageUpload = ({
   handleFileUpload,
   isUploading,
   uploadError,
-  handleRemoveImage,
+
+  previewURL,
+  openModal,
+  edit,
 }) => {
+  const { setFieldValue } = useFormikContext();
+  useEffect(() => {
+    if (previewURL) {
+      const fileExtension = previewURL.split(".").pop().toLowerCase();
+      let fileTypeKey;
+      if (["svg"].includes(fileExtension)) {
+        fileTypeKey = "svg";
+      } else if (
+        ["jpg", "jpeg", "png", "gif", "webp"].includes(fileExtension)
+      ) {
+        fileTypeKey = "image";
+      }
+
+      setFieldValue(fileTypeKey, previewURL);
+    }
+  }, [previewURL]);
+
+  useEffect(() => {
+    if (openModal && !edit) {
+      setFieldValue("image", "");
+      setFieldValue("svg", "");
+    }
+  }, [openModal, edit]);
   return (
     <Field name="image" id="image" type="file" accept="image/*">
       {({ field, form }) => (
         <div className="flex flex-col gap-2 items-start">
           <label htmlFor="image">Left Side Image</label>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 relative">
             <input
               type="file"
               id="image"
@@ -436,14 +510,17 @@ const ImageUpload = ({
                   alt="Preview"
                   className="w-full h-full object-cover rounded-lg"
                 />
+                <button
+                  onClick={() => setFieldValue("image", "")}
+                  type="button"
+                >
+                  <IoMdTrash className="absolute top-1/2 -right-4" />
+                </button>
               </div>
             )}
             {isUploading && (
               <ImSpinner5 className="absolute top-0 -right-10 w-[20px] h-[20px] animate-spin" />
             )}
-            <button onClick={handleRemoveImage} type="button">
-              <IoMdTrash className="absolute top-0 -right-4" />
-            </button>
           </div>
         </div>
       )}
@@ -452,6 +529,7 @@ const ImageUpload = ({
 };
 
 const NumberInput = ({ disabled, handleFileUpload }) => {
+  const { setFieldValue } = useFormikContext();
   return (
     <Field name="svg" id="svg" type="text">
       {({ field }) => (
@@ -472,7 +550,7 @@ const NumberInput = ({ disabled, handleFileUpload }) => {
                 hover:file:bg-gray-100"
             />
             {field.value && (
-              <div className="w-12 h-12">
+              <div className="w-12 h-12 relative">
                 <img
                   src={
                     typeof field.value === "string"
@@ -482,6 +560,9 @@ const NumberInput = ({ disabled, handleFileUpload }) => {
                   alt="SVG Preview"
                   className="w-full h-full object-contain"
                 />
+                <button onClick={() => setFieldValue("svg", "")} type="button">
+                  <IoMdTrash className="absolute top-1/2 -right-4" />
+                </button>
               </div>
             )}
           </div>

@@ -1,17 +1,34 @@
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { stepReducer } from "../../../redux/tournament/addTournament";
-import { toggleModal } from "../../../redux/tournament/eventSlice";
+import {
+  toggleModal,
+  resetAllCategories,
+} from "../../../redux/tournament/eventSlice";
 import { searchIcon } from "../../../Assests";
 import Button from "../../Common/Button";
 import { EventTable } from "./EventTable";
 import { useEffect } from "react";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
+import { getAllCategories } from "../../../redux/tournament/tournamentActions";
+import { useParams } from "react-router-dom";
 
 function EventInfo({ isDisable }) {
   const dispatch = useDispatch();
   const { currentStep } = useSelector((state) => state.Tournament);
-  const { categories } = useSelector((state) => state.event);
+  const { categories, currentPage } = useSelector((state) => state.event);
+  const { tournamentId } = useParams();
+
+  useEffect(() => {
+    dispatch(resetAllCategories());
+    dispatch(
+      getAllCategories({
+        currentPage,
+        limit: 10,
+        id: tournamentId,
+      })
+    );
+  }, [currentPage, tournamentId]);
 
   useEffect(() => {
     dispatch(resetGlobalLocation());
@@ -31,7 +48,7 @@ function EventInfo({ isDisable }) {
           )}
         </div>
       </div>
-      <EventTable isDisable={isDisable} />
+      <EventTable isDisable={isDisable} categories={categories} />
 
       <Button
         className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"

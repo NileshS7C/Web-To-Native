@@ -110,7 +110,7 @@ const eventTableHeaders = [
   {
     key: "actions",
     header: "Actions",
-    render: (item, index) => (
+    render: (item, index, currentPage, onClick, onDelete) => (
       <EventActions
         id={item?._id}
         index={index}

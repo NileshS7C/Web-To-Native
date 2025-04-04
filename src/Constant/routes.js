@@ -73,6 +73,14 @@ export const API_END_POINTS = {
         }
       },
 
+      deleteCategory: (type, tournamentId, categoryId) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/delete`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/delete`;
+        }
+      },
+
       createFixture: (type, tournamentId, categoryId) => {
         if (ADMINROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures`;

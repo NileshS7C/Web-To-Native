@@ -1,20 +1,15 @@
 import PropTypes from "prop-types";
-import { useEffect } from "react";
 import { ActionButtons } from "./ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ActionButtonCourt } from "../../Constant/venue";
-import { toggleModal } from "../../redux/tournament/eventSlice";
+import {
+  toggleModal,
+  setDeleteCategoryId,
+} from "../../redux/tournament/eventSlice";
 import { updateQueryString } from "../../utils/urlModification";
 
-import {
-  resetConfirmationState,
-  showConfirmation,
-} from "../../redux/Confirmation/confirmationSlice";
-import {
-  deleteSingleCategory,
-  getAllCategories,
-} from "../../redux/tournament/tournamentActions";
+import { showConfirmation } from "../../redux/Confirmation/confirmationSlice";
 
 const EventActions = ({ id, index, eventName }) => {
   const navigate = useNavigate();
@@ -38,25 +33,12 @@ const EventActions = ({ id, index, eventName }) => {
           withComments: false,
         })
       );
+      dispatch(setDeleteCategoryId(id));
     },
     view: () => {
       navigate(`/tournaments/${tournamentId}/event/${id}?event=${eventName}`);
     },
   };
-
-  useEffect(() => {
-    if (isConfirmed && type === "Event" && tournamentId) {
-      dispatch(deleteSingleCategory({ tour_Id: tournamentId, eventId: id }));
-      dispatch(resetConfirmationState());
-      dispatch(
-        getAllCategories({
-          currentPage,
-          limit: 10,
-          id: tournamentId,
-        })
-      );
-    }
-  }, [isConfirmed, type, tournamentId]);
 
   return (
     <ActionButtons

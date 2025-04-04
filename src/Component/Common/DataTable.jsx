@@ -15,6 +15,7 @@ const DataTable = ({
   evenRowColor = "none",
   oddRowColor = "none",
   onClick = null,
+  onDelete = null,
   rowTextAlignment = "left",
 
   pageLimit = 10,
@@ -71,7 +72,7 @@ const DataTable = ({
                       <div className="md:hidden flex flex-col bg-white rounded-xl">
                         {columns.map((column, colIndex) => {
                           const cellContent = column.render
-                            ? column.render(item, index, currentPage, onClick)
+                            ? column.render(item, index, currentPage, onClick, onDelete)
                             : item?.[column.key];
 
                           return (
@@ -99,7 +100,7 @@ const DataTable = ({
                       </div>
                       {columns.map((column, colIndex) => {
                         const cellContent = column.render
-                          ? column.render(item, index, currentPage, onClick)
+                          ? column.render(item, index, currentPage, onClick, onDelete)
                           : item?.[column.key];
 
                         return (
@@ -164,6 +165,7 @@ DataTable.propTypes = {
   evenRowColor: PropTypes.string,
   oddRowColor: PropTypes.string,
   onClick: PropTypes.func,
+  onDelete: PropTypes.func,
   rowTextAlignment: PropTypes.string,
 };
 

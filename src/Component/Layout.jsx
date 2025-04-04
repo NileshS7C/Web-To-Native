@@ -47,8 +47,9 @@ import { deleteVenue } from "../redux/Venue/venueActions";
 
 import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
+import { resetEditMode } from "../redux/tournament/getTournament";
 
-const hiddenRoutes = [
+const hiddenRoutes = [ 
   "/cms/homepage/featured-tournaments",
   "/cms/homepage/featured-venues",
   "/cms/homepage/explore",
@@ -345,10 +346,10 @@ const TournamentActionButton = ({
           ) : (
             <SaveAndCancelButton
               dispatch={dispatch}
-              setEditMode={() => dispatch(setTournamentEditMode(false))}
+              setEditMode={() => dispatch(setTournamentEditMode())}
               submitForm={async () => {
                 await submitForm();
-                dispatch(setTournamentEditMode(false));
+                dispatch(resetEditMode());
               }}
               isSubmitting={isSubmitting}
             />
@@ -593,7 +594,7 @@ const SaveAndCancelButton = ({
       <button
         className="flex items-center justify-center gap-3 px-4 py-2 bg-white shadow-lg text-black ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
         type="button"
-        onClick={() => dispatch(setEditMode())}
+        onClick={() => setEditMode()}
       >
         <span>Cancel</span>
       </button>
