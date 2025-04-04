@@ -49,7 +49,7 @@ import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
 import { resetEditMode } from "../redux/tournament/getTournament";
 
-const hiddenRoutes = [
+const hiddenRoutes = [ 
   "/cms/homepage/featured-tournaments",
   "/cms/homepage/featured-venues",
   "/cms/homepage/explore",
