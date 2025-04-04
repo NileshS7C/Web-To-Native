@@ -13,18 +13,23 @@ export default function TournamentSectionInfo({ sectionInfo }) {
       isVisible: sectionInfo.isVisible,
       tournaments: sectionInfo.tournaments || [],
     });
-  }, [sectionInfo])
-  
+  }, [sectionInfo]);
+
   const handleSave = async () => {
     setIsEditing(false);
 
-    const hasChanged = sectionDetails.sectionTitle !== sectionInfo.sectionTitle || sectionDetails.isVisible !== sectionInfo.isVisible;
+    const hasChanged =
+      sectionDetails.sectionTitle !== sectionInfo.sectionTitle ||
+      sectionDetails.isVisible !== sectionInfo.isVisible;
 
     if (!hasChanged) {
       return;
     }
 
-    const updatedFeatures = sectionDetails.tournaments.map(({ _id, ...rest }) => rest);
+    const updatedFeatures = sectionDetails.tournaments.map((tournament) => ({
+      tournamentID: tournament._id,
+      position: tournament.position,
+    }));
 
     const updatedData = {
       sectionTitle: sectionDetails.sectionTitle,
@@ -38,7 +43,13 @@ export default function TournamentSectionInfo({ sectionInfo }) {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/tournament`,JSON.stringify(updatedData),config);
+      const response = await axiosInstance.post(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/homepage-sections/tournament`,
+        JSON.stringify(updatedData),
+        config
+      );
     } catch (error) {
       console.error("Error updating section:", error);
     }
@@ -60,12 +71,17 @@ export default function TournamentSectionInfo({ sectionInfo }) {
               type="text"
               value={sectionDetails?.sectionTitle}
               onChange={(e) =>
-                setSectionDetails({ ...sectionDetails, sectionTitle: e.target.value })
+                setSectionDetails({
+                  ...sectionDetails,
+                  sectionTitle: e.target.value,
+                })
               }
               className="w-40 border rounded p-1"
             />
           ) : (
-            <span className="text-gray-900">{sectionDetails?.sectionTitle}</span>
+            <span className="text-gray-900">
+              {sectionDetails?.sectionTitle}
+            </span>
           )}
         </div>
         <div className="flex justify-between items-center gap-20">
@@ -78,7 +94,9 @@ export default function TournamentSectionInfo({ sectionInfo }) {
               }
             />
           ) : (
-            <span className="text-gray-900">{sectionDetails?.isVisible ? "Yes" : "No"}</span>
+            <span className="text-gray-900">
+              {sectionDetails?.isVisible ? "Yes" : "No"}
+            </span>
           )}
         </div>
         {isEditing && (
