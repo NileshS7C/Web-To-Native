@@ -515,7 +515,7 @@ const ImageUpload = ({
               <ImSpinner5 className="absolute top-1/2 -right-2 w-[20px] h-[20px] animate-spin" />
             )}
             {field.value && (
-              <button onClick={handleRemoveImage} type="button">
+              <button onClick={() => setFieldValue("image", "")} type="button">
                 <IoMdTrash className="absolute top-1/2" />
               </button>
             )}
