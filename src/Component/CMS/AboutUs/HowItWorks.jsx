@@ -23,6 +23,7 @@ import { CiEdit } from "react-icons/ci";
 import { ImSpinner5 } from "react-icons/im";
 import { IoMdTrash } from "react-icons/io";
 import SwitchToggle from "../HomePage/SwitchToggle";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const columns = [
   {
@@ -64,11 +65,20 @@ const columns = [
   {
     key: "action",
     header: "Action",
-    render: (data, index, currentPage, onClick) => {
+    render: (data, index, currentPage, onClick, onDelete) => {
       return (
-        <button onClick={() => onClick(data)}>
-          <CiEdit />
-        </button>
+        <div className="flex items-center space-x-3">
+          <button onClick={() => onClick(data)}>
+            <CiEdit className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => {
+              onDelete(data);
+            }}
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
       );
     },
   },
@@ -140,6 +150,36 @@ const HowItWorksWrapper = () => {
       subHeading: data.subHeading,
       svg: data.svg,
     }));
+  };
+
+  const handleDelete = async (item) => {
+    setSelectedHowItWorks(item);
+  
+    const updatedHowItWorks = data[0]?.howItWorks?.filter(
+      (howItem) => howItem.position !== item.position
+    );
+  
+    const reindexedHowItWorks = updatedHowItWorks.map((item, index) => ({
+      ...item,
+      position: index + 1,
+    }));
+  
+    const payload = {
+      ...data[0],
+      howItWorks: reindexedHowItWorks,
+    };
+  
+    const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
+  
+    await submitFormData(
+      submitAboutUsForm({
+        type: "howItWorks",
+        body: cleanedPayload,
+      })
+    );
+  
+    setSelectedHowItWorks(null);
+    setOpenModal(false);
   };
 
   const handleAddNew = () => {
@@ -262,7 +302,7 @@ const HowItWorksWrapper = () => {
         />
       </Modal>
 
-      <HowItWorksTable data={data} currentPage={1} handleEdit={handleEdit} />
+      <HowItWorksTable data={data} currentPage={1} handleEdit={handleEdit} handleDelete={handleDelete} />
 
       <Modal
         open={confirmationModalOpen}
@@ -304,7 +344,7 @@ const HowItWorksWrapper = () => {
   );
 };
 
-const HowItWorksTable = ({ data, currentPage, handleEdit }) => {
+const HowItWorksTable = ({ data, currentPage, handleEdit, handleDelete }) => {
   return (
     <DataTable
       data={data ? data[0]?.howItWorks : []}
@@ -316,6 +356,7 @@ const HowItWorksTable = ({ data, currentPage, handleEdit }) => {
       alternateRowColors="true"
       rowPaddingY="3"
       onClick={handleEdit}
+      onDelete={handleDelete}
     />
   );
 };
