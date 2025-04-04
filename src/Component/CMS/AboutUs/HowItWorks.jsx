@@ -556,7 +556,7 @@ const NumberInput = ({ disabled, handleFileUpload }) => {
                 hover:file:bg-gray-100"
             />
             {field.value && (
-              <div className="w-12 h-12">
+              <div className="w-12 h-12 relative">
                 <img
                   src={
                     typeof field.value === "string"
