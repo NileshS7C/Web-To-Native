@@ -21,6 +21,7 @@ import { IoMdTrash } from "react-icons/io";
 import { ImSpinner5 } from "react-icons/im";
 import PropTypes from "prop-types";
 import SwitchToggle from "../HomePage/SwitchToggle";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const columns = [
   {
@@ -56,11 +57,20 @@ const columns = [
   {
     header: "Action",
     key: "action",
-    render: (item, index, currentPage, onClick) => {
+    render: (item, index, currentPage, onClick, onDelete) => {
       return (
-        <button onClick={() => onClick(item)}>
-          <CiEdit className="w-6 h-6" />
-        </button>
+        <div className="flex items-center space-x-3">
+          <button onClick={() => onClick(item)}>
+            <CiEdit className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => {
+              onDelete(item);
+            }}
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
       );
     },
   },
@@ -151,6 +161,37 @@ const TeamSection = () => {
     setEditButtonClicked(true);
   };
 
+  const handleDelete = async (item) => {
+    setSelectedMember(item);
+  
+    const updatedTeam = data[0]?.ourTeam?.filter(
+      (member) => member.position !== item.position
+    );
+  
+    const reindexedTeam = updatedTeam.map((member, index) => ({
+      ...member,
+      position: index + 1,
+    }));
+  
+    const payload = {
+      ...data[0],
+      ourTeam: reindexedTeam,
+    };
+  
+    const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
+  
+    await submitFormData(
+      submitAboutUsForm({
+        type: "ourTeam",
+        body: cleanedPayload,
+      })
+    );
+  
+    setSelectedMember(null);
+    setOpenModal(false);
+  };
+  
+
   const handleCloseModal = () => {
     setOpenModal(false);
     setInitialState(initialValues);
@@ -238,7 +279,7 @@ const TeamSection = () => {
           </div>
         </div>
       </div>
-      <TeamMemberTable data={data} currentPage={1} handleEdit={handleEdit} />
+      <TeamMemberTable data={data} currentPage={1} handleEdit={handleEdit} handleDelete={handleDelete}/>
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -296,7 +337,7 @@ const TeamSection = () => {
   );
 };
 
-const TeamMemberTable = ({ data, currentPage, handleEdit }) => {
+const TeamMemberTable = ({ data, currentPage, handleEdit, handleDelete }) => {
   return (
     <DataTable
       data={data ? data[0]?.ourTeam : []}
@@ -308,6 +349,7 @@ const TeamMemberTable = ({ data, currentPage, handleEdit }) => {
       alternateRowColors="true"
       rowPaddingY="3"
       onClick={handleEdit}
+      onDelete={handleDelete}
     />
   );
 };
@@ -465,6 +507,7 @@ TeamMemberTable.propTypes = {
   data: PropTypes.array.isRequired,
   currentPage: PropTypes.number.isRequired,
   handleEdit: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
 };
 
 TeamSectionForm.propTypes = {
