@@ -94,7 +94,7 @@ export const Pagination = ({
       <div className="hidden md:-mt-px md:flex">
         {pages.map((page, index) => (
           <React.Fragment key={`page_${page}`}>
-            {hasLink ? (
+            {hasLink && page !== "..." ? (
               <Link
                 to={{
                   pathname: !pathName ? "/tournaments" : pathName,
@@ -110,7 +110,11 @@ export const Pagination = ({
               </Link>
             ) : (
               <button
-                onClick={() => dispatch(onPageChange(page))}
+                onClick={() => {
+                  if (page !== "...") {
+                    dispatch(onPageChange(page));
+                  }
+                }}
                 className={`inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium ${
                   page === currentPage
                     ? "border-indigo-500 text-indigo-600"

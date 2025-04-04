@@ -107,7 +107,7 @@ function TournamentListing(props) {
         })
       );
     }
-  }, [searchInput]);
+  }, [searchInput, currentPage, role, singleTournamentOwner?.id]);
 
   useEffect(() => {
     if (selectedFilter || selectedTab) {
