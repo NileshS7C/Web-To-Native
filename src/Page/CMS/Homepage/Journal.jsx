@@ -5,15 +5,21 @@ import JournalAddDataModal from "../../../Component/CMS/HomePage/Journal/Journal
 import axiosInstance from "../../../Services/axios";
 import { Modal } from "../../../Component/Common/Modal";
 import { JournalForm } from "../../../Component/CMS/HomePage/Journal/JournalForm";
-import { data } from "react-router-dom";
+import { Toast } from "../../../Component/Common/Toast";
+
 export default function Journal() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [journalData, setJournalData] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedJournal, setSelectedJournal] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
+  const [uploadSuccess, setUploadSuccess] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [message, setMessage] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
+  const [isError, setIsError] = useState(false);
   const fetchJournalSection = async () => {
     try {
       const config = {
@@ -37,14 +43,12 @@ export default function Journal() {
   }, []);
 
   const handleEdit = (data) => {
-    console.log("data", data);
     setSelectedJournal(data);
     setIsEditModalOpen(true);
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      console.log("data", values);
       setSubmitting(true);
       setError(null);
       setSuccess(null);
@@ -62,7 +66,6 @@ export default function Journal() {
         `${import.meta.env.VITE_BASE_URL}/users/admin/blogs/${
           selectedJournal?.blogID?.handle
         }`,
-
         JSON.stringify({ ...updatedData }),
         config
       );
@@ -70,15 +73,41 @@ export default function Journal() {
       if (response?.data?.responseCode === 0) {
         setSuccess(true);
         setMessage(response?.data?.message);
+        fetchJournalSection();
+        setIsEditModalOpen(false);
       } else {
         setError(true);
-        setMessage(response?.data?.message);
+        setMessage(response?.data?.message || "Failed to update journal");
       }
       resetForm();
+      setSubmitting(false);
     } catch (err) {
-      console.log("Error occured while updating the journal", err);
+      console.error("Error occurred while updating the journal", err);
+      setError(true);
+      setMessage("Something went wrong while updating the journal");
+      setSubmitting(false);
+    } finally {
+      setShowToast(true);
     }
   };
+
+  useEffect(() => {
+    if (error || uploadError) {
+      setShowToast(true);
+      setToastMessage(message || uploadError);
+      setIsError(true);
+    }
+  }, [error, uploadError]);
+
+  useEffect(() => {
+    if (success || uploadSuccess) {
+      setShowToast(true);
+      const response = success ? message : "Image uploaded successfully!";
+      setToastMessage(response);
+      setIsError(false);
+    }
+  }, [success, uploadSuccess]);
+
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:flex-col gap-4">
@@ -125,6 +154,8 @@ export default function Journal() {
         <JournalForm
           handleSubmit={handleSubmit}
           selectedJournal={selectedJournal?.blogID ?? null}
+          setUploadError={setUploadError}
+          setUploadSuccess={setUploadSuccess}
         />
       </Modal>
 
@@ -135,6 +166,13 @@ export default function Journal() {
         onClose={() => setIsModalOpen(false)}
         fetchHomepageSections={fetchJournalSection}
       />
+
+      {showToast && (
+        <Toast
+          successMessage={!isError ? toastMessage : null}
+          error={isError ? toastMessage : null}
+        />
+      )}
     </div>
   );
 }

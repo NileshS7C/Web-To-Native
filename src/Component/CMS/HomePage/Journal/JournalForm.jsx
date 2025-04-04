@@ -1,7 +1,14 @@
-import { Field, Form, Formik } from "formik";
-import { Input } from "../../../Common/Input";
 import { useState, useEffect } from "react";
+import { Field, Form, Formik } from "formik";
+import PropTypes from "prop-types";
+
+import { useImageUpload } from "../../../../Hooks/CMS/useImageUpload";
+
+import { Input } from "../../../Common/Input";
 import Button from "../../../Common/Button";
+
+import { IoMdTrash } from "react-icons/io";
+import { ImSpinner5 } from "react-icons/im";
 
 const initialValues = {
   blogName: "",
@@ -14,14 +21,42 @@ const initialValues = {
   writerShortname: "",
 };
 
-export const JournalForm = ({ handleSubmit, selectedJournal }) => {
+export const JournalForm = ({
+  handleSubmit,
+  selectedJournal,
+  setUploadError,
+  setUploadSuccess,
+}) => {
   const [initialState, setInitialState] = useState(initialValues);
-
+  const {
+    handleFileUpload,
+    isUploading,
+    uploadError,
+    previewURL,
+    uploadSuccess,
+  } = useImageUpload();
   useEffect(() => {
     if (selectedJournal) {
       setInitialState(selectedJournal);
     }
   }, [selectedJournal]);
+
+  useEffect(() => {
+    if (previewURL) {
+      setInitialState({ ...initialState, writerImage: previewURL });
+    }
+  }, [previewURL]);
+  useEffect(() => {
+    if (uploadError) {
+      setUploadError(uploadError);
+    }
+  }, [uploadError]);
+
+  useEffect(() => {
+    if (uploadSuccess) {
+      setUploadSuccess(uploadSuccess);
+    }
+  }, [uploadSuccess]);
 
   return (
     <Formik
@@ -37,7 +72,12 @@ export const JournalForm = ({ handleSubmit, selectedJournal }) => {
             <FeatureImage />
             <Handle />
             <Tags />
-            <WriterImage />
+            <ImageUpload
+              handleFileUpload={handleFileUpload}
+              isUploading={isUploading}
+              uploadError={uploadError}
+              uploadSuccess={uploadSuccess}
+            />
             <WriterName />
             <WriteShortName />
 
@@ -123,13 +163,54 @@ const Tags = () => {
   );
 };
 
-const WriterImage = () => {
+const ImageUpload = ({
+  disabled,
+  handleFileUpload,
+  isUploading,
+  uploadError,
+  handleRemoveImage,
+}) => {
   return (
-    <Field name="writerImage" id="writerImage" type="file">
-      {({ field }) => (
+    <Field name="writerImage" id="writerImage" type="file" accept="image/*">
+      {({ field, form }) => (
         <div className="flex flex-col gap-2 items-start">
           <label htmlFor="writerImage">Writer Image</label>
-          <Input {...field} />
+          <div className="flex flex-col justify-start items-center gap-4 relative">
+            <input
+              type="file"
+              id="writerImage"
+              accept="image/*"
+              onChange={handleFileUpload}
+              disabled={disabled}
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-gray-50 file:text-gray-700
+                hover:file:bg-gray-100"
+            />
+            {field.value && (
+              <div className="w-32 h-32">
+                <img
+                  src={
+                    typeof field.value === "string"
+                      ? field.value
+                      : URL.createObjectURL(field.value)
+                  }
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
+            )}
+            {isUploading && (
+              <ImSpinner5 className="absolute top-1/2 right-1/3 w-6 h-6 animate-spin" />
+            )}
+            <button onClick={handleRemoveImage} type="button">
+              {field.value && (
+                <IoMdTrash className="absolute top-1/2 right-0 w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
       )}
     </Field>
@@ -160,4 +241,19 @@ const WriteShortName = () => {
       )}
     </Field>
   );
+};
+
+JournalForm.propTypes = {
+  handleSubmit: PropTypes.func.isRequired,
+  selectedJournal: PropTypes.object,
+  setUploadError: PropTypes.func.isRequired,
+  setUploadSuccess: PropTypes.func.isRequired,
+};
+
+ImageUpload.propTypes = {
+  disabled: PropTypes.bool,
+  handleFileUpload: PropTypes.func.isRequired,
+  isUploading: PropTypes.bool.isRequired,
+  uploadError: PropTypes.string,
+  handleRemoveImage: PropTypes.func,
 };
