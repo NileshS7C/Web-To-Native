@@ -23,6 +23,7 @@ import { CiEdit } from "react-icons/ci";
 import { IoMdTrash } from "react-icons/io";
 import { ImSpinner5 } from "react-icons/im";
 import SwitchToggle from "../HomePage/SwitchToggle";
+import { TrashIcon } from "@heroicons/react/24/outline";
 const initialValues = {
   heading: "",
   subHeading: "",
@@ -56,11 +57,20 @@ const missionVisionColumns = [
   {
     key: "action",
     header: "Action",
-    render: (item, index, currentPage, onClick) => {
+    render: (item, index, currentPage, onClick, onDelete) => {
       return (
-        <button onClick={() => onClick(item.position)}>
-          <CiEdit />
-        </button>
+        <div className="flex items-center space-x-3">
+          <button onClick={() => onClick(item.position)}>
+            <CiEdit className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => {
+              onDelete(item.position);
+            }}
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
       );
     },
   },
@@ -106,6 +116,34 @@ const MissionAndVisionWrapper = () => {
     [data, openModal]
   );
 
+  const handleDelete = async (position) => {
+    const updatedMissionVision = data[0]?.missionVision?.filter(
+      (missionItem) => missionItem.position !== position
+    );
+  
+    const reindexedMissionVision = updatedMissionVision.map((item, index) => ({
+      ...item,
+      position: index + 1,
+    }));
+  
+    const payload = {
+      ...data[0],
+      missionVision: reindexedMissionVision,
+    };
+  
+    const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
+  
+    await submitFormData(
+      submitAboutUsForm({
+        type: "missionVision",
+        body: cleanedPayload,
+      })
+    );
+  
+    setSelectedMissionVision(null);
+    setOpenModal(false);
+  };
+  
   const { handleFileUpload, isUploading, uploadError, previewURL } =
     useImageUpload();
 
@@ -244,7 +282,7 @@ const MissionAndVisionWrapper = () => {
         </div>
       </div>
 
-      <MissionAndVisionTable data={data} handleEdit={handleEdit} />
+      <MissionAndVisionTable data={data} handleEdit={handleEdit} handleDelete={handleDelete}/>
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -303,7 +341,7 @@ const MissionAndVisionWrapper = () => {
   );
 };
 
-const MissionAndVisionTable = ({ data, currentPage, handleEdit }) => {
+const MissionAndVisionTable = ({ data, currentPage, handleEdit, handleDelete }) => {
   return (
     <DataTable
       data={data ? data[0]?.missionVision : []}
@@ -315,6 +353,7 @@ const MissionAndVisionTable = ({ data, currentPage, handleEdit }) => {
       alternateRowColors="true"
       rowPaddingY="3"
       onClick={handleEdit}
+      onDelete={handleDelete}
     />
   );
 };
@@ -432,6 +471,7 @@ MissionAndVisionTable.propTypes = {
   data: PropTypes.array.isRequired,
   currentPage: PropTypes.number,
   handleEdit: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
 };
 
 MissionAndVisionForm.propTypes = {

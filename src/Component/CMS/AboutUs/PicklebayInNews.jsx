@@ -68,7 +68,7 @@ const columns = [
           </button>
           <button
             onClick={() => {
-              onDelete(data); 
+              onDelete(data);
             }}
           >
             <TrashIcon className="w-5 h-5" />
@@ -151,45 +151,35 @@ const PicklebayInNews = () => {
   };
 
   const handleDelete = async (item) => {
-    // Set selected item just in case you want to use it later (e.g., toast message)
     setSelectedPicklebayInNews(item);
-  
-    // Remove the item that matches the one selected (by position)
+
     const updatedNews = data[0]?.news?.filter(
       (newsItem) => newsItem.position !== item.position
     );
-  
-    // Reassign correct positions
+
     const reindexedNews = updatedNews.map((item, index) => ({
       ...item,
       position: index + 1,
     }));
-  
-    // Prepare the final payload
+
     const payload = {
       ...data[0],
       news: reindexedNews,
     };
-  
-    // Remove unnecessary props before submitting
+
     const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
-  
-    // Submit the updated news list
+
     await submitFormData(
       submitAboutUsForm({
         type: "news",
         body: cleanedPayload,
       })
     );
-  
-    // Optional: Reset any selected state if needed
+
     setSelectedPicklebayInNews(null);
     setOpenModal(false);
   };
-  
-  
-  
-  
+
   const handleAddNew = () => {
     setOpenModal(true);
     setInitialState(initialValues);
@@ -343,7 +333,12 @@ const PicklebayInNews = () => {
   );
 };
 
-const PicklebayInNewsTable = ({ data, currentPage, handleEdit, handleDelete}) => {
+const PicklebayInNewsTable = ({
+  data,
+  currentPage,
+  handleEdit,
+  handleDelete,
+}) => {
   return (
     <DataTable
       data={data ? data[0]?.news : []}
