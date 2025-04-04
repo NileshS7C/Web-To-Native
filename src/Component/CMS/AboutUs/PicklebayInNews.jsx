@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Field, Formik, Form } from "formik";
+import { Field, Formik, Form, ErrorMessage, useFormikContext } from "formik";
 import PropTypes from "prop-types";
 import * as Yup from "yup";
 
@@ -21,8 +21,30 @@ import DataTable from "../../Common/DataTable";
 
 import { CiEdit } from "react-icons/ci";
 import SwitchToggle from "../HomePage/SwitchToggle";
+import DatePicker from "react-datepicker";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const columns = [
+  {
+    key: "title",
+    header: "Title",
+    render: (data) => {
+      return data.title;
+    },
+  },
+  {
+    key: "date",
+    header: "Date",
+    render: (data) => {
+      return data.date
+        ? new Date(data.date).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "N/A";
+    },
+  },
   {
     key: "link",
     header: "Link",
@@ -38,11 +60,20 @@ const columns = [
   {
     key: "action",
     header: "Action",
-    render: (data, index, currentPage, onClick) => {
+    render: (data, index, currentPage, onClick, onDelete) => {
       return (
-        <button onClick={() => onClick(data)}>
-          <CiEdit className="w-6 h-6" />
-        </button>
+        <div className="flex items-center space-x-3">
+          <button onClick={() => onClick(data)}>
+            <CiEdit className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => {
+              onDelete(data);
+            }}
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
       );
     },
   },
@@ -56,10 +87,16 @@ const validationSchema = Yup.object().shape({
       /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/,
       "Please enter a valid URL"
     ),
+  title: Yup.string().required("Title is required"),
+  description: Yup.string().required("Description is required"),
+  date: Yup.date().nullable().required("Date is required"),
 });
 
 const initialValues = {
   link: "",
+  title: "",
+  description: "",
+  date: null,
 };
 
 const PicklebayInNews = () => {
@@ -107,7 +144,40 @@ const PicklebayInNews = () => {
     setInitialState((prev) => ({
       ...prev,
       link: data.link,
+      title: data.title,
+      description: data.description,
+      date: data.date,
     }));
+  };
+
+  const handleDelete = async (item) => {
+    setSelectedPicklebayInNews(item);
+
+    const updatedNews = data[0]?.news?.filter(
+      (newsItem) => newsItem.position !== item.position
+    );
+
+    const reindexedNews = updatedNews.map((item, index) => ({
+      ...item,
+      position: index + 1,
+    }));
+
+    const payload = {
+      ...data[0],
+      news: reindexedNews,
+    };
+
+    const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
+
+    await submitFormData(
+      submitAboutUsForm({
+        type: "news",
+        body: cleanedPayload,
+      })
+    );
+
+    setSelectedPicklebayInNews(null);
+    setOpenModal(false);
   };
 
   const handleAddNew = () => {
@@ -186,7 +256,7 @@ const PicklebayInNews = () => {
   return (
     <div className="w-full">
       <div className="flex flex-col">
-        <Page title="How It Works Section" />
+        <Page title="Picklebay in News" />
         <div className="flex justify-between items-center mb-3">
           <div className="flex items-center gap-2 mb-3">
             <p className="text-md font-semibold">Current Section Visibility</p>
@@ -220,6 +290,7 @@ const PicklebayInNews = () => {
         data={data}
         currentPage={1}
         handleEdit={handleEdit}
+        handleDelete={handleDelete}
       />
 
       <Modal
@@ -262,7 +333,12 @@ const PicklebayInNews = () => {
   );
 };
 
-const PicklebayInNewsTable = ({ data, currentPage, handleEdit }) => {
+const PicklebayInNewsTable = ({
+  data,
+  currentPage,
+  handleEdit,
+  handleDelete,
+}) => {
   return (
     <DataTable
       data={data ? data[0]?.news : []}
@@ -274,6 +350,7 @@ const PicklebayInNewsTable = ({ data, currentPage, handleEdit }) => {
       alternateRowColors="true"
       rowPaddingY="3"
       onClick={handleEdit}
+      onDelete={handleDelete}
     />
   );
 };
@@ -311,24 +388,113 @@ const PicklebayInNewsForm = ({ initialState, handleSubmit }) => {
 };
 
 const LinkInput = () => {
+  const { setFieldValue, values } = useFormikContext();
   return (
     <Field name="link" id="link">
       {({ field, meta }) => {
         console.log("meta", meta);
         return (
-          <div className="flex flex-col gap-2.5">
-            <label htmlFor="link">Link</label>
-            <Input
-              {...field}
-              name="link"
-              placeholder="https://example.com"
-              className={`${
-                meta.touched && meta.error ? "border-red-500" : ""
-              }`}
-            />
-            {meta?.error && (
-              <div className="text-red-500 text-sm mt-1">{meta.error}</div>
-            )}
+          <div>
+            {/* Title Field */}
+            <div className="flex flex-col gap-2.5">
+              <label>Title</label>
+              <Field name="title">
+                {({ field, meta }) => (
+                  <>
+                    <Input
+                      {...field}
+                      placeholder="Title"
+                      className={
+                        meta.touched && meta.error ? "border-red-500" : ""
+                      }
+                    />
+                    <ErrorMessage
+                      name="title"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                    />
+                  </>
+                )}
+              </Field>
+            </div>
+
+            {/* Description Field */}
+            <div className="flex py-2 flex-col gap-2.5">
+              <label>Description</label>
+              <Field name="description">
+                {({ field, meta }) => (
+                  <>
+                    <Input
+                      {...field}
+                      placeholder="Description"
+                      className={
+                        meta.touched && meta.error ? "border-red-500" : ""
+                      }
+                    />
+                    <ErrorMessage
+                      name="description"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                    />
+                  </>
+                )}
+              </Field>
+            </div>
+
+            {/* Date Field */}
+            <div className="flex py-2 flex-col gap-2.5">
+              <label htmlFor="date">Date</label>
+              <Field name="date">
+                {({ field, meta, form }) => (
+                  <>
+                    <DatePicker
+                      selected={field.value ? new Date(field.value) : null} // Convert stored value to Date object
+                      onChange={(date) =>
+                        form.setFieldValue(
+                          "date",
+                          date ? date.toISOString() : ""
+                        )
+                      } // Store as ISO format
+                      dateFormat="dd-MM-yyyy"
+                      placeholderText="dd-MM-yyyy"
+                      className={`w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        meta.touched && meta.error
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
+                    />
+                    <ErrorMessage
+                      name="date"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                    />
+                  </>
+                )}
+              </Field>
+            </div>
+
+            {/* Link Field */}
+            <div className="flex py-2 flex-col gap-2.5">
+              <label htmlFor="link">Link</label>
+              <Field name="link">
+                {({ field, meta }) => (
+                  <>
+                    <Input
+                      {...field}
+                      placeholder="https://example.com"
+                      className={
+                        meta.touched && meta.error ? "border-red-500" : ""
+                      }
+                    />
+                    <ErrorMessage
+                      name="link"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                    />
+                  </>
+                )}
+              </Field>
+            </div>
           </div>
         );
       }}
@@ -340,6 +506,7 @@ PicklebayInNewsTable.propTypes = {
   data: PropTypes.array.isRequired,
   currentPage: PropTypes.number.isRequired,
   handleEdit: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
 };
 
 PicklebayInNewsForm.propTypes = {
