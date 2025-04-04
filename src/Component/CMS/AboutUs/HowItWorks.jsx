@@ -533,6 +533,7 @@ const ImageUpload = ({
 };
 
 const NumberInput = ({ disabled, handleFileUpload }) => {
+  const { setFieldValue } = useFormikContext();
   return (
     <Field name="svg" id="svg" type="text">
       {({ field }) => (
@@ -565,6 +566,9 @@ const NumberInput = ({ disabled, handleFileUpload }) => {
                   alt="SVG Preview"
                   className="w-full h-full object-contain"
                 />
+                <button onClick={() => setFieldValue("svg", "")} type="button">
+                  <IoMdTrash className="absolute top-1/2 -right-4" />
+                </button>
               </div>
             )}
           </div>
