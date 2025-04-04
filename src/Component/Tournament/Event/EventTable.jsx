@@ -2,36 +2,55 @@ import PropTypes from "prop-types";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllCategories } from "../../../redux/tournament/tournamentActions";
+import {
+  getAllCategories,
+  deleteSingleCategory,
+} from "../../../redux/tournament/tournamentActions";
 
 import Button from "../../Common/Button";
 import {
   onPageChangeEvent,
   toggleModal,
   resetAllCategories,
+  setDeleteCategoryId,
 } from "../../../redux/tournament/eventSlice";
 
 import DataTable from "../../Common/DataTable";
 import { eventTableHeaders } from "../../../Constant/tournament";
 import Spinner from "../../Common/Spinner";
+import { resetConfirmationState } from "../../../redux/Confirmation/confirmationSlice";
 
-export const EventTable = ({ isDisable }) => {
+export const EventTable = ({ isDisable, categories }) => {
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
-  const { currentPage, categories, totalCategories, isLoading } = useSelector(
-    (state) => state.event
-  );
+  const { currentPage, totalCategories, isLoading, deleteCategoryId } =
+    useSelector((state) => state.event);
+  const { isConfirmed, type } = useSelector((state) => state.confirm);
 
   useEffect(() => {
-    dispatch(resetAllCategories());
-    dispatch(
-      getAllCategories({
-        currentPage,
-        limit: 10,
-        id: tournamentId,
-      })
-    );
-  }, []);
+    if (isConfirmed && type === "Event" && tournamentId && deleteCategoryId) {
+      dispatch(
+        deleteSingleCategory({
+          tour_Id: tournamentId,
+          eventId: deleteCategoryId,
+        })
+      ).then(() => {
+        dispatch(resetConfirmationState());
+        dispatch(resetAllCategories());
+        dispatch(
+          getAllCategories({
+            currentPage,
+            limit: 10,
+            id: tournamentId,
+          })
+        );
+      });
+    }
+  }, [isConfirmed, type, tournamentId, deleteCategoryId]);
+
+  const handleDelete = (id) => {
+    dispatch(setDeleteCategoryId(id));
+  };
 
   if (isLoading) {
     return (
@@ -69,6 +88,7 @@ export const EventTable = ({ isDisable }) => {
           currentPage={currentPage}
           onPageChange={onPageChangeEvent}
           className="border-[1px] rounded-md"
+          onClick={(id) => handleDelete(id)}
         />
       )}
     </div>

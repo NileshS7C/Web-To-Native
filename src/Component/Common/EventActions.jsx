@@ -15,6 +15,7 @@ import {
   deleteSingleCategory,
   getAllCategories,
 } from "../../redux/tournament/tournamentActions";
+import { setDeleteCategoryId } from "../../redux/tournament/eventSlice";
 
 const EventActions = ({ id, index, eventName }) => {
   const navigate = useNavigate();
@@ -38,25 +39,27 @@ const EventActions = ({ id, index, eventName }) => {
           withComments: false,
         })
       );
+      dispatch(setDeleteCategoryId(id));
     },
     view: () => {
       navigate(`/tournaments/${tournamentId}/event/${id}?event=${eventName}`);
     },
   };
 
-  useEffect(() => {
-    if (isConfirmed && type === "Event" && tournamentId) {
-      dispatch(deleteSingleCategory({ tour_Id: tournamentId, eventId: id }));
-      dispatch(resetConfirmationState());
-      dispatch(
-        getAllCategories({
-          currentPage,
-          limit: 10,
-          id: tournamentId,
-        })
-      );
-    }
-  }, [isConfirmed, type, tournamentId]);
+  // useEffect(() => {
+  //   if (isConfirmed && type === "Event" && tournamentId) {
+  //     // dispatch(deleteSingleCategory({ tour_Id: tournamentId, eventId: id }));
+  //     dispatch(setDeleteCategoryId(id));
+  //     dispatch(resetConfirmationState());
+  //     // dispatch(
+  //     //   getAllCategories({
+  //     //     currentPage,
+  //     //     limit: 10,
+  //     //     id: tournamentId,
+  //     //   })
+  //     // );
+  //   }
+  // }, [isConfirmed, type, tournamentId]);
 
   return (
     <ActionButtons
