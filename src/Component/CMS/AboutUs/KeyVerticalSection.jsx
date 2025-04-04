@@ -23,6 +23,7 @@ import { CiEdit } from "react-icons/ci";
 import { ImSpinner5 } from "react-icons/im";
 import { IoMdTrash } from "react-icons/io";
 import SwitchToggle from "../HomePage/SwitchToggle";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const columns = [
   {
@@ -64,11 +65,20 @@ const columns = [
   {
     key: "action",
     header: "Action",
-    render: (data, index, currentPage, onClick) => {
+    render: (data, index, currentPage, onClick, onDelete) => {
       return (
-        <button onClick={() => onClick(data)}>
-          <CiEdit />
-        </button>
+        <div className="flex items-center space-x-3">
+          <button onClick={() => onClick(data)}>
+            <CiEdit className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => {
+              onDelete(data);
+            }}
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
       );
     },
   },
@@ -140,6 +150,37 @@ const KeyVerticalSection = () => {
       svg: data.svg,
     }));
   };
+
+  const handleDelete = async (item) => {
+    setSelectedHowItWorks(item);
+  
+    const updatedVerticals = data[0]?.keyVerticals?.filter(
+      (vertical) => vertical.position !== item.position
+    );
+  
+    const reindexedVerticals = updatedVerticals.map((vertical, index) => ({
+      ...vertical,
+      position: index + 1,
+    }));
+  
+    const payload = {
+      ...data[0],
+      keyVerticals: reindexedVerticals,
+    };
+  
+    const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
+  
+    await submitFormData(
+      submitAboutUsForm({
+        type: "keyVerticals",
+        body: cleanedPayload,
+      })
+    );
+  
+    setSelectedHowItWorks(null);
+    setOpenModal(false);
+  };
+  
 
   const handleAddNew = () => {
     setOpenModal(true);
@@ -265,7 +306,7 @@ const KeyVerticalSection = () => {
         />
       </Modal>
 
-      <KeyVerticalTable data={data} currentPage={1} handleEdit={handleEdit} />
+      <KeyVerticalTable data={data} currentPage={1} handleEdit={handleEdit} handleDelete={handleDelete}/>
 
       <Modal
         open={confirmationModalOpen}
@@ -307,7 +348,7 @@ const KeyVerticalSection = () => {
   );
 };
 
-const KeyVerticalTable = ({ data, currentPage, handleEdit }) => {
+const KeyVerticalTable = ({ data, currentPage, handleEdit, handleDelete }) => {
   return (
     <DataTable
       data={data ? data[0]?.keyVerticals : []}
@@ -319,6 +360,7 @@ const KeyVerticalTable = ({ data, currentPage, handleEdit }) => {
       alternateRowColors="true"
       rowPaddingY="3"
       onClick={handleEdit}
+      onDelete={handleDelete}
     />
   );
 };
