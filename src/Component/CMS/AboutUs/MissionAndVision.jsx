@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field, useFormikContext } from "formik";
 import * as Yup from "yup";
 import PropTypes from "prop-types";
 
@@ -98,6 +98,7 @@ const MissionAndVisionWrapper = () => {
   const [isCancelled, setIsCancelled] = useState(false);
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(data ? data[0]?.isVisible : false);
+  const [edit, setEdit] = useState(false);
 
   const handleEdit = useCallback(
     (id) => {
@@ -112,6 +113,7 @@ const MissionAndVisionWrapper = () => {
         image: selectedMissionVision?.image || "",
       });
       setOpenModal(true);
+      setEdit(true);
     },
     [data, openModal]
   );
@@ -120,38 +122,32 @@ const MissionAndVisionWrapper = () => {
     const updatedMissionVision = data[0]?.missionVision?.filter(
       (missionItem) => missionItem.position !== position
     );
-  
+
     const reindexedMissionVision = updatedMissionVision.map((item, index) => ({
       ...item,
       position: index + 1,
     }));
-  
+
     const payload = {
       ...data[0],
       missionVision: reindexedMissionVision,
     };
-  
+
     const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
-  
+
     await submitFormData(
       submitAboutUsForm({
         type: "missionVision",
         body: cleanedPayload,
       })
     );
-  
+
     setSelectedMissionVision(null);
     setOpenModal(false);
   };
-  
+
   const { handleFileUpload, isUploading, uploadError, previewURL } =
     useImageUpload();
-
-  useEffect(() => {
-    if (previewURL) {
-      setInitialState((prev) => ({ ...prev, image: previewURL }));
-    }
-  }, [previewURL]);
 
   useEffect(() => {
     if (uploadError) {
@@ -187,12 +183,14 @@ const MissionAndVisionWrapper = () => {
     setSelectedMissionVision(null);
     setInitialState(initialValues);
     setOpenModal(true);
+    setEdit(false);
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
     setSelectedMissionVision(null);
     setInitialState(initialValues);
+    setEdit(false);
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -282,7 +280,11 @@ const MissionAndVisionWrapper = () => {
         </div>
       </div>
 
-      <MissionAndVisionTable data={data} handleEdit={handleEdit} handleDelete={handleDelete}/>
+      <MissionAndVisionTable
+        data={data}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -298,6 +300,9 @@ const MissionAndVisionWrapper = () => {
           handleRemoveImage={handleRemoveImage}
           handleImageChange={handleFileUpload}
           isUploading={isUploading}
+          previewURL={previewURL}
+          openModal={openModal}
+          edit={edit}
         />
       </Modal>
 
@@ -341,7 +346,12 @@ const MissionAndVisionWrapper = () => {
   );
 };
 
-const MissionAndVisionTable = ({ data, currentPage, handleEdit, handleDelete }) => {
+const MissionAndVisionTable = ({
+  data,
+  currentPage,
+  handleEdit,
+  handleDelete,
+}) => {
   return (
     <DataTable
       data={data ? data[0]?.missionVision : []}
@@ -364,6 +374,9 @@ const MissionAndVisionForm = ({
   handleRemoveImage,
   handleImageChange,
   isUploading,
+  previewURL,
+  openModal,
+  edit,
 }) => {
   return (
     <Formik
@@ -379,7 +392,9 @@ const MissionAndVisionForm = ({
               <Heading />
               <SubHeading />
               <ImageUpload
-                values={values}
+                previewURL={previewURL}
+                openModal={openModal}
+                edit={edit}
                 handleRemoveImage={handleRemoveImage}
                 handleImageChange={handleImageChange}
                 isUploading={isUploading}
@@ -433,37 +448,80 @@ const SubHeading = () => {
 };
 
 const ImageUpload = ({
-  values,
+  previewURL,
+  openModal,
+  edit,
   handleRemoveImage,
   handleImageChange,
   isUploading,
 }) => {
+  const { setFieldValue } = useFormikContext();
+  useEffect(() => {
+    if (previewURL) {
+      const fileExtension = previewURL.split(".").pop().toLowerCase();
+      let fileTypeKey;
+      if (["svg"].includes(fileExtension)) {
+        fileTypeKey = "svg";
+      } else if (
+        ["jpg", "jpeg", "png", "gif", "webp"].includes(fileExtension)
+      ) {
+        fileTypeKey = "image";
+      }
+
+      setFieldValue(fileTypeKey, previewURL);
+    }
+  }, [previewURL]);
+
+  useEffect(() => {
+    if (openModal && !edit) {
+      setFieldValue("image", "");
+    }
+  }, [openModal, edit]);
   return (
-    <>
-      <Field
-        as={Input}
-        type="file"
-        name="image"
-        id="image"
-        onChange={handleImageChange}
-      />
-      {values.image && (
-        <div className="w-[100px] relative">
-          <img
-            src={values.image}
-            alt="preview top section figure"
-            width="100px"
-            height="100px"
-          />
-          {isUploading && (
-            <ImSpinner5 className="absolute top-0 -right-10 w-[20px] h-[20px] animate-spin" />
-          )}
-          <button onClick={handleRemoveImage} type="button">
-            <IoMdTrash className="absolute top-0 -right-4" />
-          </button>
+    <Field name="image" id="image" type="file" accept="image/*">
+      {({ field, form }) => (
+        <div className="flex flex-col gap-2 items-start">
+          <label htmlFor="image">Left Side Image</label>
+          <div className="flex items-center gap-4 relative">
+            <input
+              type="file"
+              id="image"
+              accept="image/*"
+              onChange={(e) => {
+                handleImageChange(e);
+              }}
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-gray-50 file:text-gray-700
+                hover:file:bg-gray-100"
+            />
+            {field.value && (
+              <div className="w-32 h-32">
+                <img
+                  src={
+                    typeof field.value === "string"
+                      ? field.value
+                      : URL.createObjectURL(field.value)
+                  }
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
+            )}
+            {isUploading && (
+              <ImSpinner5 className="absolute top-1/2 -right-2 w-[20px] h-[20px] animate-spin" />
+            )}
+            {field.value && (
+              <button onClick={handleRemoveImage} type="button">
+                <IoMdTrash className="absolute top-1/2" />
+              </button>
+            )}
+          </div>
         </div>
       )}
-    </>
+    </Field>
   );
 };
 
@@ -480,10 +538,15 @@ MissionAndVisionForm.propTypes = {
   handleRemoveImage: PropTypes.func.isRequired,
   handleImageChange: PropTypes.func.isRequired,
   isUploading: PropTypes.bool.isRequired,
+  previewURL: PropTypes.string.isRequired,
+  openModal: PropTypes.bool.isRequired,
+  edit: PropTypes.bool.isRequired,
 };
 
 ImageUpload.propTypes = {
-  values: PropTypes.object.isRequired,
+  previewURL: PropTypes.string.isRequired,
+  openModal: PropTypes.bool.isRequired,
+  edit: PropTypes.bool.isRequired,
   handleRemoveImage: PropTypes.func.isRequired,
   handleImageChange: PropTypes.func.isRequired,
   isUploading: PropTypes.bool.isRequired,
