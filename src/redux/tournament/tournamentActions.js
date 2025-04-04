@@ -492,7 +492,7 @@ export const deleteSingleCategory = createAsyncThunk(
     try {
       const userRole = cookies.get("userRole");
 
-      const userAPIEndPoint = API_END_POINTS.tournament.DELETE.deleteCategory(
+      const userAPIEndPoint = API_END_POINTS.tournament.POST.deleteCategory(
         userRole,
         tour_Id,
         eventId
@@ -502,7 +502,7 @@ export const deleteSingleCategory = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.delete(
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         config
       );

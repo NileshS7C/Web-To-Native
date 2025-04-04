@@ -19,6 +19,7 @@ const initialState = {
   singleCategoryError: false,
   singleCategorySuccess: false,
   showConfirmBookingModal: false,
+  deleteCategoryId: "",
 };
 const eventSlice = createSlice({
   name: "event",
@@ -41,6 +42,9 @@ const eventSlice = createSlice({
 
     resetAllCategories(state) {
       state.categories = [];
+    },
+    setDeleteCategoryId(state, { payload }) {
+      state.deleteCategoryId = payload;
     },
   },
 
@@ -92,6 +96,7 @@ export const {
   setEventId,
   toggleBookingModal,
   resetAllCategories,
+  setDeleteCategoryId,
 } = eventSlice.actions;
 
 export default eventSlice.reducer;
