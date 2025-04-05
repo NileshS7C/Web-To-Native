@@ -3,6 +3,14 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+
+  server: {
+    host: true,
+    strictPort: true,
+  },
+  preview: {
+    allowedHosts: ["admin.picklebay.com"], // Explicitly allow the domain
+  },
   resolve: {
     extensions: [".js", ".jsx", ".json"],
   },
