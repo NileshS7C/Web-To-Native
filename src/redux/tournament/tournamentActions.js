@@ -375,17 +375,18 @@ export const updateEventCategory = createAsyncThunk(
     try {
       const userRole = cookies.get("userRole");
 
-      const userAPIEndPoint = API_END_POINTS.tournament.PATCH.updateCategory(
+      const userAPIEndPoint = API_END_POINTS.tournament.POST.updateCategory(
         userRole,
         id,
         categoryId
       );
+
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.put(
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         JSON.stringify(formData),
         config
