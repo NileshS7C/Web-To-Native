@@ -73,6 +73,14 @@ export const API_END_POINTS = {
         }
       },
 
+      updateCategory: (type, tournamentId, categoryId) => {
+        if (ADMINROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}`;
+        }
+      },
+
       deleteCategory: (type, tournamentId, categoryId) => {
         if (ADMINROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/delete`;
@@ -241,13 +249,6 @@ export const API_END_POINTS = {
     },
 
     PATCH: {
-      updateCategory: (type, tournamentId, categoryId) => {
-        if (ADMINROLES.includes(type)) {
-          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}`;
-        } else {
-          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}`;
-        }
-      },
       fixtureMatchSetCountUpdate: (
         type,
         tournamentId,

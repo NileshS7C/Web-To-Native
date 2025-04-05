@@ -224,6 +224,7 @@ export const EventCreationModal = () => {
             updateEventCategory({
               formData: updatedValues,
               id: tournamentId,
+              categoryId: categoryId,
             })
           ).unwrap();
 
