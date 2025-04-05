@@ -102,6 +102,7 @@ const KeyVerticalSection = () => {
   const [isCancelled, setIsCancelled] = useState(false);
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [deleteButtonClicked, setDeleteButtonClicked] = useState(false);
 
   const { submitFormData, submissionError, isSubmitted } = useSubmitForm();
   const { data, error, errorMessage, success } = useFetchData(
@@ -153,11 +154,9 @@ const KeyVerticalSection = () => {
     setEdit(true);
   };
 
-  const handleDelete = async (item) => {
-    setSelectedHowItWorks(item);
-
+  const deleteKeyVertical = async () => {
     const updatedVerticals = data[0]?.keyVerticals?.filter(
-      (vertical) => vertical.position !== item.position
+      (vertical) => vertical.position !== selectedHowItWorks.position
     );
 
     const reindexedVerticals = updatedVerticals.map((vertical, index) => ({
@@ -181,6 +180,13 @@ const KeyVerticalSection = () => {
 
     setSelectedHowItWorks(null);
     setOpenModal(false);
+    setDeleteButtonClicked(false);
+  };
+
+  const handleDelete = async (item) => {
+    setDeleteButtonClicked(true);
+    setConfirmationModalOpen(true);
+    setSelectedHowItWorks(item);
   };
 
   const handleAddNew = () => {
@@ -188,6 +194,7 @@ const KeyVerticalSection = () => {
     setInitialState(initialValues);
     setSelectedHowItWorks(null);
     setEdit(false);
+    setDeleteButtonClicked(false);
   };
 
   const handleCloseModal = () => {
@@ -195,6 +202,7 @@ const KeyVerticalSection = () => {
     setInitialState(initialValues);
     selectedHowItWorks(null);
     setEdit(false);
+    setDeleteButtonClicked(false);
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -242,25 +250,30 @@ const KeyVerticalSection = () => {
     setConfirmationModalOpen(false);
     setIsConfirmed(true);
 
-    const updatedMissionVision = {
-      ...data[0],
-      isVisible: !data[0].isVisible,
-    };
+    if (deleteButtonClicked) {
+      await deleteKeyVertical();
+    } else {
+      const updatedMissionVision = {
+        ...data[0],
+        isVisible: !data[0].isVisible,
+      };
 
-    const { _id, sectionType, updatedAt, ...updatedValues } =
-      updatedMissionVision;
+      const { _id, sectionType, updatedAt, ...updatedValues } =
+        updatedMissionVision;
 
-    await submitFormData(
-      submitAboutUsForm({
-        type: "keyVerticals",
-        body: updatedValues,
-      })
-    );
+      await submitFormData(
+        submitAboutUsForm({
+          type: "keyVerticals",
+          body: updatedValues,
+        })
+      );
+    }
   };
 
   const handleCancel = () => {
     setConfirmationModalOpen(false);
     setIsCancelled(true);
+    setDeleteButtonClicked(false);
   };
   return (
     <div className="w-full">
@@ -316,20 +329,23 @@ const KeyVerticalSection = () => {
         }}
       >
         <div className="flex flex-col gap-5">
-          <p>
-            {`Are you sure you want to turn ${
-              isVisible ? "off" : "on"
-            } the visibility of the section?`}
+          <p className="text-md text-red-700">
+            {!deleteButtonClicked
+              ? `Are you sure you want to turn ${
+                  isVisible ? "off" : "on"
+                } the visibility of the section?`
+              : "Are you sure you want to delete this key vertical section?"}
           </p>
-          <div className="flex justify-end gap-2">
+
+          <div className="flex justify-end gap-2 mb-2">
             <Button
-              className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300"
+              className="px-4 py-2 rounded-lg shadow-md bg-[#FFFFFF] hover:bg-gray-200 active:bg-gray-300 ring-1 ring-gray-300"
               onClick={handleCancel}
             >
               Cancel
             </Button>
             <Button
-              className="px-4 py-2 rounded-lg shadow-md bg-red-700 hover:bg-red-400 active:bg-red-500"
+              className="text-white px-4 py-2 rounded-lg shadow-md bg-red-700 hover:bg-red-400 active:bg-red-500 ring-1 ring-red-500"
               onClick={handleConfirm}
             >
               Confirm
