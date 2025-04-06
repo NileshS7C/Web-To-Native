@@ -779,7 +779,7 @@ const EventTimings = () => {
           className="text-[16px] leading-[19.3px] text-[#232323]"
           htmlFor="categoryStartDate"
         >
-          Tournament Date
+          Event Date
         </label>
         <div className="relative">
           <Field name="categoryStartDate">
