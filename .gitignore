@@ -44,4 +44,5 @@ dist-ssr
 .github/workflows/dev.yml
 *.yml
 
+# vite
 .vite.config.js
