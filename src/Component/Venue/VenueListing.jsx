@@ -1,10 +1,6 @@
 import FilterGroup from "../Common/FilterGroup";
 import { getAllVenues, deleteVenue } from "../../redux/Venue/venueActions";
-import {
-  checkVenue,
-  onPageChange,
-  onFilterChange,
-} from "../../redux/Venue/getVenues";
+import { checkVenue, onPageChange, onFilterChange } from "../../redux/Venue/getVenues";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { tableHeaders, venueFilters, venueLimit } from "../../Constant/venue";
@@ -27,6 +23,7 @@ import {
   resetDeleteState,
   resetErrorState,
 } from "../../redux/Venue/deleteVenue";
+import FilterPlayer from "../Player/FilterPlayer";
 
 const SearchVenue = ({
   dispatch,
@@ -36,6 +33,7 @@ const SearchVenue = ({
   selectedFilter,
   limit,
   isDeleted,
+  selectedCity,
 }) => {
   const [searchVenue, setSearchVenue] = useState("");
   const debouncedValue = useDebounce(searchVenue, 300);
@@ -53,10 +51,11 @@ const SearchVenue = ({
           selectedFilter,
           limit,
           name: debouncedValue,
+          city: selectedCity,
         })
       );
     }
-  }, [debouncedValue, selectedFilter, currentPage, isDeleted]);
+  }, [debouncedValue, selectedFilter, currentPage, isDeleted, selectedCity]);
 
   return (
     <div className="relative w-full">
@@ -78,6 +77,7 @@ const SearchVenue = ({
 export default function VenueListing() {
   const dispatch = useDispatch();
   const [venueName, setVenueName] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = searchParams.get("page");
   const { isOpen, message, onClose } = useSelector((state) => state.confirm);
@@ -111,10 +111,10 @@ export default function VenueListing() {
   useEffect(() => {
     if (!venueName) {
       dispatch(
-        getAllVenues({ currentPage, selectedFilter, limit: venueLimit })
+        getAllVenues({ currentPage, selectedFilter, limit: venueLimit, city: selectedCity })
       );
     }
-  }, [currentPage, selectedFilter, isDeleted, isSuccess, venueName]);
+  }, [currentPage, selectedFilter, isDeleted, isSuccess, venueName, selectedCity]);
 
   useEffect(() => {
     if (isDeleted) {
@@ -143,7 +143,7 @@ export default function VenueListing() {
     }
   }, [isDeleted, isError]);
 
-  if (venues?.length === 0 && selectedFilter === "all" && !venueName) {
+  if (venues?.length === 0 && selectedFilter === "all" && !venueName && !selectedCity) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <NotCreated
@@ -156,8 +156,8 @@ export default function VenueListing() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-[40px] rounded-[3xl]">
-      <div className="flex justify-between">
+    <div className="grid grid-cols-1 gap-[20px] rounded-[3xl]">
+      <div className="flex justify-between flex-wrap">
         <div className="flex items-center justify-between w-[40%] gap-2.5">
           <SearchVenue
             dispatch={dispatch}
@@ -167,6 +167,7 @@ export default function VenueListing() {
             selectedFilter={selectedFilter}
             limit={venueLimit}
             isDeleted={isDeleted}
+            selectedCity={selectedCity}
           />
           {isLoading && (
             <ImSpinner2 className="animate-spin rotate-180 w-6 h-6" />
@@ -180,7 +181,18 @@ export default function VenueListing() {
           onChange={(value) => dispatch(onFilterChange(value))}
           defaultValue="draft"
         />
+
       </div>
+      <div className="ml-auto">
+        <FilterPlayer
+          label="City"
+          options={["Noida", "New Delhi", "Mumbai", "Kolkata", "Ahmedabad", "Hyderabad"]}
+          selectedValue={selectedCity}
+          onChange={(value) => setSelectedCity(value)}
+        />
+      </div>
+
+
 
       {isLoading ? (
         <div className="flex items-center justify-center h-full w-full">
@@ -225,4 +237,5 @@ SearchVenue.propTypes = {
   selectedFilter: PropTypes.string,
   limit: PropTypes.number,
   isDeleted: PropTypes.bool,
+  selectedCity: PropTypes.string,
 };
