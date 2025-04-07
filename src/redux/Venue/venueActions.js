@@ -67,7 +67,7 @@ export const updateVenue = createAsyncThunk(
 export const getAllVenues = createAsyncThunk(
   "Venue/getAllVenues",
   async (
-    { currentPage, selectedFilter, limit = 10, name = "" },
+    { currentPage, selectedFilter, limit = 10, name = "", city = "" },
     { rejectWithValue }
   ) => {
     try {
@@ -76,15 +76,10 @@ export const getAllVenues = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.get(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/users/admin/venues?page=${currentPage}&status=${selectedFilter}&limit=${limit}${
-          name ? `&name=${name}` : ""
-        }`,
-        config
-      );
 
+      const url = `${import.meta.env.VITE_BASE_URL}/users/admin/venues?page=${currentPage}&status=${selectedFilter}&limit=${limit}${name ? `&name=${name}` : ""}${city ? `&city=${city}` : ""}`;
+
+      const response = await axiosInstance.get(url, config);
       return response.data;
     } catch (err) {
       if (err.response) {
@@ -101,6 +96,7 @@ export const getAllVenues = createAsyncThunk(
     }
   }
 );
+
 
 export const getSingleVenue = createAsyncThunk(
   "Venue/getSingleVenue",
