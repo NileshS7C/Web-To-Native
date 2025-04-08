@@ -67,7 +67,8 @@ const PlayersManager = () => {
   };
   return (
     <div>
-      <PlayersQueryTools
+      <PlayersQueryTools 
+         totalPlayer={players?.total}
         setPlayers={setPlayers}
         playerName={playerName}
         setPlayerName={setPlayerName}
@@ -77,7 +78,7 @@ const PlayersManager = () => {
         setGender={setGender}
         skill={skill}
         setSkill={setSkill}
-        currentPage={currentPage}
+        currentPage={currentPage} 
         limit={limit}
       />
       <Player
@@ -107,6 +108,7 @@ const Player = (props) => {
     return <ErrorBanner message={error} />;
   }
 
+
   return (
     <div>
       <DataTable
@@ -127,6 +129,7 @@ const Player = (props) => {
 
 const PlayersQueryTools = (props) => {
   const {
+    totalPlayer,
     playerName,
     setPlayerName,
     setPlayers,
@@ -151,6 +154,9 @@ const PlayersQueryTools = (props) => {
         limit={limit}
       />
       <div className="flex items-baseline gap-5">
+        <div>
+          Total Players : {totalPlayer}
+        </div>
         <p className="text-sm text-[#b8c8eb]">Fitlers: </p>
         <div className="flex space-x-4 mb-4">
           <FilterPlayer
@@ -161,7 +167,7 @@ const PlayersQueryTools = (props) => {
           />
           <FilterPlayer
             label="Skill"
-            options={["Beginner", "Intermediate", "Advanced"]}
+            options={["Beginner", "Intermediate", "Advanced", "Amateur"]}
             selectedValue={skill}
             onChange={setSkill}
           />
