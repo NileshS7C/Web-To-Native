@@ -37,67 +37,67 @@ export default function TourismEditDataModal({ data, selectedCard, isOpen, onClo
                     <DialogPanel className="relative transform overflow-auto max-h-[90vh] rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                         <Formik
                             initialValues={{
-                                title: selectedCard?.title || "",
+                                title: selectedCard?.package || "",
                                 image: selectedCard?.image || "",
                             }}
                             validationSchema={validationSchema}
                             onSubmit={async (values) => {
                                 setLoading(true);
                                 try {
-                                    let finalImageUrl = values.image;
-                                    if (values.image instanceof File) {
-                                        let image = await uploadImage(values.image);
-                                        finalImageUrl = image.url;
+                                  let finalImageUrl = values.image;
+                                  if (values.image instanceof File) {
+                                    let image = await uploadImage(values.image);
+                                    finalImageUrl = image.url;
+                                  }
+                              
+                                  const newData = {
+                                    package: values.title,
+                                    image: finalImageUrl,
+                                  };
+                                  
+                                  const updatedTourism = data.tourism.map((card) => {
+                                    if (card.package === selectedCard.package && card.image === selectedCard.image) {
+                                      return newData;
                                     }
-
-                                    const newFeature = {
-                                        title: values.title,
-                                        image: finalImageUrl,
-                                        position: selectedCard.position,
-                                    };
-                                    const hasChanged = Object.keys(newFeature).some(
-                                        (key) => newFeature[key] !== selectedCard[key]
-                                    );
-
-                                    if (!hasChanged) {
-                                        console.log("No changes detected, API request skipped.");
-                                        setLoading(false);
-                                        return;
-                                    }
-
-                                    const updatedFeatures = data.features.map((feature) =>
-                                        feature.position === selectedCard.position ? newFeature : feature
-                                    );
-
-                                    const payload = {
-                                        sectionTitle: data.sectionTitle,
-                                        isVisible: data.isVisible,
-                                        features: updatedFeatures,
-                                    };
-
-                                    console.log("Updated Payload:", payload);
-
-                                    const config = {
-                                        headers: {
-                                            "Content-Type": "application/json",
-                                        },
-                                    };
-
-                                    // Send API request
-                                    const response = await axiosInstance.post(
-                                        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/explore`,
-                                        JSON.stringify(payload),
-                                        config
-                                    );
-
-                                    fetchHomepageSections();
-                                    onClose();
-                                } catch (error) {
-                                    console.error("Error submitting data:", error);
-                                } finally {
+                                    return card;
+                                  });
+                                  
+                                  
+                              
+                                  const hasChanged = JSON.stringify(updatedTourism) !== JSON.stringify(data.tourism);
+                                  if (!hasChanged) {
+                                    console.log("No changes detected, API request skipped.");
                                     setLoading(false);
+                                    return;
+                                  }
+                              
+                                  const payload = {
+                                    sectionTitle: data.sectionTitle,
+                                    isVisible: data.isVisible,
+                                    tourism: updatedTourism,
+                                  };
+                              
+                                  const config = {
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                    },
+                                  };
+                              
+                                  await axiosInstance.post(
+                                    `${import.meta.env.VITE_BASE_URL}/users/admin/cms-sections/tourism`,
+                                    JSON.stringify(payload),
+                                    config
+                                  );
+                              
+                                  fetchHomepageSections();
+                                  onClose();
+                                } catch (error) {
+                                  console.error("Error submitting data:", error);
+                                } finally {
+                                  setLoading(false);
                                 }
-                            }}
+                              }}
+                                
                         >
                             {({ setFieldValue, values }) => (
                                 <Form>

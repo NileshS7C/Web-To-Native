@@ -48,20 +48,22 @@ export default function TourismAddDataModal({ data, isOpen, onClose, fetchHomepa
                                         });
 
                                         // Construct the new feature object
-                                        const newFeature = {
-                                            title: values.title,
+                                        const newTourismItem = {
+                                            package: values.title,
                                             image: uploadImageUrl.url,
-                                            position: data.features.length + 1, // Set next position
-                                        };
+                                          };
+                                          
 
                                         // Construct the updated features array without `_id`
-                                        const updatedFeatures = [...data.features, newFeature].map(({ _id, ...rest }) => rest);
+                                        const updatedTourism = [...data.tourism, newTourismItem];
+
 
                                         const payload = {
                                             sectionTitle: data.sectionTitle,
                                             isVisible: data.isVisible,
-                                            features: updatedFeatures,
-                                        };
+                                            tourism: updatedTourism,
+                                          };
+                                          
                                         const config = {
                                             headers: {
                                               "Content-Type": "application/json",
@@ -69,7 +71,7 @@ export default function TourismAddDataModal({ data, isOpen, onClose, fetchHomepa
                                           };
 
                                         // Send API request
-                                        const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/explore`,JSON.stringify(payload) ,config);
+                                        const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/cms-sections/tourism`,JSON.stringify(payload) ,config);
                                         fetchHomepageSections();
                                         onClose();
                                     }
