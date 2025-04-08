@@ -67,8 +67,8 @@ const PlayersManager = () => {
   };
   return (
     <div>
-      <PlayersQueryTools 
-         totalPlayer={players?.total}
+      <PlayersQueryTools
+        totalPlayer={players?.total}
         setPlayers={setPlayers}
         playerName={playerName}
         setPlayerName={setPlayerName}
@@ -78,7 +78,7 @@ const PlayersManager = () => {
         setGender={setGender}
         skill={skill}
         setSkill={setSkill}
-        currentPage={currentPage} 
+        currentPage={currentPage}
         limit={limit}
       />
       <Player
@@ -155,7 +155,7 @@ const PlayersQueryTools = (props) => {
       />
       <div className="flex items-baseline gap-5">
         <div>
-          Total Players : {totalPlayer}
+          <p className="text-sm">Total Players : {totalPlayer}</p>
         </div>
         <p className="text-sm text-[#b8c8eb]">Fitlers: </p>
         <div className="flex space-x-4 mb-4">
@@ -196,8 +196,7 @@ const SearchPlayers = ({
         setLoading(true);
         setError("");
         const response = await axiosInstance.get(
-          `${
-            import.meta.env.VITE_BASE_URL
+          `${import.meta.env.VITE_BASE_URL
           }/search-players?search=${player}&page=${currentPage}&limit=${limit}`
         );
 
