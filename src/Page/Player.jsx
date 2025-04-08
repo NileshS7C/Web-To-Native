@@ -167,7 +167,7 @@ const PlayersQueryTools = (props) => {
           />
           <FilterPlayer
             label="Skill"
-            options={["Beginner", "Intermediate", "Advanced", "Amateur"]}
+            options={["Beginner", "Amateur", "Intermediate", "Advanced"]}
             selectedValue={skill}
             onChange={setSkill}
           />
