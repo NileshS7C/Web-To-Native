@@ -68,6 +68,7 @@ const PlayersManager = () => {
   return (
     <div>
       <PlayersQueryTools
+        totalPlayer={players?.total}
         setPlayers={setPlayers}
         playerName={playerName}
         setPlayerName={setPlayerName}
@@ -107,6 +108,7 @@ const Player = (props) => {
     return <ErrorBanner message={error} />;
   }
 
+
   return (
     <div>
       <DataTable
@@ -127,6 +129,7 @@ const Player = (props) => {
 
 const PlayersQueryTools = (props) => {
   const {
+    totalPlayer,
     playerName,
     setPlayerName,
     setPlayers,
@@ -151,6 +154,9 @@ const PlayersQueryTools = (props) => {
         limit={limit}
       />
       <div className="flex items-baseline gap-5">
+        <div>
+          <p className="text-sm">Total Players : {totalPlayer}</p>
+        </div>
         <p className="text-sm text-[#b8c8eb]">Fitlers: </p>
         <div className="flex space-x-4 mb-4">
           <FilterPlayer
@@ -161,7 +167,7 @@ const PlayersQueryTools = (props) => {
           />
           <FilterPlayer
             label="Skill"
-            options={["Beginner", "Intermediate", "Advanced"]}
+            options={["Beginner", "Amateur", "Intermediate", "Advanced"]}
             selectedValue={skill}
             onChange={setSkill}
           />
@@ -190,8 +196,7 @@ const SearchPlayers = ({
         setLoading(true);
         setError("");
         const response = await axiosInstance.get(
-          `${
-            import.meta.env.VITE_BASE_URL
+          `${import.meta.env.VITE_BASE_URL
           }/search-players?search=${player}&page=${currentPage}&limit=${limit}`
         );
 
