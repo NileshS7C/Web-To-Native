@@ -186,16 +186,20 @@ const Layout = () => {
             {!notHaveBackButton.includes(currentTitle) &&
               !location.pathname.includes("/coupons/") && (
                 <button
-                  onClick={() =>
+                onClick={() => {
+                  if (window.location.href.includes("edit-court?")) {
+                    window.history.back();
+                  } else {
                     navigate(
                       backRoute(location, {
                         tournamentId,
                         id,
                         status: tournament?.status,
                       })
-                    )
+                    );
                   }
-                >
+                }}
+              >
                   <ArrowLeftIcon width="24px" height="24px" color="#343C6A" />
                 </button>
               )}
