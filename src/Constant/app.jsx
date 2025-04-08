@@ -126,6 +126,9 @@ export const ADMIN_NAVIGATION = [
           { name: "Picklebay Guidelines" },
         ],
       },
+      {
+        name: "Tourism",
+      },
     ],
   },
 ];

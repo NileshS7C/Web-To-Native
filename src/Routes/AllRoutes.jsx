@@ -47,6 +47,7 @@ import CreateCoupons from "../Component/Coupons/CreateCoupons";
 import CouponDetails from "../Component/Coupons/CouponDetails";
 import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
+import Tourism from "../Page/CMS/Tourism";
 
 const AllRoutes = () => {
   return (
@@ -94,6 +95,7 @@ const AllRoutes = () => {
           <Route path="coupons" element={<Coupons />} />
 
           {/* CMS Routes */}
+          <Route path="cms/tourism" element={<Tourism/>}/>
           <Route path="cms/homepage/explore" element={<Explore />} />
           <Route
             path="cms/homepage/featured-tournaments"
