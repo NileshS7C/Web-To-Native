@@ -49,7 +49,7 @@ import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
 import { resetEditMode } from "../redux/tournament/getTournament";
 
-const hiddenRoutes = [ 
+const hiddenRoutes = [
   "/cms/homepage/featured-tournaments",
   "/cms/homepage/featured-venues",
   "/cms/homepage/explore",
@@ -67,7 +67,7 @@ const hiddenRoutes = [
   "/cms/static-pages/terms-&-condition",
   "/cms/blogs/blog-posts",
   "/cms/blogs/blog-posts/new",
-
+  "/cms/tourism",
   ...aboutUsPageRoutes,
 ];
 
@@ -170,36 +170,34 @@ const Layout = () => {
 
       <div className="flex flex-1 bg-[#F5F7FA] overflow-hidden">
         <div
-          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${
-            shouldScroll.nav ? "overflow-auto" : "overflow-auto"
-          }  scrollbar-hide`}
+          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${shouldScroll.nav ? "overflow-auto" : "overflow-auto"
+            }  scrollbar-hide`}
           ref={navRef}
         >
           <NavBar />
         </div>
         <div
-          className={`flex-1 p-[50px] h-full ${
-            shouldScroll.page ? "overflow-auto" : "overflow-auto"
-          } scrollbar-hide`}
+          className={`flex-1 p-[50px] h-full ${shouldScroll.page ? "overflow-auto" : "overflow-auto"
+            } scrollbar-hide`}
         >
           <div className="flex gap-2.5 items-center mb-4 ">
             {!notHaveBackButton.includes(currentTitle) &&
               !location.pathname.includes("/coupons/") && (
                 <button
-                onClick={() => {
-                  if (window.location.href.includes("edit-court?")) {
-                    window.history.back();
-                  } else {
-                    navigate(
-                      backRoute(location, {
-                        tournamentId,
-                        id,
-                        status: tournament?.status,
-                      })
-                    );
-                  }
-                }}
-              >
+                  onClick={() => {
+                    if (window.location.href.includes("edit-court?")) {
+                      window.history.back();
+                    } else {
+                      navigate(
+                        backRoute(location, {
+                          tournamentId,
+                          id,
+                          status: tournament?.status,
+                        })
+                      );
+                    }
+                  }}
+                >
                   <ArrowLeftIcon width="24px" height="24px" color="#343C6A" />
                 </button>
               )}
@@ -263,14 +261,14 @@ const Layout = () => {
 
                 {(currentTitle === "Venue Details" ||
                   currentTitle.startsWith("Edit")) && (
-                  <VenueActionButtonWrapper
-                    dispatch={dispatch}
-                    navigate={navigate}
-                    venueId={id}
-                    submitForm={submitForm}
-                    isSubmitting={isSubmitting}
-                  />
-                )}
+                    <VenueActionButtonWrapper
+                      dispatch={dispatch}
+                      navigate={navigate}
+                      venueId={id}
+                      submitForm={submitForm}
+                      isSubmitting={isSubmitting}
+                    />
+                  )}
 
                 {isTournament &&
                   tournament?.status !== "DRAFT" &&
@@ -363,9 +361,8 @@ const TournamentActionButton = ({
           tournament?.status !== "ARCHIVED" && (
             <div className="flex items-center gap-2">
               <Button
-                className={`${
-                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                  } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
                 type="button"
                 onClick={() => {
                   setApproveButtonClicked(true);
@@ -381,9 +378,8 @@ const TournamentActionButton = ({
                 Accept Tournament
               </Button>
               <Button
-                className={`${
-                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                  } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
                 type="button"
                 onClick={() => {
                   dispatch(
