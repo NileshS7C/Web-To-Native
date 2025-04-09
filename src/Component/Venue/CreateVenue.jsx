@@ -376,10 +376,11 @@ const VenueInfo = () => {
                 id={id}
               />
               <Button
-                className={`${id
-                  ? "hidden"
-                  : "w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
-                  }`}
+                className={`${
+                  id
+                    ? "hidden"
+                    : "w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
+                }`}
                 type="submit"
                 loading={isLoading}
               >
@@ -567,7 +568,7 @@ const VenueAddress = ({ location, id }) => {
             id="address.line1"
             name="address.line1"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          // value={location.address_line1}
+            // value={location.address_line1}
           />
           <ErrorMessage name="address.line1" component={TextError} />
         </div>
@@ -581,7 +582,7 @@ const VenueAddress = ({ location, id }) => {
             id="address.line2"
             name="address.line2"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          // value={location.address_line2}
+            // value={location.address_line2}
           />
           <ErrorMessage name="address.line2" component={TextError} />
         </div>
@@ -597,7 +598,7 @@ const VenueAddress = ({ location, id }) => {
             id="address.city"
             name="address.city"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          // value={location.city}
+            // value={location.city}
           />
           <ErrorMessage name="address.city" component={TextError} />
         </div>
@@ -611,7 +612,7 @@ const VenueAddress = ({ location, id }) => {
             id="address.state"
             name="address.state"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          // value={location.state}
+            // value={location.state}
           />
           <ErrorMessage name="address.state" component={TextError} />
         </div>
@@ -630,7 +631,7 @@ const VenueAddress = ({ location, id }) => {
             id="address.postalCode"
             name="address.postalCode"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          // value={location.pin_code}
+            // value={location.pin_code}
           />
           <ErrorMessage name="address.postalCode" component={TextError} />
         </div>
@@ -915,9 +916,9 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
   useEffect(() => {
     const previewMedia = values?.bannerImages?.length
       ? values.bannerImages.map((media) => ({
-        preview: media.url,
-        // type: media.type || "image",
-      }))
+          preview: media.url,
+          type: media.type || "image",
+        }))
       : [];
     setPreviews(previewMedia);
   }, [values?.bannerImages]);
@@ -963,21 +964,17 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
 
-      const url = result?.data?.url;
-      // const mediaType = isVideo ? "video" : "image";
+      const { url, type } = result?.data;
+      const mediaType = isVideo ? "video" : "image";
 
       setPreviews((prev) => [...prev, { preview: url }]);
-      setFieldValue("bannerImages", [
-        ...values.bannerImages,
-        { url },
-      ]);
+      setFieldValue("bannerImages", [...values.bannerImages, { url, type }]);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);
       setFieldError("bannerImages", err.data.message);
     }
   };
-
 
   return (
     <div className=" flex flex-col items-start gap-2.5">
@@ -1006,7 +1003,6 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
                 />
               )}
 
-
               {previews[index]?.preview && (
                 <IoIosCloseCircleOutline
                   className="absolute right-0 w-6 h-6 z-100 text-black cursor-pointer"
@@ -1017,7 +1013,6 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
               )}
             </div>
           ))}
-
         </div>
 
         <div className="relative flex flex-col items-start gap-2.5 w-[223px] h-[133px] 1">
@@ -1063,8 +1058,8 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
   useEffect(() => {
     const previewImages = values?.layoutImages?.length
       ? values.layoutImages.map((image) => ({
-        preview: image.url,
-      }))
+          preview: image.url,
+        }))
       : [];
     setPreviews(previewImages);
   }, [values?.layoutImages]);
@@ -1104,8 +1099,8 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
       setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
-      const url = result?.data?.url;
-      setFieldValue("layoutImages", [...values.layoutImages, { url }]);
+      const { type, url } = result?.data;
+      setFieldValue("layoutImages", [...values.layoutImages, { url, type }]);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);
