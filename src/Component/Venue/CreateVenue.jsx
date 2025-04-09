@@ -54,7 +54,7 @@ const requiredVenueFields = (venue) => {
     equipments,
     bannerImages,
     layoutImages,
-    venueInfoUrl, 
+    venueInfoUrl,
   } = venue;
 
   return {
@@ -72,7 +72,7 @@ const requiredVenueFields = (venue) => {
     equipments,
     bannerImages,
     layoutImages,
-    venueInfoUrl, 
+    venueInfoUrl,
   };
 };
 
@@ -351,18 +351,18 @@ const VenueInfo = () => {
             <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
               <ErrorModal />
               <SuccessModal />
-              <VenueBasicInfo id={id}/>
-              <VenueAddress location={location} id={id}/>
+              <VenueBasicInfo id={id} />
+              <VenueAddress location={location} id={id} />
               <VenueMetaData
                 isGettingTags={isGettingTags}
                 uniqueTags={uniqueTags}
                 selectedTags={selectedTags}
                 id={id}
               />
-              <VenueDescription id={id}/>
-              <VenueAvailableDays id={id}/>
-              <VenueAmenities id={id}/>
-              <VenueEquipments id={id}/>
+              <VenueDescription id={id} />
+              <VenueAvailableDays id={id} />
+              <VenueAmenities id={id} />
+              <VenueEquipments id={id} />
               <VenueBannerImage
                 dispatch={dispatch}
                 uploadData={uplodedData}
@@ -376,11 +376,10 @@ const VenueInfo = () => {
                 id={id}
               />
               <Button
-                className={`${
-                  id
-                    ? "hidden"
-                    : "w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
-                }`}
+                className={`${id
+                  ? "hidden"
+                  : "w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
+                  }`}
                 type="submit"
                 loading={isLoading}
               >
@@ -394,7 +393,7 @@ const VenueInfo = () => {
   );
 };
 
-const VenueBasicInfo = ({id}) => {
+const VenueBasicInfo = ({ id }) => {
   const { setFieldValue } = useFormikContext();
   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
 
@@ -408,7 +407,7 @@ const VenueBasicInfo = ({id}) => {
           Venue Name
         </label>
         <Field
-disabled={id ? !venueEditMode : false}
+          disabled={id ? !venueEditMode : false}
           placeholder="Enter Venue Name"
           id="name"
           name="name"
@@ -438,7 +437,7 @@ disabled={id ? !venueEditMode : false}
   );
 };
 
-const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags, id}) => {
+const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags, id }) => {
   const [venueHandle, setVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
@@ -466,7 +465,7 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags, id}) => {
           Venue Handle
         </label>
         <Field
-disabled={id ? !venueEditMode : false}
+          disabled={id ? !venueEditMode : false}
           placeholder="Enter Venue Handle"
           id="handle"
           name="handle"
@@ -486,7 +485,7 @@ disabled={id ? !venueEditMode : false}
           Redirection Link
         </label>
         <Field
-disabled={id ? !venueEditMode : false}
+          disabled={id ? !venueEditMode : false}
           placeholder="Enter Venue redirection link"
           id="venueInfoUrl"
           name="venueInfoUrl"
@@ -515,7 +514,7 @@ disabled={id ? !venueEditMode : false}
           Phone Number
         </label>
         <Field
-disabled={id ? !venueEditMode : false}
+          disabled={id ? !venueEditMode : false}
           placeholder="Enter Phone Number"
           id="phoneNumber"
           name="phoneNumber"
@@ -563,12 +562,12 @@ const VenueAddress = ({ location, id }) => {
             Line 1
           </label>
           <Field
-disabled={id ? !venueEditMode : false}
+            disabled={id ? !venueEditMode : false}
             placeholder="Enter Venue Address"
             id="address.line1"
             name="address.line1"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            // value={location.address_line1}
+          // value={location.address_line1}
           />
           <ErrorMessage name="address.line1" component={TextError} />
         </div>
@@ -577,12 +576,12 @@ disabled={id ? !venueEditMode : false}
             Line 2
           </label>
           <Field
-disabled={id ? !venueEditMode : false}
+            disabled={id ? !venueEditMode : false}
             placeholder="Enter Venue Address"
             id="address.line2"
             name="address.line2"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            // value={location.address_line2}
+          // value={location.address_line2}
           />
           <ErrorMessage name="address.line2" component={TextError} />
         </div>
@@ -593,12 +592,12 @@ disabled={id ? !venueEditMode : false}
             City
           </label>
           <Field
-disabled={id ? !venueEditMode : false}
+            disabled={id ? !venueEditMode : false}
             placeholder="Enter Venue Address"
             id="address.city"
             name="address.city"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            // value={location.city}
+          // value={location.city}
           />
           <ErrorMessage name="address.city" component={TextError} />
         </div>
@@ -607,12 +606,12 @@ disabled={id ? !venueEditMode : false}
             State
           </label>
           <Field
-disabled={id ? !venueEditMode : false}
+            disabled={id ? !venueEditMode : false}
             placeholder="Enter Venue Address"
             id="address.state"
             name="address.state"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            // value={location.state}
+          // value={location.state}
           />
           <ErrorMessage name="address.state" component={TextError} />
         </div>
@@ -626,12 +625,12 @@ disabled={id ? !venueEditMode : false}
             Pincode
           </label>
           <Field
-disabled={id ? !venueEditMode : false}
+            disabled={id ? !venueEditMode : false}
             placeholder="Enter Venue Address"
             id="address.postalCode"
             name="address.postalCode"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            // value={location.pin_code}
+          // value={location.pin_code}
           />
           <ErrorMessage name="address.postalCode" component={TextError} />
         </div>
@@ -640,7 +639,7 @@ disabled={id ? !venueEditMode : false}
   );
 };
 
-const VenueDescription = ({id}) => {
+const VenueDescription = ({ id }) => {
   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { values, setFieldValue } = useFormikContext();
 
@@ -676,7 +675,7 @@ const VenueDescription = ({id}) => {
   );
 };
 
-const VenueAvailableDays = ({id}) => {
+const VenueAvailableDays = ({ id }) => {
   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { values, setFieldValue } = useFormikContext();
   const handleToggle = useCallback(
@@ -819,7 +818,7 @@ const VenueAvailableDays = ({id}) => {
   );
 };
 
-const VenueAmenities = ({id}) => {
+const VenueAmenities = ({ id }) => {
   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { values } = useFormikContext();
 
@@ -840,7 +839,7 @@ const VenueAmenities = ({id}) => {
                   key={`value-${index}`}
                 >
                   <Field
-disabled={id ? !venueEditMode : false}
+                    disabled={id ? !venueEditMode : false}
                     type="checkbox"
                     name="amenities"
                     value={value}
@@ -867,7 +866,7 @@ disabled={id ? !venueEditMode : false}
   );
 };
 
-const VenueEquipments = ({id}) => {
+const VenueEquipments = ({ id }) => {
   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   return (
     <div className="flex flex-col items-start gap-2.5">
@@ -889,7 +888,7 @@ const VenueEquipments = ({id}) => {
                 >
                   <label className="text-[15px] text-[#232323] leading-[18.15px]  flex items-center gap-[10px] p-[20px] ">
                     <Field
-disabled={id ? !venueEditMode : false}
+                      disabled={id ? !venueEditMode : false}
                       type="checkbox"
                       name="equipments"
                       checked={form.values.equipments.includes(value)}
@@ -914,13 +913,15 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
   useEffect(() => {
-    const previewImages = values?.bannerImages?.length
-      ? values.bannerImages.map((image) => ({
-          preview: image.url,
-        }))
+    const previewMedia = values?.bannerImages?.length
+      ? values.bannerImages.map((media) => ({
+        preview: media.url,
+        // type: media.type || "image",
+      }))
       : [];
-    setPreviews(previewImages);
+    setPreviews(previewMedia);
   }, [values?.bannerImages]);
+
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const handleRemoveImage = (index) => {
@@ -933,51 +934,50 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
   const handleFileUpload = async (e) => {
     setIsError(false);
     setErrorMessage("");
+
     const uploadedFile = e.target.files[0];
-    if (!uploadedFile.type.startsWith("image/")) {
-      setFieldError("bannerImages", "File should be a valid image type.");
+    const isImage = uploadedFile.type.startsWith("image/");
+    const isVideo = uploadedFile.type.startsWith("video/");
+
+    if (!isImage && !isVideo) {
+      setFieldError("bannerImages", "Only images and videos are allowed.");
       dispatch(
         showError({
-          message: "File should be a valid image type.",
+          message: "Only images and videos are allowed.",
           onClose: "hideError",
         })
       );
       return;
     }
 
-    if (values.bannerImages.length === 4) {
+    if (values.bannerImages.length >= 7) {
       dispatch(
         showError({
-          message: "You can add up to 4 images only.",
+          message: "You can add up to 7 media files only.",
           onClose: "hideError",
         })
       );
       return;
     }
 
-    const maxSize = venueImageSize;
-    if (uploadedFile.size > maxSize) {
-      setFieldError("bannerImages", "File should be less than 5 MB");
-      dispatch(
-        showError({
-          message: "File should be less than 5 MB.",
-          onClose: "hideError",
-        })
-      );
-      return;
-    }
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
 
-      setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
       const url = result?.data?.url;
-      setFieldValue("bannerImages", [...values.bannerImages, { url }]);
+      // const mediaType = isVideo ? "video" : "image";
+
+      setPreviews((prev) => [...prev, { preview: url }]);
+      setFieldValue("bannerImages", [
+        ...values.bannerImages,
+        { url },
+      ]);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);
       setFieldError("bannerImages", err.data.message);
     }
   };
+
 
   return (
     <div className=" flex flex-col items-start gap-2.5">
@@ -987,21 +987,29 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
 
       <div className="grid grid-cols-[1fr_auto] gap-[30px] min-h-[133px]">
         <div className="flex flex-wrap gap-2.5 min-h-[133px] overflow-hidden">
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: 7 }).map((_, index) => (
             <div
               className="relative flex h-[133px]"
-              key={`venueImage-${index}`}
+              key={`venueMedia-${index}`}
             >
-              <img
-                key={index}
-                src={previews[index]?.preview || venueUploadImage}
-                alt={`Venue upload ${index + 1}`}
-                className=" object-scale-down rounded h-full w-[223px]"
-              />
+              {/\.(mp4|webm|ogg)$/i.test(previews[index]?.preview) ? (
+                <video
+                  controls
+                  src={previews[index].preview}
+                  className="object-scale-down rounded h-full w-[223px]"
+                />
+              ) : (
+                <img
+                  src={previews[index]?.preview || venueUploadImage}
+                  alt={`Venue media ${index + 1}`}
+                  className="object-scale-down rounded h-full w-[223px]"
+                />
+              )}
+
 
               {previews[index]?.preview && (
                 <IoIosCloseCircleOutline
-                  className="absolute right-0 w-6 h-6 z-100 text-black  cursor-pointer "
+                  className="absolute right-0 w-6 h-6 z-100 text-black cursor-pointer"
                   onClick={() => {
                     handleRemoveImage(index);
                   }}
@@ -1009,9 +1017,10 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
               )}
             </div>
           ))}
+
         </div>
 
-        <div className="relative flex flex-col items-start gap-2.5 w-[223px] h-[133px]">
+        <div className="relative flex flex-col items-start gap-2.5 w-[223px] h-[133px] 1">
           <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
             <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
 
@@ -1020,7 +1029,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
               <span className="text-sm text-[#353535] "> or drag and drop</span>
             </p>
 
-            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
+            {/* <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p> */}
             <p className="text-xs text-[#353535] mt-1">
               (Image size: 1200x600)
             </p>
@@ -1054,8 +1063,8 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
   useEffect(() => {
     const previewImages = values?.layoutImages?.length
       ? values.layoutImages.map((image) => ({
-          preview: image.url,
-        }))
+        preview: image.url,
+      }))
       : [];
     setPreviews(previewImages);
   }, [values?.layoutImages]);
@@ -1131,7 +1140,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
             </div>
           ))}
         </div>
-        <div className="relative flex flex-col items-start gap-2.5 w-[223px] h-[133px]">
+        <div className="relative flex flex-col items-start gap-2.5 w-[223px] h-[133px] 2">
           <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
             <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
 
