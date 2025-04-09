@@ -95,7 +95,7 @@ const AllRoutes = () => {
           <Route path="coupons" element={<Coupons />} />
 
           {/* CMS Routes */}
-          <Route path="cms/tourism" element={<Tourism/>}/>
+          <Route path="cms/tourism-pages" element={<Tourism/>}/>
           <Route path="cms/homepage/explore" element={<Explore />} />
           <Route
             path="cms/homepage/featured-tournaments"

@@ -27,41 +27,40 @@ export default function TourismContentTable({ data, fetchHomepageSections }) {
         console.error("No selected card or image found for deletion.");
         return;
       }
-  
+
       const updatedTourism = data.tourism
         .filter((card) => card.image !== selectedCard.image)
         .map(({ package: pkg, image }) => ({
           package: pkg,
           image,
         }));
-  
+
       const payload = {
         sectionTitle: data.sectionTitle,
         isVisible: data.isVisible,
         tourism: updatedTourism,
       };
-  
+
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
       };
-  
+
       await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}/users/admin/cms-sections/tourism`,
         JSON.stringify(payload),
         config
       );
-  
+
       setDeleteModal(false);
       fetchHomepageSections();
     } catch (error) {
       console.error("Delete error:", error);
     }
   };
-  
-  
-  const headers = ["Position", "Title", "Image", "Actions"];
+
+  const headers = ["Position", "Title", "Image Link", "Preview", "Actions"];
 
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow-lg border border-gray-300">
@@ -87,14 +86,28 @@ export default function TourismContentTable({ data, fetchHomepageSections }) {
         <tbody className="divide-y divide-gray-200 bg-white">
           {data?.tourism?.map((explore, index) => (
             <tr key={index} className="text-left">
-              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%] text-center">
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
                 {index + 1}
               </td>
               <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
                 {explore.package}
               </td>
-              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[50%]">
-                {explore.image}
+              <td
+                className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]"
+              >
+                {explore.image.split("%")[0]}
+              </td>
+
+              <td className="px-3 py-1 text-sm text-gray-500 whitespace-nowrap w-[20%]">
+                <img
+                  src={explore.image}
+                  alt={`Preview of ${explore.package}`}
+                  style={{
+                    maxWidth: "100px",
+                    maxHeight: "70px",
+                    objectFit: "cover",
+                  }}
+                />
               </td>
               <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
                 <div className="flex items-center space-x-3">

@@ -127,7 +127,7 @@ export const ADMIN_NAVIGATION = [
         ],
       },
       {
-        name: "Tourism",
+        name: "Tourism Pages",
       },
     ],
   },
