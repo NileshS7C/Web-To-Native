@@ -60,7 +60,7 @@ export default function TourismAddDataModal({ data, isOpen, onClose, fetchHomepa
 
                                         const payload = {
                                             sectionTitle: data.sectionTitle,
-                                            isVisible: data.isVisible,
+                                            isVisible: true,
                                             tourism: updatedTourism,
                                           };
                                           
