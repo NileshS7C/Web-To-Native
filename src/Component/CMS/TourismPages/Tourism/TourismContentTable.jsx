@@ -22,38 +22,45 @@ export default function TourismContentTable({ data, fetchHomepageSections }) {
   };
 
   const handleDeleteItem = async () => {
-    const updatedTourism = data.tourism
-      .filter((card) => card._id !== selectedCard._id)
-      .map((card, index) => ({
-        ...card,
-        position: index + 1,
-      }));
-
-    const reindexedFeatures = updatedFeatures.map((feature, index) => ({
-      ...feature,
-      position: index + 1,
-    }));
-
-    const payload = {
-      sectionTitle: data.sectionTitle,
-      isVisible: data.isVisible,
-      tourism: updatedTourism,
-    };
-    
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-    // Send API request
-    await axiosInstance.post(
-      `${import.meta.env.VITE_BASE_URL}/users/admin/cms-sections/tourism`,
-      JSON.stringify(payload),
-      config
-    );
-    fetchHomepageSections();
+    try {
+      if (!selectedCard || !selectedCard.image) {
+        console.error("No selected card or image found for deletion.");
+        return;
+      }
+  
+      const updatedTourism = data.tourism
+        .filter((card) => card.image !== selectedCard.image)
+        .map(({ package: pkg, image }) => ({
+          package: pkg,
+          image,
+        }));
+  
+      const payload = {
+        sectionTitle: data.sectionTitle,
+        isVisible: data.isVisible,
+        tourism: updatedTourism,
+      };
+  
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+  
+      await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/cms-sections/tourism`,
+        JSON.stringify(payload),
+        config
+      );
+  
+      setDeleteModal(false);
+      fetchHomepageSections();
+    } catch (error) {
+      console.error("Delete error:", error);
+    }
   };
-
+  
+  
   const headers = ["Position", "Title", "Image", "Actions"];
 
   return (
