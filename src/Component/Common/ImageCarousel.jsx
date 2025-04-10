@@ -27,7 +27,7 @@ export const Slider = ({ images }) => {
   return (
     <AwesomeSlider style={{ height: "30vw" }} animation="cubeAnimation">
       {images.map((each, index) => {
-        const isVideo = /\.(mp4|webm|ogg)$/i.test(each?.url);
+        const isVideo = each.type == "video";
 
         return (
           <div key={each?.caption || index}>
