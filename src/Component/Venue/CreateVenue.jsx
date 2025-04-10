@@ -377,8 +377,8 @@ const VenueInfo = () => {
               />
               <Button
                 className={`${id
-                    ? "hidden"
-                    : "w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
+                  ? "hidden"
+                  : "w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
                   }`}
                 type="submit"
                 loading={isLoading}
@@ -991,7 +991,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
   return (
     <div className=" flex flex-col items-start gap-2.5">
       <p className="text-base leading-[19.36px] text-[#232323]">
-        Venue Banners
+        Venue Banners /  Videos
       </p>
 
       <div className="grid grid-cols-[1fr_auto] gap-[30px] min-h-[133px]">
