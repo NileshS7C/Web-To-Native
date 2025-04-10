@@ -376,11 +376,10 @@ const VenueInfo = () => {
                 id={id}
               />
               <Button
-                className={`${
-                  id
+                className={`${id
                     ? "hidden"
                     : "w-[150px] h-[60px] bg-[#1570EF] ml-auto rounded-[8px] text-[#FFFFFF]"
-                }`}
+                  }`}
                 type="submit"
                 loading={isLoading}
               >
@@ -568,7 +567,7 @@ const VenueAddress = ({ location, id }) => {
             id="address.line1"
             name="address.line1"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            // value={location.address_line1}
+          // value={location.address_line1}
           />
           <ErrorMessage name="address.line1" component={TextError} />
         </div>
@@ -582,7 +581,7 @@ const VenueAddress = ({ location, id }) => {
             id="address.line2"
             name="address.line2"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            // value={location.address_line2}
+          // value={location.address_line2}
           />
           <ErrorMessage name="address.line2" component={TextError} />
         </div>
@@ -598,7 +597,7 @@ const VenueAddress = ({ location, id }) => {
             id="address.city"
             name="address.city"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            // value={location.city}
+          // value={location.city}
           />
           <ErrorMessage name="address.city" component={TextError} />
         </div>
@@ -612,7 +611,7 @@ const VenueAddress = ({ location, id }) => {
             id="address.state"
             name="address.state"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            // value={location.state}
+          // value={location.state}
           />
           <ErrorMessage name="address.state" component={TextError} />
         </div>
@@ -631,7 +630,7 @@ const VenueAddress = ({ location, id }) => {
             id="address.postalCode"
             name="address.postalCode"
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            // value={location.pin_code}
+          // value={location.pin_code}
           />
           <ErrorMessage name="address.postalCode" component={TextError} />
         </div>
@@ -913,12 +912,13 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
+  const [uploadingIndex, setUploadingIndex] = useState(-1);
   useEffect(() => {
     const previewMedia = values?.bannerImages?.length
       ? values.bannerImages.map((media) => ({
-          preview: media.url,
-          type: media.type || "image",
-        }))
+        preview: media.url,
+        type: media.type || "image",
+      }))
       : [];
     setPreviews(previewMedia);
   }, [values?.bannerImages]);
@@ -962,17 +962,29 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
     }
 
     try {
+      const uploadIndex = previews.length;
+      setUploadingIndex(uploadIndex);
+
+      setPreviews((prev) => [...prev, { preview: null, isUploading: true }]);
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
 
       const { url, type } = result?.data;
-      const mediaType = isVideo ? "video" : "image";
+      // const mediaType = isVideo ? "video" : "image";
 
-      setPreviews((prev) => [...prev, { preview: url }]);
+      setPreviews((prev) => {
+        const newPreviews = [...prev];
+        newPreviews[uploadIndex] = { preview: url, type };
+        return newPreviews;
+      });
       setFieldValue("bannerImages", [...values.bannerImages, { url, type }]);
+      setUploadingIndex(-1);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);
       setFieldError("bannerImages", err.data.message);
+
+      setPreviews((prev) => prev.filter((_, i) => i !== uploadingIndex));
+      setUploadingIndex(-1);
     }
   };
 
@@ -989,13 +1001,20 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
               className="relative flex h-[133px]"
               key={`venueMedia-${index}`}
             >
-              {/\.(mp4|webm|ogg)$/i.test(previews[index]?.preview) ? (
+              {previews[index]?.isUploading ? (
+                // Show loading spinner when uploading
+                <div className="flex items-center justify-center h-full w-[223px] bg-gray-100 rounded">
+                  <Spinner className="w-8 h-8" />
+                </div>
+              ) : previews[index]?.type === "video" ? (
+                // Render video if type is video
                 <video
                   controls
-                  src={previews[index].preview}
+                  src={previews[index]?.preview}
                   className="object-scale-down rounded h-full w-[223px]"
                 />
               ) : (
+                // Render image or placeholder
                 <img
                   src={previews[index]?.preview || venueUploadImage}
                   alt={`Venue media ${index + 1}`}
@@ -1039,6 +1058,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                  disabled={uploadingIndex !== -1} // Disable during upload
                 />
               )}
             </FieldArray>
@@ -1054,20 +1074,22 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
+  const [uploadingIndex, setUploadingIndex] = useState(-1);
 
   useEffect(() => {
     const previewImages = values?.layoutImages?.length
       ? values.layoutImages.map((image) => ({
-          preview: image.url,
-        }))
+        preview: image.url,
+        type: image.type
+      }))
       : [];
     setPreviews(previewImages);
   }, [values?.layoutImages]);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const handleRemoveImage = (index) => {
-    const newBannerImages = values.layoutImages.filter((_, i) => i !== index);
-    setFieldValue("layoutImages", newBannerImages);
+    const newLayoutImages = values.layoutImages.filter((_, i) => i !== index);
+    setFieldValue("layoutImages", newLayoutImages);
     const newPreviews = previews.filter((_, i) => i !== index);
     setPreviews(newPreviews);
   };
@@ -1097,14 +1119,26 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
       return;
     }
     try {
+      const uploadIndex = previews.length;
+      setUploadingIndex(uploadIndex);
+      setPreviews((prev) => [...prev, { preview: null, isUploading: true }]);
+
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
-      setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
       const { type, url } = result?.data;
+      setPreviews((prev) => {
+        const newPreviews = [...prev];
+        newPreviews[uploadIndex] = { preview: url, type };
+        return newPreviews;
+      });
       setFieldValue("layoutImages", [...values.layoutImages, { url, type }]);
+      setUploadingIndex(-1);
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);
-      setFieldError("layoutImages", err.data.message);
+      setFieldError("layoutImages", err.data.message); 0
+
+      setPreviews((prev) => prev.filter((_, i) => i !== uploadingIndex));
+      setUploadingIndex(-1);
     }
   };
   return (
@@ -1118,15 +1152,23 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
               className="relative flex h-[133px]"
               key={`layoutImage-${index}`}
             >
-              <img
-                key={index}
-                src={previews[index]?.preview || venueUploadImage}
-                alt={`Venue upload ${index + 1}`}
-                className=" object-scale-down rounded h-full w-[223px]"
-              />
+              {previews[index]?.isUploading ? (
+                // Show loading spinner when uploading
+                <div className="flex items-center justify-center h-full w-[223px] bg-gray-100 rounded">
+                  <Spinner className="w-8 h-8" />
+                </div>
+              ) : (
+                <img
+                  key={index}
+                  src={previews[index]?.preview || venueUploadImage}
+                  alt={`Venue upload ${index + 1}`}
+                  className="object-scale-down rounded h-full w-[223px]"
+                />
+              )}
+
               {previews[index]?.preview && (
                 <IoIosCloseCircleOutline
-                  className="absolute right-0 w-6 h-6 z-100 text-black  cursor-pointer "
+                  className="absolute right-0 w-6 h-6 z-100 text-black cursor-pointer"
                   onClick={() => {
                     handleRemoveImage(index);
                   }}
@@ -1159,6 +1201,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                  disabled={uploadingIndex !== -1} // Disable during upload
                 />
               )}
             </FieldArray>
