@@ -4,8 +4,10 @@ import { RxCrossCircled } from "react-icons/rx";
 import Spinner from "./Spinner";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import PropTypes from "prop-types";
-
- const CreateTags = ({ selectedTag, handleRemoveTag }) => {
+import { useSelector } from "react-redux";
+ const CreateTags = ({ selectedTag, handleRemoveTag,id }) => {
+   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
+   const isDisabled = id ? !venueEditMode : false;
   return (
     <>
       {selectedTag.map((tag, index) => (
@@ -14,7 +16,11 @@ import PropTypes from "prop-types";
             {tag}
             <RxCrossCircled
               className="cursor-pointer"
-              onClick={() => handleRemoveTag(tag)}
+              onClick={() => {
+                 if (!isDisabled) {
+                   handleRemoveTag(tag);
+                 }
+              }}
             />
           </span>
         </div>
@@ -30,7 +36,9 @@ export default function Combopopover({
   checkedTags,
   placeholder,
   label,
+  id
 }) {
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const [query, setQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState(checkedTags);
   const [showInput, setShowInput] = useState(false);
@@ -103,6 +111,7 @@ export default function Combopopover({
           }}
           onFocus={() => setShowInput(true)}
           placeholder={placeholder}
+          disabled={id ? !venueEditMode : false}
         />
 
         {showInput && (
@@ -174,6 +183,7 @@ export default function Combopopover({
         <CreateTags
           selectedTag={selectedTags}
           handleRemoveTag={handleRemoveTag}
+          id={id}
         />
       </div>
     </div>
