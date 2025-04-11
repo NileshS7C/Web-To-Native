@@ -23,17 +23,31 @@ const images = [
     caption: "Starry Night",
   },
 ];
-
 export const Slider = ({ images }) => {
   return (
     <AwesomeSlider style={{ height: "30vw" }} animation="cubeAnimation">
       {images.map((each, index) => {
+        const isVideo = each.type == "video";
+
         return (
-          <div key={`${each?.caption}` || index}>
-            <img src={each.url} />
+          <div key={each?.caption || index}>
+            {isVideo ? (
+              <video
+                controls
+                src={each.url}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <img
+                src={each.url}
+                alt={each?.caption || `media-${index}`}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            )}
           </div>
         );
       })}
     </AwesomeSlider>
   );
 };
+
