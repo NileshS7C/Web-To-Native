@@ -5,9 +5,7 @@ import Spinner from "./Spinner";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
- const CreateTags = ({ selectedTag, handleRemoveTag,id }) => {
-   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
-   const isDisabled = id ? !venueEditMode : false;
+ const CreateTags = ({ selectedTag, handleRemoveTag,isDisabled }) => {
   return (
     <>
       {selectedTag.map((tag, index) => (
@@ -38,7 +36,11 @@ export default function Combopopover({
   label,
   id
 }) {
-  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
+  const sliceName = label === "Tournament Tags" ? "GET_TOUR" : "Venue";
+  const variable =
+    label === "Tournament Tags" ? "tournamentEditMode" : "venueEditMode";
+  const editMode = useSelector((state) => state[sliceName][variable]);
+  const isDisabled = id ? !editMode : false;
   const [query, setQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState(checkedTags);
   const [showInput, setShowInput] = useState(false);
@@ -111,7 +113,7 @@ export default function Combopopover({
           }}
           onFocus={() => setShowInput(true)}
           placeholder={placeholder}
-          disabled={id ? !venueEditMode : false}
+          disabled={id ? !editMode : false}
         />
 
         {showInput && (
@@ -183,7 +185,7 @@ export default function Combopopover({
         <CreateTags
           selectedTag={selectedTags}
           handleRemoveTag={handleRemoveTag}
-          id={id}
+          isDisabled={isDisabled}
         />
       </div>
     </div>
