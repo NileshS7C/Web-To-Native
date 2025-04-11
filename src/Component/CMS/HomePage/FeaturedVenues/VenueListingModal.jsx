@@ -190,7 +190,9 @@ export default function VenueListingModal({ venuesCMSData, isOpen, onClose,fetch
                   "Content-Type": "application/json",
                 },
               };
-            await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/venues`, JSON.stringify(payload),config);
+            
+              await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/venues`, JSON.stringify(payload),config);
+              setVenueName("")
         } catch (error) {
             console.error("Error updating tournaments:", error);
         }
