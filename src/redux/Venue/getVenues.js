@@ -48,6 +48,9 @@ const getVenuesSlice = createSlice({
     setPublish(state) {
       state.isPublished = false;
     },
+    setCurrentPage(state){
+      state.currentPage=1;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -114,7 +117,7 @@ const getVenuesSlice = createSlice({
   },
 });
 
-export const { onPageChange, checkVenue, onFilterChange, cleanPublishState, setPublish } =
+export const { onPageChange, checkVenue, onFilterChange, cleanPublishState, setPublish,setCurrentPage } =
   getVenuesSlice.actions;
 
 export default getVenuesSlice.reducer;
