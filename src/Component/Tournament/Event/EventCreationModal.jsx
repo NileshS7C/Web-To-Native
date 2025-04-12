@@ -1140,12 +1140,16 @@ function ComboboxForVenuesList({
   };
   
   useEffect(()=>{
-    if(categoryId){
-      const temp={
+    if (
+      categoryId &&
+      categoryLocation && 
+      Object.keys(categoryLocation).length > 0
+    ) {
+      const temp = {
         ...categoryLocation,
-        bannerImages:[{url:categoryLocation?.venueImage}],
-        name:categoryLocation?.name || "temp"
-      }
+        bannerImages: [{ url: categoryLocation?.venueImage }],
+        name: categoryLocation?.name || "temp",
+      };
       setSelectedPerson(temp);
     }
   },[])
