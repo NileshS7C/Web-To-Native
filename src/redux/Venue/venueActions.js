@@ -362,7 +362,6 @@ export const getSearchVenues = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-     console.log("get searc called");
       const url = `${
         import.meta.env.VITE_BASE_URL
       }/users/admin/venues/search?page=${currentPage}&status=${selectedFilter}&limit=${limit}&search=${
