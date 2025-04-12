@@ -369,6 +369,7 @@ const VenueInfo = () => {
                 isUploading={isUploading}
                 id={id}
               />
+
               <VenueLayoutImage
                 dispatch={dispatch}
                 uploadData={uplodedData}
@@ -1180,7 +1181,9 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
                 <IoIosCloseCircleOutline
                   className="absolute right-0 w-6 h-6 z-100 text-black cursor-pointer"
                   onClick={() => {
-                    handleRemoveImage(index);
+                    if(!isDisabled){
+                      handleRemoveImage(index);
+                    }
                   }}
                 />
               )}
