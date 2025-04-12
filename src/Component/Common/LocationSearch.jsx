@@ -7,7 +7,8 @@ import debounce from "../../Services/debounce";
 import getPlaceDetailsByPlaceId from "../../Services/getPlaceIds";
 import { setGlobalLocation } from "../../redux/Location/locationSlice";
 
-const LocationSearchInput = ({ id, name, setFieldValue }) => {
+const LocationSearchInput = ({ id, name, setFieldValue,isEdit }) => {
+  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
   const { location } = useSelector((state) => state.Venue);
   const dispatch = useDispatch();
   const { placePredictions, getPlacePredictions, isPlacePredictionsLoading } =
@@ -100,6 +101,7 @@ const LocationSearchInput = ({ id, name, setFieldValue }) => {
           }}
           id={id}
           name={name}
+          disabled={isEdit ? !venueEditMode : false}
         />
         <ImSearch className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400" />
       </div>
