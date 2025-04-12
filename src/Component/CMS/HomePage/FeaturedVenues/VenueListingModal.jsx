@@ -246,14 +246,13 @@ export default function VenueListingModal({ venuesCMSData, isOpen, onClose,fetch
                 ? "bg-blue-100 border-[#1570EF]"
                 : "hover:bg-gray-100"
             }`}
-                          onClick={() => handleSelectItem(item)}
+                           onClick={() => handleSelectItem(item)}
                         >
                           <input
                             type="checkbox"
                             checked={selectedItems?.some(
                               (selectedItem) => selectedItem._id === item._id
                             )}
-                            onChange={() => handleSelectItem(item)}
                             className="checkbox accent-blue-500"
                           />
                           <div className="items-center flex flex-row justify-between w-full text-left gap-4">
