@@ -170,20 +170,16 @@ export const EventCreationModal = () => {
   const checkVenueOption = (state) => {
     state === "not_decided" ? setIsVenueFinal(false) : setIsVenueFinal(true);
   };
-
   const getLocation = (data) => {
     setSelectedVenueData(data);
   };
-  console.log(selectedVenueData)
   const isVenueNotListed = (value) => {
     setVenueNotListed(value);
   };
-  
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setHasError(false);
       let updatedLocation;
-      console.log("printing venues data",selectedVenueData)
       if (selectedVenueData?.address) {
         const {
           location: { is_location_exact, ...locationWithOutExact },
@@ -203,13 +199,15 @@ export const EventCreationModal = () => {
       }
       const updatedValues = {
         ...values,
-        categoryLocation: venueNotListed
-          ? values?.categoryLocation || {}
-          : updatedLocation || {},
+        categoryLocation:
+          !isVenueFinal
+            ? {}
+            : venueNotListed
+            ? values?.categoryLocation || {}
+            : updatedLocation || {},
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
-      console.log("printing updated data", updatedValues);
       !isVenueFinal && delete values["categoryLocation"];
 
       setSubmitting(true);
