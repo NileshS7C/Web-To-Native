@@ -3,7 +3,7 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import axiosInstance from '../../../../Services/axios';
 import { useSelector ,useDispatch} from 'react-redux';
 import Spinner from '../../../Common/Spinner';
-import { getAllVenues } from '../../../../redux/Venue/venueActions';
+import { getAllVenues, getSearchVenues } from '../../../../redux/Venue/venueActions';
 import { onPageChange } from '../../../../redux/Venue/getVenues';
 import { venueLimit } from '../../../../Constant/venue';
  import useDebounce from '../../../../Hooks/useDebounce';
@@ -111,9 +111,11 @@ const SearchVenue = ({
 
   useEffect(() => {
     if (debouncedValue) {
+        console.log("called");
       dispatch(
-        getAllVenues({
+        getSearchVenues({
           currentPage,
+          selectedFilter:"Published",
           limit,
           name: debouncedValue,
         })
@@ -155,14 +157,16 @@ export default function VenueListingModal({ venuesCMSData, isOpen, onClose,fetch
     
     const { venues, totalVenues, isLoading, isSuccess, currentPage } =useSelector((state) => state.getVenues);
     useEffect(() => {
-        dispatch(
-          getAllVenues({
-            currentPage,
-            selectedFilter:"Published",
-            limit: venueLimit,
-            name:venueName
-          })
-        );
+        if(!venueName){
+            dispatch(
+              getAllVenues({
+                currentPage,
+                selectedFilter: "Published",
+                limit: venueLimit,
+                name: venueName,
+              })
+            );
+        }
     }, [
       currentPage,
       isSuccess,
@@ -253,7 +257,6 @@ export default function VenueListingModal({ venuesCMSData, isOpen, onClose,fetch
                             className="checkbox accent-blue-500"
                           />
                           <div className="items-center flex flex-row justify-between w-full text-left gap-4">
-                            <p className="w-[10%]">{index + 1}</p>
                             <h4 className="w-[40%]">{item.name}</h4>
                             <p className="w-[40%] line-clamp-1">
                               {item.handle}
