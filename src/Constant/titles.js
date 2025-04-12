@@ -15,7 +15,7 @@ export const getPageTitle = (pathname, params, venueData) => {
       return "Add Venue";
     }
     if (pathname.match(/^\/venues\/[\w-]+$/)) {
-      return venueData?.name || "Venue Details";
+      return `Venue Details - ${venueData?.venue?.name}`;
     }
 
     if (pathname.match(/^\/venues\/\w+\/edit$/)) {

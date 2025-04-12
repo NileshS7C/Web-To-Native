@@ -1,5 +1,5 @@
 import FilterGroup from "../Common/FilterGroup";
-import { getAllVenues, deleteVenue } from "../../redux/Venue/venueActions";
+import { getAllVenues, deleteVenue,getSearchVenues } from "../../redux/Venue/venueActions";
 import { checkVenue, onPageChange, onFilterChange } from "../../redux/Venue/getVenues";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState, useRef } from "react";
@@ -44,14 +44,15 @@ const SearchVenue = ({
   };
 
   useEffect(() => {
+    console.log("called");
     if (debouncedValue) {
+       console.log("called 1");
       dispatch(
-        getAllVenues({
+        getSearchVenues({
           currentPage,
           selectedFilter,
           limit,
-          name: debouncedValue,
-          city: selectedCity,
+          name: debouncedValue
         })
       );
     }
@@ -87,7 +88,6 @@ export default function VenueListing() {
 
   const { venues, totalVenues, selectedFilter, isLoading, isSuccess } =
     useSelector((state) => state.getVenues);
-
   const { isConfirmed, type, confirmationId } = useSelector(
     (state) => state.confirm
   );

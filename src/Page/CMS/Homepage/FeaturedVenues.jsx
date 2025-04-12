@@ -3,9 +3,10 @@ import VenueSectionInfo from "../../../Component/CMS/HomePage/FeaturedVenues/Ven
 import VenueContentTable from "../../../Component/CMS/HomePage/FeaturedVenues/VenueContentTable";
 import VenueListingModal from "../../../Component/CMS/HomePage/FeaturedVenues/VenueListingModal";
 import axiosInstance from "../../../Services/axios";
-
-
+import { useDispatch } from "react-redux";
+import { setCurrentPage } from "../../../redux/Venue/getVenues";
 export default function FeaturedVenues() {
+    const dispatch=useDispatch();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [venuesData, setVenuesData] = useState([]);
     const fetchVenuesData = async () => {
@@ -21,7 +22,12 @@ export default function FeaturedVenues() {
             console.error(error);
         }
     };
-    useEffect(() => { fetchVenuesData() }, [])
+    useEffect(() => { 
+        fetchVenuesData();
+     }, [])
+     useEffect(() => {
+        dispatch(setCurrentPage(1));
+     }, [isModalOpen]);
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:flex-col gap-4">

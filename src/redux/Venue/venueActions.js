@@ -111,7 +111,6 @@ export const getSingleVenue = createAsyncThunk(
         `${import.meta.env.VITE_BASE_URL}/users/admin/venues/${id}`,
         config
       );
-
       return response.data;
     } catch (err) {
       if (err.response) {
@@ -333,6 +332,41 @@ export const deleteCourt = createAsyncThunk(
         config
       );
 
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const getSearchVenues = createAsyncThunk(
+  "Venue/getSearchVenues",
+  async (
+    { currentPage = 1, selectedFilter, limit = 10, name = "" },
+    { rejectWithValue }
+  ) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const url = `${
+        import.meta.env.VITE_BASE_URL
+      }/users/admin/venues/search?page=${currentPage}&status=${selectedFilter}&limit=${limit}&search=${
+        name || ""
+      }`;
+      const response = await axiosInstance.get(url, config);
       return response.data;
     } catch (err) {
       if (err.response) {

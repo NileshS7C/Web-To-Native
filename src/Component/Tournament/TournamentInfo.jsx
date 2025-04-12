@@ -445,6 +445,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                   isGettingTags={isGettingTags}
                   uniqueTags={tags}
                   selectedTags={selectedTags}
+                  tournamentId={tournamentId}
                 />
                 <TournamentAddress location={location} />
                 <TournamentDescription isDisable={isDisable} />
@@ -455,10 +456,11 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 <TournamentFileUpload
                   dispatch={dispatch}
                   isDisable={isDisable}
+                  tournamentId={tournamentId}
                 />
                 <TournamentSponserTable isDisable={isDisable} />
                 <TournamentBookingDates />
-                <TournamentGallery dispatch={dispatch} />
+                <TournamentGallery dispatch={dispatch} tournamentId={tournamentId}/>
                 <Button
                   className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
                     status !== "DRAFT" && tournamentId ? "hidden" : ""
@@ -484,6 +486,7 @@ const TournamentBasicInfo = ({
   tournamentOwners,
   isGettingALLTO,
   hasError,
+  tournamentId
 }) => {
   const { setFieldError, values, setFieldValue } = useFormikContext();
   useEffect(() => {
@@ -565,7 +568,12 @@ const TournamentBasicInfo = ({
   );
 };
 
-const TournamentMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
+const TournamentMetaData = ({
+  isGettingTags,
+  uniqueTags,
+  selectedTags,
+  tournamentId,
+}) => {
   const [tournamentHandle, setTournamentVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
   useEffect(() => {
@@ -609,6 +617,7 @@ const TournamentMetaData = ({ isGettingTags, uniqueTags, selectedTags }) => {
         checkedTags={selectedTags}
         placeholder="Enter Tournament Tags"
         label="Tournament Tags"
+        id={tournamentId}
       />
 
       <ErrorMessage name="tags" component={TextError} />
@@ -942,7 +951,7 @@ const TournamentWhatToExpect = ({ isDisable }) => {
   );
 };
 
-const TournamentFileUpload = ({ dispatch, isDisable }) => {
+const TournamentFileUpload = ({ dispatch, isDisable,tournamentId }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
 
   return (
@@ -953,6 +962,7 @@ const TournamentFileUpload = ({ dispatch, isDisable }) => {
         setFieldError={setFieldError}
         dispatch={dispatch}
         isDisable={isDisable}
+        tournamentId={tournamentId}
       />
       <MobileBannerImageUpload
         values={values}
@@ -960,6 +970,7 @@ const TournamentFileUpload = ({ dispatch, isDisable }) => {
         setFieldError={setFieldError}
         dispatch={dispatch}
         isDisable={isDisable}
+        tournamentId={tournamentId}
       />
     </div>
   );
@@ -971,11 +982,14 @@ const DesktopBannerImageUpload = ({
   setFieldError,
   dispatch,
   isDisable,
+  tournamentId
 }) => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
 
+  const tournamentEditMode = useSelector((state) => state.GET_TOUR.tournamentEditMode);
+  const isDisabled=tournamentId ? !tournamentEditMode : false;
   useEffect(() => {
     const previewImages = values?.bannerDesktopImages?.length
       ? [{ preview: values.bannerDesktopImages }]
@@ -1041,7 +1055,9 @@ const DesktopBannerImageUpload = ({
               <IoMdTrash
                 className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
                 onClick={() => {
-                  handleRemoveImageDesk(previews[0]?.preview);
+                 if(!isDisabled){
+                   handleRemoveImageDesk(previews[0]?.preview);
+                 }
                 }}
               />
             )}
@@ -1067,7 +1083,12 @@ const DesktopBannerImageUpload = ({
                   {...field}
                   id="bannerDesktopImages"
                   name="bannerDesktopImages"
-                  onChange={(e) => handleFileUploadDesk(e)}
+                  onChange={(e) => {
+                    if(!isDisabled){
+                      handleFileUploadDesk(e);
+                    }
+                   }
+                  }
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
@@ -1091,7 +1112,10 @@ const MobileBannerImageUpload = ({
   setFieldError,
   dispatch,
   isDisable,
+  tournamentId
 }) => {
+  const tournamentEditMode = useSelector((state) => state.GET_TOUR.tournamentEditMode);
+  const isDisabled = tournamentId ? !tournamentEditMode : false;
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
@@ -1158,7 +1182,9 @@ const MobileBannerImageUpload = ({
               <IoMdTrash
                 className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
                 onClick={() => {
-                  handleRemoveImageDesk(previews[0]?.preview);
+                  if(!isDisabled){
+                    handleRemoveImageDesk(previews[0]?.preview);
+                  }
                 }}
               />
             )}
@@ -1183,7 +1209,11 @@ const MobileBannerImageUpload = ({
                   {...field}
                   id="bannerMobileImages"
                   name="bannerMobileImages"
-                  onChange={(e) => handleFileUploadMob(e)}
+                  onChange={(e) => {
+                    if(!isDisabled){
+                      handleFileUploadMob(e);
+                    }
+                  }}
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
@@ -1570,10 +1600,11 @@ const TournamentBookingDates = () => {
   );
 };
 
-const TournamentGallery = ({ dispatch }) => {
+const TournamentGallery = ({ dispatch ,tournamentId}) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
-
+  const tournamentEditMode = useSelector((state) => state.GET_TOUR.tournamentEditMode);
+  const isDisabled = tournamentId ? !tournamentEditMode : false;
   useEffect(() => {
     const previewImages = values?.tournamentGallery?.length
       ? values.tournamentGallery.map((url) => ({
@@ -1650,7 +1681,9 @@ const TournamentGallery = ({ dispatch }) => {
                 <IoIosCloseCircleOutline
                   className="absolute right-0 w-6 h-6 z-100 text-black  cursor-pointer "
                   onClick={() => {
-                    handleRemoveImage(index);
+                    if(!isDisabled){
+                      handleRemoveImage(index);
+                    }
                   }}
                 />
               )}
@@ -1676,7 +1709,9 @@ const TournamentGallery = ({ dispatch }) => {
                   id="tournamentGallery"
                   name="tournamentGallery"
                   onChange={(e) => {
-                    handleFileUpload(e);
+                    if(!isDisabled){
+                      handleFileUpload(e);
+                    }
                   }}
                   value=""
                   type="file"
