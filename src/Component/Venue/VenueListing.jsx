@@ -88,7 +88,6 @@ export default function VenueListing() {
 
   const { venues, totalVenues, selectedFilter, isLoading, isSuccess } =
     useSelector((state) => state.getVenues);
-
   const { isConfirmed, type, confirmationId } = useSelector(
     (state) => state.confirm
   );

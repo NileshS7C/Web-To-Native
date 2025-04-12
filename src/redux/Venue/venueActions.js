@@ -111,7 +111,6 @@ export const getSingleVenue = createAsyncThunk(
         `${import.meta.env.VITE_BASE_URL}/users/admin/venues/${id}`,
         config
       );
-
       return response.data;
     } catch (err) {
       if (err.response) {
@@ -353,7 +352,7 @@ export const deleteCourt = createAsyncThunk(
 export const getSearchVenues = createAsyncThunk(
   "Venue/getSearchVenues",
   async (
-    { currentPage=1, selectedFilter, limit = 10, name = ""},
+    { currentPage = 1, selectedFilter, limit = 10, name = "" },
     { rejectWithValue }
   ) => {
     try {

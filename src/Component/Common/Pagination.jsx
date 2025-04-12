@@ -50,14 +50,13 @@ export const Pagination = ({
   };
 
   const pages = generatePages();
-
   return (
     <nav className="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
       <div className="-mt-px flex w-0 flex-1">
         {!hasLink && (
           <button
             onClick={() => {
-              dispatch(onPageChange(currentPage - 1));
+              dispatch(onPageChange(Number(currentPage) - 1));
             }}
             disabled={currentPage === 1}
             className={`inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium ${
@@ -131,7 +130,7 @@ export const Pagination = ({
       <div className="-mt-px flex w-0 flex-1 justify-end">
         {!hasLink && (
           <button
-            onClick={() => dispatch(onPageChange(currentPage + 1))}
+            onClick={() => dispatch(onPageChange(Number(currentPage) + 1))}
             disabled={currentPage === totalPages}
             className={`inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium ${
               currentPage === totalPages
