@@ -9,7 +9,7 @@ import * as yup from "yup";
 import useDebounce from "../../../Hooks/useDebounce";
 
 import { toggleModal } from "../../../redux/tournament/eventSlice";
-import { getAllVenues } from "../../../redux/Venue/venueActions";
+import { getAllVenues,getSearchVenues } from "../../../redux/Venue/venueActions";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
 
 import {
@@ -1057,7 +1057,7 @@ function ComboboxForVenuesList({
           scrollPositionRef.current = scrollContainerRef.current.scrollTop;
         }
         const result = await dispatch(
-          getAllVenues({ currentPage, selectedFilter, limit: 10, name: query })
+          getSearchVenues({ currentPage, selectedFilter, limit: 10, name: query })
         ).unwrap();
 
         if (!result.responseCode) {
@@ -1070,7 +1070,7 @@ function ComboboxForVenuesList({
       }
     };
 
-    if (query.length > 3 && debounceCalls) {
+    if ( debounceCalls) {
       getVenueByName();
     }
   }, [debounceCalls]);
@@ -1081,7 +1081,7 @@ function ComboboxForVenuesList({
         setIsLoading(true);
         setHasError(false);
         const result = await dispatch(
-          getAllVenues({ currentPage, selectedFilter, limit: 10 })
+          getSearchVenues({ currentPage, selectedFilter, limit: 10 })
         ).unwrap();
 
         if (!result.responseCode) {
@@ -1109,7 +1109,7 @@ function ComboboxForVenuesList({
         }
         const nextPage = currentPage + 1;
         const result = await dispatch(
-          getAllVenues({ currentPage: nextPage, selectedFilter, limit: 10 })
+          getSearchVenues({ currentPage: nextPage, selectedFilter, limit: 10 })
         ).unwrap();
 
         if (!result.responseCode) {
