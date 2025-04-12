@@ -55,7 +55,6 @@ export default function TournamentListingModal({
       }
     });
   };
-
   const handleSave = async () => {
     const formattedData = selectedItems.map((item, index) => ({
       tournamentID: item._id,
