@@ -84,8 +84,6 @@ export const archiveTournament = createAsyncThunk(
         userRole,
         tour_Id
       );
-
-      console.log(" user end Point", userAPIEndPoint);
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -335,7 +333,6 @@ export const addEventCategory = createAsyncThunk(
   async ({ formData, id }, { rejectWithValue }) => {
     try {
       const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.POST.createCategory(
         userRole,
         id
@@ -374,7 +371,7 @@ export const updateEventCategory = createAsyncThunk(
   async ({ formData, id, categoryId }, { rejectWithValue }) => {
     try {
       const userRole = cookies.get("userRole");
-
+    
       const userAPIEndPoint = API_END_POINTS.tournament.POST.updateCategory(
         userRole,
         id,

@@ -111,7 +111,6 @@ export const getSingleVenue = createAsyncThunk(
         `${import.meta.env.VITE_BASE_URL}/users/admin/venues/${id}`,
         config
       );
-
       return response.data;
     } catch (err) {
       if (err.response) {

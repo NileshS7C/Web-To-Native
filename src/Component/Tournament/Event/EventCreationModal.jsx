@@ -2,10 +2,10 @@ import PropTypes from "prop-types";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { getSingleVenue } from "../../../redux/Venue/venueActions";
 import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import DatePicker from "react-datepicker";
 import * as yup from "yup";
-
 import useDebounce from "../../../Hooks/useDebounce";
 
 import { toggleModal } from "../../../redux/tournament/eventSlice";
@@ -46,6 +46,7 @@ import {
   DialogPanel,
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { SlControlStart } from "react-icons/sl";
 
 const requiredCategoryFields = (category) => {
   const {
@@ -166,7 +167,6 @@ export const EventCreationModal = () => {
   const { tournamentId } = useParams();
   const { category, loadingSingleCategory, singleCategorySuccess } =
     useSelector((state) => state.event);
-
   const checkVenueOption = (state) => {
     state === "not_decided" ? setIsVenueFinal(false) : setIsVenueFinal(true);
   };
@@ -174,16 +174,16 @@ export const EventCreationModal = () => {
   const getLocation = (data) => {
     setSelectedVenueData(data);
   };
-
+  console.log(selectedVenueData)
   const isVenueNotListed = (value) => {
     setVenueNotListed(value);
   };
-
+  
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setHasError(false);
       let updatedLocation;
-
+      console.log("printing venues data",selectedVenueData)
       if (selectedVenueData?.address) {
         const {
           location: { is_location_exact, ...locationWithOutExact },
@@ -193,23 +193,23 @@ export const EventCreationModal = () => {
           ...restOfAddress,
           location: locationWithOutExact,
         };
-
+       
         updatedLocation = {
           address: updatedAddress,
           venueImage: selectedVenueData.image,
-          handle: selectedVenueData.name,
+          handle: selectedVenueData?.handle,
+          name:selectedVenueData?.name
         };
       }
-
       const updatedValues = {
         ...values,
         categoryLocation: venueNotListed
-          ? values?.categoryLocation
-          : updatedLocation,
+          ? values?.categoryLocation || {}
+          : updatedLocation || {},
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
-
+      console.log("printing updated data", updatedValues);
       !isVenueFinal && delete values["categoryLocation"];
 
       setSubmitting(true);
@@ -290,7 +290,6 @@ export const EventCreationModal = () => {
       setInitialState({});
     }
   }, [categoryId, tournamentId, singleCategorySuccess]);
-
   return (
     <Dialog
       open={showModal}
@@ -342,6 +341,7 @@ export const EventCreationModal = () => {
                             getLocation={getLocation}
                             isVenueNotListed={isVenueNotListed}
                             updatedCategory={updatedCategory}
+                            categoryLocation={initialState?.categoryLocation || null}
                           />
                           <EventTimings />
                           <div className="grid justify-self-end gap-[10px]">
@@ -606,6 +606,7 @@ const VenueSelection = ({
   getLocation,
   isVenueNotListed,
   updatedCategory,
+  categoryLocation,
 }) => {
   const dispatch = useDispatch();
   const [isVenueNotAvailable, setIsVenueNotAvailable] = useState(false);
@@ -698,6 +699,7 @@ const VenueSelection = ({
             venueNotListed={venueNotListed}
             getLocation={getLocation}
             updatedCategory={updatedCategory}
+            categoryLocation={categoryLocation}
           />
 
           <div className="flex gap-[10px] items-center">
@@ -1006,6 +1008,7 @@ function ComboboxForVenuesList({
   venueNotListed,
   getLocation,
   updatedCategory,
+  categoryLocation = null
 }) {
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
@@ -1025,8 +1028,8 @@ function ComboboxForVenuesList({
   const categoryId = searchParams.get("category");
   const handleRemoveVenue = () => {
     setSelectedPerson(null);
+    getLocation({});
   };
-
   useEffect(() => {
     if (selectedPerson) {
       const { address } = selectedPerson;
@@ -1034,6 +1037,7 @@ function ComboboxForVenuesList({
         address,
         name: selectedPerson?.name,
         image: selectedPerson?.bannerImages?.[0].url,
+        handle:selectedPerson?.handle
       });
     }
   }, [selectedPerson]);
@@ -1072,7 +1076,7 @@ function ComboboxForVenuesList({
       getVenueByName();
     }
   }, [debounceCalls]);
-
+  
   useEffect(() => {
     const getInitialVenues = async () => {
       try {
@@ -1096,7 +1100,6 @@ function ComboboxForVenuesList({
       getInitialVenues();
     }
   }, [query]);
-
   useEffect(() => {
     const getMoreVenues = async () => {
       try {
@@ -1133,12 +1136,21 @@ function ComboboxForVenuesList({
       getMoreVenues();
     }
   }, [reachedBottom, currentPage, totalVenues]);
-
   const handleScroll = (e) => {
     const checkBottom = isReachedBottom(e.target);
     setReachedBottom(checkBottom);
   };
-
+  
+  useEffect(()=>{
+    if(categoryId){
+      const temp={
+        ...categoryLocation,
+        bannerImages:[{url:categoryLocation?.venueImage}],
+        name:categoryLocation?.name || "temp"
+      }
+      setSelectedPerson(temp);
+    }
+  },[])
   return (
     <Combobox
       as="div"
@@ -1189,7 +1201,7 @@ function ComboboxForVenuesList({
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2.5 items-center">
                     <img
-                      src={venue?.bannerImages[0]?.url ?? ""}
+                      src={venue?.bannerImages?.[0]?.url ?? ""}
                       alt={`${venue.name}_image`}
                       width="50px"
                       height="50px"
@@ -1238,7 +1250,35 @@ function ComboboxForVenuesList({
       {selectedPerson && !categoryId && (
         <div className="flex items-center justify-between bg-gray-200 mt-3 w-auto max-w-fit rounded-lg p-2">
           <img
-            src={selectedPerson?.bannerImages[0]?.url}
+            src={selectedPerson?.bannerImages?.[0]?.url}
+            alt="Selected Venue logo"
+            className="w-[40px] h-[40px]"
+          />
+          <div className="flex flex-col items-center justify-between gap-2  text-xs">
+            <p>{selectedPerson?.name}</p>
+            <div className="flex  items-center divide-x divide-black">
+              <span className="pl-1 pr-1">
+                {selectedPerson?.address?.line1}
+              </span>
+              <span className="pl-1 pr-1">{selectedPerson?.address?.city}</span>
+              <span className="pl-1 pr-1">
+                {selectedPerson?.address?.state}
+              </span>
+              <span className="pl-1 pr-1">
+                {selectedPerson?.address?.postalCode}
+              </span>
+            </div>
+          </div>
+          <RxCrossCircled
+            className="cursor-pointer"
+            onClick={handleRemoveVenue}
+          />
+        </div>
+      )}
+      {selectedPerson && categoryId && (
+        <div className="flex items-center justify-between bg-gray-200 mt-3 w-auto max-w-fit rounded-lg p-2">
+          <img
+            src={selectedPerson?.bannerImages?.[0]?.url}
             alt="Selected Venue logo"
             className="w-[40px] h-[40px]"
           />
@@ -1276,6 +1316,7 @@ VenueSelection.propTypes = {
   getLocation: PropTypes.func,
   isVenueNotListed: PropTypes.bool,
   updatedCategory: PropTypes.object,
+  categoryLocation: PropTypes.object
 };
 
 ComboboxForVenuesList.propTypes = {
