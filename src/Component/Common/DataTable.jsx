@@ -26,7 +26,6 @@ const DataTable = ({
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
   }
-
   return (
     <div className="flex flex-col gap-2.5 justify-start">
       <div className="">
@@ -74,7 +73,6 @@ const DataTable = ({
                           const cellContent = column.render
                             ? column.render(item, index, currentPage, onClick, onDelete)
                             : item?.[column.key];
-
                           return (
                             <div
                               key={`${item?.id || item?._id || index}-${

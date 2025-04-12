@@ -2,14 +2,14 @@ import PropTypes from "prop-types";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { getSingleVenue } from "../../../redux/Venue/venueActions";
 import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import DatePicker from "react-datepicker";
 import * as yup from "yup";
-
 import useDebounce from "../../../Hooks/useDebounce";
 
 import { toggleModal } from "../../../redux/tournament/eventSlice";
-import { getAllVenues } from "../../../redux/Venue/venueActions";
+import { getAllVenues,getSearchVenues } from "../../../redux/Venue/venueActions";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
 
 import {
@@ -46,6 +46,7 @@ import {
   DialogPanel,
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { SlControlStart } from "react-icons/sl";
 
 const requiredCategoryFields = (category) => {
   const {
@@ -166,24 +167,19 @@ export const EventCreationModal = () => {
   const { tournamentId } = useParams();
   const { category, loadingSingleCategory, singleCategorySuccess } =
     useSelector((state) => state.event);
-
   const checkVenueOption = (state) => {
     state === "not_decided" ? setIsVenueFinal(false) : setIsVenueFinal(true);
   };
-
   const getLocation = (data) => {
     setSelectedVenueData(data);
   };
-
   const isVenueNotListed = (value) => {
     setVenueNotListed(value);
   };
-
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setHasError(false);
       let updatedLocation;
-
       if (selectedVenueData?.address) {
         const {
           location: { is_location_exact, ...locationWithOutExact },
@@ -193,23 +189,25 @@ export const EventCreationModal = () => {
           ...restOfAddress,
           location: locationWithOutExact,
         };
-
+       
         updatedLocation = {
           address: updatedAddress,
           venueImage: selectedVenueData.image,
-          handle: selectedVenueData.name,
+          handle: selectedVenueData?.handle,
+          name:selectedVenueData?.name
         };
       }
-
       const updatedValues = {
         ...values,
-        categoryLocation: venueNotListed
-          ? values?.categoryLocation
-          : updatedLocation,
+        categoryLocation:
+          !isVenueFinal
+            ? {}
+            : venueNotListed
+            ? values?.categoryLocation || {}
+            : updatedLocation || {},
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
-
       !isVenueFinal && delete values["categoryLocation"];
 
       setSubmitting(true);
@@ -290,7 +288,6 @@ export const EventCreationModal = () => {
       setInitialState({});
     }
   }, [categoryId, tournamentId, singleCategorySuccess]);
-
   return (
     <Dialog
       open={showModal}
@@ -308,7 +305,7 @@ export const EventCreationModal = () => {
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             transition
-            className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[70%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[70%] max-h-[90vh]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 overflow-y-auto"
           >
             <div>
               <div className="w-full bg-[#FFFFFF] px-[20px] h-full overflow-y-hidden">
@@ -342,6 +339,7 @@ export const EventCreationModal = () => {
                             getLocation={getLocation}
                             isVenueNotListed={isVenueNotListed}
                             updatedCategory={updatedCategory}
+                            categoryLocation={initialState?.categoryLocation || null}
                           />
                           <EventTimings />
                           <div className="grid justify-self-end gap-[10px]">
@@ -606,6 +604,7 @@ const VenueSelection = ({
   getLocation,
   isVenueNotListed,
   updatedCategory,
+  categoryLocation,
 }) => {
   const dispatch = useDispatch();
   const [isVenueNotAvailable, setIsVenueNotAvailable] = useState(false);
@@ -698,6 +697,7 @@ const VenueSelection = ({
             venueNotListed={venueNotListed}
             getLocation={getLocation}
             updatedCategory={updatedCategory}
+            categoryLocation={categoryLocation}
           />
 
           <div className="flex gap-[10px] items-center">
@@ -1006,6 +1006,7 @@ function ComboboxForVenuesList({
   venueNotListed,
   getLocation,
   updatedCategory,
+  categoryLocation = null
 }) {
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
@@ -1025,8 +1026,8 @@ function ComboboxForVenuesList({
   const categoryId = searchParams.get("category");
   const handleRemoveVenue = () => {
     setSelectedPerson(null);
+    getLocation({});
   };
-
   useEffect(() => {
     if (selectedPerson) {
       const { address } = selectedPerson;
@@ -1034,6 +1035,7 @@ function ComboboxForVenuesList({
         address,
         name: selectedPerson?.name,
         image: selectedPerson?.bannerImages?.[0].url,
+        handle:selectedPerson?.handle
       });
     }
   }, [selectedPerson]);
@@ -1055,7 +1057,7 @@ function ComboboxForVenuesList({
           scrollPositionRef.current = scrollContainerRef.current.scrollTop;
         }
         const result = await dispatch(
-          getAllVenues({ currentPage, selectedFilter, limit: 10, name: query })
+          getSearchVenues({ currentPage, selectedFilter, limit: 10, name: query })
         ).unwrap();
 
         if (!result.responseCode) {
@@ -1068,18 +1070,18 @@ function ComboboxForVenuesList({
       }
     };
 
-    if (query.length > 3 && debounceCalls) {
+    if ( debounceCalls) {
       getVenueByName();
     }
   }, [debounceCalls]);
-
+  
   useEffect(() => {
     const getInitialVenues = async () => {
       try {
         setIsLoading(true);
         setHasError(false);
         const result = await dispatch(
-          getAllVenues({ currentPage, selectedFilter, limit: 10 })
+          getSearchVenues({ currentPage, selectedFilter, limit: 10 })
         ).unwrap();
 
         if (!result.responseCode) {
@@ -1096,7 +1098,6 @@ function ComboboxForVenuesList({
       getInitialVenues();
     }
   }, [query]);
-
   useEffect(() => {
     const getMoreVenues = async () => {
       try {
@@ -1108,7 +1109,7 @@ function ComboboxForVenuesList({
         }
         const nextPage = currentPage + 1;
         const result = await dispatch(
-          getAllVenues({ currentPage: nextPage, selectedFilter, limit: 10 })
+          getSearchVenues({ currentPage: nextPage, selectedFilter, limit: 10 })
         ).unwrap();
 
         if (!result.responseCode) {
@@ -1133,12 +1134,25 @@ function ComboboxForVenuesList({
       getMoreVenues();
     }
   }, [reachedBottom, currentPage, totalVenues]);
-
   const handleScroll = (e) => {
     const checkBottom = isReachedBottom(e.target);
     setReachedBottom(checkBottom);
   };
-
+  
+  useEffect(()=>{
+    if (
+      categoryId &&
+      categoryLocation && 
+      Object.keys(categoryLocation).length > 0
+    ) {
+      const temp = {
+        ...categoryLocation,
+        bannerImages: [{ url: categoryLocation?.venueImage }],
+        name: categoryLocation?.name || "temp",
+      };
+      setSelectedPerson(temp);
+    }
+  },[])
   return (
     <Combobox
       as="div"
@@ -1189,7 +1203,7 @@ function ComboboxForVenuesList({
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2.5 items-center">
                     <img
-                      src={venue?.bannerImages[0]?.url ?? ""}
+                      src={venue?.bannerImages?.[0]?.url ?? ""}
                       alt={`${venue.name}_image`}
                       width="50px"
                       height="50px"
@@ -1238,7 +1252,35 @@ function ComboboxForVenuesList({
       {selectedPerson && !categoryId && (
         <div className="flex items-center justify-between bg-gray-200 mt-3 w-auto max-w-fit rounded-lg p-2">
           <img
-            src={selectedPerson?.bannerImages[0]?.url}
+            src={selectedPerson?.bannerImages?.[0]?.url}
+            alt="Selected Venue logo"
+            className="w-[40px] h-[40px]"
+          />
+          <div className="flex flex-col items-center justify-between gap-2  text-xs">
+            <p>{selectedPerson?.name}</p>
+            <div className="flex  items-center divide-x divide-black">
+              <span className="pl-1 pr-1">
+                {selectedPerson?.address?.line1}
+              </span>
+              <span className="pl-1 pr-1">{selectedPerson?.address?.city}</span>
+              <span className="pl-1 pr-1">
+                {selectedPerson?.address?.state}
+              </span>
+              <span className="pl-1 pr-1">
+                {selectedPerson?.address?.postalCode}
+              </span>
+            </div>
+          </div>
+          <RxCrossCircled
+            className="cursor-pointer"
+            onClick={handleRemoveVenue}
+          />
+        </div>
+      )}
+      {selectedPerson && categoryId && (
+        <div className="flex items-center justify-between bg-gray-200 mt-3 w-auto max-w-fit rounded-lg p-2">
+          <img
+            src={selectedPerson?.bannerImages?.[0]?.url}
             alt="Selected Venue logo"
             className="w-[40px] h-[40px]"
           />
@@ -1276,6 +1318,7 @@ VenueSelection.propTypes = {
   getLocation: PropTypes.func,
   isVenueNotListed: PropTypes.bool,
   updatedCategory: PropTypes.object,
+  categoryLocation: PropTypes.object
 };
 
 ComboboxForVenuesList.propTypes = {
