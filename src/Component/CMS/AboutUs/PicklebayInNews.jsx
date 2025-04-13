@@ -193,22 +193,28 @@ const PicklebayInNews = () => {
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    const options = { year: "numeric", month: "short", day: "numeric" };
+    const formattedDate = new Date(values?.date).toLocaleDateString("en-GB", options);
+    const formattedValues = {
+      ...values,
+      date: formattedDate,
+    }; 
     setSubmitting(true);
     let updatedPicklebayInNews;
     if (selectedPicklebayInNews) {
       updatedPicklebayInNews = data[0]?.news.map((item) =>
         item.position === selectedPicklebayInNews.position
-          ? { ...values, position: selectedPicklebayInNews.position }
+          ? { ...formattedValues, position: selectedPicklebayInNews.position }
           : item
       );
     } else {
       const nextPosition = (data[0]?.news?.length || 0) + 1;
       updatedPicklebayInNews = [
         ...(data[0]?.news || []),
-        { ...values, position: nextPosition },
+        { ...formattedValues, position: nextPosition },
       ];
     }
-
+   console.log(updatedPicklebayInNews);
     await submitFormData(
       submitAboutUsForm({
         type: "news",
@@ -220,7 +226,6 @@ const PicklebayInNews = () => {
     setOpenModal(false);
     resetForm();
   };
-
   useEffect(() => {
     setIsVisible(data ? data[0]?.isVisible : false);
   }, [data]);
