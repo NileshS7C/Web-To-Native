@@ -277,11 +277,11 @@ export default function VenueListingModal({
             />
 
             {isLoading ? (
-              <div className="flex items-center justify-center h-[65vh] rounded-lg border border-gray-300 my-4">
+              <div className="flex items-center justify-center h-[60vh] rounded-lg border border-gray-300 my-4">
                 <Spinner />
               </div>
             ) : (
-              <div className="data-list overflow-y-auto my-4 flex flex-col gap-2 h-[65vh] rounded-lg border border-gray-300 p-2">
+              <div className="data-list overflow-y-auto my-4 flex flex-col gap-2 h-[60vh] rounded-lg border border-gray-300 p-2">
                 {venues?.length > 0 ? (
                   venues.map((item) => (
                     <div
@@ -327,7 +327,7 @@ export default function VenueListingModal({
                   rowsInOnePage={venueLimit}
                 />
               ) : (
-                <div className="h-[40px]" />
+                <div className="h-[30px]" />
               )}
 
               <div className="flex justify-end gap-5">
