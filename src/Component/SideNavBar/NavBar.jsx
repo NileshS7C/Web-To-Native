@@ -73,33 +73,47 @@ export const NavBar = () => {
       };
     });
   };
-
   const renderMenuItems = (menuItems, parentPath = "") =>
     menuItems.map((menu, index) => {
       const currentPath =
         menu.name !== "Dashboard"
           ? `${parentPath}/${menu.name.toLowerCase().replace(/\s+/g, "-")}`
           : "/";
-
       const checkIsChildrenActive = () => {
         let isActive = currentMenu === menu.name;
         const activeChild = menu?.children?.some(
-          (child) => child.name === currentMenu
+          (child) => child.name.toLowerCase() === currentMenu.toLowerCase()
         );
-
         return isActive || activeChild;
       };
 
       const shouldBeActive = !menu.children
-        ? currentMenu === menu.name
+        ? currentMenu.toLowerCase() === menu.name.toLowerCase()
         : checkIsChildrenActive();
 
       return (
         <div key={`${menu.name}`} className="w-full">
           <div
-            className={`flex items-center gap-2 py-[15px] px-[10px] w-full ${menu.children ? "justify-between" : ""
-              } ${shouldBeActive ? "bg-[#5B8DFF1A] rounded-md text-blue-500" : ""
-              }`}
+            className={`cursor-pointer flex items-center gap-2 py-[15px] px-[10px] w-full ${
+              menu.children ? "justify-between" : ""
+            } ${
+              shouldBeActive ? "bg-[#5B8DFF1A] rounded-md text-blue-500" : ""
+            }`}
+            onClick={() => {
+              setCurrentMenu(menu.name);
+              if (menu.children) {
+                // Toggle the menu if it has children
+                toggleMenu(menu.name);
+
+                if (menu.name === "CMS" && expandedMenus.CMS) {
+                  navigate("/");
+                }
+              } else {
+                // Navigate if it doesn't have children
+                dispatch(setNavigation(menu.name));
+                navigate(currentPath);
+              }
+            }}
           >
             <div className="flex items-center gap-2">
               {menu.icon && (
@@ -109,31 +123,13 @@ export const NavBar = () => {
                   className="w-[20px] h-[20px]"
                 />
               )}
-              <button
-                onClick={() => {
-                  setCurrentMenu(menu.name);
-                  if (menu.children) {
-                    // Toggle the menu if it has children
-                    toggleMenu(menu.name);
-
-                    if (menu.name === "CMS" && expandedMenus.CMS) {
-                      navigate("/");
-                    }
-                  } else {
-                    // Navigate if it doesn't have children
-                    dispatch(setNavigation(menu.name));
-                    navigate(currentPath);
-                  }
-                }}
-              >
                 <span>{menu.name}</span>
-              </button>
             </div>
             {menu.children && (
               <ChevronRightIcon
-                className={`w-5 h-5 text-gray-500 transform ${expandedMenus[menu.name] ? "rotate-90" : ""
-                  }`}
-                onClick={() => toggleMenu(menu.name)}
+                className={`w-5 h-5 text-gray-500 transform ${
+                  expandedMenus[menu.name] ? "rotate-90" : ""
+                }`}
               />
             )}
           </div>
@@ -146,7 +142,6 @@ export const NavBar = () => {
         </div>
       );
     });
-
   return (
     <div className="grid grid-rows-auto gap-2 auto-rows-[60px] justify-items-start px-[10px] text-md font-normal text-[#232323] bg-[#FFFFFF] ">
       {navigationBar && renderMenuItems(navigationBar)}
