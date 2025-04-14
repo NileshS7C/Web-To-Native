@@ -89,7 +89,7 @@ const Layout = () => {
 
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
-
+  const { userRole: role } = useSelector((state) => state.auth);
   const { venue } = useSelector((state) => state.getVenues);
   const { changingDecision, verificationSuccess, approvalBody } = useSelector(
     (state) => state.Tournament
@@ -276,7 +276,7 @@ const Layout = () => {
                     <TournamentActionButton
                       dispatch={dispatch}
                       ROLES={ROLES}
-                      userRole={userRole}
+                      userRole={role || userRole}
                       approvalBody={approvalBody}
                       tournament={tournament}
                       changingDecision={changingDecision}
@@ -361,8 +361,9 @@ const TournamentActionButton = ({
           tournament?.status !== "ARCHIVED" && (
             <div className="flex items-center gap-2">
               <Button
-                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                  } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+                className={`${
+                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
                 type="button"
                 onClick={() => {
                   setApproveButtonClicked(true);
@@ -378,8 +379,9 @@ const TournamentActionButton = ({
                 Accept Tournament
               </Button>
               <Button
-                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                  } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+                className={`${
+                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
                 type="button"
                 onClick={() => {
                   dispatch(
@@ -520,7 +522,7 @@ const VenueActionButtons = ({
       {venueEditMode ? (
         <SaveAndCancelButton
           dispatch={dispatch}
-          setEditMode={setVenueEditMode}
+          setEditMode={() => dispatch(setVenueEditMode())}
           submitForm={submitForm}
           isSubmitting={isSubmitting}
         />
@@ -594,7 +596,9 @@ const SaveAndCancelButton = ({
       <button
         className="flex items-center justify-center gap-3 px-4 py-2 bg-white shadow-lg text-black ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
         type="button"
-        onClick={() => setEditMode()}
+        onClick={() => {
+          setEditMode();
+        }}
       >
         <span>Cancel</span>
       </button>

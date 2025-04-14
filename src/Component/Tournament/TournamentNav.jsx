@@ -51,7 +51,6 @@ const TournamentCreationForm = () => {
   const { tournament, tournamentEditMode } = useSelector(
     (state) => state.GET_TOUR
   );
-
   const { isOpen, message, onClose, isConfirmed, type, withComments } =
     useSelector((state) => state.confirm);
 
@@ -59,18 +58,18 @@ const TournamentCreationForm = () => {
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [cookies] = useCookies(["name", "userRole"]);
+  const { userRole: role } = useSelector((state) => state.auth);
   const isAddInThePath = window.location.pathname.includes("/add");
-
   useEffect(() => {
+    
     const isDisable = shouldBeDisable(
       tournament?.status,
       tournamentId,
       tournamentEditMode,
       isAddInThePath,
-      cookies?.userRole,
+      role,
       tournament?._id
     );
-
     dispatch(setIsEditable(isDisable));
 
     if (tournament?.status === "DRAFT" && tournamentId) {
@@ -85,6 +84,7 @@ const TournamentCreationForm = () => {
     isAddInThePath,
     cookies?.userRole,
     tournament?._id,
+    role
   ]);
 
   useEffect(() => {
