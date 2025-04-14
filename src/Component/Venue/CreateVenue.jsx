@@ -1215,7 +1215,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
                     id="layoutImages"
                     name="layoutImages"
                     onChange={(e) => {
-                      // handleFileUpload(e);
+                       handleFileUpload(e);
                     }}
                     value=""
                     type="file"
