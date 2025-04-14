@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useCookies } from "react-cookie";
-
+import { resetEditMode } from "../../redux/tournament/getTournament";
 import {
   resetArchiveState,
   resetVerificationState,
@@ -59,6 +59,7 @@ const TournamentCreationForm = () => {
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [cookies] = useCookies(["name", "userRole"]);
+   const { userRole: role } = useSelector((state) => state.auth);
   const isAddInThePath = window.location.pathname.includes("/add");
 
   useEffect(() => {
@@ -67,7 +68,7 @@ const TournamentCreationForm = () => {
       tournamentId,
       tournamentEditMode,
       isAddInThePath,
-      cookies?.userRole,
+      cookies?.userRole || role,
       tournament?._id
     );
 
@@ -182,6 +183,11 @@ const TournamentCreationForm = () => {
       };
     }
   }, [verificationSuccess, tournamentId, verificationError]);
+  useEffect(() => {
+    return () => {
+      dispatch(resetEditMode());
+    };
+  }, []);
 
   return (
     <div>
