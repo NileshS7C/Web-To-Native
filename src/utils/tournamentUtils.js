@@ -15,6 +15,7 @@ const shouldBeDisable = (
   editTournamentId
 ) => {
   const isStatusEligible = status === "DARFT" || status === "REJECTED";
+
   if (!role) {
     return false;
   }
