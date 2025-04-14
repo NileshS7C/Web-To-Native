@@ -102,10 +102,9 @@ const SearchTournament = ({ tournamentName, searchTournamentHandler }) => {
 
   useEffect(() => {
     if (debouncedValue !== undefined) {
-      searchTournamentHandler(searchTournament);
+      searchTournamentHandler(debouncedValue);
     }
-  }, [debouncedValue, searchTournament, searchTournamentHandler]);
-
+  }, [debouncedValue, searchTournamentHandler]);
   return (
     <div className="relative w-full">
       <img
@@ -116,7 +115,7 @@ const SearchTournament = ({ tournamentName, searchTournamentHandler }) => {
       <input
         placeholder="Search Tournaments"
         className="w-full px-[60px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-        value={tournamentName}
+        value={searchTournament}
         onChange={handleSearchTournament}
       />
     </div>
