@@ -9,7 +9,7 @@ import {
 import ReactQuill from "react-quill";
 
 import { useFormikContextFunction } from "../../Providers/formikContext";
-
+import { setVenueEditMode } from "../../redux/Venue/addVenue";
 import TextError from "../Error/formError";
 import { Amenities, Equipment } from "../../Constant/venue";
 import { AiFillQuestionCircle } from "react-icons/ai";
@@ -309,6 +309,11 @@ const VenueInfo = () => {
   useEffect(() => {
     dispatch(getUniqueVenueTags());
   }, []);
+  useEffect(()=>{
+   return ()=>{
+    dispatch(setVenueEditMode());
+   }
+  },[])
 
   useEffect(() => {
     if (venue && id && isSuccess) {
