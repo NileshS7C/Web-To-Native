@@ -282,7 +282,7 @@ export default function TournamentListingModal({
       <div className="fixed inset-0 z-10 w-screen">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel className="modal-content w-[70%] mx-auto p-4 bg-white rounded-lg">
-            <div className="mb-4" >
+            <div className="mb-4">
               <SearchTournament
                 tournamentName={tournamentName}
                 searchTournamentHandler={searchTournamentHandler}
@@ -307,16 +307,14 @@ export default function TournamentListingModal({
                           ? "bg-blue-100 border-[#1570EF]"
                           : "hover:bg-gray-100"
                       }`}
+                      onClick={() => handleSelectItem(item)}
                     >
                       <input
                         type="checkbox"
                         checked={selectedItems.some(
                           (selectedItem) => selectedItem._id === item._id
                         )}
-                        onChange={() => {
-                          handleSelectItem(item);
-                        }}
-                        className="checkbox accent-blue-500"
+                        className="checkbox accent-blue-500 cursor-pointer"
                       />
                       <div className="item-details flex flex-row justify-between w-full text-left gap-4">
                         <h4 className="w-[40%] font-medium">
