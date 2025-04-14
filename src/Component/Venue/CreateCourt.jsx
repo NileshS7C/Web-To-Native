@@ -457,15 +457,13 @@ const MobileBannerImage = ({ dispatch }) => {
 
 const CourtFeatures = () => {
   const { form, values } = useFormikContext();
-
   return (
     <div className="flex flex-col gap-2.5 justify-between items-start">
       <div className="flex justify-between w-full">
         {courtFeatures.map((feature) => (
           <label
             key={feature}
-            className="flex items-center gap-2 text-[15px] leading-[18.15px] text-[#232323]"
-            htmlFor="features"
+            className="flex items-center gap-2 text-[15px] leading-[18.15px] text-[#232323] cursor-pointer"
           >
             <Field
               type="checkbox"

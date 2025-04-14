@@ -89,7 +89,7 @@ const Layout = () => {
 
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
-
+ const { userRole: Role } = useSelector((state) => state.auth);
   const { venue } = useSelector((state) => state.getVenues);
   const { changingDecision, verificationSuccess, approvalBody } = useSelector(
     (state) => state.Tournament
@@ -276,7 +276,7 @@ const Layout = () => {
                     <TournamentActionButton
                       dispatch={dispatch}
                       ROLES={ROLES}
-                      userRole={userRole}
+                      userRole={userRole || Role}
                       approvalBody={approvalBody}
                       tournament={tournament}
                       changingDecision={changingDecision}
@@ -520,7 +520,9 @@ const VenueActionButtons = ({
       {venueEditMode ? (
         <SaveAndCancelButton
           dispatch={dispatch}
-          setEditMode={setVenueEditMode}
+          setEditMode={()=>{
+            dispatch(setVenueEditMode());
+          }}
           submitForm={submitForm}
           isSubmitting={isSubmitting}
         />

@@ -3,7 +3,7 @@ import { listingIcon } from "../Assests";
 import EventActions from "../Component/Common/EventActions";
 import { GoDotFill } from "react-icons/go";
 import { findFormatName } from "../utils/tournamentUtils";
-
+const tournamentLimit=10;
 const tournamentDetails = {
   steps: ["basic info", "event", "acknowledgement"],
 };
@@ -288,4 +288,5 @@ export {
   tournamentEventTypes,
   NotDoublesCategory,
   roundRobbinModeOptions,
+  tournamentLimit
 };
