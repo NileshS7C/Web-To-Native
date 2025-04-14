@@ -105,6 +105,11 @@ const SearchTournament = ({ tournamentName, searchTournamentHandler }) => {
       searchTournamentHandler(debouncedValue);
     }
   }, [debouncedValue, searchTournamentHandler]);
+  useEffect(()=>{
+      if(!searchTournament){
+         searchTournamentHandler("");
+      }
+  },[searchTournament])
   return (
     <div className="relative w-full">
       <img
@@ -274,6 +279,7 @@ export default function TournamentListingModal({
       GetAllTournaments();
     }
   }, [tournamentName, currentPage]);
+  console.log(tournamentName);
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-10">
