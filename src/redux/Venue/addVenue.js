@@ -35,6 +35,7 @@ const venueSlice = createSlice({
       state.venueEditMode = false;
     },
     setTabs(state, { payload }) {
+      console.log(" payload", payload);
       state.venueTabs = payload;
     },
 
