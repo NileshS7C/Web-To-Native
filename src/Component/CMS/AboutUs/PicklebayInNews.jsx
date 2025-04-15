@@ -112,7 +112,7 @@ const PicklebayInNews = () => {
 
   const { submitFormData, submissionError, isSubmitted } = useSubmitForm();
   const { data, error, errorMessage, success } = useFetchData(
-    getAboutUsPageData({ type: "news" }),
+    getAboutUsPageData({ type: "aboutUsNews" }),
     isSubmitted
   );
   const [isVisible, setIsVisible] = useState(data ? data[0]?.isVisible : false);
@@ -153,7 +153,7 @@ const PicklebayInNews = () => {
   const handleDelete = async (item) => {
     setSelectedPicklebayInNews(item);
 
-    const updatedNews = data[0]?.news?.filter(
+    const updatedNews = data[0]?.aboutUsNews?.filter(
       (newsItem) => newsItem.position !== item.position
     );
 
@@ -164,14 +164,14 @@ const PicklebayInNews = () => {
 
     const payload = {
       ...data[0],
-      news: reindexedNews,
+      aboutUsNews: reindexedNews,
     };
 
     const { _id, sectionType, updatedAt, ...cleanedPayload } = payload;
 
     await submitFormData(
       submitAboutUsForm({
-        type: "news",
+        type: "aboutUsNews",
         body: cleanedPayload,
       })
     );
@@ -202,23 +202,23 @@ const PicklebayInNews = () => {
     setSubmitting(true);
     let updatedPicklebayInNews;
     if (selectedPicklebayInNews) {
-      updatedPicklebayInNews = data[0]?.news.map((item) =>
+      updatedPicklebayInNews = data[0]?.aboutUsNews.map((item) =>
         item.position === selectedPicklebayInNews.position
           ? { ...formattedValues, position: selectedPicklebayInNews.position }
           : item
       );
     } else {
-      const nextPosition = (data[0]?.news?.length || 0) + 1;
+      const nextPosition = (data[0]?.aboutUsNews?.length || 0) + 1;
       updatedPicklebayInNews = [
-        ...(data[0]?.news || []),
+        ...(data[0]?.aboutUsNews || []),
         { ...formattedValues, position: nextPosition },
       ];
     }
    console.log(updatedPicklebayInNews);
     await submitFormData(
       submitAboutUsForm({
-        type: "news",
-        body: { news: updatedPicklebayInNews },
+        type: "aboutUsNews",
+        body: { aboutUsNews: updatedPicklebayInNews },
       })
     );
 
@@ -248,7 +248,7 @@ const PicklebayInNews = () => {
 
     await submitFormData(
       submitAboutUsForm({
-        type: "news",
+        type: "aboutUsNews",
         body: updatedValues,
       })
     );
@@ -347,7 +347,7 @@ const PicklebayInNewsTable = ({
 }) => {
   return (
     <DataTable
-      data={data ? data[0]?.news : []}
+      data={data ? data[0]?.aboutUsNews : []}
       columns={columns}
       currentPage={currentPage || 1}
       pathName="/venues"
