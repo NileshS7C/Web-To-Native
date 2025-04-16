@@ -68,6 +68,10 @@ const hiddenRoutes = [
   "/cms/blogs/blog-posts",
   "/cms/blogs/blog-posts/new",
   "/cms/tourism",
+  "/cms/tourism-page/top-banner",
+  "/cms/tourism-page/package-section",
+  "/cms/tourism-page/instagram",
+  "/cms/tourism-page/media-gallery",
   ...aboutUsPageRoutes,
 ];
 
