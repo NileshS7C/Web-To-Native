@@ -68,7 +68,6 @@ export default function Combopopover({
     const queryArray = query.split(/\s*,\s*/);
     setSelectedTags((prevTags) => {
       const uniqueTags = queryArray.filter((tag) => !prevTags.includes(tag));
-      console.log(" unique tags", prevTags);
       return [...prevTags, ...uniqueTags];
     });
 

@@ -62,13 +62,6 @@ export const ADMIN_NAVIGATION = [
     icon: tournamentIcon,
     path: "tournament-organisers",
   },
-  // { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
-  // {
-  //   name: "Tournament Bookings",
-  //   icon: bookingIcon,
-  //   path: "tournament-bookings",
-  // },
-  // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
   { name: "Venues", icon: venueIcon, path: "venues" },
 
@@ -135,26 +128,13 @@ export const ADMIN_NAVIGATION = [
 
 export const TOURNAMENT_OWNER_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
-  // {
-  //   name: "Tournament Organisers",
-  //   icon: tournamentIcon,
-  //   path: "tournament-organisers",
-  // },
-  // {
-  //   name: "Tournament Bookings",
-  //   icon: bookingIcon,
-  //   path: "tournament-bookings",
-  // },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
   { name: "Profile", icon: profileIcon, path: "profile" },
 ];
 
 export const VENUE_OWNER_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
-  // { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
-  // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Venues", icon: venueIcon, path: "venues" },
-  // { name: "User", icon: profileIcon, path: "users" },
 ];
 
 export const ActionButtonGroup = [

@@ -35,12 +35,10 @@ export default function AddFAQ({ data, isOpen, onClose, fetchHomepageSections })
                                         position: data.faqs.length + 1
                                     }
                                     const updatedFAQS = [...data.faqs, newFAQ];
-                                    console.log(newFAQ)
                                     const payload = {
                                         isVisible: data.isVisible,
                                         faqs:updatedFAQS
                                     }
-                                    console.log('payload',payload)
                                     const config = {
                                         headers: {
                                             "Content-Type": "application/json",

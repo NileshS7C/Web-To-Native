@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
 import DeleteModal from "../DeleteModal";
 import axiosInstance from "../../../../Services/axios";
-import { CiEdit } from "react-icons/ci";
-
 export default function JournalContentTable({
   data,
   fetchHomepageSections,
@@ -12,7 +10,6 @@ export default function JournalContentTable({
 }) {
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
-  console.log("data", data);
   const handleDelete = (item) => {
     setDeleteModal(true);
     setSelectedCard(item);
@@ -74,9 +71,7 @@ export default function JournalContentTable({
                 <td className="px-3 py-4 text-sm text-gray-500 w-[20%]">
                   {journal.blogID?.blogName}
                 </td>
-                {/* <td className="px-3 py-4 text-sm text-gray-500 w-[30%]">
-                                {journal.blogID?.description}
-                            </td> */}
+                
                 <td className="px-3 py-4 text-sm text-gray-500 w-[30%]">
                   {journal.blogID?.featureImage}
                 </td>
