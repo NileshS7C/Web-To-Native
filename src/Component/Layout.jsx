@@ -4,47 +4,29 @@ import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useFormikContextFunction } from "../Providers/formikContext";
-
 import { setTournamentEditMode } from "../redux/tournament/getTournament";
 import { handleTournamentDecision } from "../redux/tournament/tournamentActions";
 import { setApprovalBody } from "../redux/tournament/addTournament";
-
 import { FiEdit3 } from "react-icons/fi";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import { AiFillDelete } from "react-icons/ai";
-
 import Header from "./Header/header";
 import { NavBar } from "./SideNavBar/NavBar";
-
 import { getPageTitle } from "../Constant/titles";
-import {
-  notHaveBackButton,
-  ROLES,
-  uploadedImageLimit,
-  venueImageSize,
-} from "../Constant/app";
+import { notHaveBackButton, ROLES, uploadedImageLimit, venueImageSize} from "../Constant/app";
 import { aboutUsPageRoutes } from "../Constant/Cms/aboutUsPage";
 import { backRoute } from "../utils/tournamentUtils";
-
-import {
-  showConfirmation,
-  onCancel,
-} from "../redux/Confirmation/confirmationSlice";
+import { showConfirmation, onCancel} from "../redux/Confirmation/confirmationSlice";
 import Button from "./Common/Button";
 import { SuccessModal } from "./Common/SuccessModal";
 import { ErrorModal } from "./Common/ErrorModal";
 import { hideActionButtons } from "../Constant/tournament";
 import { toggleOrganiserModal } from "../redux/tournament/tournamentOrganiserSlice";
-
 import { showError } from "../redux/Error/errorSlice";
-import {
-  getUploadedImages,
-  uploadImageForCMS,
-} from "../redux/Upload/uploadActions";
+import { getUploadedImages, uploadImageForCMS} from "../redux/Upload/uploadActions";
 import { showSuccess } from "../redux/Success/successSlice";
 import { cleanUpUpload, setIsUploaded } from "../redux/Upload/uploadImage";
 import { deleteVenue } from "../redux/Venue/venueActions";
-
 import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
 import { resetEditMode } from "../redux/tournament/getTournament";
@@ -80,24 +62,15 @@ const Layout = () => {
   const { submitForm, isSubmitting } = useFormikContextFunction();
   const { tournamentId, eventId, id } = useParams();
   const navRef = useRef(null);
-
-  const [shouldScroll, setShouldScroll] = useState({
-    nav: false,
-    page: false,
-  });
+  const [shouldScroll, setShouldScroll] = useState({ nav: false, page: false });
   const [approveButtonClicked, setApproveButtonClicked] = useState(false);
-
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
- const { userRole: Role } = useSelector((state) => state.auth);
+  const { userRole: Role } = useSelector((state) => state.auth);
   const { venue } = useSelector((state) => state.getVenues);
-  const { changingDecision, verificationSuccess, approvalBody } = useSelector(
-    (state) => state.Tournament
-  );
+  const { changingDecision, verificationSuccess, approvalBody } = useSelector((state) => state.Tournament);
   const { category } = useSelector((state) => state.event);
-  const { tournament, tournamentEditMode } = useSelector(
-    (state) => state.GET_TOUR
-  );
+  const { tournament, tournamentEditMode } = useSelector((state) => state.GET_TOUR);
 
   const handleMouseEnter = useCallback(() => {
     setShouldScroll((prev) => ({ ...prev, nav: true, page: false }));
@@ -121,11 +94,7 @@ const Layout = () => {
 
   const isTournament = window.location.pathname.includes("/tournaments");
 
-  const currentTitle = getPageTitle(
-    location.pathname,
-    { tournamentId },
-    { venue, tournament, category }
-  );
+  const currentTitle = getPageTitle(location.pathname,{ tournamentId },{ venue, tournament, category });
 
   useEffect(() => {
     if (
