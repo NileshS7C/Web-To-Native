@@ -26,7 +26,6 @@ export default function StaticPage({ PageData, handleSavePage, getPageData }) {
             pageDetails.description !== originalPageDetails.description;
 
         if (hasChanged) {
-            console.log("pageDetails", pageDetails);
             await handleSavePage(pageDetails);
         }
         getPageData();

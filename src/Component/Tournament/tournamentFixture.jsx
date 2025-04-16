@@ -217,13 +217,6 @@ export const TournamentFixture = ({ tournament }) => {
         >
           <TbSwipe className="w-[20px] h-[20px]" />
         </button>
-        {/* <button
-          className="bg-white border-2 border-[#CAD9FB] p-2 rounded-lg disabled:bg-slate-300 disabled:cursor-not-allowed"
-          onClick={handleplayerShuffling}
-          disabled={fixture?.status === "PUBLISHED" || !fixture}
-        >
-          <img src={suffleIcon} alt="suffle button" className="animate-pulse" />
-        </button> */}
         <Button
           className="w-[148px]  h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
           onClick={handlePublishFixture}

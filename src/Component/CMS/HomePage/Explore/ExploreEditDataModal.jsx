@@ -66,7 +66,6 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
                                     );
 
                                     if (!hasChanged) {
-                                        console.log("No changes detected, API request skipped.");
                                         setLoading(false);
                                         return;
                                     }
@@ -80,8 +79,7 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
                                         isVisible: data.isVisible,
                                         features: updatedFeatures,
                                     };
-
-                                    console.log("Updated Payload:", payload);
+                                    
 
                                     const config = {
                                         headers: {
@@ -112,9 +110,7 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
                                             <h2 className="text-lg font-semibold text-gray-900">
                                                 Edit Card Details
                                             </h2>
-                                            {/* <p className="mt-1 text-sm text-gray-600">
-                                                Provide details about the tournament below.
-                                            </p> */}
+                                          
 
                                             <div className="mt-6 grid grid-cols-1 gap-y-6">
                                                 {/* Title Input */}

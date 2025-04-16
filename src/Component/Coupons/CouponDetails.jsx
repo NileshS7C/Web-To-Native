@@ -36,8 +36,6 @@ const CouponDetails = () => {
 
   return (
     <div className=" max-w-[70%]">
-      {/* <h2 className="text-lg font-semibold mb-4">Coupon Details</h2> */}
-
       {loading && <p>Loading coupon details...</p>}
       {error && <p className="text-red-500">{error}</p>}
 

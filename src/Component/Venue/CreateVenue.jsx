@@ -449,7 +449,6 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags, id }) => {
   const [venueHandle, setVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
-  console.log("values venue", values);
   useEffect(() => {
     if (values.name) {
       const { name } = values;
@@ -502,7 +501,6 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags, id }) => {
             setFieldValue("venueInfoUrl", e.target.value);
           }}
         />
-        {/* <ErrorMessage name="handle" component={TextError} /> */}
       </div>
 
       <Combopopover
@@ -693,7 +691,6 @@ const VenueAvailableDays = ({ id }) => {
       if (day === "All days") {
         const newAllDaysActive = !values.availableDays[index].active;
         setFieldValue(`availableDays[${index}].active`, newAllDaysActive);
-        console.log(" new All days active", newAllDaysActive);
 
         if (newAllDaysActive) {
           const allDaysTimes = {
@@ -1055,8 +1052,6 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
               Click to upload{" "}
               <span className="text-sm text-[#353535] "> or drag and drop</span>
             </p>
-
-            {/* <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p> */}
             <p className="text-xs text-[#353535] mt-1">
               (Image size: 1200x600)
             </p>
