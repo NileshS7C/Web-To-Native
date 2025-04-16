@@ -686,12 +686,6 @@ const VenueSelection = ({
 
       {currentCheckBox === "decided" && (
         <div className="flex flex-col gap-2 w-full">
-          {/* <VenueSearch
-            isVenueNotAvailable={isVenueNotAvailable}
-            venues={venues}
-            total={total}
-          /> */}
-
           <ComboboxForVenuesList
             isVenueNotAvailable={isVenueNotAvailable}
             venueNotListed={venueNotListed}
@@ -810,18 +804,6 @@ const EventTimings = () => {
 
         <ErrorMessage name="categoryStartDate" component={TextError} />
       </div>
-      {/* <div className="flex flex-col items-start gap-2.5">
-        <div className="flex flex-col items-start gap-2.5">
-          <label className="text-[16px] leading-[19.3px] text-[#232323]">
-            Select Time
-          </label>
-          <input
-            placeholder="Select Date"
-            type="time"
-            className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-      </div> */}
     </div>
   );
 };
@@ -956,39 +938,6 @@ const AddVenueAddress = ({ location }) => {
             component={TextError}
           />
         </div>
-        {/* <div className="flex flex-col items-start gap-2.5">
-          <label
-            className="text-xs text-[#232323]"
-            htmlFor="categoryLocation.venueImage"
-          >
-            Upload Venue Image
-          </label>
-          <div className=" flex relative ">
-            <img
-              src={values.categoryLocation?.venueImage || imageUpload}
-              alt="sponsor logo"
-              className="min-w-full h-[40px] cursor-pointer"
-            />
-            <Field name="categoryLocation.venueImage">
-              {({ form, field }) => (
-                <input
-                  {...field}
-                  id="categoryLocation.venueImage"
-                  name="categoryLocation.venueImage"
-                  onChange={(e) => {
-                    const files = e.target.files[0];
-                    const url = window.URL.createObjectURL(files);
-                    form.setFieldValue("categoryLocation.venueImage", url);
-                  }}
-                  value=""
-                  type="file"
-                  className="absolute  w-8 h-8  inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
-                  multiple={false}
-                />
-              )}
-            </Field>
-          </div>
-        </div> */}
       </div>
     </div>
   );

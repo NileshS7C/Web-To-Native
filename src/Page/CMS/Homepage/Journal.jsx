@@ -141,10 +141,7 @@ export default function Journal() {
         </div>
       </div>
 
-      {/* 
-       Modal for editing the journal
-      
-      */}
+     
 
       <Modal
         open={isEditModalOpen}
