@@ -379,12 +379,7 @@ const LayoutImages = ({ images }) => {
         {images.map((image, index) => {
           return (
             <div key={`${image.url}`} className="group relative">
-              {/* <ArrowsPointingOutIcon
-              width="30px"
-              height="30px"
-              color="white"
-              className="absolute right-0 top-1 transform transition-transform duration-300 group-hover:scale-110 group-hover:translate-y-[-4px]"
-            /> */}
+            
 
               <a href={image?.url} target="_blank">
                 <img
