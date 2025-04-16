@@ -44,9 +44,7 @@ const SearchVenue = ({
   };
 
   useEffect(() => {
-    console.log("called");
     if (debouncedValue) {
-       console.log("called 1");
       dispatch(
         getSearchVenues({
           currentPage,

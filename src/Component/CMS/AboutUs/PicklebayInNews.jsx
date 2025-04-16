@@ -214,7 +214,6 @@ const PicklebayInNews = () => {
         { ...formattedValues, position: nextPosition },
       ];
     }
-   console.log(updatedPicklebayInNews);
     await submitFormData(
       submitAboutUsForm({
         type: "aboutUsNews",
@@ -398,7 +397,6 @@ const LinkInput = () => {
   return (
     <Field name="link" id="link">
       {({ field, meta }) => {
-        console.log("meta", meta);
         return (
           <div>
             {/* Title Field */}
