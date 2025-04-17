@@ -19,6 +19,7 @@ import tourBookingReducer from "./tournament/bookingSlice";
 import fixtureReducer from "./tournament/fixtureSlice";
 import tour_OrganiserReducer from "./tournament/tournamentOrganiserSlice";
 import aboutUsSlice from "./AboutUs/aboutUsSlice"
+import userInfoSlice from "./Authentication/userInfoSlice"
 import axiosInstance, { setupAxiosInterceptors } from "../Services/axios";
 import { refreshTokens } from "./Authentication/authActions";
 
@@ -44,13 +45,14 @@ const rootReducer = combineReducers({
   tourBookings: tourBookingReducer,
   fixture: fixtureReducer,
   tour_Org: tour_OrganiserReducer,
-  aboutUs: aboutUsSlice
+  aboutUs: aboutUsSlice,
+  user: userInfoSlice
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["Tournament"],
+  whitelist: ["Tournament", "user"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
