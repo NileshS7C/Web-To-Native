@@ -33,10 +33,9 @@ const Hamburger = () => {
               animate={{ opacity: 1, translateX: 0 }} 
               exit={{ opacity: 1, translateX: '100%' }}
               transition={{ duration: 0.4, ease: 'easeInOut' }}
-              onClick={handleOverlayClick}
             >
               <div className='overflow-auto h-full w-full'>
-                <NavBar/>
+                <NavBar handleHamburgerClose={handleOverlayClick}/>
               </div>
             </motion.div>
           )}
