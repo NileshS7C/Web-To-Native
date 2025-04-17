@@ -105,7 +105,7 @@ export default function MediaGalleryEditModal({
                 }
               }}
             >
-              {({ setFieldValue, values }) => (
+              {({ setFieldValue, values ,setFieldError}) => (
                 <Form>
                   <div className="space-y-6">
                     <div className="border-b border-gray-900/10 pb-6">
