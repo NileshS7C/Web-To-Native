@@ -12,7 +12,7 @@ import { ErrorModal } from "../Component/Common/ErrorModal";
 import { SuccessModal } from "../Component/Common/SuccessModal";
 import { cleanUpError, showError } from "../redux/Error/errorSlice";
 import { useCookies } from "react-cookie";
-
+import { desktoploginIcon } from "../Assests";
 const LogInForm = ({ formData, formError }) => {
   const [email, setEmail] = useState("");
   const { isLoading } = useSelector((state) => state.auth);
@@ -41,20 +41,20 @@ const LogInForm = ({ formData, formError }) => {
   }, []);
 
   return (
-    <div className="flex flex-col gap-[37px] items-center ">
-      <div className="flex flex-col gap-[15px] items-center">
-        <p className="text-[32px] font-[700] text-[#202224] leading-[38.7px] ">
+    <div className="flex flex-col gap-4 md:gap-9 items-center">
+      <div className="flex flex-col gap-2 md:gap-6 items-center">
+        <p className="text-lg md:text-4xl font-bold text-[#202224] leading-[38.7px] ">
           Login to Account
         </p>
-        <p className="text-[18px] font-[500] text-[#202224] leading-[21.7px]">
+        <p className="text-xs sm:text-sm md:text-xl font-[500] text-[#202224] opacity-80">
           Please enter your email and password to continue
         </p>
       </div>
 
-      <div className="flex flex-col gap-[30px] w-full">
-        <div className="flex flex-col gap-[5px] items-start">
+      <div className="flex flex-col gap-2 md:gap-4 w-full">
+        <div className="flex flex-col gap-2 md:gap-3 items-start">
           <label
-            className="text-[#202224] text-[18px] leading-[21.7px] "
+            className="text-[#202224] text-sm md:text-xl leading-[21.7px] opacity-80"
             htmlFor="email"
           >
             Email address:
@@ -63,7 +63,7 @@ const LogInForm = ({ formData, formError }) => {
             id="email"
             name="email"
             placeholder="Enter your email or phone number"
-            className=" w-full p-[10px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[45px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-4 rounded-lg border-[#EDEDED] border-2 box-border h-10 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm md:text-xl bg-[#f1f4f9]"
             value={email}
             onChange={(e) => {
               const value = e.target.value;
@@ -80,9 +80,9 @@ const LogInForm = ({ formData, formError }) => {
             <TextError>Invalid Email or Phone number</TextError>
           )}
         </div>
-        <div className=" flex flex-col gap-[5px] items-start ">
+        <div className=" flex flex-col gap-2 md:gap-3 items-start ">
           <label
-            className="text-[#202224] text-[18px] leading-[21.7px] "
+            className="text-[#202224] text-sm md:text-xl leading-[21.7px] opacity-80"
             htmlFor="password"
           >
             Password:
@@ -93,7 +93,7 @@ const LogInForm = ({ formData, formError }) => {
               name="password"
               type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
-              className=" w-full text-[18px] p-[10px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[45px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-4 rounded-lg border-[#EDEDED] border-2 box-border h-10 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm md:text-xl bg-[#f1f4f9]"
               value={password}
               onChange={(e) => {
                 const value = e.target.value;
@@ -139,7 +139,7 @@ const LogInForm = ({ formData, formError }) => {
 
         <Button
           type="submit"
-          className="w-full h-[45px] bg-[#1570EF]  rounded-[10px]"
+          className="w-full h-9 md:10 bg-[#1570EF] rounded-lg text-white"
           disabled={error.invalidEmail || error.invalidPass}
           loading={isLoading}
         >
@@ -195,24 +195,35 @@ const Login = () => {
   };
 
   return (
-    <div className="h-[100vh] flex justify-center  portrait:rotate-0 landscape:rotate-360 ">
-      <form onSubmit={(e) => handleSubmit(e)}>
-        <div className="grid grid-cols-3 place-items-center gap-[47px]">
-          <div className="col-span-1 flex justify-center items-center pl-[47px] min-w-[200px] max-w-[400px]">
+    <div className="h-[100vh] w-[100vw] relative bg-white">
+      <form
+        onSubmit={(e) => handleSubmit(e)}
+        className="relative z-10 flex items-center justify-center h-full"
+      >
+        <div className="flex w-full flex-col md:flex-row  justify-center items-center">
+          <div className="flex justify-center items-center w-[60%] md:w-[45%] lg:w-[40%] p-4 md:p-8 bg-white rounded-lg md:rounded-none">
             <ErrorModal />
             <SuccessModal />
             <LogInForm formData={formData} formError={formError} />
           </div>
 
-          <div className="col-span-2 w-full">
+          <div className="hidden md:block w-[55%] lg:w-[60%]">
             <img
-              src={loginImage}
+              src={desktoploginIcon}
               alt="picklebay logo"
               className="h-[100vh] w-full object-cover"
             />
           </div>
         </div>
       </form>
+      <div className="md:hidden absolute inset-0 z-0">
+        <img
+          src={desktoploginIcon}
+          alt="picklebay logo"
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/40"></div>
+      </div>
     </div>
   );
 };
