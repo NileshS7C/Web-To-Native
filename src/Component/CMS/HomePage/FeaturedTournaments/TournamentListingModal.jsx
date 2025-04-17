@@ -279,8 +279,6 @@ export default function TournamentListingModal({
       GetAllTournaments();
     }
   }, [tournamentName, currentPage]);
-  console.log(tournamentName);
-
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-10">
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />

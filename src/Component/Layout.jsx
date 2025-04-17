@@ -263,7 +263,7 @@ const Layout = () => {
                   <UploadImageButton dispatch={dispatch} />
                 )}
 
-                {(currentTitle === "Venue Details" ||
+                {(currentTitle.startsWith("Venue Details") ||
                   currentTitle.startsWith("Edit")) && (
                     <VenueActionButtonWrapper
                       dispatch={dispatch}

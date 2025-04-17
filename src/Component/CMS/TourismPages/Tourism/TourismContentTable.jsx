@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-// import ExploreEditDataModal from "./ExploreEditDataModal";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
-// import DeleteModal from "../DeleteModal";
 import axiosInstance from "../../../../Services/axios";
 import TourismEditDataModal from "./TourismEditDataModal";
 import DeleteModal from "../../HomePage/DeleteModal";

@@ -4,7 +4,6 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
 import Spinner from "../../../../Page/CMS/Spinner";
-// import { uploadImage } from "../../../../utils/uploadImage";
 import axiosInstance from "../../../../Services/axios";
 import { packageImageSize } from "../../../../Constant/app";
 import { uploadImage } from "../../../../redux/Upload/uploadActions";
@@ -260,6 +259,7 @@ const PackageAddDataModal = ({
                                       setUploadingIndex(-1);
                                     } catch (err) {
                                       console.log("issue while uploading", err);
+
                                       setIsError(true);
                                       setFieldError(
                                         "packageImages",

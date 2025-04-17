@@ -14,7 +14,7 @@ const VenueNavBar = () => {
   return (
     <div className="flex flex-col gap-[10px]">
       <Tabs options={initialVenueTabs} onChange={handleTabChange} />
-      {/* <VenueDescription /> */}
+     
     </div>
   );
 };

@@ -75,7 +75,6 @@ const TopBanner=()=> {
       };
 
     if (!sectionDetails) return <p>Loading...</p>;
-   console.log("printing section details:",sectionDetails);
     return (
       <div className="flex flex-col gap-2">
         <div className="sm:flex-auto text-left">

@@ -25,7 +25,6 @@ import BuildCourts from "../Page/CMS/Homepage/BuildCourts";
 import NewsUpdates from "../Page/CMS/Homepage/NewsUpdates";
 
 import TournamentCreationForm from "../Component/Tournament/TournamentNav";
-// import TournamentListing from "../Component/Tournament/TournamentListing";
 import TournamentListingWrapper from "../Component/Tournament/TournamentListing";
 import EventDetailPage from "../Component/Tournament/Event/EventDetails";
 import NotFound from "../Component/Common/NotFound";

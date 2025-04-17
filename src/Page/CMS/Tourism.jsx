@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import TourismContentTable from "../../Component/CMS/TourismPages/Tourism/TourismContentTable";
-// import ExploreContentTable from "../../../Component/CMS/HomePage/Explore/ExploreContentTable";
-// import ExploreSectionInfo from "../../../Component/CMS/HomePage/Explore/ExploreSectionInfo";
-// import ExploreAddDataModal from "../../../Component/CMS/HomePage/Explore/ExploreAddDataModal";
 import axiosInstance from "../../Services/axios";
 import TourismAddDataModal from "../../Component/CMS/TourismPages/Tourism/TourismAddDataModal";
 

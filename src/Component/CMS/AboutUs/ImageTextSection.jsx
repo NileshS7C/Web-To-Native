@@ -44,7 +44,7 @@ const ImageTextSection = () => {
   const { submitFormData, submissionError, isSubmitted } = useSubmitForm();
 
   const { data, error, errorMessage, success } = useFetchData(
-    getAboutUsPageData({ type: "bottomSection" }),
+    getAboutUsPageData({ type: "bottomAboutUsSection" }),
     isSubmitted
   );
 
@@ -97,7 +97,7 @@ const ImageTextSection = () => {
     setSubmitting(true);
     await submitFormData(
       submitAboutUsForm({
-        type: "bottomSection",
+        type: "bottomAboutUsSection",
         body: values,
       })
     );

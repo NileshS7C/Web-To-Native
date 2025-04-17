@@ -105,7 +105,7 @@ export const TopSection = () => {
     useSubmitForm();
 
   const { data, error, loading, errorMessage, success } = useFetchData(
-    getAboutUsPageData({ type: "topSection" }),
+    getAboutUsPageData({ type: "topAboutUsSection" }),
     isSubmitted
   );
 
@@ -113,7 +113,7 @@ export const TopSection = () => {
     e.preventDefault();
     await submitFormData(
       submitAboutUsForm({
-        type: "topSection",
+        type: "topAboutUsSection",
         body: form,
       })
     );

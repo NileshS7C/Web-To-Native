@@ -53,12 +53,6 @@ const Header = () => {
           {isOpen && (
             <nav>
               <ul className="absolute right-[100%] bg-[#FFFFFF] shadow-lg max-w-fit rounded-lg">
-                {/* <li className="px-4 py-2 cursor-pointer hover:bg-slate-400">
-                Profile
-              </li>
-              <li className="px-4 py-2 cursor-pointer hover:bg-slate-400">
-                Settings
-              </li> */}
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-slate-400"
                   onClick={handleUserLogout}
