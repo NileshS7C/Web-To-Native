@@ -30,7 +30,7 @@ export default function MediaGalleryEditModal({
   }, [isOpen, selectedCard]);
 
   const validationSchema = Yup.object().shape({
-    description: Yup.string().required("Description is required"),
+    description: Yup.string().required("Location is required"),
     image: Yup.mixed().required("Image is required"),
   });
 

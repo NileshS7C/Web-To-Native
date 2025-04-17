@@ -24,7 +24,7 @@ const MediaGalleryAddDataModal=({
 
   // Validation Schema
   const validationSchema = Yup.object().shape({
-    description: Yup.string().required("Description is required"),
+    description: Yup.string().required("Location is required"),
     image: Yup.mixed().required("Image is required"),
   });
   return (

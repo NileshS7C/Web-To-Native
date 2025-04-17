@@ -82,7 +82,7 @@ const PackageEditModal = ({
       }
     };
   const validationSchema = Yup.object().shape({
-    locationName: Yup.string().required("Location Name is required"),
+    locationName: Yup.string().required("Location Details is required"),
     description: Yup.string().required("Description is required"),
     packageImages: Yup.array()
       .min(1, "At least 1 image is required")
