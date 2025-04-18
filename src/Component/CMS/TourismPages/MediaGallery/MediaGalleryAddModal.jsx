@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
     Dialog,
     DialogBackdrop,
@@ -9,95 +9,84 @@ import * as Yup from "yup";
 import Spinner from "../../../../Page/CMS/Spinner";
 import { uploadImage } from "../../../../utils/uploadImage";
 import axiosInstance from "../../../../Services/axios";
-
-export default function MediaGalleryEditModal({
+const MediaGalleryAddDataModal=({
   data,
-  selectedCard,
   isOpen,
   onClose,
   fetchMediaGallerySections,
-}) {
+}) =>{
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
   useEffect(() => {
-    if (!isOpen) {
-      setImagePreview(null);
-    } else if (selectedCard?.image) {
-      setImagePreview(selectedCard.image);
-    } else {
-      setImagePreview(null);
-    }
-  }, [isOpen, selectedCard]);
+    setImagePreview(null);
+  }, [isOpen]);
 
+  // Validation Schema
   const validationSchema = Yup.object().shape({
     description: Yup.string().required("Location is required"),
     image: Yup.mixed().required("Image is required"),
   });
-
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-10">
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
       <div className="fixed inset-0 z-10 w-screen">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-          <DialogPanel className="relative transform overflow-auto max-h-[90vh] rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+          <DialogPanel className="relative max-h-[90vh] transform overflow-y-auto rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
             <Formik
               initialValues={{
-                description: selectedCard?.description || "",
-                image: selectedCard?.image || "",
+                description: "",
+                image: "",
               }}
               validationSchema={validationSchema}
               onSubmit={async (values) => {
                 setLoading(true);
                 try {
-                  let finalImageUrl = values.image;
-                  if (values.image instanceof File) {
-                    let image = await uploadImage(values.image);
-                    finalImageUrl = image.url;
-                  }
+                  // Upload image if provided
+                  const uploadImageUrl = values.image
+                    ? await uploadImage(values.image)
+                    : null;
 
-                  const newGallery = {
-                    description: values.description,
-                    image: finalImageUrl,
-                    position: selectedCard.position,
-                  };
-                  const hasChanged = Object.keys(newGallery).some(
-                    (key) => newGallery[key] !== selectedCard[key]
-                  );
-
-                  if (!hasChanged) {
-                    setLoading(false);
-                    return;
-                  }
-
-                  const updatedMediaGallery = data.mediaGallery.map((gallery) =>
-                    gallery.position === selectedCard.position
-                      ? newGallery
-                      : gallery
-                  );
-
-                  const payload = {
-                    sectionTitle: data.sectionTitle,
-                    isVisible: data.isVisible,
-                    mediaGallery:updatedMediaGallery
-                  };
-
-                  console.log("Updated Payload:", payload);
-
-                  const config = {
-                    headers: {
+                  if (uploadImageUrl.success) {
+                    const myHeaders = new Headers({
                       "Content-Type": "application/json",
-                    },
-                  };
+                    });
 
-                  // Send API request
-                  const response = await axiosInstance.post(
-                    `${import.meta.env.VITE_BASE_URL}/users/admin/tourism/mediaGallery`,
-                    JSON.stringify(payload),
-                    config
-                  );
+                    // Construct the new feature object
+                    const newMediaGallery = {
+                      description: values.description,
+                      image: uploadImageUrl.url,
+                      position: data.mediaGallery.length + 1, // Set next position
+                    };
 
-                  fetchMediaGallerySections();
-                  onClose();
+                    // Construct the updated features array without `_id`
+                    const updatedMediaGallery = [
+                      ...data.mediaGallery,
+                      newMediaGallery,
+                    ].map(({ _id, ...rest }) => rest);
+
+                    const payload = {
+                      sectionTitle: data.sectionTitle,
+                      isVisible: data.isVisible,
+                      mediaGallery: updatedMediaGallery,
+                    };
+                    const config = {
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                    };
+
+                    // Send API request
+                    const response = await axiosInstance.post(
+                      `${
+                        import.meta.env.VITE_BASE_URL
+                      }/users/admin/tourism/mediaGallery`,
+                      JSON.stringify(payload),
+                      config
+                    );
+                    fetchMediaGallerySections();
+                    onClose();
+                  }
                 } catch (error) {
                   console.error("Error submitting data:", error);
                 } finally {
@@ -105,18 +94,19 @@ export default function MediaGalleryEditModal({
                 }
               }}
             >
-              {({ setFieldValue, values ,setFieldError}) => (
+              {({ setFieldValue, values }) => (
                 <Form>
                   <div className="space-y-6">
                     <div className="border-b border-gray-900/10 pb-6">
                       <h2 className="text-lg font-semibold text-gray-900">
-                        Edit Card Details
+                        Add Card Details
                       </h2>
+
                       <div className="mt-6 grid grid-cols-1 gap-y-6">
                         {/* Title Input */}
                         <div>
                           <label
-                            htmlFor="title"
+                            htmlFor="description"
                             className="block text-sm font-medium text-gray-900"
                           >
                             Location
@@ -134,7 +124,6 @@ export default function MediaGalleryEditModal({
                             className="mt-1 text-sm text-red-600"
                           />
                         </div>
-
                         {/* Image Upload Input */}
                         <div>
                           <label
@@ -148,14 +137,19 @@ export default function MediaGalleryEditModal({
                             name="image"
                             type="file"
                             accept="image/*"
+                            ref={fileInputRef}
                             className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                             onChange={(event) => {
-                              const file = event.currentTarget.files[0];
-                              setFieldValue("image", file);
+                              setFieldValue(
+                                "image",
+                                event.currentTarget.files[0]
+                              );
                               setImagePreview(
-                                file
-                                  ? URL.createObjectURL(file)
-                                  : selectedCard?.image
+                                event.currentTarget.files[0]
+                                  ? URL.createObjectURL(
+                                      event.currentTarget.files[0]
+                                    )
+                                  : null
                               );
                             }}
                           />
@@ -168,24 +162,22 @@ export default function MediaGalleryEditModal({
                             className="mt-1 text-sm text-red-600"
                           />
 
-                          {/* Image Preview */}
+                          {/* Image Preview + Remove Button */}
                           {imagePreview && (
-                            <div className="mt-3">
-                              <p className="text-sm text-gray-600">
-                                Image Preview:
-                              </p>
+                            <div className="mt-3 flex items-center gap-4">
                               <img
                                 src={imagePreview}
                                 alt="Preview"
-                                className="mt-2 h-24 w-24 object-cover rounded-md border"
+                                className="h-24 w-24 object-cover rounded-md border"
                               />
                               <button
                                 type="button"
                                 onClick={() => {
                                   setFieldValue("image", null);
                                   setImagePreview(null);
+                                  fileInputRef.current.value = null;
                                 }}
-                                className="mt-2 block rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-400 focus:outline-none"
+                                className="rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-400 focus:outline-red-600"
                               >
                                 Remove Image
                               </button>
@@ -206,7 +198,7 @@ export default function MediaGalleryEditModal({
                     </button>
                     <button
                       type="submit"
-                      className="rounded-md bg-[#1570EF] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1570EF] focus:outline-none"
+                      className="rounded-md bg-[#1570EF] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1570EF] focus:outline-[#1570EF]"
                     >
                       {loading ? <Spinner /> : "Save"}
                     </button>
@@ -220,3 +212,5 @@ export default function MediaGalleryEditModal({
     </Dialog>
   );
 }
+
+export default MediaGalleryAddDataModal;
