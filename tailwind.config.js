@@ -15,6 +15,7 @@ module.exports = {
         player_table: "#667085",
         matchTextColor: "#343C6A",
         matchModalTextColor: "#8D8D8D",
+        '1c0e0eb3': '#1C0E0EB3'
       },
       backgroundColor: {
         customColor: "#FFFFFF",

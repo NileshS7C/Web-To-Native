@@ -2,18 +2,18 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
 import { Cookies } from "react-cookie";
 import axios from "axios";
+import { resetPlayer, setUser } from "./userInfoSlice";
 
 const cookies = new Cookies();
 
 export const userLogin = createAsyncThunk(
   "auth/login",
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password }, { dispatch, rejectWithValue }) => {
     try {
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
-
         withCredentials: true,
       };
 
@@ -23,26 +23,30 @@ export const userLogin = createAsyncThunk(
         config
       );
 
-      cookies.set("userRole", response.data.data?.user?.roleName, {
+      const user = response.data.data?.user;
+
+      // Save user role in cookies
+      cookies.set("userRole", user?.roleName, {
         path: "/",
         maxAge: 24 * 60 * 60,
         sameSite: "strict",
         secure: true,
       });
 
+      // Dispatch user email to userInfoSlice
+      dispatch(setUser({ user: { email: user.email } }));
+
       return response.data;
     } catch (err) {
-      if (err.response) {
-        return rejectWithValue({
-          status: err.response.status,
-          data: err.response.data,
-          message: err.message,
-        });
-      } else {
-        return rejectWithValue({
-          message: err.message || "Some thing went wrong!",
-        });
-      }
+      return rejectWithValue(
+        err.response
+          ? {
+              status: err.response.status,
+              data: err.response.data,
+              message: err.message,
+            }
+          : { message: err.message || "Something went wrong!" }
+      );
     }
   }
 );
@@ -70,7 +74,7 @@ export const refreshTokens = createAsyncThunk(
 
 export const userLogout = createAsyncThunk(
   "auth/logout",
-  async (_, { rejectWithValue }) => {
+  async (_, { dispatch, rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -85,19 +89,20 @@ export const userLogout = createAsyncThunk(
 
       cookies.remove("userRole", { path: "/" });
 
+      // Reset user state
+      dispatch(resetPlayer());
+
       return true;
     } catch (err) {
-      if (err.response) {
-        return rejectWithValue({
-          status: err.response.status,
-          data: err.response.data,
-          message: err.message,
-        });
-      } else {
-        return rejectWithValue({
-          message: err.message || "An unknown error occurred",
-        });
-      }
+      return rejectWithValue(
+        err.response
+          ? {
+              status: err.response.status,
+              data: err.response.data,
+              message: err.message,
+            }
+          : { message: err.message || "An unknown error occurred" }
+      );
     }
   }
 );
