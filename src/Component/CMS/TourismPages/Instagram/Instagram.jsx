@@ -65,6 +65,8 @@ export default function Instagram() {
         JSON.stringify(finalPayload),
         config
       );
+      setMobileImage(null);
+      setDesktopImage(null);
        fetchInstagramData(); 
     } catch (error) {
       console.error("Error updating section:", error);
@@ -130,7 +132,11 @@ export default function Instagram() {
               <>
                 <button
                   className="bg-gray-500 text-white px-3 py-1 rounded"
-                  onClick={() => setIsEditing(false)}
+                  onClick={() => {
+                    setIsEditing(false);
+                    setMobileImage(null);
+                    setDesktopImage(null);
+                  }}
                 >
                   Discard
                 </button>

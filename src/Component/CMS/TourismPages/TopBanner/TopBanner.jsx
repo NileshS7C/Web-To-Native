@@ -67,6 +67,8 @@ const TopBanner = () => {
         JSON.stringify(finalPayload),
         config
       );
+      setMobileImage(null);
+      setDesktopImage(null);
       fetchTopBannerData(); // Refresh data after update
     } catch (error) {
       console.error("Error updating section:", error);
@@ -111,7 +113,11 @@ const TopBanner = () => {
               <>
                 <button
                   className="bg-gray-500 text-white px-3 py-1 rounded"
-                  onClick={() => setIsEditing(false)}
+                  onClick={() => {
+                    setIsEditing(false);
+                    setMobileImage(null);
+                    setDesktopImage(null);
+                  }}
                 >
                   Discard
                 </button>
