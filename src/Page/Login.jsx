@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import { PiEyeThin, PiEyeSlashThin } from "react-icons/pi";
-
-import { loginImage } from "../Assests";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogin } from "../redux/Authentication/authActions";
 import Button from "../Component/Common/Button";
@@ -10,9 +8,9 @@ import TextError from "../Component/Error/formError";
 import { useNavigate } from "react-router-dom";
 import { ErrorModal } from "../Component/Common/ErrorModal";
 import { SuccessModal } from "../Component/Common/SuccessModal";
-import { cleanUpError, showError } from "../redux/Error/errorSlice";
-import { useCookies } from "react-cookie";
-import { desktoploginIcon } from "../Assests";
+import { showError } from "../redux/Error/errorSlice";
+import { desktoploginIcon,mobileloginIcon } from "../Assests";
+
 const LogInForm = ({ formData, formError }) => {
   const [email, setEmail] = useState("");
   const { isLoading } = useSelector((state) => state.auth);
@@ -200,29 +198,28 @@ const Login = () => {
         onSubmit={(e) => handleSubmit(e)}
         className="relative z-10 flex items-center justify-center h-full"
       >
-        <div className="flex w-full flex-col md:flex-row  justify-center items-center">
+        <div className="flex h-screen w-full flex-col md:flex-row justify-center items-center h-full">
           <div className="flex justify-center items-center w-[60%] md:w-[45%] lg:w-[40%] p-4 md:p-8 bg-white rounded-lg md:rounded-none">
             <ErrorModal />
             <SuccessModal />
             <LogInForm formData={formData} formError={formError} />
           </div>
 
-          <div className="hidden md:block w-[55%] lg:w-[60%]">
+          <div className="hidden md:block w-[40%] md:w-[55%] lg:w-[60%] h-[100%]">
             <img
               src={desktoploginIcon}
               alt="picklebay logo"
-              className="h-[100vh] w-full object-cover"
+              className="h-full w-full"
             />
           </div>
         </div>
       </form>
       <div className="md:hidden absolute inset-0 z-0">
         <img
-          src={desktoploginIcon}
+          src={mobileloginIcon}
           alt="picklebay logo"
-          className="h-full w-full object-cover"
+          className="h-full w-full"
         />
-        <div className="absolute inset-0 bg-black/40"></div>
       </div>
     </div>
   );
