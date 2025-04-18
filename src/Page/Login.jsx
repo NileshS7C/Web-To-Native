@@ -198,7 +198,7 @@ const Login = () => {
         onSubmit={(e) => handleSubmit(e)}
         className="relative z-10 flex items-center justify-center h-full"
       >
-        <div className="flex h-screen w-full flex-col md:flex-row justify-center items-center h-full">
+        <div className="flex w-full flex-col md:flex-row justify-center items-center h-full">
           <div className="flex justify-center items-center w-[60%] md:w-[45%] lg:w-[40%] p-4 md:p-8 bg-white rounded-lg md:rounded-none">
             <ErrorModal />
             <SuccessModal />
@@ -209,7 +209,7 @@ const Login = () => {
             <img
               src={desktoploginIcon}
               alt="picklebay logo"
-              className="h-full w-full"
+              className="h-full w-full object-cover"
             />
           </div>
         </div>
