@@ -1,5 +1,5 @@
 export { default as notificationIcon } from "./Tournament/notification.svg";
-export { default as pickleBayLogo } from "./header/picklebay.svg";
+export { default as pickleBayLogo } from "./header/logo-light-mode.svg";
 export { default as downArrow } from "./Tournament/downArrow.svg";
 export { default as uploadIcon } from "./Tournament/upload.svg";
 export { default as imageUpload } from "./Tournament/imageUpload.svg";

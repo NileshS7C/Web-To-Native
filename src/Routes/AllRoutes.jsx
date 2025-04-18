@@ -48,6 +48,10 @@ import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
 import Tourism from "../Page/CMS/Tourism";
 import Dashboard from "../Page/Dashboard";
+import TopBanner from "../Component/CMS/TourismPages/TopBanner/TopBanner";
+import PackageSection from "../Page/CMS/Homepage/PackageSection";
+import Instagram from "../Component/CMS/TourismPages/Instagram/Instagram";
+import MediaGallery from "../Page/CMS/Homepage/MediaGallery";
 const AllRoutes = () => {
   return (
     <div>
@@ -91,7 +95,6 @@ const AllRoutes = () => {
           <Route path="coupons" element={<Coupons />} />
 
           {/* CMS Routes */}
-          <Route path="cms/tourism-pages" element={<Tourism/>}/>
           <Route path="cms/homepage/explore" element={<Explore />} />
           <Route
             path="cms/homepage/featured-tournaments"
@@ -151,7 +154,12 @@ const AllRoutes = () => {
           </Route>
 
           {/* Ends Here */}
-
+          {/* Tourism page routes*/}
+          <Route path="cms/tourism-page/top-banner" element={<TopBanner />} />
+          <Route path="cms/tourism-page/package-section" element={<PackageSection/>}/>
+          <Route path="cms/tourism-page/instagram" element={<Instagram/>}/>
+          <Route path="cms/tourism-page/media-gallery" element={<MediaGallery/>}/>
+          {/* Ends Here */}
           <Route path="venues">
             <Route index element={<VenueListing />} />
             <Route path="new" element={<VenueInfo />} />

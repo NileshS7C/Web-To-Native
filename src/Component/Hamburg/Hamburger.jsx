@@ -29,16 +29,15 @@ const Hamburger = () => {
       {ReactDOM.createPortal(
         <AnimatePresence>
           {openHamburger && (
-            <motion.div
-              className="fixed top-[76px] bottom-0 left-0 right-0 bg-white flex items-center justify-center z-50"
-              initial={{ opacity: 0, translateX: "100%" }}
-              animate={{ opacity: 1, translateX: 0 }}
-              exit={{ opacity: 1, translateX: "100%" }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-              onClick={handleOverlayClick}
+            <motion.div 
+              className='fixed top-[70px] bottom-0 left-0 right-0 bg-white flex items-center justify-center z-50' 
+              initial={{ opacity: 0, translateX: '100%' }} 
+              animate={{ opacity: 1, translateX: 0 }} 
+              exit={{ opacity: 1, translateX: '100%' }}
+              transition={{ duration: 0.4, ease: 'easeInOut' }}
             >
-              <div className="overflow-auto h-full w-full">
-                <NavBar />
+              <div className='overflow-auto h-full w-full'>
+                <NavBar handleHamburgerClose={handleOverlayClick}/>
               </div>
             </motion.div>
           )}
