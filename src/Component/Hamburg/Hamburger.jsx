@@ -1,29 +1,31 @@
-import { Popover, PopoverButton } from '@headlessui/react';
-import React, { useState } from 'react'
+import { Popover, PopoverButton } from "@headlessui/react";
+import React, { useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { motion, AnimatePresence } from "framer-motion"; // Import AnimatePresence
-import { NavBar } from '../SideNavBar/NavBar';
-import ReactDOM from 'react-dom';
+import { motion, AnimatePresence } from "motion/react"; // Import AnimatePresence
+import { NavBar } from "../SideNavBar/NavBar";
+import ReactDOM from "react-dom";
 import { IoClose } from "react-icons/io5";
-
 
 const Hamburger = () => {
   const [openHamburger, setOpenHamburger] = useState(false);
 
   const handleHamburgerClick = () => {
     setOpenHamburger(!openHamburger);
-  }
+  };
 
   const handleOverlayClick = () => {
     setOpenHamburger(false);
-  }
+  };
 
   return (
     <Popover>
-      <PopoverButton onClick={handleHamburgerClick} className='focus:outline-none'>
-        {openHamburger ? <IoClose/> : <GiHamburgerMenu/>}
+      <PopoverButton
+        onClick={handleHamburgerClick}
+        className="focus:outline-none"
+      >
+        {openHamburger ? <IoClose /> : <GiHamburgerMenu />}
       </PopoverButton>
-      
+
       {ReactDOM.createPortal(
         <AnimatePresence>
           {openHamburger && (
@@ -40,10 +42,10 @@ const Hamburger = () => {
             </motion.div>
           )}
         </AnimatePresence>,
-        document.getElementById('portal-drawer')
+        document.getElementById("portal-drawer")
       )}
     </Popover>
-  )
-}
+  );
+};
 
-export default Hamburger
+export default Hamburger;
