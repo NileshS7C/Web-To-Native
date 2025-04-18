@@ -47,14 +47,11 @@ import CouponDetails from "../Component/Coupons/CouponDetails";
 import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
 import Tourism from "../Page/CMS/Tourism";
-<<<<<<< HEAD
-import TopBanner from "../Component/CMS/TourismPages/TopBanner/TopBanner";
-import PackageSection from "../Page/CMS/Homepage/PackageSection";
-import Instagram from "../Component/CMS/TourismPages/Instagram/Instagram";
-import MediaGallery from "../Page/CMS/Homepage/MediaGallery";
-=======
-import Dashboard from "../Page/Dashboard";
->>>>>>> parent of 278a307 (Merge branch 'dev' into Dashboard-page)
+// import TopBanner from "../Component/CMS/TourismPages/TopBanner/TopBanner";
+// import PackageSection from "../Page/CMS/Homepage/PackageSection";
+// import Instagram from "../Component/CMS/TourismPages/Instagram/Instagram";
+// import top from "../Page/CMS/Homepage/MediaGallery";
+// import Dashboard from "../Page/Dashboard";
 const AllRoutes = () => {
   return (
     <div>
