@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import PackageEditModal from "./PackageEditModal";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
+import DeleteModal from "../DeleteModal";
 import axiosInstance from "../../../../Services/axios";
-import TourismEditDataModal from "./TourismEditDataModal";
-import DeleteModal from "../../HomePage/DeleteModal";
+import PackageSection from "../../../../Page/CMS/Homepage/PackageSection";
 
-export default function TourismContentTable({ data, fetchHomepageSections }) {
+export default function PackageContentTable({ data, fetchTourismSections }) {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
@@ -20,45 +21,36 @@ export default function TourismContentTable({ data, fetchHomepageSections }) {
   };
 
   const handleDeleteItem = async () => {
-    try {
-      if (!selectedCard || !selectedCard.image) {
-        console.error("No selected card or image found for deletion.");
-        return;
-      }
+    const updatedPackages = data.packages
+      .filter((feature) => feature.position !== selectedCard.position)
+      .map(({ _id, ...rest }) => rest);
 
-      const updatedTourism = data.tourism
-        .filter((card) => card.image !== selectedCard.image)
-        .map(({ package: pkg, image }) => ({
-          package: pkg,
-          image,
-        }));
+    const reindexedPackages = updatedPackages.map((Package, index) => ({
+      ...Package,
+      position: index + 1,
+    }));
 
-      const payload = {
-        sectionTitle: data.sectionTitle,
-        isVisible: data.isVisible,
-        tourism: updatedTourism,
-      };
-
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-
-      await axiosInstance.post(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/cms-sections/tourism`,
-        JSON.stringify(payload),
-        config
-      );
-
-      setDeleteModal(false);
-      fetchHomepageSections();
-    } catch (error) {
-      console.error("Delete error:", error);
-    }
+    const payload = {
+      sectionTitle: data.sectionTitle,
+      isVisible: data.isVisible,
+      packages: reindexedPackages,
+    };
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    // Send API request
+    await axiosInstance.post(
+      `${import.meta.env.VITE_BASE_URL}/users/admin/tourism/packages`,
+      JSON.stringify(payload),
+      config
+    );
+     fetchTourismSections();
   };
 
-  const headers = ["Position", "Title", "Image Link", "Preview", "Actions"];
+
+  const headers = ["Position", "Location","Link","Images", "Actions"];
 
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow-lg border border-gray-300">
@@ -69,9 +61,9 @@ export default function TourismContentTable({ data, fetchHomepageSections }) {
               <th
                 key={index}
                 className={`px-3 py-2 text-left text-sm font-semibold text-gray-900 ${
-                  header === "Position" || header === "Actions"
+                  header === "Position" || header === "Actions" || header === "Link"
                     ? "w-[10%]"
-                    : header === "Title"
+                    : header === "Location"
                     ? "w-[30%]"
                     : "w-[50%]"
                 }`}
@@ -82,41 +74,40 @@ export default function TourismContentTable({ data, fetchHomepageSections }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          {data?.tourism?.map((explore, index) => (
+          {data?.packages?.map((Package, index) => (
             <tr key={index} className="text-left">
-              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
-                {index + 1}
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%] text-center">
+                {Package?.position || index + 1}
               </td>
               <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
-                {explore.package}
+                {Package?.locationName}
               </td>
-              <td
-                className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]"
-              >
-                {explore.image.split("%")[0]}
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
+                {Package?.link }
               </td>
 
-              <td className="px-3 py-1 text-sm text-gray-500 whitespace-nowrap w-[20%]">
-                <img
-                  src={explore.image}
-                  alt={`Preview of ${explore.package}`}
-                  style={{
-                    maxWidth: "100px",
-                    maxHeight: "70px",
-                    objectFit: "cover",
-                  }}
-                />
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[50%] flex items-center">
+                <div className="flex items-center gap-1 w-full">
+                  {Package?.packageImages?.slice(0, 5)?.map((img, index) => (
+                    <img
+                      key={index}
+                      src={img}
+                      alt={`Image ${index + 1}`}
+                      className="w-8 h-8 object-cover"
+                    />
+                  ))}
+                </div>
               </td>
               <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
                 <div className="flex items-center space-x-3">
                   <button
-                    onClick={() => handleModifyData(explore)}
+                    onClick={() => handleModifyData(Package)}
                     className="hover:text-blue-600"
                   >
                     <PencilIcon className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(explore)}
+                    onClick={() => handleDelete(Package)}
                     className="hover:text-red-600"
                   >
                     <TrashIcon className="w-5 h-5" />
@@ -128,12 +119,12 @@ export default function TourismContentTable({ data, fetchHomepageSections }) {
         </tbody>
       </table>
       {openEditModal && (
-        <TourismEditDataModal
+        <PackageEditModal
           data={data}
           selectedCard={selectedCard}
           isOpen={openEditModal}
           onClose={() => setOpenEditModal(false)}
-          fetchHomepageSections={fetchHomepageSections}
+          fetchTourismSections={fetchTourismSections}
         />
       )}
       {deleteModal && (

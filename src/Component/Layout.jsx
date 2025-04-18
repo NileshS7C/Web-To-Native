@@ -50,6 +50,10 @@ const hiddenRoutes = [
   "/cms/blogs/blog-posts",
   "/cms/blogs/blog-posts/new",
   "/cms/tourism",
+  "/cms/tourism-page/top-banner",
+  "/cms/tourism-page/package-section",
+  "/cms/tourism-page/instagram",
+  "/cms/tourism-page/media-gallery",
   ...aboutUsPageRoutes,
 ];
 
@@ -228,7 +232,7 @@ const Layout = () => {
                   <UploadImageButton dispatch={dispatch} />
                 )}
 
-                {(currentTitle === "Venue Details" ||
+                {(currentTitle.startsWith("Venue Details") ||
                   currentTitle.startsWith("Edit")) && (
                     <VenueActionButtonWrapper
                       dispatch={dispatch}

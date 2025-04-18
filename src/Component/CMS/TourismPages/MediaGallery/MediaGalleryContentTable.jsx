@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import PackageEditModal from "./MediaGalleryEditModal";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
+import DeleteModal from "../DeleteModal";
 import axiosInstance from "../../../../Services/axios";
-import TourismEditDataModal from "./TourismEditDataModal";
-import DeleteModal from "../../HomePage/DeleteModal";
 
-export default function TourismContentTable({ data, fetchHomepageSections }) {
+export default function MediaGalleryContentTable({ data, fetchMediaGallerySections }) {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
@@ -20,46 +20,37 @@ export default function TourismContentTable({ data, fetchHomepageSections }) {
   };
 
   const handleDeleteItem = async () => {
-    try {
-      if (!selectedCard || !selectedCard.image) {
-        console.error("No selected card or image found for deletion.");
-        return;
-      }
+    const updatedMediaGallery = data.mediaGallery
+      .filter((gallery) => gallery.description !== selectedCard.description)
+      .map(({ _id, ...rest }) => rest);
 
-      const updatedTourism = data.tourism
-        .filter((card) => card.image !== selectedCard.image)
-        .map(({ package: pkg, image }) => ({
-          package: pkg,
-          image,
-        }));
+    const reindexedMediaGallery = updatedMediaGallery.map(
+      (mediaGallery, index) => ({
+        ...mediaGallery,
+        position: index + 1,
+      })
+    );
 
-      const payload = {
-        sectionTitle: data.sectionTitle,
-        isVisible: data.isVisible,
-        tourism: updatedTourism,
-      };
-
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-
-      await axiosInstance.post(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/cms-sections/tourism`,
-        JSON.stringify(payload),
-        config
-      );
-
-      setDeleteModal(false);
-      fetchHomepageSections();
-    } catch (error) {
-      console.error("Delete error:", error);
-    }
+    const payload = {
+      sectionTitle: data.sectionTitle,
+      isVisible: data.isVisible,
+      mediaGallery: reindexedMediaGallery,
+    };
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    // Send API request
+    await axiosInstance.post(
+      `${import.meta.env.VITE_BASE_URL}/users/admin/tourism/mediaGallery`,
+      JSON.stringify(payload),
+      config
+    );
+    fetchMediaGallerySections();
   };
 
-  const headers = ["Position", "Title", "Image Link", "Preview", "Actions"];
-
+  const headers = ["Position", "Location", "Image", "Actions"];
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow-lg border border-gray-300">
       <table className="min-w-full divide-y divide-gray-200">
@@ -82,41 +73,32 @@ export default function TourismContentTable({ data, fetchHomepageSections }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          {data?.tourism?.map((explore, index) => (
+          {data?.mediaGallery?.map((gallery, index) => (
             <tr key={index} className="text-left">
-              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
-                {index + 1}
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%] text-center">
+                {gallery?.position || "temp"}
               </td>
-              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
-                {explore.package}
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%] ">
+                {gallery?.description || "temp"}
               </td>
-              <td
-                className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]"
-              >
-                {explore.image.split("%")[0]}
-              </td>
-
-              <td className="px-3 py-1 text-sm text-gray-500 whitespace-nowrap w-[20%]">
+              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[50%]">
                 <img
-                  src={explore.image}
-                  alt={`Preview of ${explore.package}`}
-                  style={{
-                    maxWidth: "100px",
-                    maxHeight: "70px",
-                    objectFit: "cover",
-                  }}
+                  key={index}
+                  src={gallery?.image}
+                  alt={`Image ${index + 1}`}
+                  className="w-10 h-10 object-cover"
                 />
               </td>
               <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
                 <div className="flex items-center space-x-3">
                   <button
-                    onClick={() => handleModifyData(explore)}
+                    onClick={() => handleModifyData(gallery)}
                     className="hover:text-blue-600"
                   >
                     <PencilIcon className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(explore)}
+                    onClick={() => handleDelete(gallery)}
                     className="hover:text-red-600"
                   >
                     <TrashIcon className="w-5 h-5" />
@@ -128,12 +110,12 @@ export default function TourismContentTable({ data, fetchHomepageSections }) {
         </tbody>
       </table>
       {openEditModal && (
-        <TourismEditDataModal
+        <PackageEditModal
           data={data}
           selectedCard={selectedCard}
           isOpen={openEditModal}
           onClose={() => setOpenEditModal(false)}
-          fetchHomepageSections={fetchHomepageSections}
+          fetchMediaGallerySections={fetchMediaGallerySections}
         />
       )}
       {deleteModal && (
