@@ -40,7 +40,7 @@ export {default as AccordianIcon } from "./Coupons/accordian-icon.svg"
 export {default as TimeIcon } from "./Coupons/time-icon.svg"
 export {default as couponsIcon } from "./Coupons/coupons-icon.svg"
 export {default as desktoploginIcon} from './Login/desktopLogin.jpg'
-export {default as mobileloginIcon} from './login/mobileLoginImage.jpg'
+export {default as mobileloginIcon} from './Login/mobileLoginImage.jpg'
 
 
 
