@@ -47,7 +47,7 @@ import CouponDetails from "../Component/Coupons/CouponDetails";
 import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
 import Tourism from "../Page/CMS/Tourism";
-
+import Dashboard from "../Page/Dashboard";
 const AllRoutes = () => {
   return (
     <div>
@@ -66,12 +66,9 @@ const AllRoutes = () => {
         >
           <Route
             index
+            path="/"
             element={
-              <NotCreated
-                message="Currently Nothing to display. Will update soon!"
-                buttonText=""
-                disable={true}
-              />
+              <Dashboard/>
             }
           />
           <Route path="tournaments">
