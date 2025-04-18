@@ -47,6 +47,7 @@ import CouponDetails from "../Component/Coupons/CouponDetails";
 import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
 import Tourism from "../Page/CMS/Tourism";
+import Dashboard from "../Page/Dashboard";
 import TopBanner from "../Component/CMS/TourismPages/TopBanner/TopBanner";
 import PackageSection from "../Page/CMS/Homepage/PackageSection";
 import Instagram from "../Component/CMS/TourismPages/Instagram/Instagram";
@@ -69,12 +70,9 @@ const AllRoutes = () => {
         >
           <Route
             index
+            path="/"
             element={
-              <NotCreated
-                message="Currently Nothing to display. Will update soon!"
-                buttonText=""
-                disable={true}
-              />
+              <Dashboard/>
             }
           />
           <Route path="tournaments">

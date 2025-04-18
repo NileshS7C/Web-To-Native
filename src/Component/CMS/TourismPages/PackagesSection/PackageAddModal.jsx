@@ -258,8 +258,6 @@ const PackageAddDataModal = ({
                                       ]);
                                       setUploadingIndex(-1);
                                     } catch (err) {
-                                      console.log("issue while uploading", err);
-
                                       setIsError(true);
                                       setFieldError(
                                         "packageImages",
