@@ -1,4 +1,4 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { userProfileIcon, pickleBayLogo } from "../../Assests";
 import { userLogout } from "../../redux/Authentication/authActions";
 import { useCookies } from "react-cookie";
@@ -12,7 +12,6 @@ const Header = () => {
   const detailRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [cookies] = useCookies();
-  const userEmail = useSelector((state) => state.user.email);
 
   const handleUserLogout = async () => {
     const result = await dispatch(userLogout()).unwrap();
@@ -27,7 +26,7 @@ const Header = () => {
     setIsOpen(!isOpen);
   };
 
-
+  
   useEffect(() => {
     function handleClickOutside(event) {
       if (detailRef.current && !detailRef.current.contains(event.target)) {
@@ -48,27 +47,23 @@ const Header = () => {
       </div>
 
       <div className="flex items-center gap-5">
+        <p>{cookies.name || ""}</p>
         <div className="relative" ref={detailRef}>
           <button className="list-none" onClick={toggleDropDown}>
             <img src={userProfileIcon} alt="profile" />
           </button>
           {isOpen && (
             <nav>
-              <ul className="absolute right-[-45px] md:right-[100%] bg-[#FFFFFF] shadow-lg rounded-lg py-[10px] top-[55px]">
+              <ul className="absolute right-[100%] bg-[#FFFFFF] shadow-lg max-w-fit rounded-lg">
                 {/* <li className="px-4 py-2 cursor-pointer hover:bg-slate-400">Profile</li>
                 <li className="px-4 py-2 cursor-pointer hover:bg-slate-400">Settings</li> */}
-                {userEmail && <li className="flex items-center gap-2 bg-[#F5F7FA] py-2 px-2">
-                  <span>Email: </span>
-                  {userEmail}</li>
-                }
-
-                <li className="px-1 py-1 cursor-pointer bg-[#3b82f6] w-[80px] m-auto mt-[10px] rounded-[10px] text-white" onClick={handleUserLogout} onKeyDown={(e) => e.key === "Enter" && handleUserLogout} role="button" tabIndex="0">Logout</li>
+                <li className="px-4 py-2 cursor-pointer hover:bg-slate-400" onClick={handleUserLogout} onKeyDown={(e) => e.key === "Enter" && handleUserLogout} role="button" tabIndex="0">Logout</li>
               </ul>
             </nav>
           )}
         </div>
         <div className="lg:hidden">
-          <Hamburger />
+          <Hamburger/>
         </div>
       </div>
     </div>
