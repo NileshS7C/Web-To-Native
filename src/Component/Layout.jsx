@@ -55,7 +55,6 @@ const hiddenRoutes = [
   "/cms/tourism-page/instagram",
   "/cms/tourism-page/media-gallery",
   ...aboutUsPageRoutes,
-  "/"
 ];
 
 const Layout = () => {
@@ -135,27 +134,24 @@ const Layout = () => {
   }, [location.pathname]);
 
   const shouldHideTitleBar =
-  hiddenRoutes.includes(location.pathname) ||
-  location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
+    hiddenRoutes.includes(location.pathname) ||
+    location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
+
   return (
     <div className="flex flex-col h-screen">
       <Header />
 
       <div className="flex flex-1 bg-[#F5F7FA] overflow-hidden">
         <div
-          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${
-            shouldScroll.nav ? "overflow-auto" : "overflow-auto"
-          }  scrollbar-hide`}
+          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${shouldScroll.nav ? "overflow-auto" : "overflow-auto"
+            }  scrollbar-hide`}
           ref={navRef}
         >
           <NavBar />
         </div>
         <div
-          className={`flex-1 ${
-            currentTitle !== "DASHBOARD" && "p-[50px]"
-          } h-full ${
-            shouldScroll.page ? "overflow-auto" : "overflow-auto"
-          } scrollbar-hide ${currentTitle === "DASHBOARD" && "overflow-hidden"}`}
+          className={`flex-1 p-[50px] h-full ${shouldScroll.page ? "overflow-auto" : "overflow-auto"
+            } scrollbar-hide`}
         >
           <div className="flex gap-2.5 items-center mb-4 ">
             {!notHaveBackButton.includes(currentTitle) &&
@@ -236,8 +232,8 @@ const Layout = () => {
                   <UploadImageButton dispatch={dispatch} />
                 )}
 
-                {(currentTitle?.startsWith("Venue Details") ||
-                  currentTitle?.startsWith("Edit")) && (
+                {(currentTitle.startsWith("Venue Details") ||
+                  currentTitle.startsWith("Edit")) && (
                     <VenueActionButtonWrapper
                       dispatch={dispatch}
                       navigate={navigate}

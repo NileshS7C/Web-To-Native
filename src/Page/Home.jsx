@@ -49,6 +49,7 @@ function Home() {
       selected: state.Nav.selected,
     })
   );
+
   return (
     <div
       className="grid h-screen bg-[#F5F7FA]"
