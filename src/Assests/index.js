@@ -39,6 +39,5 @@ export {default as dummmyProfileIcon } from "./App/partner-icon.svg"
 export {default as AccordianIcon } from "./Coupons/accordian-icon.svg"
 export {default as TimeIcon } from "./Coupons/time-icon.svg"
 export {default as couponsIcon } from "./Coupons/coupons-icon.svg"
-
-export {default as dashboardIcon} from './dashboard/dashboard.svg'
-export {default as dashboardBg} from './dashboard/dashboardBg.svg'
+export {default as desktoploginIcon} from './Login/desktopLogin.jpg'
+export {default as mobileloginIcon} from './login/mobileLogin.jpg'
