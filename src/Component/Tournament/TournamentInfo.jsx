@@ -489,6 +489,7 @@ const TournamentBasicInfo = ({
   tournamentId
 }) => {
   const { setFieldError, values, setFieldValue } = useFormikContext();
+  const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
   useEffect(() => {
     if (hasError) {
       setFieldError("ownerUserId", "Error in getting the owners.");
@@ -516,7 +517,7 @@ const TournamentBasicInfo = ({
             name="ownerUserId"
             disabled
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={userName}
+            value={ singleTournamentOwner?.name } 
           />
 
           <ErrorMessage name="ownerUserId" component={TextError} />
