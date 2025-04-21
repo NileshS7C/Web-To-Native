@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import { PiEyeThin, PiEyeSlashThin } from "react-icons/pi";
 
-import { loginImage } from "../Assests";
+import { DesktopLoginBg, MobileLoginBg } from "../Assests";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogin } from "../redux/Authentication/authActions";
 import Button from "../Component/Common/Button";
@@ -41,29 +41,26 @@ const LogInForm = ({ formData, formError }) => {
   }, []);
 
   return (
-    <div className="flex flex-col gap-[37px] items-center ">
-      <div className="flex flex-col gap-[15px] items-center">
-        <p className="text-[32px] font-[700] text-[#202224] leading-[38.7px] ">
+    <div className="flex flex-col gap-6 items-center w-full max-w-[500px] bg-white p-8 rounded-2xl">
+      <div className="flex flex-col gap-3 items-center text-center">
+        <h1 className="text-[32px] font-bold text-[#202224]">
           Login to Account
-        </p>
-        <p className="text-[18px] font-[500] text-[#202224] leading-[21.7px]">
+        </h1>
+        <p className="text-[16px] text-[#202224] opacity-80">
           Please enter your email and password to continue
         </p>
       </div>
 
-      <div className="flex flex-col gap-[30px] w-full">
-        <div className="flex flex-col gap-[5px] items-start">
-          <label
-            className="text-[#202224] text-[18px] leading-[21.7px] "
-            htmlFor="email"
-          >
+      <div className="flex flex-col gap-5 w-full">
+        <div className="flex flex-col gap-2">
+          <label className="text-[#202224] text-[16px] text-left" htmlFor="email">
             Email address:
           </label>
           <input
             id="email"
             name="email"
             placeholder="Enter your email or phone number"
-            className=" w-full p-[10px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[45px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-[#DFEAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={email}
             onChange={(e) => {
               const value = e.target.value;
@@ -80,34 +77,25 @@ const LogInForm = ({ formData, formError }) => {
             <TextError>Invalid Email or Phone number</TextError>
           )}
         </div>
-        <div className=" flex flex-col gap-[5px] items-start ">
-          <label
-            className="text-[#202224] text-[18px] leading-[21.7px] "
-            htmlFor="password"
-          >
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[#202224] text-[16px] text-left" htmlFor="password">
             Password:
           </label>
-          <div className="relative w-full">
+          <div className="relative">
             <input
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
-              className=" w-full text-[18px] p-[10px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[45px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-[#DFEAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={password}
               onChange={(e) => {
                 const value = e.target.value;
-                if (!passRegex.test(value) || "") {
-                  setError((prev) => ({
-                    ...prev,
-                    invalidPass: true,
-                  }));
-                } else {
-                  setError((prev) => ({
-                    ...prev,
-                    invalidPass: false,
-                  }));
-                }
+                setError((prev) => ({
+                  ...prev,
+                  invalidPass: !passRegex.test(value) || value === "",
+                }));
                 setPassword(value);
               }}
               minLength="8"
@@ -115,31 +103,27 @@ const LogInForm = ({ formData, formError }) => {
             />
             {showPassword ? (
               <PiEyeThin
-                className="absolute right-3 transform top-1/2 -translate-y-1/2 cursor-pointer"
+                className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 text-xl"
                 onClick={togglePassword}
               />
             ) : (
               <PiEyeSlashThin
-                className="absolute right-3 transform top-1/2 -translate-y-1/2 cursor-pointer"
+                className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 text-xl"
                 onClick={togglePassword}
               />
             )}
           </div>
-        </div>
-        <div className="text-left w-full">
           {error?.invalidPass && (
             <TextError>
-              <p>
-                Password must have at least 8 characters, including uppercase,
-                lowercase, a number, and a special character.
-              </p>
+              Password must have at least 8 characters, including uppercase,
+              lowercase, a number, and a special character.
             </TextError>
           )}
         </div>
 
         <Button
           type="submit"
-          className="w-full h-[45px] bg-[#1570EF]  rounded-[10px]"
+          className="w-full py-3 bg-[#1570EF] text-white rounded-xl hover:bg-blue-600 transition-colors"
           disabled={error.invalidEmail || error.invalidPass}
           loading={isLoading}
         >
@@ -195,24 +179,30 @@ const Login = () => {
   };
 
   return (
-    <div className="h-[100vh] flex justify-center  portrait:rotate-0 landscape:rotate-360 ">
-      <form onSubmit={(e) => handleSubmit(e)}>
-        <div className="grid grid-cols-3 place-items-center gap-[47px]">
-          <div className="col-span-1 flex justify-center items-center pl-[47px] min-w-[200px] max-w-[400px]">
-            <ErrorModal />
-            <SuccessModal />
-            <LogInForm formData={formData} formError={formError} />
-          </div>
-
-          <div className="col-span-2 w-full">
-            <img
-              src={loginImage}
-              alt="picklebay logo"
-              className="h-[100vh] w-full object-cover"
-            />
-          </div>
-        </div>
+    <div className="min-h-screen w-full flex">
+      <form 
+        onSubmit={handleSubmit}
+        className="w-full md:w-[40%] flex items-center justify-center p-4 relative z-10"
+      >
+        <ErrorModal />
+        <SuccessModal />
+        <LogInForm formData={formData} formError={formError} />
       </form>
+
+      <div className="hidden md:block w-[60%] h-screen relative">
+        <img
+          src={DesktopLoginBg}
+          alt="Login background"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Mobile background - only visible on mobile */}
+      <img
+        src={MobileLoginBg}
+        alt="Login background"
+        className="absolute inset-0 w-full h-full object-cover md:hidden z-0"
+      />
     </div>
   );
 };

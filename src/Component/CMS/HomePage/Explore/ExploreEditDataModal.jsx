@@ -36,7 +36,7 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
             <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
             <div className="fixed inset-0 z-10 w-screen">
                 <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                    <DialogPanel className="relative transform overflow-auto max-h-[90vh] rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                    <DialogPanel className="relative transform overflow-auto max-h-[90vh] rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 overflow-y-auto">
                         <Formik
                             initialValues={{
                                 title: selectedCard?.title || "",

@@ -129,7 +129,7 @@ export const TournamentOrganiserCreation = ({
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             transition
-            className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            className="relative max-h-[90vh] transform overflow-y-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <div className="flex w-full">
               {actionPending && (
@@ -184,7 +184,7 @@ export const OrganiserModalTitle = ({ onCancel }) => {
   return (
     <div className="flex justify-between items-center w-full">
       <div className="flex gap-3">
-        <p className="text-lg text-[#343C6A] font-semibold">
+        <p className="text-lg text-[#343C6A] font-semibold pb-6">
           {TournamentOragniserModalTitle}
         </p>
       </div>
