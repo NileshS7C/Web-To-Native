@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom'
 const Dashboard = () => {
   const navigate = useNavigate();
   return (
-    <div className="h-full w-full">
+    <div className="w-full">
       {/* Content Container */}
-      <div className="h-full flex flex-col items-center justify-center px-4">
+      <div className="flex flex-col items-center justify-center px-4">
         <img 
           src={DashboardImg} 
           alt="Dashboard" 
