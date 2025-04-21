@@ -181,7 +181,7 @@ const Layout = () => {
 
             {!shouldHideTitleBar && (
               <div className="flex items-center justify-between w-full">
-                <p className={`inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-[22px] ${location.pathname === '/' ? "p-4 md:p-[50px]" : "p-0" }`}>
+                <p className={`inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-base md:text-[22px] ${location.pathname === '/' ? "p-4 md:p-[50px]" : "p-0" }`}>
                   {currentTitle}
                   {tournamentId && (
                     <span
@@ -334,8 +334,9 @@ const TournamentActionButton = ({
           tournament?.status !== "ARCHIVED" && (
             <div className="flex items-center gap-2">
               <Button
-                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                  } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+                className={`${
+                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
                 type="button"
                 onClick={() => {
                   setApproveButtonClicked(true);
@@ -351,8 +352,9 @@ const TournamentActionButton = ({
                 Accept Tournament
               </Button>
               <Button
-                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                  } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+                className={`${
+                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
                 type="button"
                 onClick={() => {
                   dispatch(

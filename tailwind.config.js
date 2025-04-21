@@ -25,6 +25,7 @@ module.exports = {
         portrait: { raw: "(orientation: portrait)" },
         landscape: { raw: "(orientation: landscape)" },
         ipad_air: "820px",
+        tab:"920px"
       },
       animation: {
         spin: "spin 1s linear infinite",
