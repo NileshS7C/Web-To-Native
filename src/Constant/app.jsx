@@ -159,7 +159,7 @@ export const uploadedImageLimit = 20;
 
 export const venueImageSize = 5 * 1024 * 1024; //5 mb
 export const packageImageSize = 5 * 1024 * 1024; //5 mb
-export const TournamentOragniserModalTitle = "Pickle Ball Federation";
+export const TournamentOragniserModalTitle = "Tournament Organiser Creation Form";
 
 export const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 export const phoneRegex = /^\d{10}$/;
