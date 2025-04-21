@@ -108,7 +108,6 @@ const Player = (props) => {
     return <ErrorBanner message={error} />;
   }
 
-
   return (
     <div>
       <DataTable
@@ -143,7 +142,7 @@ const PlayersQueryTools = (props) => {
     limit,
   } = props;
   return (
-    <div className="flex justify-between mb-2">
+    <div className="flex flex-col justify-between mb-2 gap-2 tab:flex-row tab:gap-0">
       <SearchPlayers
         playerName={playerName}
         setPlayerName={setPlayerName}
@@ -153,24 +152,30 @@ const PlayersQueryTools = (props) => {
         currentPage={currentPage}
         limit={limit}
       />
-      <div className="flex items-baseline gap-5">
+      <div className="flex items-baseline justify-between items-center gap-5 relative">
         <div>
-          <p className="text-sm">Total Players : {totalPlayer}</p>
+          <p className="text-xs md:text-sm lg:text-base">
+            Total Players : {totalPlayer}
+          </p>
         </div>
-        <p className="text-sm text-[#b8c8eb]">Fitlers: </p>
-        <div className="flex space-x-4 mb-4">
-          <FilterPlayer
-            label="Gender"
-            options={["Male", "Female", "Other"]}
-            selectedValue={gender}
-            onChange={setGender}
-          />
-          <FilterPlayer
-            label="Skill"
-            options={["Beginner", "Amateur", "Intermediate", "Advanced"]}
-            selectedValue={skill}
-            onChange={setSkill}
-          />
+        <div className="flex justify-between items-center gap-2 max-w-full">
+          <p className="text-xs md:text-sm lg:text-base text-[#b8c8eb]">
+            Filters:
+          </p>
+          <div className="flex space-x-2 md:space-x-4 md:mb-4 min-w-max z-50">
+            <FilterPlayer
+              label="Gender"
+              options={["Male", "Female", "Other"]}
+              selectedValue={gender}
+              onChange={setGender}
+            />
+            <FilterPlayer
+              label="Skill"
+              options={["Beginner", "Amateur", "Intermediate", "Advanced"]}
+              selectedValue={skill}
+              onChange={setSkill}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -196,7 +201,8 @@ const SearchPlayers = ({
         setLoading(true);
         setError("");
         const response = await axiosInstance.get(
-          `${import.meta.env.VITE_BASE_URL
+          `${
+            import.meta.env.VITE_BASE_URL
           }/search-players?search=${player}&page=${currentPage}&limit=${limit}`
         );
 
@@ -227,16 +233,16 @@ const SearchPlayers = ({
     }
   }, []);
   return (
-    <div className="relative ">
+    <div className="relative flex items-center">
       <img
         src={searchIcon}
         alt="players"
-        className="absolute left-[25px] top-1/2 transform -translate-y-1/2"
+        className="absolute left-6 top-1/2 transform -translate-y-1/2"
       />
       <input
         ref={inputRef}
         placeholder="Search Players"
-        className=" w-full px-[60px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className=" w-full px-12 border-[1px] border-[#DFEAF2] rounded-[15px] h-10 md:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
         onChange={handleSearch}
         value={playerName}
       />
