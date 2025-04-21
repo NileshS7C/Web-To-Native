@@ -8,7 +8,6 @@ import VenueDescription from "../Component/Venue/VenueDetails";
 import { CourtCreation } from "../Component/Venue/CreateCourt";
 import VenueListing from "../Component/Venue/VenueListing";
 import NotCreated from "../Component/Common/NotCreated";
-
 import Explore from "../Page/CMS/Homepage/Explore";
 import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
 import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
@@ -37,7 +36,7 @@ import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
 import TournamentOrganisersPage from "../Page/TournamentOrganisers";
 import FAQS from "../Page/CMS/Homepage/FAQ";
 import ProfilePage from "../Page/Profile";
-
+import Dashboard from "../Component/Dashboard/Dashboard";
 import { UploadedImages } from "../Page/UploadedImages";
 
 import PlayersManager from "../Page/Player";
@@ -67,16 +66,7 @@ const AllRoutes = () => {
             </Authentication>
           }
         >
-          <Route
-            index
-            element={
-              <NotCreated
-                message="Currently Nothing to display. Will update soon!"
-                buttonText=""
-                disable={true}
-              />
-            }
-          />
+          <Route index element={<Dashboard />} />
           <Route path="tournaments">
             <Route index element={<TournamentListingWrapper />} />
             <Route path="add">
