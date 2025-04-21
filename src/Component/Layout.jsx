@@ -150,8 +150,8 @@ const Layout = () => {
           <NavBar />
         </div>
         <div
-          className={`flex-1 p-[50px] h-full ${shouldScroll.page ? "overflow-auto" : "overflow-auto"
-            } scrollbar-hide`}
+          className={`flex-1 h-full ${shouldScroll.page ? "overflow-auto" : "overflow-auto"
+          } scrollbar-hide ${location.pathname === '/' ? 'p-0' : 'p-4 md:p-[50px]'}`}
         >
           <div className="flex gap-2.5 items-center mb-4 ">
             {!notHaveBackButton.includes(currentTitle) &&
@@ -181,7 +181,7 @@ const Layout = () => {
 
             {!shouldHideTitleBar && (
               <div className="flex items-center justify-between w-full">
-                <p className="inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-[22px]">
+                <p className={`inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-[22px] ${location.pathname === '/' ? "p-4 md:p-[50px]" : "p-0" }`}>
                   {currentTitle}
                   {tournamentId && (
                     <span
