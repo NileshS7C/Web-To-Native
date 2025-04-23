@@ -311,7 +311,6 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   const { isSuccess, isGettingTournament } = useSelector(
     (state) => state.GET_TOUR
   );
-  const { userRole: role } = useSelector((state) => state.auth);
 
   const currentPage = 1;
   const limit = 100;
@@ -333,11 +332,11 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
       let user;
 
-      if (rolesWithTournamentOwnerAccess.includes(cookies?.userRole)) {
+      if (rolesWithTournamentOwnerAccess.includes(cookies?.userRole || userRole)) {
         user = tournamentOwners.owners?.find(
           (owner) => owner.name === values.ownerUserId
         );
-      } else if (cookies?.userRole === "TOURNAMENT_OWNER") {
+      } else if ((cookies?.userRole || userRole) === "TOURNAMENT_OWNER") {
         user = singleTournamentOwner
           ? { id: singleTournamentOwner.id }
           : { id: "" };
