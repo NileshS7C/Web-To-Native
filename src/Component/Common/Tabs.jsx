@@ -18,6 +18,7 @@ function Tabs({ options, onChange, hasLink = false }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab");
   const currentPath = location.pathname;
+  console.log("prinitng current tab:",currentTab)
 
   useEffect(() => {
     if (currentTab) {

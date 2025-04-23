@@ -114,11 +114,9 @@ function TournamentListing(props) {
       setSearchInput("");
     }
   }, [selectedFilter, selectedTab]);
-
   useEffect(() => {
     const userRole = cookies.userRole || role;
-
-    if (singleTournamentOwner && !searchInput) {
+    if (singleTournamentOwner && !searchInput && selectedTab) {
       switch (selectedTab) {
         case "all":
           dispatch(
@@ -187,14 +185,22 @@ function TournamentListing(props) {
             getAllTournaments({
               page: currentPage || 1,
               limit: 10,
-              "dateRange[endDate]": formattedDate(new Date()),
-              timeline: "COMPLETED",
+              status: "ARCHIVED",
               type: userRole,
               ownerId: singleTournamentOwner?.id,
             })
           );
           break;
       }
+    } else {
+      dispatch(
+        getAllTournaments({
+          page: currentPage || 1,
+          limit: 10,
+          type: userRole,
+          ownerId: singleTournamentOwner?.id,
+        })
+      );
     }
   }, [
     selectedTab,
@@ -249,6 +255,7 @@ function TournamentListingWrapper() {
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [searchInput, setSearchInput] = useState("");
   const { userRole: role } = useSelector((state) => state.auth);
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex w-[40%]">

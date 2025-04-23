@@ -331,7 +331,8 @@ const TournamentActionButton = ({
           ))}
         {ROLES.slice(0, 2).includes(userRole) &&
           tournament?.status &&
-          tournament?.status !== "ARCHIVED" && (
+          tournament?.status !== "ARCHIVED" &&
+          tournament?.status !== "REJECTED" && (
             <div className="flex items-center gap-2">
               <Button
                 className={`${
