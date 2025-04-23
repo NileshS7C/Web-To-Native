@@ -373,7 +373,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
       dispatch(
         showError({
-          message: error.data.message || "Something went wrong!",
+          message: error?.data?.message || "Something went wrong!",
           onClose: "hideError",
         })
       );
