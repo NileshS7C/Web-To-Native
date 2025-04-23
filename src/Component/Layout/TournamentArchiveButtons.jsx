@@ -133,9 +133,8 @@ export const ArchiveButtons = (props) => {
         >
           Unpublish Tournament
         </Button>
-      ) }
-      {/* {
-       tournament?.status === "" &&(
+      )}
+      {tournament?.status === "ARCHIVED" && (
         <Button
           className="flex w-[200px] items-center justify-center gap-3 px-4 py-2 bg-[#FFFFFF] text-customColor ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-200 shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95"
           onClick={() =>
@@ -152,9 +151,7 @@ export const ArchiveButtons = (props) => {
         >
           Publish Tournament
         </Button>
-      )
-      } */}
-
+      )}
     </div>
   );
 };
