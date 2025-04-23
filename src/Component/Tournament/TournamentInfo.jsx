@@ -1056,9 +1056,7 @@ const DesktopBannerImageUpload = ({
               <IoMdTrash
                 className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
                 onClick={() => {
-                 if(!isDisabled){
                    handleRemoveImageDesk(previews[0]?.preview);
-                 }
                 }}
               />
             )}
@@ -1085,9 +1083,7 @@ const DesktopBannerImageUpload = ({
                   id="bannerDesktopImages"
                   name="bannerDesktopImages"
                   onChange={(e) => {
-                    if(!isDisabled){
                       handleFileUploadDesk(e);
-                    }
                    }
                   }
                   value=""
@@ -1183,9 +1179,7 @@ const MobileBannerImageUpload = ({
               <IoMdTrash
                 className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
                 onClick={() => {
-                  if(!isDisabled){
-                    handleRemoveImageDesk(previews[0]?.preview);
-                  }
+                   handleRemoveImageDesk(previews[0]?.preview);
                 }}
               />
             )}
@@ -1211,9 +1205,7 @@ const MobileBannerImageUpload = ({
                   id="bannerMobileImages"
                   name="bannerMobileImages"
                   onChange={(e) => {
-                    if(!isDisabled){
                       handleFileUploadMob(e);
-                    }
                   }}
                   value=""
                   type="file"
@@ -1682,9 +1674,7 @@ const TournamentGallery = ({ dispatch ,tournamentId}) => {
                 <IoIosCloseCircleOutline
                   className="absolute right-0 w-6 h-6 z-100 text-black  cursor-pointer "
                   onClick={() => {
-                    if(!isDisabled){
                       handleRemoveImage(index);
-                    }
                   }}
                 />
               )}
@@ -1710,9 +1700,8 @@ const TournamentGallery = ({ dispatch ,tournamentId}) => {
                   id="tournamentGallery"
                   name="tournamentGallery"
                   onChange={(e) => {
-                    if(!isDisabled){
                       handleFileUpload(e);
-                    }
+               
                   }}
                   value=""
                   type="file"
