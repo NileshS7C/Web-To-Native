@@ -58,7 +58,6 @@ import { useFormikContextFunction } from "../../Providers/formikContext";
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 import { MdDeleteOutline } from "react-icons/md";
-
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -299,6 +298,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.location);
   const [cookies] = useCookies(["name", "userRole"]);
+  console.log("printing cookies:",cookies);
   const [selectedTags, setSelectedTags] = useState([]);
   const isAddInThePath = window.location.pathname.includes("add");
   const { isGettingALLTO, err_IN_TO, tournamentOwners, isGettingTags, tags } =
@@ -306,12 +306,11 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
 
-  const { userRole } = useSelector((state) => state.auth);
+  const { userRole:role,userInfo } = useSelector((state) => state.auth);
 
   const { isSuccess, isGettingTournament } = useSelector(
     (state) => state.GET_TOUR
   );
-  const { userRole: role } = useSelector((state) => state.auth);
 
   const currentPage = 1;
   const limit = 100;
@@ -333,11 +332,11 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
       let user;
 
-      if (rolesWithTournamentOwnerAccess.includes(cookies?.userRole)) {
+      if (rolesWithTournamentOwnerAccess.includes(cookies?.userRole || role)) {
         user = tournamentOwners.owners?.find(
           (owner) => owner.name === values.ownerUserId
         );
-      } else if (cookies?.userRole === "TOURNAMENT_OWNER") {
+      } else if ((cookies?.userRole || role) === "TOURNAMENT_OWNER") {
         user = singleTournamentOwner
           ? { id: singleTournamentOwner.id }
           : { id: "" };
@@ -374,7 +373,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
       dispatch(
         showError({
-          message: error.data.message || "Something went wrong!",
+          message: error?.data?.message || "Something went wrong!",
           onClose: "hideError",
         })
       );
@@ -435,8 +434,8 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 <ErrorModal />
                 <SuccessModal />
                 <TournamentBasicInfo
-                  userName={cookies?.name || ""}
-                  userRole={cookies?.userRole || userRole}
+                  userName={cookies?.name || userInfo?.name || ""}
+                  userRole={cookies?.userRole || role}
                   tournamentOwners={tournamentOwners}
                   isGettingALLTO={isGettingALLTO}
                   hasError={err_IN_TO}
