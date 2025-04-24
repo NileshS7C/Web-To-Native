@@ -298,7 +298,6 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.location);
   const [cookies] = useCookies(["name", "userRole"]);
-  console.log("printing cookies:",cookies);
   const [selectedTags, setSelectedTags] = useState([]);
   const isAddInThePath = window.location.pathname.includes("add");
   const { isGettingALLTO, err_IN_TO, tournamentOwners, isGettingTags, tags } =
@@ -385,10 +384,11 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
   useEffect(() => {
     if (isSuccess && tournamentId && Object.keys(tournament).length > 0) {
       const updatedTournament = requiredTournamentFields(tournament);
-      const owner =
-        tournamentOwners?.owners?.find(
-          (owner) => owner.id === updatedTournament.ownerUserId
-        ) ?? null;
+      const owner = rolesWithTournamentOwnerAccess.includes(cookies?.userRole || role)
+        ? tournamentOwners?.owners?.find(
+            (owner) => owner.id === updatedTournament.ownerUserId
+          ) ?? null
+        : singleTournamentOwner;
 
       if (owner) {
         const ownerName = owner.name;
