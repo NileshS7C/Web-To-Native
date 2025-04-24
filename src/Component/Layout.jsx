@@ -311,9 +311,14 @@ const TournamentActionButton = ({
               type="button"
               onClick={() => dispatch(setTournamentEditMode())}
               disabled={
-                !["ADMIN", "SUPER_ADMIN", "TOURNAMENT_OWNER"].includes(
+                (!["ADMIN", "SUPER_ADMIN", "TOURNAMENT_OWNER"].includes(
                   userRole
-                ) && tournament?.status !== "REJECTED"
+                ) &&
+                  tournament?.status !== "REJECTED") ||
+                (userRole === "TOURNAMENT_OWNER" &&
+                  ["PENDING_VERIFICATION", "PUBLISHED"].includes(
+                    tournament?.status
+                  ))
               }
             >
               <span>Edit Tournament</span>
