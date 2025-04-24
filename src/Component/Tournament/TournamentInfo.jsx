@@ -428,8 +428,8 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
         setSubmitForm(() => submitForm);
         setIsSubmitting(isSubmitting);
         return (
-          <Form>
-            <fieldset disabled={!isDisable}>
+          <Form disabled={!isDisable}>
+            <fieldset>
               <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323]">
                 <ErrorModal />
                 <SuccessModal />
@@ -459,7 +459,10 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
                 />
                 <TournamentSponserTable isDisable={isDisable} />
                 <TournamentBookingDates />
-                <TournamentGallery dispatch={dispatch} tournamentId={tournamentId}/>
+                <TournamentGallery
+                  dispatch={dispatch}
+                  tournamentId={tournamentId}
+                />
                 <Button
                   className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
                     status !== "DRAFT" && tournamentId ? "hidden" : ""
@@ -1089,7 +1092,7 @@ const DesktopBannerImageUpload = ({
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
                   multiple={false}
-                  disabled={!isDisable}
+                  // disabled={!isDisable}
                 />
               )}
             </Field>
@@ -1209,7 +1212,7 @@ const MobileBannerImageUpload = ({
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                  disabled={!isDisable}
+                  // disabled={!isDisable}
                 />
               )}
             </Field>

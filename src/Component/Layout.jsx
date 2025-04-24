@@ -311,8 +311,9 @@ const TournamentActionButton = ({
               type="button"
               onClick={() => dispatch(setTournamentEditMode())}
               disabled={
-                !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
-                tournament?.status !== "REJECTED"
+                !["ADMIN", "SUPER_ADMIN", "TOURNAMENT_OWNER"].includes(
+                  userRole
+                ) && tournament?.status !== "REJECTED"
               }
             >
               <span>Edit Tournament</span>
@@ -331,7 +332,8 @@ const TournamentActionButton = ({
           ))}
         {ROLES.slice(0, 2).includes(userRole) &&
           tournament?.status &&
-          tournament?.status !== "ARCHIVED" && (
+          tournament?.status !== "ARCHIVED" &&
+          tournament?.status !== "REJECTED" && (
             <div className="flex items-center gap-2">
               <Button
                 className={`${

@@ -19,7 +19,7 @@ import {
 
 import {
   onCancel,
-  onCofirm,
+  onConfirm,
   resetConfirmationState,
 } from "../../redux/Confirmation/confirmationSlice";
 import { showSuccess } from "../../redux/Success/successSlice";
@@ -59,7 +59,7 @@ const TournamentCreationForm = () => {
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [cookies] = useCookies(["name", "userRole"]);
-   const { userRole: role } = useSelector((state) => state.auth);
+  const { userRole: role } = useSelector((state) => state.auth);
   const isAddInThePath = window.location.pathname.includes("/add");
 
   useEffect(() => {
@@ -123,7 +123,6 @@ const TournamentCreationForm = () => {
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed, tournamentId]);
-
   useEffect(() => {
     if (archived) {
       dispatch(
@@ -233,7 +232,7 @@ const TournamentCreationForm = () => {
           isOpen={isOpen}
           onCancel={onCancel}
           onClose={onClose}
-          onConfirm={onCofirm}
+          onConfirm={onConfirm}
           isLoading={false}
           message={message}
           withComments={withComments}
