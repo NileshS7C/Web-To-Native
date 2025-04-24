@@ -66,11 +66,11 @@ export const TournamentOrganiserCreation = ({
       const result = !organiserId
         ? await dispatch(createTournamentOwner(values)).unwrap()
         : await dispatch(
-            updateTournamentOwner({
-              formData: updadatedValues,
-              ownerId: organiserId,
-            })
-          ).unwrap();
+          updateTournamentOwner({
+            formData: updadatedValues,
+            ownerId: organiserId,
+          })
+        ).unwrap();
       if (!result.responseCode) {
         dispatch(
           showSuccess({
@@ -97,7 +97,7 @@ export const TournamentOrganiserCreation = ({
 
       setErrorMessage(
         err.data.message ||
-          "Oops! some thing went wrong while creating the organiser. Please try again."
+        "Oops! some thing went wrong while creating the organiser. Please try again."
       );
 
       setHasError(true);
@@ -272,41 +272,167 @@ const OrganiserPhoneAndPassword = () => {
   );
 };
 
-const BrandEmailAndPhone = () => {
-  return (
-    <div className="grid grid-cols-2 gap-[30px] w-full">
-      <div className="flex flex-col items-start gap-2.5">
-        <label
-          className=" text-[#232323] text-base leading-[19.36px]"
-          htmlFor="ownerDetails.brandName"
-        >
-          Brand Name
-        </label>
-        <Field
-          placeholder="Enter Organiser Brand Name"
-          id="ownerDetails.brandName"
-          name="ownerDetails.brandName"
-          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <ErrorMessage name="ownerDetails.brandName" component={TextError} />
-      </div>
-      <div className="flex flex-col items-start gap-2.5 w-full">
-        <label
-          className=" text-[#232323] text-base leading-[19.36px]"
-          htmlFor="ownerDetails.brandEmail"
-        >
-          Brand Email
-        </label>
+const BrandEmailAndPhone = () => {  const { setFieldValue, values } = useFormikContext();
+  const [brandImage, setBrandImage] = useState(null);
+  const [brandImageUrl, setBrandImageUrl] = useState(values?.ownerDetails?.brandLogoImage || "");
 
-        <Field
-          placeholder="Enter Organiser Brand Email"
-          id="ownerDetails.brandEmail"
-          name="ownerDetails.brandEmail"
-          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <ErrorMessage name="ownerDetails.brandEmail" component={TextError} />
+  useEffect(() => {
+    if (values?.ownerDetails?.brandLogoImage && typeof values.ownerDetails.brandLogoImage === 'string') {
+      setBrandImageUrl(values.ownerDetails.brandLogoImage);
+      setBrandImage(null);
+    } else if (values?.ownerDetails?.brandLogoImage instanceof File) {
+
+      if (!brandImageUrl || !brandImageUrl.startsWith('blob:')) {
+         const localUrl = URL.createObjectURL(values.ownerDetails.brandLogoImage);
+         setBrandImageUrl(localUrl);
+         setBrandImage(values.ownerDetails.brandLogoImage);
+       }
+    } else {
+      if (brandImageUrl) {
+         if (brandImageUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(brandImageUrl);
+         }
+         setBrandImageUrl("");
+      }
+      setBrandImage(null);
+    }
+
+    const currentUrl = brandImageUrl;
+    return () => {
+      if (currentUrl && currentUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(currentUrl);
+      }
+    };
+  }, [values?.ownerDetails?.brandLogoImage, brandImageUrl]);
+
+
+  const handleBrandImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (brandImageUrl && brandImageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(brandImageUrl);
+    }
+
+    const localUrl = URL.createObjectURL(file);
+    setBrandImage(file);
+    setBrandImageUrl(localUrl);
+    setFieldValue("ownerDetails.brandLogoImage", file);
+  };
+
+  const handleDeleteImage = () => {
+    if (brandImageUrl && brandImageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(brandImageUrl);
+    }
+    setBrandImage(null);
+    setBrandImageUrl("");
+    setFieldValue("ownerDetails.brandLogoImage", null);
+
+    const fileInput = document.getElementById("brandImageInput");
+    if (fileInput) {
+      fileInput.value = ""; // Reset the input value
+    }
+  };
+
+
+  // Clean up object URL on unmount - Handled in the main useEffect now
+  // useEffect(() => { ... }); // This separate cleanup useEffect can be removed or kept if preferred
+
+
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px] w-full">
+        <div className="flex flex-col items-start gap-2.5">
+          <label
+            className=" text-[#232323] text-base leading-[19.36px]"
+            htmlFor="ownerDetails.brandName"
+          >
+            Brand Name
+          </label>
+          <Field
+            placeholder="Enter Organiser Brand Name"
+            id="ownerDetails.brandName"
+            name="ownerDetails.brandName"
+            className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <ErrorMessage name="ownerDetails.brandName" component={TextError} />
+        </div>
+        <div className="flex flex-col items-start gap-2.5 w-full">
+          <label
+            className=" text-[#232323] text-base leading-[19.36px]"
+            htmlFor="ownerDetails.brandEmail"
+          >
+            Brand Email
+          </label>
+          <Field
+            placeholder="Enter Organiser Brand Email"
+            id="ownerDetails.brandEmail"
+            name="ownerDetails.brandEmail"
+            className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <ErrorMessage name="ownerDetails.brandEmail" component={TextError} />
+        </div>
       </div>
-    </div>
+
+
+      <div className="flex flex-col items-start gap-2.5 w-full mt-4">
+        <label className="text-[#232323] text-base leading-[19.36px] mb-2" htmlFor="brandImageInput"> {/* Changed htmlFor */}
+          Brand Image
+        </label>
+        <div className="flex flex-col w-full gap-4">
+          {/* Removed the separate image preview div */}
+          <div
+            className="relative flex flex-col items-center justify-center border-2 border-dashed border-[#B2B2B2] rounded-lg p-4 w-full cursor-pointer bg-[#FAFAFA] min-h-[120px] overflow-hidden" // Added relative and overflow-hidden
+            onClick={() => !brandImageUrl && document.getElementById("brandImageInput").click()} // Prevent opening file dialog if image exists
+          >
+            {brandImageUrl ? (
+              <>
+                <img
+                  src={brandImageUrl} // Use the state variable for the source
+                  alt="Brand Preview"
+                  className="w-full h-full object-contain max-h-[200px]" // Adjusted styling for containment
+                />
+                <button
+                  type="button" // Prevent form submission
+                  onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the container's onClick
+                      handleDeleteImage();
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  aria-label="Delete image"
+                >
+                  <IoCloseSharp className="w-4 h-4" /> {/* Use the close icon */}
+                </button>
+              </>
+            ) : (
+              // Content to show when no image is selected
+              <div className="flex flex-col items-center text-center">
+                <div className="bg-[#F4F4F4] rounded-full p-2 mb-2">
+                  <svg width="24" height="24" fill="none" stroke="#1570EF" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M12 16V4M12 4l-4 4M12 4l4 4" strokeLinecap="round" strokeLinejoin="round" />
+                    <rect x="4" y="16" width="16" height="4" rx="2" fill="#F4F4F4" stroke="#B2B2B2" />
+                  </svg>
+                </div>
+                <span className="text-[#1570EF] font-medium cursor-pointer">
+                  Click to upload
+                </span>
+                <span className="text-[#8C8C8C] text-xs mt-1">(Max. File size: 5MB)</span>
+                <span className="text-[#8C8C8C] text-xs">(Image Size: 800x400)</span>
+              </div>
+            )}
+          </div>
+          <input
+            type="file"
+            id="brandImageInput" // Changed id to avoid conflict with label's htmlFor if it was 'brandImage'
+            accept="image/*"
+            onChange={handleBrandImageChange}
+            className="hidden"
+          />
+          {/* Add Formik error message for the image field if needed */}
+          <ErrorMessage name="ownerDetails.brandLogoImage" component={TextError} />
+        </div>
+      </div>
+    </>
   );
 };
 
