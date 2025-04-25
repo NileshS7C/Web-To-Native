@@ -1,3 +1,5 @@
+import { downloadSheetOfPLayers } from "../redux/tournament/tournamentActions";
+
 export const ROUTES = {
   HOME: "/home",
   VENUES: {
@@ -246,6 +248,14 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stage/${stageId}/standings`;
         }
       },
+      downloadSheetOfPLayers:(tournamentId,ownerId,userRole)=>{
+       
+        if(ADMINROLES.includes(userRole)){
+            return `/users/admin/tournaments/${tournamentId}/export-bookings`;
+        }else{
+            return `/users/tournament-owner/tournaments/${tournamentId}/owner/${ownerId}/export-bookings`;  
+        }
+      }
     },
 
     PATCH: {

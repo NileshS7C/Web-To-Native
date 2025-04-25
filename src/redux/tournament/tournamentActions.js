@@ -3,9 +3,8 @@ import axiosInstance from "../../Services/axios";
 import { formatURL } from "../../utils/dateUtils";
 import { Cookies } from "react-cookie";
 import { API_END_POINTS } from "../../Constant/routes";
-
+import axios from "axios";
 const cookies = new Cookies();
-
 export const addTournamentStepOne = createAsyncThunk(
   "Tournament/addTournamentStepOne",
   async (formData, { rejectWithValue }) => {
@@ -371,7 +370,7 @@ export const updateEventCategory = createAsyncThunk(
   async ({ formData, id, categoryId }, { rejectWithValue }) => {
     try {
       const userRole = cookies.get("userRole");
-    
+
       const userAPIEndPoint = API_END_POINTS.tournament.POST.updateCategory(
         userRole,
         id,
@@ -712,6 +711,63 @@ export const cancelAndRefundBooking = createAsyncThunk(
           message: err.message || "An unknown error occurred",
         });
       }
+    }
+  }
+);
+
+export const downloadSheetOfPLayers = createAsyncThunk(
+  "GET_TOUR/downloadSheetOfPLayers",
+  async ({ tournamentId,ownerId,userRole }, { rejectWithValue }) => {
+    try {
+      const userAPIEndPoint =
+        API_END_POINTS.tournament.GET.downloadSheetOfPLayers(
+          tournamentId,
+          ownerId,
+          userRole
+        );
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
+        {
+          responseType: "blob",
+        }
+      );
+      const contentDisposition = response.headers["content-disposition"];
+      let fileName = "tournament_bookings.xlsx";
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
+        if (fileNameMatch && fileNameMatch[1]) {
+          fileName = fileNameMatch[1].replace(/['"]/g, "");
+          fileName = decodeURIComponent(fileName);
+        }
+      }
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      if (
+        err.response &&
+        err.response.data instanceof Blob &&
+        err.response.data.type === "application/json"
+      ) {
+        const errorText = await err.response.data.text();
+        const errorData = JSON.parse(errorText); 
+        console.error("Parsed backend error:", errorData);
+
+        return rejectWithValue({
+          message:errorData.message,
+          status:errorData.status
+        });
+      }
+      return rejectWithValue({
+        message: err.message || "An unknown error occurred",
+      });
     }
   }
 );

@@ -30,7 +30,7 @@ import { deleteVenue } from "../redux/Venue/venueActions";
 import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
 import { resetEditMode } from "../redux/tournament/getTournament";
-
+import { downloadSheetOfPLayers } from "../redux/tournament/tournamentActions";
 const hiddenRoutes = [
   "/cms/homepage/featured-tournaments",
   "/cms/homepage/featured-venues",
@@ -56,7 +56,7 @@ const hiddenRoutes = [
   "/cms/tourism-page/media-gallery",
   ...aboutUsPageRoutes,
 ];
-
+import { BsDownload } from "react-icons/bs";
 const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -384,6 +384,27 @@ const TournamentActionButton = ({
       <div>
         <ArchiveButtons tournament={tournament} dispatch={dispatch} />
       </div>
+      {ROLES.slice(0, 3).includes(userRole) &&
+        tournament?.status &&
+        ["ARCHIVED", "PUBLISHED"].includes(tournament?.status) && (
+          <Button
+            className="bg-blue-400 flex w-46 items-center justify-center gap-2 px-4 py-2  text-customColor ml-auto rounded-[8px] hover:bg-[#1570EF] shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 "
+            type="button"
+            onClick={() => {
+              console.log("Tournament ID:", tournament);
+              dispatch(
+                downloadSheetOfPLayers({
+                  tournamentId: tournament._id.toString(),
+                  ownerId: tournament?.ownerUserId?.toString(),
+                  userRole,
+                })
+              );
+            }}
+          >
+            <BsDownload />
+            Download Sheet
+          </Button>
+        )}
     </div>
   );
 };
