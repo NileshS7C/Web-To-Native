@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Formik, Form, ErrorMessage, Field, useFormikContext } from "formik";
@@ -20,6 +20,7 @@ import Button from "./Button";
 import ErrorBanner from "./ErrorBanner";
 import LocationSearchInput from "./LocationSearch";
 import Spinner from "./Spinner";
+import axiosInstance from "../../Services/axios";
 
 import {
   TournamentOragniserModalTitle,
@@ -29,7 +30,6 @@ import {
 
 export const TournamentOrganiserCreation = ({
   dispatch,
-  owner,
   isOpen,
   initialValues,
   location,
@@ -37,40 +37,92 @@ export const TournamentOrganiserCreation = ({
   organiserId,
   actionPending,
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [brandLogoImageError, setBrandLogoImageError] = useState("");
+  const brandLogoFileInputRef = useRef(null);
+
+  const uploadImageToS3 = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append("uploaded-file", file);
+  
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/upload-file`,
+        formData,
+        config
+      );
+      console.log("Upload successful, received S3 URL:", response.data.data.url);
+      return { success: true, url: response.data.data.url };
+    } catch (error) {
+      return { success: false, message: error?.response?.data?.message || "Image upload failed" };
+    }
+  };
+
+  const handleBrandLogoImageChange = async (event, setFieldValue) => {
+    const file = event.target.files[0];
+    if (file) {
+      setBrandLogoImageError("");
+      const imageUrl = await uploadImageToS3(file);
+      if (imageUrl.success) {
+         console.log("Setting Formik field 'ownerDetails.brandLogoImage' to:", imageUrl.url); 
+         setFieldValue("ownerDetails.brandLogoImage", imageUrl.url); 
+      } else {
+        setBrandLogoImageError(imageUrl.message);
+        setFieldValue("ownerDetails.brandLogoImage", ""); 
+      }
+      return imageUrl.success; 
+    }
+    return false;
+  };
+  
   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
+    console.log("Complete form data being sent (from Formik):", values);
+    
     try {
       setSubmitting(true);
       setHasError(false);
       setErrorMessage("");
-      let updadatedValues;
-
+      let updatedValues; 
+  
+      const valuesWithLogo = values;
+  
       if (organiserId) {
-        const { password } = values;
+        const { password } = valuesWithLogo;
         if (password) {
           const isValid = passRegex.test(password);
           if (!isValid) {
-            return setFieldError(
+            setFieldError(
               "password",
               "Password must have at least 8 characters, including uppercase, lowercase, a number, and a special character."
             );
+            setSubmitting(false); 
+            return; 
           }
-          updadatedValues = values;
+          updatedValues = valuesWithLogo; 
         } else {
-          const { password, ...restOfValues } = values;
-          updadatedValues = restOfValues;
+          const { password, ...restOfValues } = valuesWithLogo;
+          updatedValues = restOfValues; 
         }
+      } else {
+         updatedValues = valuesWithLogo;
       }
+  
       const result = !organiserId
-        ? await dispatch(createTournamentOwner(values)).unwrap()
+        ? await dispatch(createTournamentOwner(updatedValues)).unwrap() 
         : await dispatch(
-          updateTournamentOwner({
-            formData: updadatedValues,
-            ownerId: organiserId,
-          })
-        ).unwrap();
+            updateTournamentOwner({
+              formData: updatedValues, 
+              ownerId: organiserId,
+            })
+          ).unwrap();
+  
       if (!result.responseCode) {
         dispatch(
           showSuccess({
@@ -86,7 +138,7 @@ export const TournamentOrganiserCreation = ({
             limit: rowsInOnePage,
           })
         );
-
+  
         dispatch(toggleOrganiserModal());
       }
     } catch (err) {
@@ -94,12 +146,12 @@ export const TournamentOrganiserCreation = ({
         " Error occured while creating the tournament organiser",
         err
       );
-
+  
       setErrorMessage(
         err.data.message ||
         "Oops! some thing went wrong while creating the organiser. Please try again."
       );
-
+  
       setHasError(true);
     } finally {
       setSubmitting(false);
@@ -111,8 +163,9 @@ export const TournamentOrganiserCreation = ({
       setHasError(false);
       setErrorMessage("");
       dispatch(resetGlobalLocation());
+      setBrandLogoImageError("");
     }
-  }, [isOpen]);
+  }, [isOpen, dispatch]); 
 
   return (
     <Dialog
@@ -145,30 +198,38 @@ export const TournamentOrganiserCreation = ({
 
                   {hasError && <ErrorBanner message={errorMessage} />}
                   <Formik
-                    enableReinitialize={true}
-                    initialValues={initialValues}
+                    enableReinitialize={true} 
+                    initialValues={initialValues} 
                     validationSchema={validationSchema}
-                    onSubmit={handleSubmit}
+                    onSubmit={handleSubmit} 
                   >
-                    {({ isSubmitting }) => (
-                      <Form>
-                        <div className="flex flex-col justify-between w-full gap-4 flex-1">
-                          <OrganiserBasicDetails />
-                          <OrganiserPhoneAndPassword />
-                          <BrandEmailAndPhone />
-                          <BrandPhoneAndLocation />
-                          <OrganiserAddress location={location} />
+                    {({ isSubmitting, setFieldValue, values }) => { 
+                      return (
+                        <Form>
+                          <div className="flex flex-col justify-between w-full gap-4 flex-1">
+                            <OrganiserBasicDetails />
+                            <OrganiserPhoneAndPassword />
+                            <BrandEmailAndPhone 
+                              handleBrandLogoImageChange={(event) => handleBrandLogoImageChange(event, setFieldValue)} 
+                              brandLogoImage={values.ownerDetails?.brandLogoImage} 
+                              brandLogoImageError={brandLogoImageError}
+                              brandLogoFileInputRef={brandLogoFileInputRef}
+                              setFieldValue={setFieldValue}
+                            />
+                            <BrandPhoneAndLocation />
+                            <OrganiserAddress location={location} />
 
-                          <Button
-                            className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
-                            type="submit"
-                            loading={isSubmitting}
-                          >
-                            Save
-                          </Button>
-                        </div>
-                      </Form>
-                    )}
+                            <Button
+                              className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
+                              type="submit"
+                              loading={isSubmitting}
+                            >
+                              Save
+                            </Button>
+                          </div>
+                        </Form>
+                      );
+                    }}
                   </Formik>
                 </div>
               )}
@@ -272,167 +333,120 @@ const OrganiserPhoneAndPassword = () => {
   );
 };
 
-const BrandEmailAndPhone = () => {  const { setFieldValue, values } = useFormikContext();
-  const [brandImage, setBrandImage] = useState(null);
-  const [brandImageUrl, setBrandImageUrl] = useState(values?.ownerDetails?.brandLogoImage || "");
+const BrandEmailAndPhone = ({
+  handleBrandLogoImageChange,
+  brandLogoImage,
+  brandLogoImageError,
+  brandLogoFileInputRef,
+  setFieldValue,
+}) => {
+  const [isUploading, setIsUploading] = useState(false);
+  
 
-  useEffect(() => {
-    if (values?.ownerDetails?.brandLogoImage && typeof values.ownerDetails.brandLogoImage === 'string') {
-      setBrandImageUrl(values.ownerDetails.brandLogoImage);
-      setBrandImage(null);
-    } else if (values?.ownerDetails?.brandLogoImage instanceof File) {
-
-      if (!brandImageUrl || !brandImageUrl.startsWith('blob:')) {
-         const localUrl = URL.createObjectURL(values.ownerDetails.brandLogoImage);
-         setBrandImageUrl(localUrl);
-         setBrandImage(values.ownerDetails.brandLogoImage);
-       }
-    } else {
-      if (brandImageUrl) {
-         if (brandImageUrl.startsWith('blob:')) {
-            URL.revokeObjectURL(brandImageUrl);
-         }
-         setBrandImageUrl("");
-      }
-      setBrandImage(null);
-    }
-
-    const currentUrl = brandImageUrl;
-    return () => {
-      if (currentUrl && currentUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(currentUrl);
-      }
-    };
-  }, [values?.ownerDetails?.brandLogoImage, brandImageUrl]);
-
-
-  const handleBrandImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (brandImageUrl && brandImageUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(brandImageUrl);
-    }
-
-    const localUrl = URL.createObjectURL(file);
-    setBrandImage(file);
-    setBrandImageUrl(localUrl);
-    setFieldValue("ownerDetails.brandLogoImage", file);
-  };
-
-  const handleDeleteImage = () => {
-    if (brandImageUrl && brandImageUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(brandImageUrl);
-    }
-    setBrandImage(null);
-    setBrandImageUrl("");
-    setFieldValue("ownerDetails.brandLogoImage", null);
-
-    const fileInput = document.getElementById("brandImageInput");
-    if (fileInput) {
-      fileInput.value = ""; // Reset the input value
+  const handleImageChange = async (event) => {
+    setIsUploading(true);
+    await handleBrandLogoImageChange(event); 
+    setIsUploading(false);
+    if (brandLogoFileInputRef.current) {
+        brandLogoFileInputRef.current.value = "";
     }
   };
-
-
-  // Clean up object URL on unmount - Handled in the main useEffect now
-  // useEffect(() => { ... }); // This separate cleanup useEffect can be removed or kept if preferred
-
-
+  
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px] w-full">
-        <div className="flex flex-col items-start gap-2.5">
-          <label
-            className=" text-[#232323] text-base leading-[19.36px]"
-            htmlFor="ownerDetails.brandName"
-          >
-            Brand Name
-          </label>
-          <Field
-            placeholder="Enter Organiser Brand Name"
-            id="ownerDetails.brandName"
-            name="ownerDetails.brandName"
-            className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <ErrorMessage name="ownerDetails.brandName" component={TextError} />
-        </div>
-        <div className="flex flex-col items-start gap-2.5 w-full">
-          <label
-            className=" text-[#232323] text-base leading-[19.36px]"
-            htmlFor="ownerDetails.brandEmail"
-          >
-            Brand Email
-          </label>
-          <Field
-            placeholder="Enter Organiser Brand Email"
-            id="ownerDetails.brandEmail"
-            name="ownerDetails.brandEmail"
-            className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <ErrorMessage name="ownerDetails.brandEmail" component={TextError} />
-        </div>
-      </div>
-
-
-      <div className="flex flex-col items-start gap-2.5 w-full mt-4">
-        <label className="text-[#232323] text-base leading-[19.36px] mb-2" htmlFor="brandImageInput"> {/* Changed htmlFor */}
-          Brand Image
+    <div className="grid grid-cols-2 gap-[30px] w-full">
+      <div className="flex flex-col items-start gap-2.5">
+        <label
+          className=" text-[#232323] text-base leading-[19.36px]"
+          htmlFor="ownerDetails.brandName"
+        >
+          Brand Name
         </label>
-        <div className="flex flex-col w-full gap-4">
-          {/* Removed the separate image preview div */}
-          <div
-            className="relative flex flex-col items-center justify-center border-2 border-dashed border-[#B2B2B2] rounded-lg p-4 w-full cursor-pointer bg-[#FAFAFA] min-h-[120px] overflow-hidden" // Added relative and overflow-hidden
-            onClick={() => !brandImageUrl && document.getElementById("brandImageInput").click()} // Prevent opening file dialog if image exists
-          >
-            {brandImageUrl ? (
-              <>
-                <img
-                  src={brandImageUrl} // Use the state variable for the source
-                  alt="Brand Preview"
-                  className="w-full h-full object-contain max-h-[200px]" // Adjusted styling for containment
-                />
-                <button
-                  type="button" // Prevent form submission
-                  onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering the container's onClick
-                      handleDeleteImage();
-                  }}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                  aria-label="Delete image"
-                >
-                  <IoCloseSharp className="w-4 h-4" /> {/* Use the close icon */}
-                </button>
-              </>
-            ) : (
-              // Content to show when no image is selected
-              <div className="flex flex-col items-center text-center">
-                <div className="bg-[#F4F4F4] rounded-full p-2 mb-2">
-                  <svg width="24" height="24" fill="none" stroke="#1570EF" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M12 16V4M12 4l-4 4M12 4l4 4" strokeLinecap="round" strokeLinejoin="round" />
-                    <rect x="4" y="16" width="16" height="4" rx="2" fill="#F4F4F4" stroke="#B2B2B2" />
-                  </svg>
-                </div>
-                <span className="text-[#1570EF] font-medium cursor-pointer">
-                  Click to upload
-                </span>
-                <span className="text-[#8C8C8C] text-xs mt-1">(Max. File size: 5MB)</span>
-                <span className="text-[#8C8C8C] text-xs">(Image Size: 800x400)</span>
-              </div>
-            )}
-          </div>
+        <Field
+          placeholder="Enter Organiser Brand Name"
+          id="ownerDetails.brandName"
+          name="ownerDetails.brandName"
+          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <ErrorMessage name="ownerDetails.brandName" component={TextError} />
+
+        {/* --- Brand Logo Image Upload Section --- */}
+        <div className="w-full mt-2">
+          <label className="block text-[#232323] text-base leading-[19.36px] mb-2">
+            Brand Logo Image
+          </label>
+          
           <input
             type="file"
-            id="brandImageInput" // Changed id to avoid conflict with label's htmlFor if it was 'brandImage'
             accept="image/*"
-            onChange={handleBrandImageChange}
+            onChange={handleImageChange}
             className="hidden"
+            id="brandLogoImageUpload"
+            ref={brandLogoFileInputRef}
           />
-          {/* Add Formik error message for the image field if needed */}
-          <ErrorMessage name="ownerDetails.brandLogoImage" component={TextError} />
+          
+          {!brandLogoImage ? (
+            <label
+              htmlFor="brandLogoImageUpload"
+              className="flex flex-col items-center justify-center w-full h-[150px] border border-dashed border-gray-300 rounded-md cursor-pointer bg-gray-50 hover:bg-gray-100 transition duration-200"
+            >
+              {isUploading ? (
+                <div className="flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                  <p className="text-sm text-gray-600">Uploading image...</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg className="w-8 h-8 mb-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <p className="mb-1 text-sm text-blue-500">Click to upload</p>
+                  <p className="text-xs text-gray-500 mt-1">(Max. File size: 5MB)</p>
+                  <p className="text-xs text-gray-500">(Image Size: 300x300)</p>
+                </div>
+              )}
+            </label>
+          ) : (
+            <div className="relative w-full h-[150px] border border-gray-300 rounded-md overflow-hidden">
+              <img
+                src={brandLogoImage}
+                alt="Brand Logo"
+                className="w-full h-full object-contain"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setBrandLogoImage("");
+                  if (brandLogoFileInputRef.current) brandLogoFileInputRef.current.value = "";
+                }}
+                className="absolute top-2 right-2 bg-gray-800 text-white rounded-full p-1 shadow-md hover:bg-gray-900 transition-colors"
+              >
+                <IoCloseSharp size={16} />
+              </button>
+            </div>
+          )}
+          
+          {brandLogoImageError && (
+            <p className="text-red-500 text-xs mt-1">{brandLogoImageError}</p>
+          )}
         </div>
       </div>
-    </>
+      <div className="flex flex-col items-start gap-2.5 w-full">
+        <label
+          className=" text-[#232323] text-base leading-[19.36px]"
+          htmlFor="ownerDetails.brandEmail"
+        >
+          Brand Email
+        </label>
+
+        <Field
+          placeholder="Enter Organiser Brand Email"
+          id="ownerDetails.brandEmail"
+          name="ownerDetails.brandEmail"
+          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <ErrorMessage name="ownerDetails.brandEmail" component={TextError} />
+      </div>
+    </div>
   );
 };
 
