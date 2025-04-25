@@ -4,7 +4,7 @@ import {
   getAll_TO,
   getAllUniqueTags,
   handleTournamentDecision,
-  downloadSheetOfPLayers
+  downloadSheetOfPlayers
 } from "./tournamentActions";
 import { approvalBody } from "../../Constant/tournament";
 
@@ -240,19 +240,19 @@ const tournamentSlice = createSlice({
       });
 
     builder
-      .addCase(downloadSheetOfPLayers.pending, (state) => {
+      .addCase(downloadSheetOfPlayers.pending, (state) => {
         state.pendingDownload = true,
         state.sheetDownload = false,
         state.downloadError = false,
         state.downloadErrorMessage = "";
       })
-      .addCase(downloadSheetOfPLayers.fulfilled, (state) => {
+      .addCase(downloadSheetOfPlayers.fulfilled, (state) => {
         state.pendingDownload = false,
         state.sheetDownload = true,
         state.downloadError = false,
         state.downloadErrorMessage = "";  
       })
-      .addCase(downloadSheetOfPLayers.rejected, (state, { payload }) => {
+      .addCase(downloadSheetOfPlayers.rejected, (state, { payload }) => {
         state.pendingDownload = false,
         state.sheetDownload = false,
         state.downloadError = true,

@@ -30,7 +30,7 @@ import { deleteVenue } from "../redux/Venue/venueActions";
 import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
 import { resetEditMode } from "../redux/tournament/getTournament";
-import { downloadSheetOfPLayers } from "../redux/tournament/tournamentActions";
+import { downloadSheetOfPlayers } from "../redux/tournament/tournamentActions";
 const hiddenRoutes = [
   "/cms/homepage/featured-tournaments",
   "/cms/homepage/featured-venues",
@@ -393,10 +393,11 @@ const TournamentActionButton = ({
             onClick={() => {
               console.log("Tournament ID:", tournament);
               dispatch(
-                downloadSheetOfPLayers({
+                downloadSheetOfPlayers({
                   tournamentId: tournament._id.toString(),
                   ownerId: tournament?.ownerUserId?.toString(),
                   userRole,
+                  tournamentName:tournament?.tournamentName || "Tournament-Bookings"
                 })
               );
             }}

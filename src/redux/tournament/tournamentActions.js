@@ -3,7 +3,6 @@ import axiosInstance from "../../Services/axios";
 import { formatURL } from "../../utils/dateUtils";
 import { Cookies } from "react-cookie";
 import { API_END_POINTS } from "../../Constant/routes";
-import axios from "axios";
 const cookies = new Cookies();
 export const addTournamentStepOne = createAsyncThunk(
   "Tournament/addTournamentStepOne",
@@ -715,12 +714,12 @@ export const cancelAndRefundBooking = createAsyncThunk(
   }
 );
 
-export const downloadSheetOfPLayers = createAsyncThunk(
+export const downloadSheetOfPlayers = createAsyncThunk(
   "GET_TOUR/downloadSheetOfPLayers",
-  async ({ tournamentId,ownerId,userRole }, { rejectWithValue }) => {
+  async ({ tournamentId,ownerId,userRole,tournamentName }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint =
-        API_END_POINTS.tournament.GET.downloadSheetOfPLayers(
+        API_END_POINTS.tournament.GET.downloadSheetOfPlayers(
           tournamentId,
           ownerId,
           userRole
@@ -732,7 +731,7 @@ export const downloadSheetOfPLayers = createAsyncThunk(
         }
       );
       const contentDisposition = response.headers["content-disposition"];
-      let fileName = "tournament_bookings.xlsx";
+      let fileName = `Pickelbay ${tournamentName}.xlsx`;
       if (contentDisposition) {
         const fileNameMatch = contentDisposition.match(
           /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
