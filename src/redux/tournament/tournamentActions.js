@@ -724,6 +724,11 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           ownerId,
           userRole
         );
+      if(!userAPIEndPoint){
+         return rejectWithValue({
+           message: "You are not authorized to download the sheet.",
+         });
+      }  
       const response = await axiosInstance.get(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         {

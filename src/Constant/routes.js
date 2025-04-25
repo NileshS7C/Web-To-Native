@@ -252,6 +252,8 @@ export const API_END_POINTS = {
             return `/users/admin/tournaments/${tournamentId}/export-bookings`;
         }else if(userRole === "TOURNAMENT_OWNER"){
             return `/users/tournament-owner/tournaments/${tournamentId}/owner/${ownerId}/export-bookings`;  
+        }else{
+          return null;
         }
       }
     },
