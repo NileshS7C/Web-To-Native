@@ -731,7 +731,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
         }
       );
       const contentDisposition = response.headers["content-disposition"];
-      let fileName = `Pickelbay ${tournamentName}.xlsx`;
+      let fileName = `${tournamentName}.xlsx`;
       if (contentDisposition) {
         const fileNameMatch = contentDisposition.match(
           /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/

@@ -391,7 +391,6 @@ const TournamentActionButton = ({
             className="bg-blue-400 flex w-46 items-center justify-center gap-2 px-4 py-2  text-customColor ml-auto rounded-[8px] hover:bg-[#1570EF] shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 "
             type="button"
             onClick={() => {
-              console.log("Tournament ID:", tournament);
               dispatch(
                 downloadSheetOfPlayers({
                   tournamentId: tournament._id.toString(),
