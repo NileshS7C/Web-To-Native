@@ -6,7 +6,7 @@ import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 import { showError } from "../../redux/Error/errorSlice";
 import { showSuccess } from "../../redux/Success/successSlice";
-import { resetArchiveState } from "../../redux/tournament/addTournament";
+import { resetArchiveState,resetDownloadState } from "../../redux/tournament/addTournament";
 import {
   resetConfirmationState,
   showConfirmation,
@@ -35,10 +35,19 @@ export const ArchiveButtons = (props) => {
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { singleTournamentOwner } = useOwnerDetailsContext();
-  const { pendingArchive, archived, archivedError, archivedErrorMessage } =
-    useSelector((state) => state.Tournament);
-  const { isConfirmed, type } = useSelector((state) => state.confirm);
+  const {
+    pendingArchive,
+    archived,
+    archivedError,
+    archivedErrorMessage,
+    pendingDownload,
+    downloadError,
+    downloadErrorMessage,
+    sheetDownload
+  } = useSelector((state) => state.Tournament);
 
+  const { isConfirmed, type } = useSelector((state) => state.confirm);
+  
   useEffect(() => {
     if (archivedError) {
       dispatch(
@@ -72,7 +81,40 @@ export const ArchiveButtons = (props) => {
 
       dispatch(resetArchiveState());
     }
-  }, [archivedError, archived, error]);
+    if (downloadError) {
+      dispatch(
+        showError({
+          message:
+            downloadErrorMessage ||
+            "Something went wrong while archiving the tournament. Please try again later.",
+          onClose: "hideError",
+        })
+      );
+      dispatch(resetConfirmationState());
+      dispatch(resetDownloadState());
+    }
+
+    if (error) {
+      dispatch(
+        showError({
+          message: errorMessage,
+          onClose: "hideError",
+        })
+      );
+    }
+
+    if (sheetDownload) {
+      dispatch(
+        showSuccess({
+          message: "Excel sheet downloaded successfully",
+          onClose: "hideSuccess",
+        })
+      );
+
+      dispatch(resetDownloadState());
+    }
+  }, [archivedError, archived, error,downloadError,pendingDownload]);
+  
 
   useEffect(() => {
     const publishTournamet = async (data) => {
