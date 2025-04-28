@@ -34,7 +34,7 @@ import EventInfo from "./Event/EventInfo";
 import { TournamentInfo } from "./TournamentInfo";
 
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
-
+import { ADMIN_ROLES,TOURNAMENT_OWNER_ROLES } from "../../Constant/Roles";
 const TournamentCreationForm = () => {
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
@@ -61,7 +61,8 @@ const TournamentCreationForm = () => {
   const [cookies] = useCookies(["name", "userRole"]);
   const { userRole: role } = useSelector((state) => state.auth);
   const isAddInThePath = window.location.pathname.includes("/add");
-
+  
+  
   useEffect(() => {
     const isDisable = shouldBeDisable(
       tournament?.status,
@@ -71,7 +72,6 @@ const TournamentCreationForm = () => {
       cookies?.userRole || role,
       tournament?._id
     );
-
     dispatch(setIsEditable(isDisable));
 
     if (tournament?.status === "DRAFT" && tournamentId) {
@@ -85,9 +85,9 @@ const TournamentCreationForm = () => {
     tournamentEditMode,
     isAddInThePath,
     cookies?.userRole,
-    tournament?._id,
+    tournament?._id
   ]);
-
+  
   useEffect(() => {
     if (tournamentId && singleTournamentOwner) {
       dispatch(
@@ -187,7 +187,7 @@ const TournamentCreationForm = () => {
       dispatch(resetEditMode());
     };
   }, []);
-
+ 
   return (
     <div>
       {tournament?.status === "REJECTED" && tournamentId && (
@@ -243,11 +243,16 @@ const TournamentCreationForm = () => {
             tournament={tournament}
             status={tournament?.status}
             isDisable={isNotEditable}
+            disabled={!isNotEditable}
           />
         )}
-        {currentStep === "event" && <EventInfo isDisable={isNotEditable} />}
+        {currentStep === "event" && <EventInfo disabled={!isNotEditable} />}
         {currentStep === "acknowledgement" && (
-          <AcknowledgementText ownerUserId={tournament?.ownerUserId} />
+          <AcknowledgementText
+            ownerUserId={tournament?.ownerUserId}
+            acknowledgement={tournament?.acknowledgment || false}
+            disabled={!isNotEditable}
+          />
         )}
         <EventCreationModal />
       </div>
