@@ -39,6 +39,7 @@ import {
   addTournamentStepOne,
   getAll_TO,
   getAllUniqueTags,
+  getSingleTournament,
 } from "../../redux/tournament/tournamentActions";
 import { userLogout } from "../../redux/Authentication/authActions";
 import { showError } from "../../redux/Error/errorSlice";
@@ -58,7 +59,7 @@ import { useFormikContextFunction } from "../../Providers/formikContext";
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 import { MdDeleteOutline } from "react-icons/md";
-import { ADMIN_ROLES,TOURNAMENT_OWNER_ROLES } from "../../Constant/Roles";
+import { ADMIN_ROLES, TOURNAMENT_OWNER_ROLES } from "../../Constant/Roles";
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -147,7 +148,7 @@ const initialValues = {
   whatToExpect: [{ title: "", description: "" }],
 };
 
-export const TournamentInfo = ({ tournament, status, isDisable ,disabled}) => {
+export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
   const validationSchema = yup.object({
     ownerUserId: yup.string().required("Name is required"),
     tournamentName: yup.string().required("Please provide a tournament name."),
@@ -306,7 +307,7 @@ export const TournamentInfo = ({ tournament, status, isDisable ,disabled}) => {
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
 
-  const { userRole:role,userInfo } = useSelector((state) => state.auth);
+  const { userRole: role, userInfo } = useSelector((state) => state.auth);
 
   const { isSuccess, isGettingTournament } = useSelector(
     (state) => state.GET_TOUR
@@ -314,7 +315,7 @@ export const TournamentInfo = ({ tournament, status, isDisable ,disabled}) => {
 
   const currentPage = 1;
   const limit = 100;
-  
+
   useEffect(() => {
     const userRole = cookies?.userRole || role;
     if (!userRole) {
@@ -365,6 +366,7 @@ export const TournamentInfo = ({ tournament, status, isDisable ,disabled}) => {
 
       if (!result.responseCode && isAddInThePath) {
         dispatch(setFormOpen("event"));
+        dispatch(getSingleTournament({ tournamentId, ownerId: user.id }));
         navigate(`/tournaments/${result?.data?.tournament._id}/add`);
         resetForm();
       }
@@ -385,7 +387,9 @@ export const TournamentInfo = ({ tournament, status, isDisable ,disabled}) => {
   useEffect(() => {
     if (isSuccess && tournamentId && Object.keys(tournament).length > 0) {
       const updatedTournament = requiredTournamentFields(tournament);
-      const owner = rolesWithTournamentOwnerAccess.includes(cookies?.userRole || role)
+      const owner = rolesWithTournamentOwnerAccess.includes(
+        cookies?.userRole || role
+      )
         ? tournamentOwners?.owners?.find(
             (owner) => owner.id === updatedTournament.ownerUserId
           ) ?? null
@@ -417,7 +421,7 @@ export const TournamentInfo = ({ tournament, status, isDisable ,disabled}) => {
       </div>
     );
   }
-  
+
   return (
     <Formik
       enableReinitialize
@@ -452,27 +456,17 @@ export const TournamentInfo = ({ tournament, status, isDisable ,disabled}) => {
                   disabled={disabled}
                 />
                 <TournamentAddress location={location} disabled={disabled} />
-                <TournamentDescription
-                  disabled={disabled}
-                />
-                <TournamentPrerequisite
-                  disabled={disabled}
-                />
-                <TournamentInstagramHandle
-                  disabled={disabled}
-                />
-                <TournamentWhatToExpect
-                  disabled={disabled}
-                />
+                <TournamentDescription disabled={disabled} />
+                <TournamentPrerequisite disabled={disabled} />
+                <TournamentInstagramHandle disabled={disabled} />
+                <TournamentWhatToExpect disabled={disabled} />
                 <TournamentDates disabled={disabled} />
                 <TournamentFileUpload
                   dispatch={dispatch}
                   tournamentId={tournamentId}
                   disabled={disabled}
                 />
-                <TournamentSponserTable
-                  disabled={disabled}
-                />
+                <TournamentSponserTable disabled={disabled} />
                 <TournamentBookingDates disabled={disabled} />
                 <TournamentGallery
                   dispatch={dispatch}
@@ -505,7 +499,7 @@ const TournamentBasicInfo = ({
   isGettingALLTO,
   hasError,
   tournamentId,
-  disabled
+  disabled,
 }) => {
   const { setFieldError, values, setFieldValue } = useFormikContext();
   const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
@@ -594,7 +588,7 @@ const TournamentMetaData = ({
   uniqueTags,
   selectedTags,
   tournamentId,
-  disabled
+  disabled,
 }) => {
   const [tournamentHandle, setTournamentVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
@@ -667,7 +661,7 @@ const TournamentMetaData = ({
     </div>
   );
 };
-const TournamentAddress = ({ location ,disabled}) => {
+const TournamentAddress = ({ location, disabled }) => {
   const { setFieldValue } = useFormikContext();
 
   useEffect(() => {
@@ -913,14 +907,14 @@ const TournamentWhatToExpect = ({ disabled }) => {
     <div className="grid grid-cols-1 gap-4">
       <div className="flex justify-between items-center">
         <p className="text-base leading-[19.36px]">What to Expect</p>
-          <button
-            type="button"
-            onClick={handleAddRow}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-            disabled={disabled}
-          >
-            Add New
-          </button>
+        <button
+          type="button"
+          onClick={handleAddRow}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          disabled={disabled}
+        >
+          Add New
+        </button>
       </div>
 
       <div className="overflow-x-auto rounded-md">
@@ -981,7 +975,7 @@ const TournamentWhatToExpect = ({ disabled }) => {
   );
 };
 
-const TournamentFileUpload = ({ dispatch,tournamentId ,disabled}) => {
+const TournamentFileUpload = ({ dispatch, tournamentId, disabled }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
 
   return (
@@ -1012,12 +1006,12 @@ const DesktopBannerImageUpload = ({
   setFieldError,
   dispatch,
   tournamentId,
-  disabled
+  disabled,
 }) => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
- 
+
   useEffect(() => {
     const previewImages = values?.bannerDesktopImages?.length
       ? [{ preview: values.bannerDesktopImages }]
@@ -1084,10 +1078,9 @@ const DesktopBannerImageUpload = ({
               <IoMdTrash
                 className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
                 onClick={() => {
-                  if(!disabled){
-                        handleRemoveImageDesk(previews[0]?.preview);
+                  if (!disabled) {
+                    handleRemoveImageDesk(previews[0]?.preview);
                   }
-                  
                 }}
               />
             )}
@@ -1115,8 +1108,7 @@ const DesktopBannerImageUpload = ({
                   name="bannerDesktopImages"
                   onChange={(e) => {
                     handleFileUploadDesk(e);
-                   }
-                  }
+                  }}
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
@@ -1140,9 +1132,11 @@ const MobileBannerImageUpload = ({
   setFieldError,
   dispatch,
   tournamentId,
-  disabled
+  disabled,
 }) => {
-  const tournamentEditMode = useSelector((state) => state.GET_TOUR.tournamentEditMode);
+  const tournamentEditMode = useSelector(
+    (state) => state.GET_TOUR.tournamentEditMode
+  );
   const isDisabled = tournamentId ? !tournamentEditMode : false;
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -1211,9 +1205,9 @@ const MobileBannerImageUpload = ({
               <IoMdTrash
                 className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
                 onClick={() => {
-                   if(!disabled){
+                  if (!disabled) {
                     handleRemoveImageDesk(previews[0]?.preview);
-                   }
+                  }
                 }}
               />
             )}
@@ -1239,12 +1233,12 @@ const MobileBannerImageUpload = ({
                   id="bannerMobileImages"
                   name="bannerMobileImages"
                   onChange={(e) => {
-                      handleFileUploadMob(e);
+                    handleFileUploadMob(e);
                   }}
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                   disabled={disabled}
+                  disabled={disabled}
                 />
               )}
             </Field>
@@ -1418,8 +1412,8 @@ const TournamentSponserTable = ({ disabled }) => {
                     <input
                       id="sponserImage"
                       name="sponserImage"
-                      onChange={(e) =>{
-                           handleFileUpload(e);
+                      onChange={(e) => {
+                        handleFileUpload(e);
                       }}
                       value=""
                       type="file"
@@ -1466,7 +1460,7 @@ const TournamentSponserTable = ({ disabled }) => {
   );
 };
 
-const TournamentDates = ({disabled}) => {
+const TournamentDates = ({ disabled }) => {
   const [showStartDate, setShowStartDate] = useState(false);
   const toggleDates = () => {
     setShowStartDate(true);
@@ -1547,7 +1541,7 @@ const TournamentDates = ({disabled}) => {
   );
 };
 
-const TournamentBookingDates = ({disabled}) => {
+const TournamentBookingDates = ({ disabled }) => {
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5 w-full">
@@ -1630,10 +1624,12 @@ const TournamentBookingDates = ({disabled}) => {
   );
 };
 
-const TournamentGallery = ({ dispatch ,tournamentId,disabled}) => {
+const TournamentGallery = ({ dispatch, tournamentId, disabled }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
-  const tournamentEditMode = useSelector((state) => state.GET_TOUR.tournamentEditMode);
+  const tournamentEditMode = useSelector(
+    (state) => state.GET_TOUR.tournamentEditMode
+  );
   useEffect(() => {
     const previewImages = values?.tournamentGallery?.length
       ? values.tournamentGallery.map((url) => ({
@@ -1710,9 +1706,9 @@ const TournamentGallery = ({ dispatch ,tournamentId,disabled}) => {
                 <IoIosCloseCircleOutline
                   className="absolute right-0 w-6 h-6 z-100 text-black  cursor-pointer "
                   onClick={() => {
-                     if(!disabled){
-                       handleRemoveImage(index);
-                     }
+                    if (!disabled) {
+                      handleRemoveImage(index);
+                    }
                   }}
                 />
               )}
@@ -1738,7 +1734,7 @@ const TournamentGallery = ({ dispatch ,tournamentId,disabled}) => {
                   id="tournamentGallery"
                   name="tournamentGallery"
                   onChange={(e) => {
-                     handleFileUpload(e);
+                    handleFileUpload(e);
                   }}
                   value=""
                   type="file"
@@ -1758,7 +1754,7 @@ const TournamentGallery = ({ dispatch ,tournamentId,disabled}) => {
 
 TournamentGallery.propTypes = {
   dispatch: PropTypes.func,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 };
 
 TournamentBasicInfo.propTypes = {
@@ -1774,7 +1770,7 @@ TournamentMetaData.propTypes = {
   isGettingTags: PropTypes.bool,
   uniqueTags: PropTypes.array,
   selectedTags: PropTypes.array,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 };
 
 TournamentFileUpload.propTypes = {
