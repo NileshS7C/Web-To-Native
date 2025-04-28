@@ -4,6 +4,7 @@ import { stepReducer } from "../../../redux/tournament/addTournament";
 import {
   toggleModal,
   resetAllCategories,
+  resetCurrentPage
 } from "../../../redux/tournament/eventSlice";
 import { searchIcon } from "../../../Assests";
 import Button from "../../Common/Button";
@@ -12,7 +13,6 @@ import { useEffect } from "react";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
 import { getAllCategories } from "../../../redux/tournament/tournamentActions";
 import { useParams } from "react-router-dom";
-
 function EventInfo({ disabled }) {
   const dispatch = useDispatch();
   const { currentStep } = useSelector((state) => state.Tournament);
@@ -33,6 +33,11 @@ function EventInfo({ disabled }) {
   useEffect(() => {
     dispatch(resetGlobalLocation());
   }, []);
+  useEffect(()=>{
+    return ()=>{
+       dispatch(resetCurrentPage());
+    }
+  },[])
   return (
     <div className="grid grid-cols-1 gap-[50px] pb-20">
       <div className="flex items-center">
