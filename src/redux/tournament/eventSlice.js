@@ -33,7 +33,7 @@ const eventSlice = createSlice({
       state.showConfirmBookingModal = !state.showConfirmBookingModal;
     },
     onPageChangeEvent(state, { payload }) {
-      state.currentPage = payload;
+      state.currentPage = Number(payload);
     },
 
     setEventId(state, { payload }) {
@@ -61,8 +61,8 @@ const eventSlice = createSlice({
       .addCase(getAllCategories.fulfilled, (state, { payload }) => {
         state.isLoading = false;
         state.hasError = false;
-        state.categories = payload.data.categories;
-        state.totalCategories = payload.total;
+        state.categories = payload?.data?.categories || [];
+        state.totalCategories = payload?.data?.total || 0;
       })
       .addCase(getAllCategories.rejected, (state) => {
         state.hasError = true;
