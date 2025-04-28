@@ -249,7 +249,6 @@ const TournamentCreationForm = () => {
         {currentStep === "acknowledgement" && (
           <AcknowledgementText
             ownerUserId={tournament?.ownerUserId}
-            acknowledgement={tournament?.acknowledgment || false}
             disabled={!isNotEditable}
           />
         )}
