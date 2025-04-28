@@ -24,7 +24,7 @@ function EventInfo({ disabled }) {
     dispatch(
       getAllCategories({
         currentPage,
-        limit: 100,
+        limit: 10,
         id: tournamentId,
       })
     );
