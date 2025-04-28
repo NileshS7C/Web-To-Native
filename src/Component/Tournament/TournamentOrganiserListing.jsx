@@ -196,6 +196,7 @@ export const TournamentOrganisersListing = ({
               brandName: filteredOwner?.brandName || "",
               brandEmail: filteredOwner?.brandEmail || "",
               brandPhone: filteredOwner?.brandPhone || "",
+              brandLogoImage: filteredOwner?.brandLogoImage || "", // Add this line to include the image URL
               address: {
                 line1: owner?.address?.line1 || "",
                 line2: owner?.address?.line2 || "",

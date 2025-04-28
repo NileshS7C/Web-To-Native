@@ -9,7 +9,7 @@ import {
 } from "../../../redux/tournament/eventSlice";
 import {
   onCancel,
-  onCofirm,
+  onConfirm,
 } from "../../../redux/Confirmation/confirmationSlice";
 import ErrorBanner from "../../Common/ErrorBanner";
 import Spinner from "../../Common/Spinner";
@@ -92,7 +92,7 @@ function EventRegistrations({ tournament }) {
         isOpen={isOpen}
         onCancel={onCancel}
         onClose={onClose}
-        onConfirm={onCofirm}
+        onConfirm={onConfirm}
         isLoading={false}
         message={message}
         withComments={actionType === "cancel"}

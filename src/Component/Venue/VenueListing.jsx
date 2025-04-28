@@ -1,6 +1,14 @@
 import FilterGroup from "../Common/FilterGroup";
-import { getAllVenues, deleteVenue,getSearchVenues } from "../../redux/Venue/venueActions";
-import { checkVenue, onPageChange, onFilterChange } from "../../redux/Venue/getVenues";
+import {
+  getAllVenues,
+  deleteVenue,
+  getSearchVenues,
+} from "../../redux/Venue/venueActions";
+import {
+  checkVenue,
+  onPageChange,
+  onFilterChange,
+} from "../../redux/Venue/getVenues";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { tableHeaders, venueFilters, venueLimit } from "../../Constant/venue";
@@ -8,7 +16,10 @@ import { tableHeaders, venueFilters, venueLimit } from "../../Constant/venue";
 import DataTable from "../Common/DataTable";
 import { ConfirmationModal } from "../Common/ConfirmationModal";
 import { useSearchParams } from "react-router-dom";
-import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
+import {
+  onCancel,
+  onConfirm,
+} from "../../redux/Confirmation/confirmationSlice";
 import { SuccessModal } from "../Common/SuccessModal";
 import { cleanUpSuccess, showSuccess } from "../../redux/Success/successSlice";
 import { ErrorModal } from "../Common/ErrorModal";
@@ -50,7 +61,7 @@ const SearchVenue = ({
           currentPage,
           selectedFilter,
           limit,
-          name: debouncedValue
+          name: debouncedValue,
         })
       );
     }
@@ -109,10 +120,22 @@ export default function VenueListing() {
   useEffect(() => {
     if (!venueName) {
       dispatch(
-        getAllVenues({ currentPage, selectedFilter, limit: venueLimit, city: selectedCity })
+        getAllVenues({
+          currentPage,
+          selectedFilter,
+          limit: venueLimit,
+          city: selectedCity,
+        })
       );
     }
-  }, [currentPage, selectedFilter, isDeleted, isSuccess, venueName, selectedCity]);
+  }, [
+    currentPage,
+    selectedFilter,
+    isDeleted,
+    isSuccess,
+    venueName,
+    selectedCity,
+  ]);
 
   useEffect(() => {
     if (isDeleted) {
@@ -141,7 +164,12 @@ export default function VenueListing() {
     }
   }, [isDeleted, isError]);
 
-  if (venues?.length === 0 && selectedFilter === "all" && !venueName && !selectedCity) {
+  if (
+    venues?.length === 0 &&
+    selectedFilter === "all" &&
+    !venueName &&
+    !selectedCity
+  ) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <NotCreated
@@ -179,18 +207,22 @@ export default function VenueListing() {
           onChange={(value) => dispatch(onFilterChange(value))}
           defaultValue="draft"
         />
-
       </div>
       <div className="ml-auto">
         <FilterPlayer
           label="City"
-          options={["Noida", "New Delhi", "Mumbai", "Kolkata", "Ahmedabad", "Hyderabad"]}
+          options={[
+            "Noida",
+            "New Delhi",
+            "Mumbai",
+            "Kolkata",
+            "Ahmedabad",
+            "Hyderabad",
+          ]}
           selectedValue={selectedCity}
           onChange={(value) => setSelectedCity(value)}
         />
       </div>
-
-
 
       {isLoading ? (
         <div className="flex items-center justify-center h-full w-full">
@@ -202,7 +234,7 @@ export default function VenueListing() {
             isOpen={isOpen}
             onCancel={onCancel}
             onClose={onClose}
-            onConfirm={onCofirm}
+            onConfirm={onConfirm}
             isLoading={isDeleting}
             message={message}
           />

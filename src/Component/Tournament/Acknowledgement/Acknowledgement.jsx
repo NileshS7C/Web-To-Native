@@ -12,7 +12,7 @@ import { ConfirmationModalTour } from "../ConfimTournament";
 import { TournamentSuccessPopUp } from "../SuccessPopUp";
 import { ErrorModal } from "../../Common/ErrorModal";
 
-export const AcknowledgementText = ({ ownerUserId }) => {
+export const AcknowledgementText = ({ ownerUserId, disabled }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState({
@@ -21,7 +21,7 @@ export const AcknowledgementText = ({ ownerUserId }) => {
     ownerUserId: "",
     acknowledgment: false,
   });
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState( false);
   const [isOpen, setIsOpen] = useState(false);
   const [showSuccessPop, setShowSuccessPop] = useState(false);
   const { isConfirmed } = useSelector((state) => state.Tournament);
@@ -97,6 +97,7 @@ export const AcknowledgementText = ({ ownerUserId }) => {
               acknowledgment: e.target.checked,
             }));
           }}
+          disabled={disabled}
         />
         <label
           htmlFor="Acknow"
@@ -124,7 +125,7 @@ export const AcknowledgementText = ({ ownerUserId }) => {
         className="text-[18px] font-[500]  text-[#FFFFFF] leading-[21.78px] w-[190px] h-[50px] rounded-[10px] bg-[#1570EF] ml-auto"
         type="button"
         onClick={handleClick}
-        disabled={!initialValues.acknowledgment}
+        disabled={disabled}
       >
         Submit for Review
       </Button>

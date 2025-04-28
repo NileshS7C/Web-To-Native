@@ -17,11 +17,9 @@ const DataTable = ({
   onClick = null,
   onDelete = null,
   rowTextAlignment = "left",
-
   pageLimit = 10,
-
   rowsInOnePage,
-
+  hasLink = true,
 }) => {
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
@@ -71,7 +69,13 @@ const DataTable = ({
                       <div className="md:hidden flex flex-col bg-white rounded-xl">
                         {columns.map((column, colIndex) => {
                           const cellContent = column.render
-                            ? column.render(item, index, currentPage, onClick, onDelete)
+                            ? column.render(
+                                item,
+                                index,
+                                currentPage,
+                                onClick,
+                                onDelete
+                              )
                             : item?.[column.key];
                           return (
                             <div
@@ -98,7 +102,13 @@ const DataTable = ({
                       </div>
                       {columns.map((column, colIndex) => {
                         const cellContent = column.render
-                          ? column.render(item, index, currentPage, onClick, onDelete)
+                          ? column.render(
+                              item,
+                              index,
+                              currentPage,
+                              onClick,
+                              onDelete
+                            )
                           : item?.[column.key];
 
                         return (
@@ -138,11 +148,9 @@ const DataTable = ({
           currentPage={currentPage}
           total={totalPages}
           onPageChange={onPageChange}
-          hasLink={true}
+          hasLink={hasLink}
           pathName={pathName}
-
           rowsInOnePage={pageLimit}
-
         />
       )}
     </div>
