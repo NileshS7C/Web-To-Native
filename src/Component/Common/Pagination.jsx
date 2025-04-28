@@ -112,6 +112,7 @@ export const Pagination = ({
                 onClick={() => {
                   if (page !== "...") {
                     dispatch(onPageChange(page));
+                 
                   }
                 }}
                 className={`inline-flex items-center border-t-2 px-2 md:px-4 pt-4 text-sm font-medium ${

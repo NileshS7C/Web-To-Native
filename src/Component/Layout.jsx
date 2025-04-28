@@ -30,7 +30,7 @@ import { deleteVenue } from "../redux/Venue/venueActions";
 import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
 import { resetEditMode } from "../redux/tournament/getTournament";
-
+import { downloadSheetOfPlayers } from "../redux/tournament/tournamentActions";
 const hiddenRoutes = [
   "/cms/homepage/featured-tournaments",
   "/cms/homepage/featured-venues",
@@ -56,7 +56,7 @@ const hiddenRoutes = [
   "/cms/tourism-page/media-gallery",
   ...aboutUsPageRoutes,
 ];
-
+import { BsDownload } from "react-icons/bs";
 const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -97,7 +97,7 @@ const Layout = () => {
   }, [navRef]);
 
   const isTournament = window.location.pathname.includes("/tournaments");
-
+  const isVenue =window.location.pathname.includes("/venues");
   const currentTitle = getPageTitle(location.pathname,{ tournamentId },{ venue, tournament, category });
 
   useEffect(() => {
@@ -136,7 +136,6 @@ const Layout = () => {
   const shouldHideTitleBar =
     hiddenRoutes.includes(location.pathname) ||
     location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
-
   return (
     <div className="flex flex-col h-screen">
       <Header />
@@ -232,8 +231,8 @@ const Layout = () => {
                   <UploadImageButton dispatch={dispatch} />
                 )}
 
-                {(currentTitle.startsWith("Venue Details") ||
-                  currentTitle.startsWith("Edit")) && (
+                {((currentTitle.startsWith("Venue Details") ||
+                  currentTitle.startsWith("Edit")) && isVenue )&& (
                     <VenueActionButtonWrapper
                       dispatch={dispatch}
                       navigate={navigate}
@@ -311,8 +310,14 @@ const TournamentActionButton = ({
               type="button"
               onClick={() => dispatch(setTournamentEditMode())}
               disabled={
-                !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
-                tournament?.status !== "REJECTED"
+                (!["ADMIN", "SUPER_ADMIN", "TOURNAMENT_OWNER"].includes(
+                  userRole
+                ) &&
+                  tournament?.status !== "REJECTED") ||
+                (userRole === "TOURNAMENT_OWNER" &&
+                  ["PENDING_VERIFICATION", "PUBLISHED"].includes(
+                    tournament?.status
+                  ))
               }
             >
               <span>Edit Tournament</span>
@@ -331,7 +336,8 @@ const TournamentActionButton = ({
           ))}
         {ROLES.slice(0, 2).includes(userRole) &&
           tournament?.status &&
-          tournament?.status !== "ARCHIVED" && (
+          tournament?.status !== "ARCHIVED" &&
+          tournament?.status !== "REJECTED" && (
             <div className="flex items-center gap-2">
               <Button
                 className={`${
@@ -377,6 +383,27 @@ const TournamentActionButton = ({
       <div>
         <ArchiveButtons tournament={tournament} dispatch={dispatch} />
       </div>
+      {ROLES.slice(0, 3).includes(userRole) &&
+        tournament?.status &&
+        ["ARCHIVED", "PUBLISHED"].includes(tournament?.status) && (
+          <Button
+            className="bg-blue-400 flex w-46 items-center justify-center gap-2 px-4 py-2  text-customColor ml-auto rounded-[8px] hover:bg-[#1570EF] shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 "
+            type="button"
+            onClick={() => {
+              dispatch(
+                downloadSheetOfPlayers({
+                  tournamentId: tournament._id.toString(),
+                  ownerId: tournament?.ownerUserId?.toString(),
+                  userRole,
+                  tournamentName:tournament?.tournamentName || "Tournament-Bookings"
+                })
+              );
+            }}
+          >
+            <BsDownload />
+            Download Sheet
+          </Button>
+        )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { backButtonRoutes } from "../Constant/routes";
-
+import { ADMIN_ROLES,TOURNAMENT_OWNER_ROLES } from "../Constant/Roles";
 const findFormatName = (tournamentEvent, item) => {
   return tournamentEvent.format.find(
     (event) => event.shortName === item?.format
@@ -14,18 +14,30 @@ const shouldBeDisable = (
   role,
   editTournamentId
 ) => {
-  const isStatusEligible = status === "DARFT" || status === "REJECTED";
-
   if (!role) {
     return false;
   }
   if (addPath) {
     return true;
   }
-  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+  if (
+    (ADMIN_ROLES.includes(role) || TOURNAMENT_OWNER_ROLES.includes(role)) &&
+    status === "DRAFT"
+  ) {
+    return true;
+  } else if (
+    ADMIN_ROLES.includes(role) ||
+    (TOURNAMENT_OWNER_ROLES.includes(role) &&
+      ["REJECTED", "ARCHIVED"].includes(status || ""))
+  ) {
     return editClicked;
+  } else if (
+    TOURNAMENT_OWNER_ROLES.includes(role) &&
+    ["PENDING_VERIFICATION", "PUBLISHED"].includes(status || "")
+  ) {
+    return false;
   } else {
-    return id && editClicked && isStatusEligible;
+    return false;
   }
 };
 
