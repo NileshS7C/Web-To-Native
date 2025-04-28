@@ -12,16 +12,16 @@ import { ConfirmationModalTour } from "../ConfimTournament";
 import { TournamentSuccessPopUp } from "../SuccessPopUp";
 import { ErrorModal } from "../../Common/ErrorModal";
 
-export const AcknowledgementText = ({ ownerUserId, acknowledgement,disabled }) => {
+export const AcknowledgementText = ({ ownerUserId, disabled }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState({
     step: 2,
     tournamentId: "",
     ownerUserId: "",
-    acknowledgment: acknowledgement || false,
+    acknowledgment: false,
   });
-  const [isChecked, setIsChecked] = useState(acknowledgement || false);
+  const [isChecked, setIsChecked] = useState( false);
   const [isOpen, setIsOpen] = useState(false);
   const [showSuccessPop, setShowSuccessPop] = useState(false);
   const { isConfirmed } = useSelector((state) => state.Tournament);
