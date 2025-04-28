@@ -97,7 +97,7 @@ const Layout = () => {
   }, [navRef]);
 
   const isTournament = window.location.pathname.includes("/tournaments");
-
+  const isVenue =window.location.pathname.includes("/venues");
   const currentTitle = getPageTitle(location.pathname,{ tournamentId },{ venue, tournament, category });
 
   useEffect(() => {
@@ -136,7 +136,6 @@ const Layout = () => {
   const shouldHideTitleBar =
     hiddenRoutes.includes(location.pathname) ||
     location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
-
   return (
     <div className="flex flex-col h-screen">
       <Header />
@@ -232,8 +231,8 @@ const Layout = () => {
                   <UploadImageButton dispatch={dispatch} />
                 )}
 
-                {(currentTitle.startsWith("Venue Details") ||
-                  currentTitle.startsWith("Edit")) && (
+                {((currentTitle.startsWith("Venue Details") ||
+                  currentTitle.startsWith("Edit")) && isVenue )&& (
                     <VenueActionButtonWrapper
                       dispatch={dispatch}
                       navigate={navigate}
