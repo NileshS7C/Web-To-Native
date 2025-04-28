@@ -34,7 +34,6 @@ import EventInfo from "./Event/EventInfo";
 import { TournamentInfo } from "./TournamentInfo";
 
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
-import { ADMIN_ROLES,TOURNAMENT_OWNER_ROLES } from "../../Constant/Roles";
 const TournamentCreationForm = () => {
   const dispatch = useDispatch();
   const { tournamentId } = useParams();

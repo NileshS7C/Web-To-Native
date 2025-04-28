@@ -1017,8 +1017,7 @@ const DesktopBannerImageUpload = ({
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
-
-  const tournamentEditMode = useSelector((state) => state.GET_TOUR.tournamentEditMode);
+ 
   useEffect(() => {
     const previewImages = values?.bannerDesktopImages?.length
       ? [{ preview: values.bannerDesktopImages }]
@@ -1032,6 +1031,7 @@ const DesktopBannerImageUpload = ({
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
+    setFieldValue("bannerDesktopImages", []);
   };
 
   const handleFileUploadDesk = async (e) => {
@@ -1161,6 +1161,7 @@ const MobileBannerImageUpload = ({
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
+    setFieldValue("bannerMobileImages", []);
   };
 
   const handleFileUploadMob = async (e) => {
