@@ -13,7 +13,7 @@ import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
 import { getAllCategories } from "../../../redux/tournament/tournamentActions";
 import { useParams } from "react-router-dom";
 
-function EventInfo({ isDisable }) {
+function EventInfo({ disabled }) {
   const dispatch = useDispatch();
   const { currentStep } = useSelector((state) => state.Tournament);
   const { categories, currentPage } = useSelector((state) => state.event);
@@ -41,19 +41,19 @@ function EventInfo({ isDisable }) {
             <Button
               className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
               onClick={() => dispatch(toggleModal())}
-              disabled={!isDisable}
+              disabled={disabled}
             >
               Add New Event
             </Button>
           )}
         </div>
       </div>
-      <EventTable isDisable={isDisable} categories={categories} />
+      <EventTable isDisable={disabled} categories={categories} />
 
       <Button
         className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
         onClick={() => dispatch(stepReducer(currentStep))}
-        disabled={!isDisable}
+        disabled={disabled}
       >
         Save & Continue
       </Button>
@@ -78,7 +78,7 @@ const SearchEvents = () => {
 };
 
 EventInfo.propTypes = {
-  isDisable: PropTypes.bool,
+  disabled: PropTypes.bool
 };
 
 export default EventInfo;
