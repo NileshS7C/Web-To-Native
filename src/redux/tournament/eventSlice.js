@@ -32,10 +32,12 @@ const eventSlice = createSlice({
     toggleBookingModal(state) {
       state.showConfirmBookingModal = !state.showConfirmBookingModal;
     },
+    resetCurrentPage(state){
+         state.currentPage=1;
+    },
     onPageChangeEvent(state, { payload }) {
       state.currentPage = Number(payload);
     },
-
     setEventId(state, { payload }) {
       state.eventId = payload;
     },
@@ -97,6 +99,7 @@ export const {
   toggleBookingModal,
   resetAllCategories,
   setDeleteCategoryId,
+  resetCurrentPage,
 } = eventSlice.actions;
 
 export default eventSlice.reducer;
