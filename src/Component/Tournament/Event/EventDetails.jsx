@@ -10,6 +10,7 @@ import { TournamentFixture } from "../tournamentFixture";
 import { MatchesListing } from "../MatchListing";
 import { MatchStandings } from "../MatchStandings";
 import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
+import TournamentStandings from "../TournamentStandings";
 
 const options = (tournamentId, eventId) => {
   return [
@@ -107,7 +108,8 @@ function EventDetailPage() {
 
       {selectedTab === "matches" && <MatchesListing />}
       {selectedTab === "standing" && (
-        <MatchStandings tournamentId={tournamentId} eventId={eventId} />
+        // <MatchStandings tournamentId={tournamentId} eventId={eventId} />
+        <TournamentStandings tournamentId={tournamentId} categoryId={eventId}/>
       )}
     </div>
   );
