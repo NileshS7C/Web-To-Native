@@ -82,11 +82,12 @@ export const archiveTournament = createAsyncThunk(
         tournamentId,
         ownerId
       );
-      if(!userAPIEndPoint){
-        return rejectWithValue({
-          message:  "An unknown error occurred",
-        });
-      }
+     if (!userAPIEndPoint) {
+       return rejectWithValue({
+         message: "You do not have permission to access this resource",
+       });
+     }
+
       const config = {
         headers: {
           "Content-Type": "application/json",
