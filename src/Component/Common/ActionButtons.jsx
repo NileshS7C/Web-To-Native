@@ -22,7 +22,7 @@ export const ActionButtons = ({
 
       <PopoverPanel
         transition
-        className="absolute left-1/2 z-10 mt-1 flex w-screen max-w-max -translate-x-1/2 px-2  transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
+        className="absolute left-[-90%] md:left-[-90%] lg:left-1/2 z-10 mt-1 flex w-screen max-w-max -translate-x-1/2 px-2  transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
       >
         <div className="w-32 max-w-md flex-auto overflow-hidden rounded-2xl bg-white text-sm/6 shadow-lg ring-1 ring-gray-900/5">
           <div className="p-2">
