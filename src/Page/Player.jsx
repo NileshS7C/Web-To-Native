@@ -118,7 +118,7 @@ const Player = (props) => {
         onPageChange={handlePageChange}
         pathName="/players"
         evenRowColor="[#FFFFFF]"
-        oddRowColor="blue-400"
+        oddRowColor="blue-100"
         alternateRowColors={true}
         pageLimit={limit}
       />
