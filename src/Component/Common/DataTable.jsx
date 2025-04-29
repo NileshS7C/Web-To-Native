@@ -37,7 +37,7 @@ const DataTable = ({
                   <th
                     key={column.key || `column-${index}`}
                     scope="col"
-                    className={`py-3.5 text-${headerTextAlign} text-sm font-semibold text-[#667085] ${
+                    className={`py-3.5 text-center text-sm font-semibold text-[#667085] ${
                       column.key === "serialNumber"
                         ? "pl-4 pr-3 sm:pl-0"
                         : column.key === "playerActions"
@@ -116,7 +116,7 @@ const DataTable = ({
                             key={`${item?.id || item?._id || index}-${
                               column.key || colIndex
                             }`}
-                            className={`text-${rowTextAlignment} py-${rowPaddingY}  hidden md:table-cell ${
+                            className={`text-center py-${rowPaddingY}  hidden md:table-cell ${
                               column.key === "serialNumber"
                                 ? "text-[#2B2F38]"
                                 : "text-[#5D6679]"

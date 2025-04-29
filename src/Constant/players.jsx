@@ -2,14 +2,17 @@ const tableHeaders = [
     {
         key: 'S.No.',
         header: 'S. No.',
-        render: (item,i) => i+1
+        render: (item,i) => <div className="whitespace-nowrap min-w-[40px]">{i+1}</div>
     },
     {
         key: 'Date',
         header: 'Date',
         render: (item) => {
             const date = new Date(item.createdAt);
-            return <div className="whitespace-nowrap min-w-[80px]">{date.toISOString().split('T')[0]}</div>;
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return <div className="whitespace-nowrap min-w-[80px]">{`${day}-${month}-${year}`}</div>;
         }
     },
     {
@@ -30,7 +33,7 @@ const tableHeaders = [
     {
         key: "Email",
         header: "Email",
-        render: (item) => item.email
+        render: (item) => item.email?item.email:"Null"
     },
     {
         key: 'Skill Level',
@@ -40,12 +43,12 @@ const tableHeaders = [
     {
         key: 'Player-Gender',
         header: 'Gender',
-        render: (item) => item.gender
+        render: (item) => item.gender?item.gender:"Null"
     },
     {
         key: 'DOB',
         header: 'DOB',
-        render: (item) => item.dob
+        render: (item) => item.dob?item.dob:"Null"
     },
 ]
 

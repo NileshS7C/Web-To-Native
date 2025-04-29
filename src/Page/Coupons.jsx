@@ -158,6 +158,8 @@ const DiscountCoupons = ({
         oddRowColor="blue-100"
         alternateRowColors={true}
         pageLimit={limit}
+        headerTextAlign="center"
+        rowTextAlignment="center"
       />
     </div>
   );
