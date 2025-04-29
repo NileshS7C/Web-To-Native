@@ -38,12 +38,13 @@ export const API_END_POINTS = {
         }
       },
 
-      archiveTournament: (type, tour_Id) => {
+      archiveTournament: (type, tour_Id,ownerId) => {
         if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tour_Id}/archive`;
-        } else {
-          return `/users/tournament-owner/tournaments/${tour_Id}/archive`;
-        }
+        } else if (TOURNAMENT_OWNER_ROLES.includes(type)) {
+          return `/users/tournament-owner/tournaments/${tour_Id}/owner/${ownerId}/archive`;
+        } else 
+          return null;
       },
 
       verifyTournament: (tournamentId) => {
