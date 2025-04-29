@@ -7,7 +7,7 @@ const FilterPlayer = ({ label, options, selectedValue, onChange }) => {
     <div className="relative inline-block text-left">
       <button
         type="button"
-        className={`inline-flex justify-between w-16 md:w-32 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium text-gray-700 
+        className={`inline-flex justify-between md:w-32 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium text-gray-700 
             ${
               selectedValue
                 ? "bg-lime-500 border-lime-500"
