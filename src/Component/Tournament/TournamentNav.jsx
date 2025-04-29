@@ -60,8 +60,7 @@ const TournamentCreationForm = () => {
   const [cookies] = useCookies(["name", "userRole"]);
   const { userRole: role } = useSelector((state) => state.auth);
   const isAddInThePath = window.location.pathname.includes("/add");
-  
-  
+
   useEffect(() => {
     const isDisable = shouldBeDisable(
       tournament?.status,
@@ -84,9 +83,9 @@ const TournamentCreationForm = () => {
     tournamentEditMode,
     isAddInThePath,
     cookies?.userRole,
-    tournament?._id
+    tournament?._id,
   ]);
-  
+
   useEffect(() => {
     if (tournamentId && singleTournamentOwner) {
       dispatch(
@@ -113,6 +112,7 @@ const TournamentCreationForm = () => {
       dispatch(setApprovalBody(rejectionBody));
 
       dispatch(setRejectionComments(""));
+      dispatch(resetConfirmationState());
     }
   }, [isConfirmed, tournamentId]);
 
@@ -148,7 +148,7 @@ const TournamentCreationForm = () => {
           })
         );
         dispatch(resetVerificationState());
-      }, 300);
+      }, 500);
 
       dispatch(
         getSingleTournament({
@@ -186,7 +186,7 @@ const TournamentCreationForm = () => {
       dispatch(resetEditMode());
     };
   }, []);
- 
+
   return (
     <div>
       {tournament?.status === "REJECTED" && tournamentId && (
