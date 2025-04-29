@@ -1,9 +1,15 @@
 import axios from 'axios';
+import { Cookies } from "react-cookie";
+import { API_END_POINTS } from "../Constant/routes";
+
+const cookies = new Cookies();
 
 export const getFixtureId = async ({ tournamentId, categoryId }) => {
-  if( !tournamentId || !categoryId) return null;
+  if (!tournamentId || !categoryId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const ENDPOINT = `${baseURl}/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures`;
+  const userRole = cookies.get("userRole");
+  // Use API_END_POINTS to get the correct endpoint based on role
+  const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.POST.createFixture(userRole, tournamentId, categoryId)}`;
 
   let config = {
     method: "GET",
@@ -22,9 +28,11 @@ export const getFixtureId = async ({ tournamentId, categoryId }) => {
 }
 
 export const getTournamentStanding = async ({ tournamentId, categoryId, fixtureId }) => {
-  if( !tournamentId || !categoryId || !fixtureId) return null;
+  if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const ENDPOINT = `${baseURl}/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stage/0/standings`;
+  const userRole = cookies.get("userRole");
+  // Use API_END_POINTS to get the correct endpoint based on role
+  const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.GET.getMatchStandings(userRole, tournamentId, categoryId, fixtureId, 0)}`;
 
   let config = {
     method: "GET",

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import { useGetFixtureId, useGetTournamentStanding } from '../../Hooks/tournamentStandingHooks'
-import { nanoid } from '@reduxjs/toolkit'
 
 const TournamentStandings = ({ tournamentId, categoryId }) => {  
   const { data: fixtureID, isLoading: isFixtureLoading, isError: isFixtureError } = useGetFixtureId({ tournamentId, categoryId })
@@ -21,7 +20,7 @@ const TournamentStandings = ({ tournamentId, categoryId }) => {
   }
 
   if (isFixtureError) {
-    return <div>Error loading fixture ID.</div>
+    return <div>No fixture exists for this category</div>
   }
 
   if (isStandingError) {
