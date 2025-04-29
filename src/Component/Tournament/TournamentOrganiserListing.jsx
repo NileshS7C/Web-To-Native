@@ -116,7 +116,7 @@ export const TournamentOrganisersListing = ({
     email: yup.string().email().required("Organiser email is required."),
     phone: yup
       .string()
-      .matches(phoneRegex, "Invalid phone number.")
+      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits.")
       .required("Organiser phone is required."),
     password:
       !organiserId &&

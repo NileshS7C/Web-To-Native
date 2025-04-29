@@ -296,6 +296,12 @@ const OrganiserBasicDetails = () => {
 };
 
 const OrganiserPhoneAndPassword = () => {
+  const handlePhoneInput = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    const truncatedValue = value.slice(0, 10);
+    e.target.value = truncatedValue;
+  };
+
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
@@ -309,6 +315,8 @@ const OrganiserPhoneAndPassword = () => {
           placeholder="Enter Organiser Phone"
           id="phone"
           name="phone"
+          type="tel"
+          onInput={handlePhoneInput}
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <ErrorMessage name="phone" component={TextError} />
@@ -454,6 +462,12 @@ const BrandEmailAndPhone = ({
 };
 
 const BrandPhoneAndLocation = () => {
+  const handlePhoneInput = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    const truncatedValue = value.slice(0, 10);
+    e.target.value = truncatedValue;
+  };
+
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
@@ -467,6 +481,8 @@ const BrandPhoneAndLocation = () => {
           placeholder="Enter Brand Phone"
           id="ownerDetails.brandPhone"
           name="ownerDetails.brandPhone"
+          type="tel"
+          onInput={handlePhoneInput}
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <ErrorMessage name="ownerDetails.brandPhone" component={TextError} />
@@ -494,6 +510,13 @@ const BrandPhoneAndLocation = () => {
 
 const OrganiserAddress = ({ location }) => {
   const { setFieldValue } = useFormikContext();
+  
+  const handlePostalCodeInput = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    const truncatedValue = value.slice(0, 6);
+    e.target.value = truncatedValue;
+  };
+  
   useEffect(() => {
     if (location && (location.city || location.state)) {
       setFieldValue(
@@ -607,12 +630,14 @@ const OrganiserAddress = ({ location }) => {
             className="text-xs text-[#232323]"
             htmlFor="ownerDetails.address.postalCode"
           >
-            Pincode
+            Postal Code
           </label>
           <Field
             placeholder="Enter PostalCode"
             id="ownerDetails.address.postalCode"
             name="ownerDetails.address.postalCode"
+            type="tel"
+            onInput={handlePostalCodeInput}
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <ErrorMessage
