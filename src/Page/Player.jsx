@@ -152,17 +152,17 @@ const PlayersQueryTools = (props) => {
         currentPage={currentPage}
         limit={limit}
       />
-      <div className="flex items-baseline justify-between items-center gap-5 relative">
+      <div className="flex items-baseline justify-between items-center gap-4 relative z-0">
         <div>
           <p className="text-xs md:text-sm lg:text-base">
             Total Players : {totalPlayer}
           </p>
         </div>
-        <div className="flex justify-between items-center gap-2 max-w-full">
+        <div className="flex justify-between items-center gap-1 max-w-full">
           <p className="text-xs md:text-sm lg:text-base text-[#b8c8eb]">
             Filters:
           </p>
-          <div className="flex space-x-2 md:space-x-4 md:mb-4 min-w-max z-50">
+          <div className="flex space-x-2 md:space-x-4 min-w-max z-50">
             <FilterPlayer
               label="Gender"
               options={["Male", "Female", "Other"]}

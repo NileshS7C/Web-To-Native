@@ -66,7 +66,7 @@ const DataTable = ({
                       key={item?.id || item?._id || index}
                       className={`block text-sm text-[#667085] md:border-t-2 md:h-[55px] md:table-row md:shadow-none shadow-lg align-middle ${backgroundRowColor}`}
                     >
-                      <div className="md:hidden flex flex-col bg-white rounded-xl">
+                      <div className="md:hidden flex flex-col bg-white">
                         {columns.map((column, colIndex) => {
                           const cellContent = column.render
                             ? column.render(
