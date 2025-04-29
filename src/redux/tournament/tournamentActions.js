@@ -74,14 +74,20 @@ export const searchTournament = createAsyncThunk(
 
 export const archiveTournament = createAsyncThunk(
   "Tournament/archiveTournament",
-  async (tour_Id, { rejectWithValue }) => {
+  async ({ tournamentId, ownerId }, { rejectWithValue }) => {
     try {
       const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.POST.archiveTournament(
         userRole,
-        tour_Id
+        tournamentId,
+        ownerId
       );
+     if (!userAPIEndPoint) {
+       return rejectWithValue({
+         message: "You do not have permission to access this resource",
+       });
+     }
+
       const config = {
         headers: {
           "Content-Type": "application/json",

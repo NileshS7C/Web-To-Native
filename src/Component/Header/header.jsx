@@ -42,7 +42,7 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-between bg-[#FFFFFF]  py-[20px] px-[15px] md:px-[32px] sticky top-0">
+    <div className="flex items-center justify-between bg-[#FFFFFF]  py-[20px] px-[15px] md:px-[32px] sticky top-0 z-30">
       <div>
         <img src={pickleBayLogo} alt="pickle bay" />
       </div>
@@ -54,7 +54,7 @@ const Header = () => {
           </button>
           {isOpen && (
             <nav>
-              <ul className="absolute right-[-45px] md:right-[100%] bg-[#FFFFFF] shadow-lg rounded-lg py-[10px] top-[55px]">
+              <ul className="absolute right-[-45px] md:right-[100%] bg-[#FFFFFF] shadow-lg rounded-lg py-[10px] top-[55px] z-100">
                 {/* <li className="px-4 py-2 cursor-pointer hover:bg-slate-400">Profile</li>
                 <li className="px-4 py-2 cursor-pointer hover:bg-slate-400">Settings</li> */}
                 {userEmail && <li className="flex items-center gap-2 bg-[#F5F7FA] py-2 px-2">
