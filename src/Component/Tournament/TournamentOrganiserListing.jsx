@@ -245,17 +245,10 @@ export const TournamentOrganisersListing = ({
   
 
   useEffect(() => {
-    if (!openOrganiserModal) {
-      setSearchParams((prevParams) => {
-        const updatedParams = new URLSearchParams(prevParams);
-
-        updatedParams.delete("organiserId");
-
-        return updatedParams;
-      });
-      setInitialState({ ...initialValues });
+    if (!organiserId ) {     
+       setInitialState({ ...initialValues });
     }
-  }, [openOrganiserModal]);
+  }, [organiserId,openOrganiserModal]);
 
   if (error) {
     return (
