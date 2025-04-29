@@ -37,7 +37,6 @@ import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 const TournamentCreationForm = () => {
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
-
   const {
     currentStep,
     isNotEditable,
@@ -118,7 +117,7 @@ const TournamentCreationForm = () => {
 
   useEffect(() => {
     if (isConfirmed && tournament && type === "Archive") {
-      dispatch(archiveTournament(tournamentId));
+      dispatch(archiveTournament({tournamentId:tournamentId, ownerId:tournament?.ownerUserId}));
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed, tournamentId]);
