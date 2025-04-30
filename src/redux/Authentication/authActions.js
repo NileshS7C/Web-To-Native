@@ -2,18 +2,18 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
 import { Cookies } from "react-cookie";
 import axios from "axios";
+import { setUser, resetPlayer } from "./userInfoSlice";
 
 const cookies = new Cookies();
 
 export const userLogin = createAsyncThunk(
   "auth/login",
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue, dispatch }) => {
     try {
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
-
         withCredentials: true,
       };
 
@@ -29,6 +29,9 @@ export const userLogin = createAsyncThunk(
         sameSite: "strict",
         secure: true,
       });
+
+      // Save email in userInfo
+      dispatch(setUser({ user: response.data.data.user }));
 
       return response.data;
     } catch (err) {
@@ -70,7 +73,7 @@ export const refreshTokens = createAsyncThunk(
 
 export const userLogout = createAsyncThunk(
   "auth/logout",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, dispatch }) => {
     try {
       const config = {
         headers: {
@@ -84,6 +87,9 @@ export const userLogout = createAsyncThunk(
       );
 
       cookies.remove("userRole", { path: "/" });
+
+      // Remove email from userInfo
+      dispatch(resetPlayer());
 
       return true;
     } catch (err) {
