@@ -15,7 +15,8 @@ module.exports = {
         player_table: "#667085",
         matchTextColor: "#343C6A",
         matchModalTextColor: "#8D8D8D",
-        '1c0e0eb3': '#1C0E0EB3'
+        '1c0e0eb3': '#1C0E0EB3',
+        '19367F': '#19367F'
       },
       backgroundColor: {
         customColor: "#FFFFFF",
@@ -24,6 +25,7 @@ module.exports = {
         portrait: { raw: "(orientation: portrait)" },
         landscape: { raw: "(orientation: landscape)" },
         ipad_air: "820px",
+        tab:"920px"
       },
       animation: {
         spin: "spin 1s linear infinite",

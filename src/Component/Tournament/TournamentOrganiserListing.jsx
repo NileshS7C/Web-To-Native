@@ -116,7 +116,7 @@ export const TournamentOrganisersListing = ({
     email: yup.string().email().required("Organiser email is required."),
     phone: yup
       .string()
-      .matches(phoneRegex, "Invalid phone number.")
+      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits.")
       .required("Organiser phone is required."),
     password:
       !organiserId &&
@@ -196,6 +196,7 @@ export const TournamentOrganisersListing = ({
               brandName: filteredOwner?.brandName || "",
               brandEmail: filteredOwner?.brandEmail || "",
               brandPhone: filteredOwner?.brandPhone || "",
+              brandLogoImage: filteredOwner?.brandLogoImage || "", // Add this line to include the image URL
               address: {
                 line1: owner?.address?.line1 || "",
                 line2: owner?.address?.line2 || "",
@@ -244,17 +245,10 @@ export const TournamentOrganisersListing = ({
   
 
   useEffect(() => {
-    if (!openOrganiserModal) {
-      setSearchParams((prevParams) => {
-        const updatedParams = new URLSearchParams(prevParams);
-
-        updatedParams.delete("organiserId");
-
-        return updatedParams;
-      });
-      setInitialState({ ...initialValues });
+    if (!organiserId ) {     
+       setInitialState({ ...initialValues });
     }
-  }, [openOrganiserModal]);
+  }, [organiserId,openOrganiserModal]);
 
   if (error) {
     return (

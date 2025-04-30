@@ -10,13 +10,13 @@ const CoponsTable = ({
   onPageChange,
   className = "",
   pathName = "",
-  headerTextAlign = "left",
+  headerTextAlign = "center",
   rowPaddingY = 0,
   alternateRowColors = false,
   evenRowColor = "none",
   oddRowColor = "none",
   onClick = null,
-  rowTextAlignment = "left",
+  rowTextAlignment = "center",
   handleDelete, 
   onRowClick,
 
@@ -119,7 +119,7 @@ const CoponsTable = ({
                               column.key || colIndex
                             }`}
                             data-column={column.key}
-                            className={`text-${rowTextAlignment} py-${rowPaddingY}  hidden md:table-cell ${
+                            className={`text-${rowTextAlignment} py-${rowPaddingY} hidden md:table-cell ${
                               column.key === "serialNumber"
                                 ? "text-[#2B2F38]"
                                 : "text-[#5D6679]"

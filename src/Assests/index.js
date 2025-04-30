@@ -1,5 +1,5 @@
 export { default as notificationIcon } from "./Tournament/notification.svg";
-export { default as pickleBayLogo } from "./header/picklebay.svg";
+export { default as pickleBayLogo } from "./header/logo-light-mode.svg";
 export { default as downArrow } from "./Tournament/downArrow.svg";
 export { default as uploadIcon } from "./Tournament/upload.svg";
 export { default as imageUpload } from "./Tournament/imageUpload.svg";
@@ -31,16 +31,14 @@ export { default as dummyImage } from "./header/dummyPlayerImage.svg";
 export { default as backIcon } from "./Tournament/backIcon.svg";
 export { default as forwardIcon } from "./Tournament/forwardIcon.svg";
 export { default as cmsIcon } from "./header/cmsIcon.png";
-
 export { default as uploadedImageIcon } from "./Venue/uploaded-image-icon.png";
-
 export {default as PlayerIcon} from "./header/players.png"
 export {default as dummmyProfileIcon } from "./App/partner-icon.svg"
 export {default as AccordianIcon } from "./Coupons/accordian-icon.svg"
 export {default as TimeIcon } from "./Coupons/time-icon.svg"
 export {default as couponsIcon } from "./Coupons/coupons-icon.svg"
-export {default as desktoploginIcon} from './Login/desktopLogin.jpg'
-export {default as mobileloginIcon} from './Login/mobileLoginImage.jpg'
-
-
-
+export { default as DashboardDesktopBG }  from "./Dashboard/desktop-bg.jpg"
+export { default as DashboardMobileBG }  from "./Dashboard/mobile-bg.png"
+export { default as DashboardImg }  from "./Dashboard/dashboard-img.png" 
+export { default as DesktopLoginBg }  from "./Login/login-desktop-bg.jpg"  
+export { default as MobileLoginBg }  from "./Login/login-mobile-bg.jpg" 

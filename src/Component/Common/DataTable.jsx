@@ -17,11 +17,9 @@ const DataTable = ({
   onClick = null,
   onDelete = null,
   rowTextAlignment = "left",
-
   pageLimit = 10,
-
   rowsInOnePage,
-
+  hasLink = true,
 }) => {
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
@@ -29,7 +27,7 @@ const DataTable = ({
   return (
     <div className="flex flex-col gap-2.5 justify-start">
       <div className="">
-        <div className="-mx-4  sm:-mx-0">
+        <div className="sm:-mx-0">
           <table
             className={`min-w-full border-none sm:divide-y sm:divide-gray-300 ${className}`}
           >
@@ -39,7 +37,7 @@ const DataTable = ({
                   <th
                     key={column.key || `column-${index}`}
                     scope="col"
-                    className={`py-3.5 text-${headerTextAlign} text-sm font-semibold text-[#667085] ${
+                    className={`py-3.5 text-center text-sm font-semibold text-[#667085] ${
                       column.key === "serialNumber"
                         ? "pl-4 pr-3 sm:pl-0"
                         : column.key === "playerActions"
@@ -68,10 +66,16 @@ const DataTable = ({
                       key={item?.id || item?._id || index}
                       className={`block text-sm text-[#667085] md:border-t-2 md:h-[55px] md:table-row md:shadow-none shadow-lg align-middle ${backgroundRowColor}`}
                     >
-                      <div className="md:hidden flex flex-col bg-white rounded-xl">
+                      <div className="md:hidden flex flex-col bg-white">
                         {columns.map((column, colIndex) => {
                           const cellContent = column.render
-                            ? column.render(item, index, currentPage, onClick, onDelete)
+                            ? column.render(
+                                item,
+                                index,
+                                currentPage,
+                                onClick,
+                                onDelete
+                              )
                             : item?.[column.key];
                           return (
                             <div
@@ -98,7 +102,13 @@ const DataTable = ({
                       </div>
                       {columns.map((column, colIndex) => {
                         const cellContent = column.render
-                          ? column.render(item, index, currentPage, onClick, onDelete)
+                          ? column.render(
+                              item,
+                              index,
+                              currentPage,
+                              onClick,
+                              onDelete
+                            )
                           : item?.[column.key];
 
                         return (
@@ -106,7 +116,7 @@ const DataTable = ({
                             key={`${item?.id || item?._id || index}-${
                               column.key || colIndex
                             }`}
-                            className={`text-${rowTextAlignment} py-${rowPaddingY}  hidden md:table-cell ${
+                            className={`text-center py-${rowPaddingY}  hidden md:table-cell ${
                               column.key === "serialNumber"
                                 ? "text-[#2B2F38]"
                                 : "text-[#5D6679]"
@@ -138,11 +148,9 @@ const DataTable = ({
           currentPage={currentPage}
           total={totalPages}
           onPageChange={onPageChange}
-          hasLink={true}
+          hasLink={hasLink}
           pathName={pathName}
-
           rowsInOnePage={pageLimit}
-
         />
       )}
     </div>

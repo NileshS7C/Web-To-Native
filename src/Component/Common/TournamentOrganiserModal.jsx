@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Formik, Form, ErrorMessage, Field, useFormikContext } from "formik";
@@ -20,6 +20,7 @@ import Button from "./Button";
 import ErrorBanner from "./ErrorBanner";
 import LocationSearchInput from "./LocationSearch";
 import Spinner from "./Spinner";
+import axiosInstance from "../../Services/axios";
 
 import {
   TournamentOragniserModalTitle,
@@ -29,7 +30,6 @@ import {
 
 export const TournamentOrganiserCreation = ({
   dispatch,
-  owner,
   isOpen,
   initialValues,
   location,
@@ -37,40 +37,92 @@ export const TournamentOrganiserCreation = ({
   organiserId,
   actionPending,
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [brandLogoImageError, setBrandLogoImageError] = useState("");
+  const brandLogoFileInputRef = useRef(null);
+
+  const uploadImageToS3 = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append("uploaded-file", file);
+  
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/upload-file`,
+        formData,
+        config
+      );
+      console.log("Upload successful, received S3 URL:", response.data.data.url);
+      return { success: true, url: response.data.data.url };
+    } catch (error) {
+      return { success: false, message: error?.response?.data?.message || "Image upload failed" };
+    }
+  };
+
+  const handleBrandLogoImageChange = async (event, setFieldValue) => {
+    const file = event.target.files[0];
+    if (file) {
+      setBrandLogoImageError("");
+      const imageUrl = await uploadImageToS3(file);
+      if (imageUrl.success) {
+         console.log("Setting Formik field 'ownerDetails.brandLogoImage' to:", imageUrl.url); 
+         setFieldValue("ownerDetails.brandLogoImage", imageUrl.url); 
+      } else {
+        setBrandLogoImageError(imageUrl.message);
+        setFieldValue("ownerDetails.brandLogoImage", ""); 
+      }
+      return imageUrl.success; 
+    }
+    return false;
+  };
+  
   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
+    console.log("Complete form data being sent (from Formik):", values);
+    
     try {
       setSubmitting(true);
       setHasError(false);
       setErrorMessage("");
-      let updadatedValues;
-
+      let updatedValues; 
+  
+      const valuesWithLogo = values;
+  
       if (organiserId) {
-        const { password } = values;
+        const { password } = valuesWithLogo;
         if (password) {
           const isValid = passRegex.test(password);
           if (!isValid) {
-            return setFieldError(
+            setFieldError(
               "password",
               "Password must have at least 8 characters, including uppercase, lowercase, a number, and a special character."
             );
+            setSubmitting(false); 
+            return; 
           }
-          updadatedValues = values;
+          updatedValues = valuesWithLogo; 
         } else {
-          const { password, ...restOfValues } = values;
-          updadatedValues = restOfValues;
+          const { password, ...restOfValues } = valuesWithLogo;
+          updatedValues = restOfValues; 
         }
+      } else {
+         updatedValues = valuesWithLogo;
       }
+  
       const result = !organiserId
-        ? await dispatch(createTournamentOwner(values)).unwrap()
+        ? await dispatch(createTournamentOwner(updatedValues)).unwrap() 
         : await dispatch(
             updateTournamentOwner({
-              formData: updadatedValues,
+              formData: updatedValues, 
               ownerId: organiserId,
             })
           ).unwrap();
+  
       if (!result.responseCode) {
         dispatch(
           showSuccess({
@@ -86,7 +138,7 @@ export const TournamentOrganiserCreation = ({
             limit: rowsInOnePage,
           })
         );
-
+  
         dispatch(toggleOrganiserModal());
       }
     } catch (err) {
@@ -94,12 +146,12 @@ export const TournamentOrganiserCreation = ({
         " Error occured while creating the tournament organiser",
         err
       );
-
+  
       setErrorMessage(
         err.data.message ||
-          "Oops! some thing went wrong while creating the organiser. Please try again."
+        "Oops! some thing went wrong while creating the organiser. Please try again."
       );
-
+  
       setHasError(true);
     } finally {
       setSubmitting(false);
@@ -111,8 +163,9 @@ export const TournamentOrganiserCreation = ({
       setHasError(false);
       setErrorMessage("");
       dispatch(resetGlobalLocation());
+      setBrandLogoImageError("");
     }
-  }, [isOpen]);
+  }, [isOpen, dispatch]); 
 
   return (
     <Dialog
@@ -129,7 +182,7 @@ export const TournamentOrganiserCreation = ({
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             transition
-            className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            className="relative max-h-[90vh] transform overflow-y-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <div className="flex w-full">
               {actionPending && (
@@ -145,30 +198,38 @@ export const TournamentOrganiserCreation = ({
 
                   {hasError && <ErrorBanner message={errorMessage} />}
                   <Formik
-                    enableReinitialize={true}
-                    initialValues={initialValues}
+                    enableReinitialize={true} 
+                    initialValues={initialValues} 
                     validationSchema={validationSchema}
-                    onSubmit={handleSubmit}
+                    onSubmit={handleSubmit} 
                   >
-                    {({ isSubmitting }) => (
-                      <Form>
-                        <div className="flex flex-col justify-between w-full gap-4 flex-1">
-                          <OrganiserBasicDetails />
-                          <OrganiserPhoneAndPassword />
-                          <BrandEmailAndPhone />
-                          <BrandPhoneAndLocation />
-                          <OrganiserAddress location={location} />
+                    {({ isSubmitting, setFieldValue, values }) => { 
+                      return (
+                        <Form>
+                          <div className="flex flex-col justify-between w-full gap-4 flex-1">
+                            <OrganiserBasicDetails />
+                            <OrganiserPhoneAndPassword />
+                            <BrandEmailAndPhone 
+                              handleBrandLogoImageChange={(event) => handleBrandLogoImageChange(event, setFieldValue)} 
+                              brandLogoImage={values.ownerDetails?.brandLogoImage} 
+                              brandLogoImageError={brandLogoImageError}
+                              brandLogoFileInputRef={brandLogoFileInputRef}
+                              setFieldValue={setFieldValue}
+                            />
+                            <BrandPhoneAndLocation />
+                            <OrganiserAddress location={location} />
 
-                          <Button
-                            className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
-                            type="submit"
-                            loading={isSubmitting}
-                          >
-                            Save
-                          </Button>
-                        </div>
-                      </Form>
-                    )}
+                            <Button
+                              className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
+                              type="submit"
+                              loading={isSubmitting}
+                            >
+                              Save
+                            </Button>
+                          </div>
+                        </Form>
+                      );
+                    }}
                   </Formik>
                 </div>
               )}
@@ -184,7 +245,7 @@ export const OrganiserModalTitle = ({ onCancel }) => {
   return (
     <div className="flex justify-between items-center w-full">
       <div className="flex gap-3">
-        <p className="text-lg text-[#343C6A] font-semibold">
+        <p className="text-lg text-[#343C6A] font-semibold pb-6">
           {TournamentOragniserModalTitle}
         </p>
       </div>
@@ -235,6 +296,12 @@ const OrganiserBasicDetails = () => {
 };
 
 const OrganiserPhoneAndPassword = () => {
+  const handlePhoneInput = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    const truncatedValue = value.slice(0, 10);
+    e.target.value = truncatedValue;
+  };
+
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
@@ -248,6 +315,8 @@ const OrganiserPhoneAndPassword = () => {
           placeholder="Enter Organiser Phone"
           id="phone"
           name="phone"
+          type="tel"
+          onInput={handlePhoneInput}
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <ErrorMessage name="phone" component={TextError} />
@@ -272,7 +341,31 @@ const OrganiserPhoneAndPassword = () => {
   );
 };
 
-const BrandEmailAndPhone = () => {
+const BrandEmailAndPhone = ({
+  handleBrandLogoImageChange,
+  brandLogoImage,
+  brandLogoImageError,
+  brandLogoFileInputRef,
+  setFieldValue,
+}) => {
+  const [isUploading, setIsUploading] = useState(false);
+  
+  const handleImageChange = async (event) => {
+    setIsUploading(true);
+    await handleBrandLogoImageChange(event); 
+    setIsUploading(false);
+    if (brandLogoFileInputRef.current) {
+        brandLogoFileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFieldValue("ownerDetails.brandLogoImage", "");
+    if (brandLogoFileInputRef.current) {
+      brandLogoFileInputRef.current.value = "";
+    }
+  };
+  
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
@@ -289,6 +382,64 @@ const BrandEmailAndPhone = () => {
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[6vh] focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <ErrorMessage name="ownerDetails.brandName" component={TextError} />
+
+        {/* --- Brand Logo Image Upload Section --- */}
+        <div className="w-full mt-2">
+          <label className="block text-[#232323] text-base leading-[19.36px] mb-2">
+            Brand Logo Image
+          </label>
+          
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+            id="brandLogoImageUpload"
+            ref={brandLogoFileInputRef}
+          />
+          
+          {!brandLogoImage ? (
+            <label
+              htmlFor="brandLogoImageUpload"
+              className="flex flex-col items-center justify-center w-full h-[150px] border border-dashed border-gray-300 rounded-md cursor-pointer bg-gray-50 hover:bg-gray-100 transition duration-200"
+            >
+              {isUploading ? (
+                <div className="flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                  <p className="text-sm text-gray-600">Uploading image...</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg className="w-8 h-8 mb-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <p className="mb-1 text-sm text-blue-500">Click to upload</p>
+                  <p className="text-xs text-gray-500 mt-1">(Max. File size: 5MB)</p>
+                  <p className="text-xs text-gray-500">(Image Size: 300x300)</p>
+                </div>
+              )}
+            </label>
+          ) : (
+            <div className="relative w-full h-[150px] border border-gray-300 rounded-md overflow-hidden">
+              <img
+                src={brandLogoImage}
+                alt="Brand Logo"
+                className="w-full h-full object-contain"
+              />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="absolute top-2 right-2 bg-gray-800 text-white rounded-full p-1 shadow-md hover:bg-gray-900 transition-colors"
+              >
+                <IoCloseSharp size={16} />
+              </button>
+            </div>
+          )}
+          
+          {brandLogoImageError && (
+            <p className="text-red-500 text-xs mt-1">{brandLogoImageError}</p>
+          )}
+        </div>
       </div>
       <div className="flex flex-col items-start gap-2.5 w-full">
         <label
@@ -311,6 +462,12 @@ const BrandEmailAndPhone = () => {
 };
 
 const BrandPhoneAndLocation = () => {
+  const handlePhoneInput = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    const truncatedValue = value.slice(0, 10);
+    e.target.value = truncatedValue;
+  };
+
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
@@ -324,6 +481,8 @@ const BrandPhoneAndLocation = () => {
           placeholder="Enter Brand Phone"
           id="ownerDetails.brandPhone"
           name="ownerDetails.brandPhone"
+          type="tel"
+          onInput={handlePhoneInput}
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <ErrorMessage name="ownerDetails.brandPhone" component={TextError} />
@@ -351,30 +510,40 @@ const BrandPhoneAndLocation = () => {
 
 const OrganiserAddress = ({ location }) => {
   const { setFieldValue } = useFormikContext();
+  
+  const handlePostalCodeInput = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    const truncatedValue = value.slice(0, 6);
+    e.target.value = truncatedValue;
+  };
+  
   useEffect(() => {
-    if (location.city || location.state) {
+    if (location && (location.city || location.state)) {
       setFieldValue(
         "ownerDetails.address.location.coordinates[0]",
-        location?.lng
+        location?.lng || 0
       );
       setFieldValue(
         "ownerDetails.address.location.coordinates[1]",
-        location?.lat
+        location?.lat || 0
       );
-      setFieldValue("ownerDetails.address.line1", location?.address_line1);
-      setFieldValue("ownerDetails.address.line2", location.address_line2);
-      setFieldValue("ownerDetails.address.city", location.city);
-      setFieldValue("ownerDetails.address.state", location.state);
-      setFieldValue("ownerDetails.address.postalCode", location.pin_code);
+      setFieldValue("ownerDetails.address.line1", location?.address_line1 || "");
+      setFieldValue("ownerDetails.address.line2", location?.address_line2 || "");
+      setFieldValue("ownerDetails.address.city", location?.city || "");
+      setFieldValue("ownerDetails.address.state", location?.state || "");
+      setFieldValue("ownerDetails.address.postalCode", location?.pin_code || "");
+      
+      setFieldValue("ownerDetails.address.location.type", "Point");
     }
   }, [
-    location.lat,
-    location.lng,
-    location.city,
-    location.state,
-    location.pin_code,
-    location.address_line1,
-    location.address_line2,
+    location?.lat,
+    location?.lng,
+    location?.city,
+    location?.state,
+    location?.pin_code,
+    location?.address_line1,
+    location?.address_line2,
+    setFieldValue
   ]);
   return (
     <div className="flex flex-col items-start gap-2.5">
@@ -461,12 +630,14 @@ const OrganiserAddress = ({ location }) => {
             className="text-xs text-[#232323]"
             htmlFor="ownerDetails.address.postalCode"
           >
-            Pincode
+            Postal Code
           </label>
           <Field
             placeholder="Enter PostalCode"
             id="ownerDetails.address.postalCode"
             name="ownerDetails.address.postalCode"
+            type="tel"
+            onInput={handlePostalCodeInput}
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <ErrorMessage
@@ -497,3 +668,50 @@ TournamentOrganiserCreation.propTypes = {
   organiserId: PropTypes.string,
   actionPending: PropTypes.bool,
 };
+
+
+export default function TournamentOrganiserModal({ isOpen, onClose, fetchHomepageSections }) {
+  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [initialState, setInitialState] = useState(initialValues);
+
+  useEffect(() => {
+    if (!isOpen) {
+      // Reset form state when modal is closed
+      setImagePreview(null);
+      setInitialState(initialValues);
+    }
+  }, [isOpen]);
+
+  return (
+    <Dialog open={isOpen} onClose={onClose} className="relative z-10">
+      <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
+      <div className="fixed inset-0 z-10 w-screen">
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <DialogPanel className="relative max-h-[90vh] transform overflow-y-auto rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+            <Formik
+              enableReinitialize
+              initialValues={initialState}
+              validationSchema={validationSchema}
+              onSubmit={async (values, { setSubmitting, resetForm }) => {
+                try {
+                  setSubmitting(true);
+                  resetForm();
+                  setInitialState(initialValues);
+                  onClose();
+                } catch (error) {
+                  setSubmitting(false);
+                  resetForm();
+                  setInitialState(initialValues);
+                  onClose();
+                }
+              }}
+            >
+             
+            </Formik>
+          </DialogPanel>
+        </div>
+      </div>
+    </Dialog>
+  );
+}

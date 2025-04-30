@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import { PiEyeThin, PiEyeSlashThin } from "react-icons/pi";
+
+import { DesktopLoginBg, MobileLoginBg } from "../Assests";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogin } from "../redux/Authentication/authActions";
 import Button from "../Component/Common/Button";
@@ -8,8 +10,8 @@ import TextError from "../Component/Error/formError";
 import { useNavigate } from "react-router-dom";
 import { ErrorModal } from "../Component/Common/ErrorModal";
 import { SuccessModal } from "../Component/Common/SuccessModal";
-import { showError } from "../redux/Error/errorSlice";
-import { desktoploginIcon,mobileloginIcon } from "../Assests";
+import { cleanUpError, showError } from "../redux/Error/errorSlice";
+import { useCookies } from "react-cookie";
 
 const LogInForm = ({ formData, formError }) => {
   const [email, setEmail] = useState("");
@@ -39,29 +41,26 @@ const LogInForm = ({ formData, formError }) => {
   }, []);
 
   return (
-    <div className="flex flex-col gap-4 md:gap-9 items-center">
-      <div className="flex flex-col gap-2 md:gap-6 items-center">
-        <p className="text-lg md:text-4xl font-bold text-[#202224] leading-[38.7px] ">
+    <div className="flex flex-col gap-6 items-center w-full max-w-[500px] bg-white p-8 rounded-2xl">
+      <div className="flex flex-col gap-3 items-center text-center">
+        <h1 className="text-[32px] font-bold text-[#202224]">
           Login to Account
-        </p>
-        <p className="text-xs sm:text-sm md:text-xl font-[500] text-[#202224] opacity-80">
+        </h1>
+        <p className="text-[16px] text-[#202224] opacity-80">
           Please enter your email and password to continue
         </p>
       </div>
 
-      <div className="flex flex-col gap-2 md:gap-4 w-full">
-        <div className="flex flex-col gap-2 md:gap-3 items-start">
-          <label
-            className="text-[#202224] text-sm md:text-xl leading-[21.7px] opacity-80"
-            htmlFor="email"
-          >
+      <div className="flex flex-col gap-5 w-full">
+        <div className="flex flex-col gap-2">
+          <label className="text-[#202224] text-[16px] text-left" htmlFor="email">
             Email address:
           </label>
           <input
             id="email"
             name="email"
             placeholder="Enter your email or phone number"
-            className="w-full p-4 rounded-lg border-[#EDEDED] border-2 box-border h-10 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm md:text-xl bg-[#f1f4f9]"
+            className="w-full px-4 py-3 border border-[#DFEAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={email}
             onChange={(e) => {
               const value = e.target.value;
@@ -78,34 +77,25 @@ const LogInForm = ({ formData, formError }) => {
             <TextError>Invalid Email or Phone number</TextError>
           )}
         </div>
-        <div className=" flex flex-col gap-2 md:gap-3 items-start ">
-          <label
-            className="text-[#202224] text-sm md:text-xl leading-[21.7px] opacity-80"
-            htmlFor="password"
-          >
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[#202224] text-[16px] text-left" htmlFor="password">
             Password:
           </label>
-          <div className="relative w-full">
+          <div className="relative">
             <input
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
-              className="w-full p-4 rounded-lg border-[#EDEDED] border-2 box-border h-10 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm md:text-xl bg-[#f1f4f9]"
+              className="w-full px-4 py-3 border border-[#DFEAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={password}
               onChange={(e) => {
                 const value = e.target.value;
-                if (!passRegex.test(value) || "") {
-                  setError((prev) => ({
-                    ...prev,
-                    invalidPass: true,
-                  }));
-                } else {
-                  setError((prev) => ({
-                    ...prev,
-                    invalidPass: false,
-                  }));
-                }
+                setError((prev) => ({
+                  ...prev,
+                  invalidPass: !passRegex.test(value) || value === "",
+                }));
                 setPassword(value);
               }}
               minLength="8"
@@ -113,31 +103,27 @@ const LogInForm = ({ formData, formError }) => {
             />
             {showPassword ? (
               <PiEyeThin
-                className="absolute right-3 transform top-1/2 -translate-y-1/2 cursor-pointer"
+                className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 text-xl"
                 onClick={togglePassword}
               />
             ) : (
               <PiEyeSlashThin
-                className="absolute right-3 transform top-1/2 -translate-y-1/2 cursor-pointer"
+                className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 text-xl"
                 onClick={togglePassword}
               />
             )}
           </div>
-        </div>
-        <div className="text-left w-full">
           {error?.invalidPass && (
             <TextError>
-              <p>
-                Password must have at least 8 characters, including uppercase,
-                lowercase, a number, and a special character.
-              </p>
+              Password must have at least 8 characters, including uppercase,
+              lowercase, a number, and a special character.
             </TextError>
           )}
         </div>
 
         <Button
           type="submit"
-          className="w-full h-9 md:10 bg-[#1570EF] rounded-lg text-white"
+          className="w-full py-3 bg-[#1570EF] text-white rounded-xl hover:bg-blue-600 transition-colors"
           disabled={error.invalidEmail || error.invalidPass}
           loading={isLoading}
         >
@@ -193,34 +179,30 @@ const Login = () => {
   };
 
   return (
-    <div className="h-[100vh] w-[100vw] relative bg-white">
-      <form
-        onSubmit={(e) => handleSubmit(e)}
-        className="relative z-10 flex items-center justify-center h-full"
+    <div className="min-h-screen w-full flex">
+      <form 
+        onSubmit={handleSubmit}
+        className="w-full md:w-[40%] flex items-center justify-center p-4 relative z-10"
       >
-        <div className="flex w-full flex-col md:flex-row justify-center items-center h-full">
-          <div className="flex justify-center items-center w-[80%] md:w-[45%] lg:w-[40%] p-4 md:p-8 bg-white rounded-lg md:rounded-none">
-            <ErrorModal />
-            <SuccessModal />
-            <LogInForm formData={formData} formError={formError} />
-          </div>
-
-          <div className="hidden md:block w-[40%] md:w-[55%] lg:w-[60%] h-[100%]">
-            <img
-              src={desktoploginIcon}
-              alt="picklebay logo"
-              className="h-full w-full object-cover"
-            />
-          </div>
-        </div>
+        <ErrorModal />
+        <SuccessModal />
+        <LogInForm formData={formData} formError={formError} />
       </form>
-      <div className="md:hidden absolute inset-0 z-0">
+
+      <div className="hidden md:block w-[60%] h-screen relative">
         <img
-          src={mobileloginIcon}
-          alt="picklebay logo"
-          className="h-full w-full"
+          src={DesktopLoginBg}
+          alt="Login background"
+          className="absolute inset-0 w-full h-full object-cover"
         />
       </div>
+
+      {/* Mobile background - only visible on mobile */}
+      <img
+        src={MobileLoginBg}
+        alt="Login background"
+        className="absolute inset-0 w-full h-full object-cover md:hidden z-0"
+      />
     </div>
   );
 };
