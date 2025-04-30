@@ -285,7 +285,7 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
           const newEndDate = new Date(endDate).getTime();
           const bookingDate = new Date(value).getTime();
 
-          return bookingDate < newEndDate;
+          return bookingDate < newEndDate && bookingDate < newStartDate;
         }
       ),
     sponserName: yup.string(),
