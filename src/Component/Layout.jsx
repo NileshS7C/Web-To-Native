@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useFormikContextFunction } from "../Providers/formikContext";
-import { setTournamentEditMode } from "../redux/tournament/getTournament";
 import { handleTournamentDecision } from "../redux/tournament/tournamentActions";
 import { setApprovalBody } from "../redux/tournament/addTournament";
 import { FiEdit3 } from "react-icons/fi";
@@ -27,9 +26,13 @@ import { getUploadedImages, uploadImageForCMS} from "../redux/Upload/uploadActio
 import { showSuccess } from "../redux/Success/successSlice";
 import { cleanUpUpload, setIsUploaded } from "../redux/Upload/uploadImage";
 import { deleteVenue } from "../redux/Venue/venueActions";
-import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
+import { resetVenueEditMode, setVenueEditMode, setWasCancelledVenue } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
-import { resetEditMode } from "../redux/tournament/getTournament";
+import {
+  resetEditMode,
+  setWasCancelled,
+  setTournamentEditMode,
+} from "../redux/tournament/getTournament";
 import { downloadSheetOfPlayers } from "../redux/tournament/tournamentActions";
 const hiddenRoutes = [
   "/cms/homepage/featured-tournaments",
@@ -321,7 +324,10 @@ const TournamentActionButton = ({
           ) : (
             <SaveAndCancelButton
               dispatch={dispatch}
-              setEditMode={() => dispatch(setTournamentEditMode())}
+              setEditMode={() =>{
+                dispatch(setTournamentEditMode());
+                dispatch(setWasCancelled());
+              }}
               submitForm={async () => {
                 await submitForm();
                 dispatch(resetEditMode());
@@ -519,6 +525,7 @@ const VenueActionButtons = ({
           dispatch={dispatch}
           setEditMode={()=>{
             dispatch(setVenueEditMode());
+            dispatch(setWasCancelledVenue())
           }}
           submitForm={submitForm}
           isSubmitting={isSubmitting}
