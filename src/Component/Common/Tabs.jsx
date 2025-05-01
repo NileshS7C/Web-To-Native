@@ -35,7 +35,7 @@ function Tabs({ options, onChange, hasLink = false }) {
 
   return (
     <div>
-      <div className="grid grid-cols-1 items-center justify-start max-w-fit sm:hidden">
+      <div className="grid grid-cols-1 items-center justify-start max-w-full w-full md:max-w-fit sm:hidden">
         <select
           value={currentTab?.toLowerCase()}
           aria-label="Select a tab"

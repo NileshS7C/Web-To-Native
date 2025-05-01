@@ -195,11 +195,11 @@ const TournamentCreationForm = () => {
         />
       )}
 
-      <div className="flex flex-col pl-[50px] pr-[30px]  bg-[#FFFFFF] rounded-3xl w-full">
-        <div className="py-[50px] ">
-          <div className="flex items-center  border-b-[1px] border-[#EDEDED] gap-[67px] ">
+      <div className="flex flex-col px-4 md:pl-[50px] md:pr-[30px]  bg-[#FFFFFF] rounded-3xl w-full">
+        <div className="py-5 md:py-[50px] overflow-auto scrollbar-hide">
+          <div className="flex items-center  border-b-[1px] border-[#EDEDED] gap-5 md:gap-[67px] ">
             <button
-              className={`tab-button ${
+              className={`tab-button whitespace-nowrap ${
                 currentStep === "basic info" ? "active" : ""
               } `}
               onClick={() => dispatch(setFormOpen("basic info"))}

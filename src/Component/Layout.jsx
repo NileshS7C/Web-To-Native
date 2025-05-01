@@ -225,7 +225,7 @@ const Layout = () => {
 
             {!shouldHideTitleBar && (
               <div className="flex items-center justify-between w-full">
-                <p className="inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-[22px]">
+                <p className="inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-base md:text-[22px]">
                   {currentTitle}
                   {tournamentId && (
                     <span
@@ -242,7 +242,7 @@ const Layout = () => {
                       navigate("/tournaments/add");
                     }}
                     disable={false}
-                    className=" flex px-4 py-2 rounded-lg text-[#FFFFFF] "
+                    className=" flex px-4 py-2 rounded-lg text-[#FFFFFF] text-sm md:text-base"
                   >
                     Add New Tournament
                   </Button>
@@ -370,7 +370,7 @@ const TournamentActionButton = ({
                   ))
               }
             >
-              <span>Edit Tournament</span>
+              <span className="hidden lg:block">Edit Tournament</span>
               <FiEdit3 />
             </button>
           ) : (
@@ -456,7 +456,7 @@ const TournamentActionButton = ({
             }}
           >
             <BsDownload />
-            Download Sheet
+            <span className="text-white hidden lg:block">Download Sheet</span>
           </Button>
         )}
     </div>
