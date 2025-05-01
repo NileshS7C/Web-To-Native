@@ -3,8 +3,6 @@ import NewsSectionInfo from "../../../Component/CMS/HomePage/NewsUpdate/NewsSect
 import NewsContentTable from "../../../Component/CMS/HomePage/NewsUpdate/NewsContentTable";
 import NewsAddDataModal from "../../../Component/CMS/HomePage/NewsUpdate/NewsAddDataModal";
 import axiosInstance from "../../../Services/axios";
-// import SpinnerLoader from "../../../Assests/Spinner";
-
 export default function NewsUpdates() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newsData, setNewsData] = useState([]);
@@ -16,7 +14,6 @@ export default function NewsUpdates() {
                 },
             };
             const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=news`, config);
-            console.log(response.data.data[0])
             setNewsData(response.data.data[0])
         } catch (error) {
             console.error(error);

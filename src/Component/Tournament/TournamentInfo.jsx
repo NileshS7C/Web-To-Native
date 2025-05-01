@@ -39,6 +39,7 @@ import {
   addTournamentStepOne,
   getAll_TO,
   getAllUniqueTags,
+  getSingleTournament,
 } from "../../redux/tournament/tournamentActions";
 import { userLogout } from "../../redux/Authentication/authActions";
 import { showError } from "../../redux/Error/errorSlice";
@@ -56,9 +57,14 @@ import Combopopover from "../Common/Combobox";
 import { rolesWithTournamentOwnerAccess } from "../../Constant/tournament";
 import { useFormikContextFunction } from "../../Providers/formikContext";
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
-
+import { deleteImages } from "../../redux/Upload/uploadActions";
 import { MdDeleteOutline } from "react-icons/md";
-
+import {
+  resetDeletedImages,
+  setDeletedImages,
+} from "../../redux/Upload/uploadImage";
+import { useRef } from "react";
+import { setWasCancelled } from "../../redux/tournament/getTournament";
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -147,7 +153,7 @@ const initialValues = {
   whatToExpect: [{ title: "", description: "" }],
 };
 
-export const TournamentInfo = ({ tournament, status, isDisable }) => {
+export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
   const validationSchema = yup.object({
     ownerUserId: yup.string().required("Name is required"),
     tournamentName: yup.string().required("Please provide a tournament name."),
@@ -279,7 +285,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
           const newEndDate = new Date(endDate).getTime();
           const bookingDate = new Date(value).getTime();
 
-          return bookingDate < newEndDate;
+          return bookingDate < newEndDate && bookingDate < newStartDate;
         }
       ),
     sponserName: yup.string(),
@@ -306,16 +312,13 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
 
-  const { userRole } = useSelector((state) => state.auth);
-
-  const { isSuccess, isGettingTournament } = useSelector(
-    (state) => state.GET_TOUR
-  );
-  const { userRole: role } = useSelector((state) => state.auth);
-
+  const { userRole: role, userInfo } = useSelector((state) => state.auth);
+  const { deletedImages } = useSelector((state) => state.upload);
+  const { isSuccess, isGettingTournament, tournamentEditMode, wasCancelled } =
+    useSelector((state) => state.GET_TOUR);
   const currentPage = 1;
   const limit = 100;
-
+  const formikRef = useRef();
   useEffect(() => {
     const userRole = cookies?.userRole || role;
     if (!userRole) {
@@ -326,18 +329,17 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
     }
     dispatch(getAllUniqueTags());
   }, []);
-
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setSubmitting(true);
 
       let user;
 
-      if (rolesWithTournamentOwnerAccess.includes(cookies?.userRole)) {
+      if (rolesWithTournamentOwnerAccess.includes(cookies?.userRole || role)) {
         user = tournamentOwners.owners?.find(
           (owner) => owner.name === values.ownerUserId
         );
-      } else if (cookies?.userRole === "TOURNAMENT_OWNER") {
+      } else if ((cookies?.userRole || role) === "TOURNAMENT_OWNER") {
         user = singleTournamentOwner
           ? { id: singleTournamentOwner.id }
           : { id: "" };
@@ -363,9 +365,13 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
           onClose: "hideSuccess",
         })
       );
-
+      if (deletedImages?.length > 0) {
+        dispatch(deleteImages(deletedImages));
+      }
+      setInitialState(values);
       if (!result.responseCode && isAddInThePath) {
         dispatch(setFormOpen("event"));
+        dispatch(getSingleTournament({ tournamentId, ownerId: user.id }));
         navigate(`/tournaments/${result?.data?.tournament._id}/add`);
         resetForm();
       }
@@ -374,7 +380,7 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
 
       dispatch(
         showError({
-          message: error.data.message || "Something went wrong!",
+          message: error?.data?.message || "Something went wrong!",
           onClose: "hideError",
         })
       );
@@ -382,18 +388,28 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       setSubmitting(false);
     }
   };
-
+  const handleCancel = () => {
+    if (formikRef.current) {
+      formikRef.current.resetForm();
+      dispatch(resetDeletedImages());
+    }
+  };
+   
+  
   useEffect(() => {
     if (isSuccess && tournamentId && Object.keys(tournament).length > 0) {
       const updatedTournament = requiredTournamentFields(tournament);
-      const owner =
-        tournamentOwners?.owners?.find(
-          (owner) => owner.id === updatedTournament.ownerUserId
-        ) ?? null;
+      const owner = rolesWithTournamentOwnerAccess.includes(
+        cookies?.userRole || role
+      )
+        ? tournamentOwners?.owners?.find(
+            (owner) => owner.id === updatedTournament.ownerUserId
+          ) ?? null
+        : singleTournamentOwner;
 
       if (owner) {
         const ownerName = owner.name;
-
+        
         setInitialState((prevState) => ({
           ...prevState,
           ...updatedTournament,
@@ -409,6 +425,17 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       }
     }
   }, [tournament, tournamentId, isSuccess, tournamentOwners]);
+  useEffect(() => {
+    if (!tournamentEditMode && wasCancelled) {
+      handleCancel();
+    }
+    setWasCancelled(false);
+  }, [tournamentEditMode]);
+  useEffect(() => {
+    return () => {
+      dispatch(resetDeletedImages());
+    };
+  }, []);
 
   if (isGettingTournament) {
     return (
@@ -417,50 +444,58 @@ export const TournamentInfo = ({ tournament, status, isDisable }) => {
       </div>
     );
   }
-
   return (
     <Formik
       enableReinitialize
       initialValues={initialState}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      innerRef={formikRef}
     >
       {({ isSubmitting, submitForm }) => {
         setSubmitForm(() => submitForm);
         setIsSubmitting(isSubmitting);
         return (
           <Form>
-            <fieldset disabled={!isDisable}>
+            <fieldset>
               <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323]">
                 <ErrorModal />
                 <SuccessModal />
                 <TournamentBasicInfo
-                  userName={cookies?.name || ""}
-                  userRole={cookies?.userRole || userRole}
+                  userName={userInfo?.name || ""}
+                  userRole={cookies?.userRole || role}
                   tournamentOwners={tournamentOwners}
                   isGettingALLTO={isGettingALLTO}
                   hasError={err_IN_TO}
+                  tournamentId={tournamentId}
+                  isDisable={isDisable}
+                  disabled={disabled}
                 />
                 <TournamentMetaData
                   isGettingTags={isGettingTags}
                   uniqueTags={tags}
                   selectedTags={selectedTags}
                   tournamentId={tournamentId}
+                  disabled={disabled}
                 />
-                <TournamentAddress location={location} />
-                <TournamentDescription isDisable={isDisable} />
-                <TournamentPrerequisite isDisable={isDisable} />
-                <TournamentInstagramHandle isDisable={isDisable} />
-                <TournamentWhatToExpect isDisable={isDisable} />
-                <TournamentDates />
+                <TournamentAddress location={location} disabled={disabled} />
+                <TournamentDescription disabled={disabled} />
+                <TournamentPrerequisite disabled={disabled} />
+                <TournamentInstagramHandle disabled={disabled} />
+                <TournamentWhatToExpect disabled={disabled} />
+                <TournamentDates disabled={disabled} />
                 <TournamentFileUpload
                   dispatch={dispatch}
-                  isDisable={isDisable}
                   tournamentId={tournamentId}
+                  disabled={disabled}
                 />
-                <TournamentSponserTable isDisable={isDisable} />
-                <TournamentBookingDates />
-                <TournamentGallery dispatch={dispatch} tournamentId={tournamentId}/>
+                <TournamentSponserTable disabled={disabled} />
+                <TournamentBookingDates disabled={disabled} />
+                <TournamentGallery
+                  dispatch={dispatch}
+                  tournamentId={tournamentId}
+                  disabled={disabled}
+                />
                 <Button
                   className={`w-[200px] h-[60px] bg-[#1570EF] text-white ml-auto rounded-[8px] ${
                     status !== "DRAFT" && tournamentId ? "hidden" : ""
@@ -486,9 +521,11 @@ const TournamentBasicInfo = ({
   tournamentOwners,
   isGettingALLTO,
   hasError,
-  tournamentId
+  tournamentId,
+  disabled,
 }) => {
   const { setFieldError, values, setFieldValue } = useFormikContext();
+  const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
   useEffect(() => {
     if (hasError) {
       setFieldError("ownerUserId", "Error in getting the owners.");
@@ -502,7 +539,6 @@ const TournamentBasicInfo = ({
       setFieldValue("ownerUserId", userName);
     }
   }, [userName]);
-
   return (
     <div className="grid grid-cols-2 gap-[30px]">
       {!rolesWithTournamentOwnerAccess.includes(userRole) ? (
@@ -514,9 +550,9 @@ const TournamentBasicInfo = ({
             placeholder="Organizer Name"
             id="ownerUserId"
             name="ownerUserId"
-            disabled
             className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={userName}
+            value={singleTournamentOwner?.name}
+            disabled={true}
           />
 
           <ErrorMessage name="ownerUserId" component={TextError} />
@@ -534,6 +570,7 @@ const TournamentBasicInfo = ({
             className="w-full px-[19px] border-[1px]
           border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none
           focus:ring-2 focus:ring-blue-500"
+            disabled={tournamentId ? true : false}
           >
             <option>Select Tournament Owner</option>
             {!isGettingALLTO && tournamentOwners?.owners?.length > 0
@@ -557,6 +594,7 @@ const TournamentBasicInfo = ({
           Tournament Name
         </label>
         <Field
+          disabled={disabled}
           placeholder="Enter Tournament Name"
           id="tournamentName"
           name="tournamentName"
@@ -573,6 +611,7 @@ const TournamentMetaData = ({
   uniqueTags,
   selectedTags,
   tournamentId,
+  disabled,
 }) => {
   const [tournamentHandle, setTournamentVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
@@ -606,6 +645,7 @@ const TournamentMetaData = ({
           onChange={(e) => {
             setFieldValue("handle", e.target.value);
           }}
+          disabled={disabled}
         />
         <ErrorMessage name="handle" component={TextError} />
       </div>
@@ -618,6 +658,7 @@ const TournamentMetaData = ({
         placeholder="Enter Tournament Tags"
         label="Tournament Tags"
         id={tournamentId}
+        disabled={disabled}
       />
 
       <ErrorMessage name="tags" component={TextError} />
@@ -633,6 +674,7 @@ const TournamentMetaData = ({
         <LocationSearchInput
           id="tournamentLocation.address.location"
           name="tournamentLocation.address.location"
+          disabled={disabled}
         />
         <ErrorMessage
           name="tournamentLocation.address.location.coordinates"
@@ -642,7 +684,7 @@ const TournamentMetaData = ({
     </div>
   );
 };
-const TournamentAddress = ({ location }) => {
+const TournamentAddress = ({ location, disabled }) => {
   const { setFieldValue } = useFormikContext();
 
   useEffect(() => {
@@ -688,6 +730,7 @@ const TournamentAddress = ({ location }) => {
             Line 1
           </label>
           <Field
+            disabled={disabled}
             placeholder="Enter Tournament Address"
             id="tournamentLocation.address.line1"
             name="tournamentLocation.address.line1"
@@ -706,6 +749,7 @@ const TournamentAddress = ({ location }) => {
             Line 2
           </label>
           <Field
+            disabled={disabled}
             placeholder="Enter Venue Address"
             id="tournamentLocation.address.line2"
             name="tournamentLocation.address.line2"
@@ -726,6 +770,7 @@ const TournamentAddress = ({ location }) => {
             City
           </label>
           <Field
+            disabled={disabled}
             placeholder="Enter Tournament Address"
             id="tournamentLocation.address.city"
             name="tournamentLocation.address.city"
@@ -744,6 +789,7 @@ const TournamentAddress = ({ location }) => {
             State
           </label>
           <Field
+            disabled={disabled}
             placeholder="Enter Venue Address"
             id="tournamentLocation.address.state"
             name="tournamentLocation.address.state"
@@ -764,6 +810,7 @@ const TournamentAddress = ({ location }) => {
             Pincode
           </label>
           <Field
+            disabled={disabled}
             placeholder="Enter Venue Address"
             id="tournamentLocation.address.postalCode"
             name="tournamentLocation.address.postalCode"
@@ -779,7 +826,7 @@ const TournamentAddress = ({ location }) => {
   );
 };
 
-const TournamentDescription = ({ isDisable }) => {
+const TournamentDescription = ({ disabled }) => {
   const { values, setFieldValue } = useFormikContext();
   useEffect(() => {
     if (values.description) {
@@ -804,14 +851,14 @@ const TournamentDescription = ({ isDisable }) => {
         }}
         className="custom-quill"
         value={values?.description}
-        readOnly={!isDisable}
+        readOnly={disabled}
       />
       ;
     </div>
   );
 };
 
-const TournamentPrerequisite = ({ isDisable }) => {
+const TournamentPrerequisite = ({ disabled }) => {
   const { values, setFieldValue } = useFormikContext();
 
   return (
@@ -832,14 +879,14 @@ const TournamentPrerequisite = ({ isDisable }) => {
         }}
         className="custom-quill"
         value={values?.preRequisites}
-        readOnly={!isDisable}
+        readOnly={disabled}
       />
       ;
     </div>
   );
 };
 
-const TournamentInstagramHandle = ({ isDisable }) => {
+const TournamentInstagramHandle = ({ disabled }) => {
   const { values, setFieldValue } = useFormikContext();
 
   return (
@@ -855,13 +902,14 @@ const TournamentInstagramHandle = ({ isDisable }) => {
         id="instagramHandle"
         name="instagramHandle"
         className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+        disabled={disabled}
       />
       <ErrorMessage name="instagramHandle" component={TextError} />
     </div>
   );
 };
 
-const TournamentWhatToExpect = ({ isDisable }) => {
+const TournamentWhatToExpect = ({ disabled }) => {
   const { values, setFieldValue } = useFormikContext();
 
   const handleAddRow = () => {
@@ -882,15 +930,14 @@ const TournamentWhatToExpect = ({ isDisable }) => {
     <div className="grid grid-cols-1 gap-4">
       <div className="flex justify-between items-center">
         <p className="text-base leading-[19.36px]">What to Expect</p>
-        {isDisable && (
-          <button
-            type="button"
-            onClick={handleAddRow}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          >
-            Add New
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleAddRow}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          disabled={disabled}
+        >
+          Add New
+        </button>
       </div>
 
       <div className="overflow-x-auto rounded-md">
@@ -899,7 +946,7 @@ const TournamentWhatToExpect = ({ isDisable }) => {
             <tr className="bg-gray-100">
               <th className="border p-2 text-left">Title</th>
               <th className="border p-2 text-left">Description</th>
-              {isDisable && <th className="border p-2 text-center">Actions</th>}
+              {!disabled && <th className="border p-2 text-center">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -910,7 +957,7 @@ const TournamentWhatToExpect = ({ isDisable }) => {
                     name={`whatToExpect.${index}.title`}
                     placeholder="Enter title"
                     className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    disabled={!isDisable}
+                    disabled={disabled}
                   />
                   <ErrorMessage
                     name={`whatToExpect.${index}.title`}
@@ -922,14 +969,14 @@ const TournamentWhatToExpect = ({ isDisable }) => {
                     name={`whatToExpect.${index}.description`}
                     placeholder="Enter description"
                     className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    disabled={!isDisable}
+                    disabled={disabled}
                   />
                   <ErrorMessage
                     name={`whatToExpect.${index}.description`}
                     component={TextError}
                   />
                 </td>
-                {isDisable && (
+                {!disabled && (
                   <td className="border p-2">
                     <div className="flex justify-center gap-2">
                       <button
@@ -951,9 +998,9 @@ const TournamentWhatToExpect = ({ isDisable }) => {
   );
 };
 
-const TournamentFileUpload = ({ dispatch, isDisable,tournamentId }) => {
+const TournamentFileUpload = ({ dispatch, tournamentId, disabled }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
-
+  const isAddInThePath = window.location.pathname.includes("add");
   return (
     <div className="grid grid-cols-2 gap-[30px]">
       <DesktopBannerImageUpload
@@ -961,16 +1008,18 @@ const TournamentFileUpload = ({ dispatch, isDisable,tournamentId }) => {
         setFieldValue={setFieldValue}
         setFieldError={setFieldError}
         dispatch={dispatch}
-        isDisable={isDisable}
         tournamentId={tournamentId}
+        disabled={disabled}
+        isAddInThePath={isAddInThePath}
       />
       <MobileBannerImageUpload
         values={values}
         setFieldValue={setFieldValue}
         setFieldError={setFieldError}
         dispatch={dispatch}
-        isDisable={isDisable}
         tournamentId={tournamentId}
+        disabled={disabled}
+        isAddInThePath={isAddInThePath}
       />
     </div>
   );
@@ -981,15 +1030,14 @@ const DesktopBannerImageUpload = ({
   setFieldValue,
   setFieldError,
   dispatch,
-  isDisable,
-  tournamentId
+  tournamentId,
+  disabled,
+  isAddInThePath,
 }) => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
-
-  const tournamentEditMode = useSelector((state) => state.GET_TOUR.tournamentEditMode);
-  const isDisabled=tournamentId ? !tournamentEditMode : false;
+  const { deletedImages } = useSelector((state) => state.upload);
   useEffect(() => {
     const previewImages = values?.bannerDesktopImages?.length
       ? [{ preview: values.bannerDesktopImages }]
@@ -999,10 +1047,13 @@ const DesktopBannerImageUpload = ({
   }, [values?.bannerDesktopImages]);
 
   const handleRemoveImageDesk = (value) => {
-    dispatch(deleteUploadedImage(value[0]));
+    if (isAddInThePath) {
+      dispatch(deleteUploadedImage(value[0]));
+    } else dispatch(setDeletedImages([...deletedImages, value[0]]));
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
+    setFieldValue("bannerDesktopImages", []);
   };
 
   const handleFileUploadDesk = async (e) => {
@@ -1055,9 +1106,9 @@ const DesktopBannerImageUpload = ({
               <IoMdTrash
                 className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
                 onClick={() => {
-                 if(!isDisabled){
-                   handleRemoveImageDesk(previews[0]?.preview);
-                 }
+                  if (!disabled) {
+                    handleRemoveImageDesk(previews[0]?.preview);
+                  }
                 }}
               />
             )}
@@ -1084,16 +1135,13 @@ const DesktopBannerImageUpload = ({
                   id="bannerDesktopImages"
                   name="bannerDesktopImages"
                   onChange={(e) => {
-                    if(!isDisabled){
-                      handleFileUploadDesk(e);
-                    }
-                   }
-                  }
+                    handleFileUploadDesk(e);
+                  }}
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
                   multiple={false}
-                  disabled={!isDisable}
+                  disabled={disabled}
                 />
               )}
             </Field>
@@ -1111,15 +1159,14 @@ const MobileBannerImageUpload = ({
   setFieldValue,
   setFieldError,
   dispatch,
-  isDisable,
-  tournamentId
+  tournamentId,
+  disabled,
+  isAddInThePath,
 }) => {
-  const tournamentEditMode = useSelector((state) => state.GET_TOUR.tournamentEditMode);
-  const isDisabled = tournamentId ? !tournamentEditMode : false;
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
-
+  const { deletedImages } = useSelector((state) => state.upload);
   useEffect(() => {
     const previewImages = values?.bannerMobileImages?.length
       ? [{ preview: values.bannerMobileImages }]
@@ -1129,10 +1176,13 @@ const MobileBannerImageUpload = ({
   }, [values?.bannerMobileImages]);
 
   const handleRemoveImageDesk = (value) => {
-    dispatch(deleteUploadedImage(value[0]));
+    if (isAddInThePath) {
+      dispatch(deleteUploadedImage(value[0]));
+    } else dispatch(setDeletedImages([...deletedImages, value[0]]));
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
+    setFieldValue("bannerMobileImages", []);
   };
 
   const handleFileUploadMob = async (e) => {
@@ -1182,7 +1232,7 @@ const MobileBannerImageUpload = ({
               <IoMdTrash
                 className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
                 onClick={() => {
-                  if(!isDisabled){
+                  if (!disabled) {
                     handleRemoveImageDesk(previews[0]?.preview);
                   }
                 }}
@@ -1210,14 +1260,12 @@ const MobileBannerImageUpload = ({
                   id="bannerMobileImages"
                   name="bannerMobileImages"
                   onChange={(e) => {
-                    if(!isDisabled){
-                      handleFileUploadMob(e);
-                    }
+                    handleFileUploadMob(e);
                   }}
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                  disabled={!isDisable}
+                  disabled={disabled}
                 />
               )}
             </Field>
@@ -1229,7 +1277,7 @@ const MobileBannerImageUpload = ({
   );
 };
 
-const TournamentSponserTable = ({ isDisable }) => {
+const TournamentSponserTable = ({ disabled }) => {
   const dispatch = useDispatch();
   const [sponsorName, setSponsorName] = useState("");
   const [sponsorImage, setSponsorImage] = useState("");
@@ -1320,7 +1368,7 @@ const TournamentSponserTable = ({ isDisable }) => {
                               type="file"
                               className="absolute  w-8 h-8  inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
                               multiple={false}
-                              disabled={!isDisable}
+                              disabled={disabled}
                             />
                           )}
                         </Field>
@@ -1344,7 +1392,7 @@ const TournamentSponserTable = ({ isDisable }) => {
                       </Field>
                     </td>
                     <td className="text-left p-2">
-                      {isDisable && (
+                      {!disabled && (
                         <div className="flex gap-4">
                           <RiDeleteBin6Line
                             className="w-4 h-4 cursor-pointer"
@@ -1391,16 +1439,14 @@ const TournamentSponserTable = ({ isDisable }) => {
                     <input
                       id="sponserImage"
                       name="sponserImage"
-                      // onChange={(e) => {
-                      //   const files = e.target.files[0];
-                      //   const url = window.URL.createObjectURL(files);
-                      //   setSponsorImage(url);
-                      // }}
-                      onChange={(e) => handleFileUpload(e)}
+                      onChange={(e) => {
+                        handleFileUpload(e);
+                      }}
                       value=""
                       type="file"
                       className="absolute  w-8 h-8  inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
                       multiple={false}
+                      disabled={disabled}
                     />
                   </div>
                 </td>
@@ -1414,6 +1460,7 @@ const TournamentSponserTable = ({ isDisable }) => {
                       setSponsorName(e.target.value);
                     }}
                     value={sponsorName}
+                    disabled={disabled}
                   />
                 </td>
 
@@ -1426,7 +1473,7 @@ const TournamentSponserTable = ({ isDisable }) => {
                       setSponsorImage("");
                       setSponsorName("");
                     }}
-                    disabled={!sponsorName || !sponsorImage}
+                    disabled={disabled}
                   >
                     ADD
                   </Button>
@@ -1440,7 +1487,7 @@ const TournamentSponserTable = ({ isDisable }) => {
   );
 };
 
-const TournamentDates = () => {
+const TournamentDates = ({ disabled }) => {
   const [showStartDate, setShowStartDate] = useState(false);
   const toggleDates = () => {
     setShowStartDate(true);
@@ -1469,6 +1516,7 @@ const TournamentDates = () => {
                       form.setFieldValue("startDate", date);
                     }
                   }}
+                  disabled={disabled}
                 />
                 <img
                   src={calenderIcon}
@@ -1503,6 +1551,7 @@ const TournamentDates = () => {
                       form.setFieldValue("endDate", date);
                     }
                   }}
+                  disabled={disabled}
                 />
                 <img
                   src={calenderIcon}
@@ -1519,7 +1568,7 @@ const TournamentDates = () => {
   );
 };
 
-const TournamentBookingDates = () => {
+const TournamentBookingDates = ({ disabled }) => {
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5 w-full">
@@ -1549,6 +1598,7 @@ const TournamentBookingDates = () => {
                       form.setFieldValue("bookingStartDate", date);
                     }
                   }}
+                  disabled={disabled}
                 />
                 <img
                   src={calenderIcon}
@@ -1584,6 +1634,7 @@ const TournamentBookingDates = () => {
                       form.setFieldValue("bookingEndDate", date);
                     }
                   }}
+                  disabled={disabled}
                 />
                 <img
                   src={calenderIcon}
@@ -1600,11 +1651,12 @@ const TournamentBookingDates = () => {
   );
 };
 
-const TournamentGallery = ({ dispatch ,tournamentId}) => {
+const TournamentGallery = ({ dispatch, tournamentId, disabled }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
   const [previews, setPreviews] = useState([]);
-  const tournamentEditMode = useSelector((state) => state.GET_TOUR.tournamentEditMode);
-  const isDisabled = tournamentId ? !tournamentEditMode : false;
+  const tournamentEditMode = useSelector(
+    (state) => state.GET_TOUR.tournamentEditMode
+  );
   useEffect(() => {
     const previewImages = values?.tournamentGallery?.length
       ? values.tournamentGallery.map((url) => ({
@@ -1681,7 +1733,7 @@ const TournamentGallery = ({ dispatch ,tournamentId}) => {
                 <IoIosCloseCircleOutline
                   className="absolute right-0 w-6 h-6 z-100 text-black  cursor-pointer "
                   onClick={() => {
-                    if(!isDisabled){
+                    if (!disabled) {
                       handleRemoveImage(index);
                     }
                   }}
@@ -1709,13 +1761,12 @@ const TournamentGallery = ({ dispatch ,tournamentId}) => {
                   id="tournamentGallery"
                   name="tournamentGallery"
                   onChange={(e) => {
-                    if(!isDisabled){
-                      handleFileUpload(e);
-                    }
+                    handleFileUpload(e);
                   }}
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                  disabled={disabled}
                 />
               )}
             </FieldArray>
@@ -1730,6 +1781,7 @@ const TournamentGallery = ({ dispatch ,tournamentId}) => {
 
 TournamentGallery.propTypes = {
   dispatch: PropTypes.func,
+  disabled: PropTypes.bool,
 };
 
 TournamentBasicInfo.propTypes = {
@@ -1738,17 +1790,19 @@ TournamentBasicInfo.propTypes = {
   tournamentOwners: PropTypes.array,
   isGettingALLTO: PropTypes.bool,
   hasError: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 
 TournamentMetaData.propTypes = {
   isGettingTags: PropTypes.bool,
   uniqueTags: PropTypes.array,
   selectedTags: PropTypes.array,
+  disabled: PropTypes.bool,
 };
 
 TournamentFileUpload.propTypes = {
   dispatch: PropTypes.func,
-  isDisable: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 
 DesktopBannerImageUpload.propTypes = {
@@ -1756,7 +1810,7 @@ DesktopBannerImageUpload.propTypes = {
   setFieldValue: PropTypes.func,
   setFieldError: PropTypes.func,
   dispatch: PropTypes.func,
-  isDisable: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 
 MobileBannerImageUpload.propTypes = {
@@ -1764,15 +1818,15 @@ MobileBannerImageUpload.propTypes = {
   setFieldValue: PropTypes.func,
   setFieldError: PropTypes.func,
   dispatch: PropTypes.func,
-  isDisable: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 TournamentAddress.propTypes = {
   location: PropTypes.array,
 };
 
 TournamentSponserTable.propTypes = {
-  isDisable: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 TournamentWhatToExpect.propTypes = {
-  isDisable: PropTypes.bool,
+  disabled: PropTypes.bool,
 };

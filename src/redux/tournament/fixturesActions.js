@@ -272,14 +272,11 @@ export const updateMatchSet = createAsyncThunk(
       };
 
       const response = await axiosInstance.post(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/tournaments/${
-          matchData.tour_Id
-        }/categories/${matchData.eventId}/fixtures/${
-          matchData.fixtureId
-        }/update-match-set`,
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         JSON.stringify(matchData?.formData),
         config
       );
+
 
       return response.data;
     } catch (err) {

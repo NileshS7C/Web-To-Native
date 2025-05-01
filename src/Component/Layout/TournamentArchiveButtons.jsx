@@ -6,7 +6,7 @@ import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 import { showError } from "../../redux/Error/errorSlice";
 import { showSuccess } from "../../redux/Success/successSlice";
-import { resetArchiveState } from "../../redux/tournament/addTournament";
+import { resetArchiveState,resetDownloadState } from "../../redux/tournament/addTournament";
 import {
   resetConfirmationState,
   showConfirmation,
@@ -35,10 +35,19 @@ export const ArchiveButtons = (props) => {
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { singleTournamentOwner } = useOwnerDetailsContext();
-  const { pendingArchive, archived, archivedError, archivedErrorMessage } =
-    useSelector((state) => state.Tournament);
-  const { isConfirmed, type } = useSelector((state) => state.confirm);
+  const {
+    pendingArchive,
+    archived,
+    archivedError,
+    archivedErrorMessage,
+    pendingDownload,
+    downloadError,
+    downloadErrorMessage,
+    sheetDownload
+  } = useSelector((state) => state.Tournament);
 
+  const { isConfirmed, type } = useSelector((state) => state.confirm);
+  
   useEffect(() => {
     if (archivedError) {
       dispatch(
@@ -72,7 +81,40 @@ export const ArchiveButtons = (props) => {
 
       dispatch(resetArchiveState());
     }
-  }, [archivedError, archived, error]);
+    if (downloadError) {
+      dispatch(
+        showError({
+          message:
+            downloadErrorMessage ||
+            "Something went wrong while archiving the tournament. Please try again later.",
+          onClose: "hideError",
+        })
+      );
+      dispatch(resetConfirmationState());
+      dispatch(resetDownloadState());
+    }
+
+    if (error) {
+      dispatch(
+        showError({
+          message: errorMessage,
+          onClose: "hideError",
+        })
+      );
+    }
+
+    if (sheetDownload) {
+      dispatch(
+        showSuccess({
+          message: "Excel sheet downloaded successfully",
+          onClose: "hideSuccess",
+        })
+      );
+
+      dispatch(resetDownloadState());
+    }
+  }, [archivedError, archived, error,downloadError,pendingDownload]);
+  
 
   useEffect(() => {
     const publishTournamet = async (data) => {
@@ -115,7 +157,7 @@ export const ArchiveButtons = (props) => {
 
   return (
     <div>
-      {tournament?.status !== "ARCHIVED" ? (
+      {tournament?.status === "PUBLISHED" && (
         <Button
           className="flex w-[200px] items-center justify-center gap-3 px-4 py-2 bg-[#FFFFFF] text-customColor ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-200 shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95"
           onClick={() =>
@@ -133,7 +175,8 @@ export const ArchiveButtons = (props) => {
         >
           Unpublish Tournament
         </Button>
-      ) : (
+      )}
+      {tournament?.status === "ARCHIVED" && (
         <Button
           className="flex w-[200px] items-center justify-center gap-3 px-4 py-2 bg-[#FFFFFF] text-customColor ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-200 shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95"
           onClick={() =>

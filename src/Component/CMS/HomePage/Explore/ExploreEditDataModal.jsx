@@ -36,7 +36,7 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
             <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
             <div className="fixed inset-0 z-10 w-screen">
                 <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                    <DialogPanel className="relative transform overflow-auto max-h-[90vh] rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                    <DialogPanel className="relative transform overflow-auto max-h-[90vh] rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 overflow-y-auto">
                         <Formik
                             initialValues={{
                                 title: selectedCard?.title || "",
@@ -66,7 +66,6 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
                                     );
 
                                     if (!hasChanged) {
-                                        console.log("No changes detected, API request skipped.");
                                         setLoading(false);
                                         return;
                                     }
@@ -80,8 +79,7 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
                                         isVisible: data.isVisible,
                                         features: updatedFeatures,
                                     };
-
-                                    console.log("Updated Payload:", payload);
+                                    
 
                                     const config = {
                                         headers: {
@@ -112,9 +110,7 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
                                             <h2 className="text-lg font-semibold text-gray-900">
                                                 Edit Card Details
                                             </h2>
-                                            {/* <p className="mt-1 text-sm text-gray-600">
-                                                Provide details about the tournament below.
-                                            </p> */}
+                                          
 
                                             <div className="mt-6 grid grid-cols-1 gap-y-6">
                                                 {/* Title Input */}

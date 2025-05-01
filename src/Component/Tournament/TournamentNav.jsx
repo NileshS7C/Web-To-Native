@@ -19,7 +19,7 @@ import {
 
 import {
   onCancel,
-  onCofirm,
+  onConfirm,
   resetConfirmationState,
 } from "../../redux/Confirmation/confirmationSlice";
 import { showSuccess } from "../../redux/Success/successSlice";
@@ -34,11 +34,9 @@ import EventInfo from "./Event/EventInfo";
 import { TournamentInfo } from "./TournamentInfo";
 
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
-
 const TournamentCreationForm = () => {
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
-
   const {
     currentStep,
     isNotEditable,
@@ -59,7 +57,7 @@ const TournamentCreationForm = () => {
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [cookies] = useCookies(["name", "userRole"]);
-   const { userRole: role } = useSelector((state) => state.auth);
+  const { userRole: role } = useSelector((state) => state.auth);
   const isAddInThePath = window.location.pathname.includes("/add");
 
   useEffect(() => {
@@ -71,7 +69,6 @@ const TournamentCreationForm = () => {
       cookies?.userRole || role,
       tournament?._id
     );
-
     dispatch(setIsEditable(isDisable));
 
     if (tournament?.status === "DRAFT" && tournamentId) {
@@ -114,16 +111,16 @@ const TournamentCreationForm = () => {
       dispatch(setApprovalBody(rejectionBody));
 
       dispatch(setRejectionComments(""));
+      dispatch(resetConfirmationState());
     }
   }, [isConfirmed, tournamentId]);
 
   useEffect(() => {
     if (isConfirmed && tournament && type === "Archive") {
-      dispatch(archiveTournament(tournamentId));
+      dispatch(archiveTournament({tournamentId:tournamentId, ownerId:tournament?.ownerUserId}));
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed, tournamentId]);
-
   useEffect(() => {
     if (archived) {
       dispatch(
@@ -150,7 +147,7 @@ const TournamentCreationForm = () => {
           })
         );
         dispatch(resetVerificationState());
-      }, 300);
+      }, 500);
 
       dispatch(
         getSingleTournament({
@@ -233,7 +230,7 @@ const TournamentCreationForm = () => {
           isOpen={isOpen}
           onCancel={onCancel}
           onClose={onClose}
-          onConfirm={onCofirm}
+          onConfirm={onConfirm}
           isLoading={false}
           message={message}
           withComments={withComments}
@@ -244,11 +241,15 @@ const TournamentCreationForm = () => {
             tournament={tournament}
             status={tournament?.status}
             isDisable={isNotEditable}
+            disabled={!isNotEditable}
           />
         )}
-        {currentStep === "event" && <EventInfo isDisable={isNotEditable} />}
+        {currentStep === "event" && <EventInfo disabled={!isNotEditable} />}
         {currentStep === "acknowledgement" && (
-          <AcknowledgementText ownerUserId={tournament?.ownerUserId} />
+          <AcknowledgementText
+            ownerUserId={tournament?.ownerUserId}
+            disabled={!isNotEditable}
+          />
         )}
         <EventCreationModal />
       </div>

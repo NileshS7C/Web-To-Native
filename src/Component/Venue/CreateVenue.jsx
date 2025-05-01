@@ -9,7 +9,7 @@ import {
 import ReactQuill from "react-quill";
 
 import { useFormikContextFunction } from "../../Providers/formikContext";
-import { setVenueEditMode } from "../../redux/Venue/addVenue";
+import { resetVenueEditMode, setVenueEditMode, setWasCancelledVenue } from "../../redux/Venue/addVenue";
 import TextError from "../Error/formError";
 import { Amenities, Equipment } from "../../Constant/venue";
 import { AiFillQuestionCircle } from "react-icons/ai";
@@ -37,7 +37,9 @@ import { resetVenueState } from "../../redux/Venue/addVenue";
 import Combopopover from "../Common/Combobox";
 import { phoneRegex, venueImageSize } from "../../Constant/app";
 import { Switch } from "@headlessui/react";
-
+import { useRef } from "react";
+import { deleteImages } from "../../redux/Upload/uploadActions";
+import { setDeletedImages,resetDeletedImages } from "../../redux/Upload/uploadImage";
 const requiredVenueFields = (venue) => {
   const {
     name,
@@ -247,12 +249,13 @@ const VenueInfo = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading } = useSelector((state) => state.Venue);
-  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
+  const { venueEditMode ,wasCancelled} = useSelector((state) => state.Venue);
   const { id } = useParams();
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.Venue);
   const [selectedTags, setSelectedTags] = useState([]);
-
+  const formikRef = useRef();
+    const { deletedImages } = useSelector((state) => state.upload);
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
 
@@ -274,7 +277,9 @@ const VenueInfo = () => {
           onClose: "hideSuccess",
         })
       );
-
+      if (deletedImages?.length > 0) {
+        dispatch(deleteImages(deletedImages));
+      }
       setTimeout(() => {
         !id ? navigate("/venues") : navigate(`/venues/${id}`);
       }, 2000);
@@ -309,11 +314,7 @@ const VenueInfo = () => {
   useEffect(() => {
     dispatch(getUniqueVenueTags());
   }, []);
-  useEffect(()=>{
-   return ()=>{
-    dispatch(setVenueEditMode());
-   }
-  },[])
+  
 
   useEffect(() => {
     if (venue && id && isSuccess) {
@@ -332,7 +333,24 @@ const VenueInfo = () => {
   const { uplodedData, isUploading, isUploaded } = useSelector(
     (state) => state.upload
   );
-
+  const handleCancel = () => {
+    if (formikRef.current) {
+      formikRef.current.resetForm();
+      dispatch(resetDeletedImages());
+    }
+  };
+  useEffect(() => {
+    if (!venueEditMode ) {
+      handleCancel();
+    }
+    setWasCancelledVenue(false);
+  }, [venueEditMode]);
+  useEffect(() => {
+    return () => {
+      dispatch(resetVenueEditMode());
+      dispatch(resetDeletedImages());
+    };
+  }, []);
   if (isGettingVenue) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -347,6 +365,7 @@ const VenueInfo = () => {
       initialValues={initialState}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      innerRef={formikRef}
     >
       {({ isSubmitting, submitForm }) => {
         setSubmitForm(() => submitForm);
@@ -434,7 +453,7 @@ const VenueBasicInfo = ({ id }) => {
           id="address.location"
           name="address.location"
           setFieldValue={setFieldValue}
-          isEdit={id?true:false}
+          isEdit={id ? true : false}
         />
         <ErrorMessage
           name="address.location.coordinates"
@@ -449,7 +468,6 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags, id }) => {
   const [venueHandle, setVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
   const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
-  console.log("values venue", values);
   useEffect(() => {
     if (values.name) {
       const { name } = values;
@@ -502,7 +520,6 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags, id }) => {
             setFieldValue("venueInfoUrl", e.target.value);
           }}
         />
-        {/* <ErrorMessage name="handle" component={TextError} /> */}
       </div>
 
       <Combopopover
@@ -693,7 +710,6 @@ const VenueAvailableDays = ({ id }) => {
       if (day === "All days") {
         const newAllDaysActive = !values.availableDays[index].active;
         setFieldValue(`availableDays[${index}].active`, newAllDaysActive);
-        console.log(" new All days active", newAllDaysActive);
 
         if (newAllDaysActive) {
           const allDaysTimes = {
@@ -1055,8 +1071,6 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
               Click to upload{" "}
               <span className="text-sm text-[#353535] "> or drag and drop</span>
             </p>
-
-            {/* <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p> */}
             <p className="text-xs text-[#353535] mt-1">
               (Image size: 1200x600)
             </p>
@@ -1186,7 +1200,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
                 <IoIosCloseCircleOutline
                   className="absolute right-0 w-6 h-6 z-100 text-black cursor-pointer"
                   onClick={() => {
-                    if(!isDisabled){
+                    if (!isDisabled) {
                       handleRemoveImage(index);
                     }
                   }}
@@ -1215,7 +1229,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
                     id="layoutImages"
                     name="layoutImages"
                     onChange={(e) => {
-                       handleFileUpload(e);
+                      handleFileUpload(e);
                     }}
                     value=""
                     type="file"

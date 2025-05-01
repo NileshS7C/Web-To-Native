@@ -1,7 +1,6 @@
 import { Switch } from "@headlessui/react";
 
 export default function ToggleButton({ enabled, setEnabled, type }) {
-  console.log(" enable", enabled);
   return (
     <Switch
       checked={enabled}

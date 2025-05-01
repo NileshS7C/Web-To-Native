@@ -4,7 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@headlessui/react";
 
-import { onCancel, onCofirm } from "../../redux/Confirmation/confirmationSlice";
+import {
+  onCancel,
+  onConfirm,
+} from "../../redux/Confirmation/confirmationSlice";
 import { cleanUpSuccess, showSuccess } from "../../redux/Success/successSlice";
 import { cleanUpError, showError } from "../../redux/Error/errorSlice";
 import { resetDeleteState, resetErrorState } from "../../redux/Venue/addCourt";
@@ -87,7 +90,7 @@ export const CourtListing = ({
         isOpen={isOpen}
         onCancel={onCancel}
         onClose={onClose}
-        onConfirm={onCofirm}
+        onConfirm={onConfirm}
         isLoading={isDeleting}
         message={message}
       />

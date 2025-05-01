@@ -14,6 +14,7 @@ const initialState = {
   ],
 
   venueEditMode: false,
+  wasCancelled: false,
 };
 const venueSlice = createSlice({
   name: "Venue",
@@ -35,16 +36,19 @@ const venueSlice = createSlice({
       state.venueEditMode = false;
     },
     setTabs(state, { payload }) {
-      console.log(" payload", payload);
       state.venueTabs = payload;
     },
 
     setVenueEditMode(state) {
       state.venueEditMode = !state.venueEditMode;
+      state.wasCancelled = false;
     },
-
+    setWasCancelledVenue(state) {
+      state.wasCancelled = !state.tournamentEditMode;
+    },
     resetVenueEditMode(state) {
       state.venueEditMode = false;
+      state.wasCancelled = false;
     },
   },
   extraReducers: (builder) => {
@@ -71,6 +75,7 @@ export const {
   setTabs,
   setVenueEditMode,
   resetVenueEditMode,
+  setWasCancelledVenue
 } = venueSlice.actions;
 
 export default venueSlice.reducer;

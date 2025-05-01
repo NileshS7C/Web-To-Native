@@ -24,7 +24,6 @@ export default function BlogPosts() {
             import.meta.env.VITE_BASE_URL
           }/users/admin/blogs?page=${page}&limit=${limit}`
         );
-        console.log("response", response);
 
         if (response.status !== 200) {
           throw new Error("Failed to fetch blog posts.");

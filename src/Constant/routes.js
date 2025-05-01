@@ -25,25 +25,26 @@ export const backButtonRoutes = [
   },
 ];
 
-const ADMINROLES = ["SUPER_ADMIN", "ADMIN"];
-
+const ADMIN_ROLES = ["SUPER_ADMIN", "ADMIN"];
+const TOURNAMENT_OWNER_ROLES = ["TOURNAMENT_OWNER"];
 export const API_END_POINTS = {
   tournament: {
     POST: {
       tournamentCreation: (type) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return "/users/admin/tournaments";
         } else {
           return "/users/tournament-owner/tournaments";
         }
       },
 
-      archiveTournament: (type, tour_Id) => {
-        if (ADMINROLES.includes(type)) {
+      archiveTournament: (type, tour_Id,ownerId) => {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tour_Id}/archive`;
-        } else {
-          return `/users/tournament-owner/tournaments/${tour_Id}/archive`;
-        }
+        } else if (TOURNAMENT_OWNER_ROLES.includes(type)) {
+          return `/users/tournament-owner/tournaments/${tour_Id}/owner/${ownerId}/archive`;
+        } else 
+          return null;
       },
 
       verifyTournament: (tournamentId) => {
@@ -51,14 +52,14 @@ export const API_END_POINTS = {
       },
 
       createBooking: (type, ownerId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/bookings/owner/${ownerId}`;
         } else {
           return `/users/tournament-owner/bookings/owner/${ownerId}`;
         }
       },
       cancelAndRefundBooking: (type, ownerId, bookingId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/bookings/${bookingId}/owner/${ownerId}`;
         } else {
           return `/users/tournament-owner/bookings/${bookingId}/owner/${ownerId}`;
@@ -66,7 +67,7 @@ export const API_END_POINTS = {
       },
 
       createCategory: (type, tournamentId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories`;
@@ -74,7 +75,7 @@ export const API_END_POINTS = {
       },
 
       updateCategory: (type, tournamentId, categoryId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}`;
@@ -82,7 +83,7 @@ export const API_END_POINTS = {
       },
 
       deleteCategory: (type, tournamentId, categoryId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/delete`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/delete`;
@@ -90,14 +91,14 @@ export const API_END_POINTS = {
       },
 
       createFixture: (type, tournamentId, categoryId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures`;
         }
       },
       publishFixture: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
@@ -110,21 +111,21 @@ export const API_END_POINTS = {
         fixtureId,
         stageId
       ) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
         }
       },
       fixtureMatchSetUpdated: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match-set`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match-set`;
         }
       },
       fixtureMatchUpdate: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/update-match`;
@@ -132,7 +133,7 @@ export const API_END_POINTS = {
       },
 
       fixtureMatchSetCount: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/set-match-count`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/set-match-count`;
@@ -142,14 +143,14 @@ export const API_END_POINTS = {
 
     GET: {
       getAllVenues: (type) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return "/users/admin/venues";
         } else {
           return "/users/tournament-owner/venues/all-venues";
         }
       },
       getAllTouranaments: (ownerId, type) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/`;
         } else {
           return `/users/tournament-owner/tournaments/owner/${ownerId}`;
@@ -157,14 +158,14 @@ export const API_END_POINTS = {
       },
 
       searchTournaments: (ownerId, type) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/search`;
         } else {
           return `/users/tournament-owner/tournaments/owner/${ownerId}/search`;
         }
       },
       tournamentById: (type, tournamentId, ownerId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/owner/${ownerId}`;
@@ -172,7 +173,7 @@ export const API_END_POINTS = {
       },
 
       getAllTags: (type) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return "/users/admin/tournaments/tournament-tags";
         } else {
           return "/users/tournament-owner/tournaments/tournament-tags";
@@ -180,21 +181,21 @@ export const API_END_POINTS = {
       },
 
       getBookingByCategory: (type, tournamentId, categoryId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/bookings`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/bookings`;
         }
       },
       getBookingById: (type, bookingId, ownerId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/bookings/${bookingId}/owner/${ownerId}/bookings`;
         } else {
           return `/users/tournament-owner/bookings/${bookingId}/owner/${ownerId}`;
         }
       },
       getBookingByOwner: (type, ownerId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/bookings/owner/${ownerId}`;
         } else {
           return `/users/tournament-owner/bookings/owner/${ownerId}`;
@@ -202,7 +203,7 @@ export const API_END_POINTS = {
       },
 
       getCategoryById: (type, tournamentId, categoryId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}`;
@@ -210,7 +211,7 @@ export const API_END_POINTS = {
       },
 
       getAllCategoriesByTournament: (type, tournamentId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories`;
@@ -218,7 +219,7 @@ export const API_END_POINTS = {
       },
 
       getFixtureByTour_IdAndCategoryId: (type, tournamentId, categoryId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures`;
@@ -226,7 +227,7 @@ export const API_END_POINTS = {
       },
 
       getFixtureById: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}`;
@@ -240,10 +241,19 @@ export const API_END_POINTS = {
         fixtureId,
         stageId
       ) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stage/${stageId}/standings`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stage/${stageId}/standings`;
+        }
+      },
+      downloadSheetOfPlayers: (tournamentId, ownerId, userRole) => {
+        if (ADMIN_ROLES.includes(userRole)) {
+          return `/users/admin/tournaments/${tournamentId}/export-bookings`;
+        } else if (TOURNAMENT_OWNER_ROLES.includes(userRole)) {
+          return `/users/tournament-owner/tournaments/${tournamentId}/owner/${ownerId}/export-bookings`;
+        } else {
+          return null;
         }
       },
     },
@@ -255,7 +265,7 @@ export const API_END_POINTS = {
         categoryId,
         fixtureId
       ) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/set-match-count`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/set-match-count`;
@@ -265,7 +275,7 @@ export const API_END_POINTS = {
 
     DELETE: {
       deleteCategory: (type, tournamentId, categoryId) => {
-        if (ADMINROLES.includes(type)) {
+        if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}`;

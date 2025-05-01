@@ -51,7 +51,7 @@ export const Pagination = ({
 
   const pages = generatePages();
   return (
-    <nav className="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+    <nav className="flex items-center justify-between border-t border-gray-200 px-1 md:px-4 sm:px-0">
       <div className="-mt-px flex w-0 flex-1">
         {!hasLink && (
           <button
@@ -59,13 +59,13 @@ export const Pagination = ({
               dispatch(onPageChange(Number(currentPage) - 1));
             }}
             disabled={currentPage === 1}
-            className={`inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium ${
+            className={`inline-flex items-center border-t-2 border-transparent md:pr-1 pt-4 text-xs md:text-sm font-medium ${
               currentPage === 1
                 ? "text-gray-300 cursor-not-allowed"
                 : "text-gray-500 hover:border-gray-300 hover:text-gray-700"
             }`}
           >
-            <ArrowLongLeftIcon aria-hidden="true" className="mr-3 size-5" />
+            <ArrowLongLeftIcon aria-hidden="true" className="mr-3 size-4 md:size-5" />
             Previous
           </button>
         )}
@@ -78,19 +78,19 @@ export const Pagination = ({
                 page: (Number(currentPage) - 1).toString(),
               }),
             }}
-            className={`inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium ${
+            className={`inline-flex items-center border-t-2 border-transparent md:pr-1 pt-4 text-xs md:text-sm font-medium ${
               currentPage === 1
                 ? "text-gray-300 cursor-not-allowed hidden"
                 : "text-gray-500 hover:border-gray-300 hover:text-gray-700"
             }`}
           >
-            <ArrowLongLeftIcon aria-hidden="true" className="mr-3 size-5" />
+            <ArrowLongLeftIcon aria-hidden="true" className="mr-3 size-4 md:size-5" />
             Previous
           </Link>
         )}
       </div>
 
-      <div className="hidden md:-mt-px md:flex">
+      <div className="mb-12 md:mb-0  md:flex">
         {pages.map((page, index) => (
           <React.Fragment key={`page_${page}`}>
             {hasLink && page !== "..." ? (
@@ -99,7 +99,7 @@ export const Pagination = ({
                   pathname: !pathName ? "/tournaments" : pathName,
                   search: updateQueryString({ page: page.toString() }),
                 }}
-                className={`inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium ${
+                className={`inline-flex items-center border-t-2 px-[6px] md:px-4 pt-4 text-sm font-medium ${
                   page === Number(currentPage)
                     ? "border-indigo-500 text-indigo-600"
                     : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
@@ -112,9 +112,10 @@ export const Pagination = ({
                 onClick={() => {
                   if (page !== "...") {
                     dispatch(onPageChange(page));
+                 
                   }
                 }}
-                className={`inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium ${
+                className={`inline-flex items-center border-t-2 px-2 md:px-4 pt-4 text-sm font-medium ${
                   page === currentPage
                     ? "border-indigo-500 text-indigo-600"
                     : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
@@ -127,19 +128,19 @@ export const Pagination = ({
         ))}
       </div>
 
-      <div className="-mt-px flex w-0 flex-1 justify-end">
+      <div className=" flex w-0 flex-1 justify-end">
         {!hasLink && (
           <button
             onClick={() => dispatch(onPageChange(Number(currentPage) + 1))}
             disabled={currentPage === totalPages}
-            className={`inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium ${
+            className={`inline-flex items-center border-t-2 border-transparent md:pl-1 pt-4 text-xs md:text-sm font-medium ${
               currentPage === totalPages
                 ? "text-gray-300 cursor-not-allowed"
                 : "text-gray-500 hover:border-gray-300 hover:text-gray-700"
             }`}
           >
             Next
-            <ArrowLongRightIcon aria-hidden="true" className="ml-3 size-5" />
+            <ArrowLongRightIcon aria-hidden="true" className="ml-1 md:ml-3 size-4 md:size-5" />
           </button>
         )}
 
@@ -151,14 +152,14 @@ export const Pagination = ({
                 page: (Number(currentPage) + 1).toString(),
               }),
             }}
-            className={`inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium ${
+            className={`inline-flex items-center border-t-2 border-transparent md:pr-1 pt-4 text-xs md:text-sm font-medium ${
               Number(currentPage) === totalPages
                 ? "text-gray-300 cursor-not-allowed hidden"
                 : "text-gray-500 hover:border-gray-300 hover:text-gray-700"
             }`}
           >
             Next
-            <ArrowLongRightIcon aria-hidden="true" className="ml-3 size-5" />
+            <ArrowLongRightIcon aria-hidden="true" className="ml-1 md:ml-3 size-4 md:size-5" />
           </Link>
         )}
       </div>

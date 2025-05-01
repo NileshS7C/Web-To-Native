@@ -32,10 +32,12 @@ const eventSlice = createSlice({
     toggleBookingModal(state) {
       state.showConfirmBookingModal = !state.showConfirmBookingModal;
     },
-    onPageChangeEvent(state, { payload }) {
-      state.currentPage = payload;
+    resetCurrentPage(state){
+         state.currentPage=1;
     },
-
+    onPageChangeEvent(state, { payload }) {
+      state.currentPage = Number(payload);
+    },
     setEventId(state, { payload }) {
       state.eventId = payload;
     },
@@ -61,8 +63,8 @@ const eventSlice = createSlice({
       .addCase(getAllCategories.fulfilled, (state, { payload }) => {
         state.isLoading = false;
         state.hasError = false;
-        state.categories = payload.data.categories;
-        state.totalCategories = payload.total;
+        state.categories = payload?.data?.categories || [];
+        state.totalCategories = payload?.data?.total || 0;
       })
       .addCase(getAllCategories.rejected, (state) => {
         state.hasError = true;
@@ -97,6 +99,7 @@ export const {
   toggleBookingModal,
   resetAllCategories,
   setDeleteCategoryId,
+  resetCurrentPage,
 } = eventSlice.actions;
 
 export default eventSlice.reducer;

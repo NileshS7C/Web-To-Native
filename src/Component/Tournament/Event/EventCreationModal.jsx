@@ -7,7 +7,8 @@ import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import DatePicker from "react-datepicker";
 import * as yup from "yup";
 import useDebounce from "../../../Hooks/useDebounce";
-
+import { Cookies } from "react-cookie";
+const cookies = new Cookies();
 import { toggleModal } from "../../../redux/tournament/eventSlice";
 import { getAllVenues,getSearchVenues } from "../../../redux/Venue/venueActions";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
@@ -105,6 +106,7 @@ const initialValues = {
 export const EventCreationModal = () => {
   const [isVenueFinal, setIsVenueFinal] = useState(false);
   const [venueNotListed, setVenueNotListed] = useState(false);
+  const modalContentRef = useRef(null);
   const validationSchema = yup.object().shape({
     categoryName: yup
       .string()
@@ -176,6 +178,11 @@ export const EventCreationModal = () => {
   const isVenueNotListed = (value) => {
     setVenueNotListed(value);
   };
+  const scrollToTop = () => {
+    if (modalContentRef.current) {
+      modalContentRef.current.scrollTop = 0;
+    }
+  };
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setHasError(false);
@@ -244,6 +251,7 @@ export const EventCreationModal = () => {
       }
       setHasError(true);
       setErrorMessage(error?.data?.message || "Something went wrong.");
+      scrollToTop()
     } finally {
       setSubmitting(false);
     }
@@ -288,6 +296,7 @@ export const EventCreationModal = () => {
       setInitialState({});
     }
   }, [categoryId, tournamentId, singleCategorySuccess]);
+  
   return (
     <Dialog
       open={showModal}
@@ -296,6 +305,7 @@ export const EventCreationModal = () => {
         dispatch(toggleModal());
       }}
       className="relative z-10 "
+     
     >
       <DialogBackdrop
         transition
@@ -304,11 +314,12 @@ export const EventCreationModal = () => {
       <div className="fixed  inset-0 z-10 overflow-y-auto">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
+            ref={modalContentRef}
             transition
             className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[70%] max-h-[90vh]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 overflow-y-auto"
           >
-            <div>
-              <div className="w-full bg-[#FFFFFF] px-[20px] h-full overflow-y-hidden">
+            <div >
+              <div className="w-full bg-[#FFFFFF] px-[20px] h-full " ref={modalContentRef}>
                 <AddEventTitle />
                 {loadingSingleCategory && (
                   <ImSpinner8 className="w-[40px] h-[40px] m-auto animate-spin" />
@@ -339,7 +350,9 @@ export const EventCreationModal = () => {
                             getLocation={getLocation}
                             isVenueNotListed={isVenueNotListed}
                             updatedCategory={updatedCategory}
-                            categoryLocation={initialState?.categoryLocation || null}
+                            categoryLocation={
+                              initialState?.categoryLocation || null
+                            }
                           />
                           <EventTimings />
                           <div className="grid justify-self-end gap-[10px]">
@@ -686,12 +699,6 @@ const VenueSelection = ({
 
       {currentCheckBox === "decided" && (
         <div className="flex flex-col gap-2 w-full">
-          {/* <VenueSearch
-            isVenueNotAvailable={isVenueNotAvailable}
-            venues={venues}
-            total={total}
-          /> */}
-
           <ComboboxForVenuesList
             isVenueNotAvailable={isVenueNotAvailable}
             venueNotListed={venueNotListed}
@@ -810,18 +817,6 @@ const EventTimings = () => {
 
         <ErrorMessage name="categoryStartDate" component={TextError} />
       </div>
-      {/* <div className="flex flex-col items-start gap-2.5">
-        <div className="flex flex-col items-start gap-2.5">
-          <label className="text-[16px] leading-[19.3px] text-[#232323]">
-            Select Time
-          </label>
-          <input
-            placeholder="Select Date"
-            type="time"
-            className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-      </div> */}
     </div>
   );
 };
@@ -956,39 +951,6 @@ const AddVenueAddress = ({ location }) => {
             component={TextError}
           />
         </div>
-        {/* <div className="flex flex-col items-start gap-2.5">
-          <label
-            className="text-xs text-[#232323]"
-            htmlFor="categoryLocation.venueImage"
-          >
-            Upload Venue Image
-          </label>
-          <div className=" flex relative ">
-            <img
-              src={values.categoryLocation?.venueImage || imageUpload}
-              alt="sponsor logo"
-              className="min-w-full h-[40px] cursor-pointer"
-            />
-            <Field name="categoryLocation.venueImage">
-              {({ form, field }) => (
-                <input
-                  {...field}
-                  id="categoryLocation.venueImage"
-                  name="categoryLocation.venueImage"
-                  onChange={(e) => {
-                    const files = e.target.files[0];
-                    const url = window.URL.createObjectURL(files);
-                    form.setFieldValue("categoryLocation.venueImage", url);
-                  }}
-                  value=""
-                  type="file"
-                  className="absolute  w-8 h-8  inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
-                  multiple={false}
-                />
-              )}
-            </Field>
-          </div>
-        </div> */}
       </div>
     </div>
   );
@@ -1024,6 +986,8 @@ function ComboboxForVenuesList({
   const debounceCalls = useDebounce(query, 300);
   const searchParams = new URLSearchParams(browserLocation.search);
   const categoryId = searchParams.get("category");
+  const {userRole:role}=useSelector(state=>state.auth);
+  const userRole = cookies.get("userRole");
   const handleRemoveVenue = () => {
     setSelectedPerson(null);
     getLocation({});
@@ -1057,7 +1021,7 @@ function ComboboxForVenuesList({
           scrollPositionRef.current = scrollContainerRef.current.scrollTop;
         }
         const result = await dispatch(
-          getSearchVenues({ currentPage, selectedFilter, limit: 10, name: query })
+          getSearchVenues({ currentPage, selectedFilter, limit: 10, name: query ,userRole:userRole || role})
         ).unwrap();
 
         if (!result.responseCode) {
@@ -1081,7 +1045,7 @@ function ComboboxForVenuesList({
         setIsLoading(true);
         setHasError(false);
         const result = await dispatch(
-          getSearchVenues({ currentPage, selectedFilter, limit: 10 })
+          getSearchVenues({ currentPage, selectedFilter, limit: 10 ,userRole:userRole || role})
         ).unwrap();
 
         if (!result.responseCode) {
@@ -1153,6 +1117,7 @@ function ComboboxForVenuesList({
       setSelectedPerson(temp);
     }
   },[])
+
   return (
     <Combobox
       as="div"

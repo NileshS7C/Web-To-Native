@@ -4,6 +4,7 @@ import {
   getAll_TO,
   getAllUniqueTags,
   handleTournamentDecision,
+  downloadSheetOfPlayers
 } from "./tournamentActions";
 import { approvalBody } from "../../Constant/tournament";
 
@@ -38,12 +39,17 @@ const tournamentSlice = createSlice({
     tournament_Id: null,
     rejectionComments: "",
     isNotEditable: false,
+    
     isConfirmed: false,
     approvalBody: { action: "APPROVE", rejectionComments: "" },
     pendingArchive: false,
     archived: false,
     archivedError: false,
     archivedErrorMessage: "",
+    pendingDownload: false,
+    sheetDownload: false,
+    downloadError: false,
+    downloadErrorMessage: "",
   },
 
   reducers: {
@@ -94,7 +100,12 @@ const tournamentSlice = createSlice({
       state.archivedErrorMessage = false;
       state.archived = false;
     },
-
+    resetDownloadState(state) {
+       state.pendingDownload= false;
+       state.sheetDownload= false;
+       state.downloadError= false;
+       state.downloadErrorMessage= ""
+    },
     removeFiles: {
       reducer(state, action) {
         const { file, source } = action.payload;
@@ -228,6 +239,26 @@ const tournamentSlice = createSlice({
         state.archivedError = true;
         state.archivedErrorMessage = payload?.data?.message;
       });
+
+    builder
+      .addCase(downloadSheetOfPlayers.pending, (state) => {
+        state.pendingDownload = true,
+        state.sheetDownload = false,
+        state.downloadError = false,
+        state.downloadErrorMessage = "";
+      })
+      .addCase(downloadSheetOfPlayers.fulfilled, (state) => {
+        state.pendingDownload = false,
+        state.sheetDownload = true,
+        state.downloadError = false,
+        state.downloadErrorMessage = "";  
+      })
+      .addCase(downloadSheetOfPlayers.rejected, (state, { payload }) => {
+        state.pendingDownload = false,
+        state.sheetDownload = false,
+        state.downloadError = true,
+        state.downloadErrorMessage =  payload?.message;  
+      });
   },
 });
 export const {
@@ -248,5 +279,6 @@ export const {
   resetVerificationState,
   setApprovalBody,
   resetArchiveState,
+  resetDownloadState
 } = tournamentSlice.actions;
 export default tournamentSlice.reducer;

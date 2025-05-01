@@ -168,3 +168,26 @@ export const getUploadedImages = createAsyncThunk(
     }
   }
 );
+
+export const deleteImages = createAsyncThunk(
+  "delete/deleteImages",
+  async (data,{ rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/delete-files`,
+        JSON.stringify({"fileUrls":data}),
+        config
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue({
+        message: err.message || "An unknown error occurred",
+      });
+    }
+  }
+);

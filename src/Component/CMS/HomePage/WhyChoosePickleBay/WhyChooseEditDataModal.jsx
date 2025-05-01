@@ -67,8 +67,7 @@ export default function WhyChooseEditDataModal({ data, selectedCard, isOpen, onC
                                             isVisible: data.isVisible,
                                             steps: updatedSteps,
                                         };
-                            
-                                        console.log('Updated Payload:', payload);
+                                  
                             
                                         const config = {
                                             headers: {

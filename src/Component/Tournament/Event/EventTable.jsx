@@ -19,7 +19,6 @@ import DataTable from "../../Common/DataTable";
 import { eventTableHeaders } from "../../../Constant/tournament";
 import Spinner from "../../Common/Spinner";
 import { resetConfirmationState } from "../../../redux/Confirmation/confirmationSlice";
-
 export const EventTable = ({ isDisable, categories }) => {
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
@@ -51,7 +50,15 @@ export const EventTable = ({ isDisable, categories }) => {
   const handleDelete = (id) => {
     dispatch(setDeleteCategoryId(id));
   };
-
+  useEffect(()=>{
+    dispatch(
+      getAllCategories({
+        currentPage,
+        limit: 10,
+        id: tournamentId,
+      })
+    );
+  },[currentPage])
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -74,7 +81,7 @@ export const EventTable = ({ isDisable, categories }) => {
           </tr>
           <tr>
             <td colSpan="6" className="text-center py-5">
-              <NoEventCreated />
+              <NoEventCreated disabled={isDisable} />
             </td>
           </tr>
         </table>
@@ -89,13 +96,14 @@ export const EventTable = ({ isDisable, categories }) => {
           onPageChange={onPageChangeEvent}
           className="border-[1px] rounded-md"
           onClick={(id) => handleDelete(id)}
+          hasLink={false}
         />
       )}
     </div>
   );
 };
 
-const NoEventCreated = () => {
+const NoEventCreated = ({ disabled }) => {
   const dispatch = useDispatch();
   return (
     <div className="grid grid-rows-3 gap-[20px] justify-items-center">
@@ -106,6 +114,7 @@ const NoEventCreated = () => {
       <Button
         className="text-[16px] leading-[19px] font-[500] bg-[#1570EF] text-[#FFFFFF] w-[158px] h-[43px] rounded-[4px] "
         onClick={() => dispatch(toggleModal())}
+        disabled={disabled}
       >
         Add New Event
       </Button>

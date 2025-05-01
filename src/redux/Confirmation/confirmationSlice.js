@@ -23,8 +23,9 @@ const confirmationSlice = createSlice({
       state.confirmationId = payload.id;
       state.withComments = payload.withComments;
     },
-    onCofirm(state, { payload }) {
+    onConfirm(state, { payload }) {
       state.isConfirmed = true;
+      //  state.isOpen = false;
     },
     onCancel(state) {
       state.onClose = null;
@@ -43,7 +44,7 @@ const confirmationSlice = createSlice({
   },
 });
 
-export const { showConfirmation, onCofirm, onCancel, resetConfirmationState } =
+export const { showConfirmation, onConfirm, onCancel, resetConfirmationState } =
   confirmationSlice.actions;
 
 export default confirmationSlice.reducer;

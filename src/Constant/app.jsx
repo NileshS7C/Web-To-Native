@@ -134,26 +134,13 @@ export const ADMIN_NAVIGATION = [
 
 export const TOURNAMENT_OWNER_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
-  // {
-  //   name: "Tournament Organisers",
-  //   icon: tournamentIcon,
-  //   path: "tournament-organisers",
-  // },
-  // {
-  //   name: "Tournament Bookings",
-  //   icon: bookingIcon,
-  //   path: "tournament-bookings",
-  // },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
   { name: "Profile", icon: profileIcon, path: "profile" },
 ];
 
 export const VENUE_OWNER_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
-  // { name: "Venue Organisers", icon: eventsIcon, path: "venue-organisers" },
-  // { name: "Court Bookings", icon: bookingIcon, path: "court-bookings" },
   { name: "Venues", icon: venueIcon, path: "venues" },
-  // { name: "User", icon: profileIcon, path: "users" },
 ];
 
 export const ActionButtonGroup = [
@@ -174,7 +161,7 @@ export const venueImageSize = 5 * 1024 * 1024; //5 mb
 
 
 export const packageImageSize = 5 * 1024 * 1024; //5 mb
-export const TournamentOragniserModalTitle = "Pickle Ball Federation";
+export const TournamentOragniserModalTitle = "Tournament Organiser Creation Form";
 
 export const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 export const phoneRegex = /^\d{10}$/;

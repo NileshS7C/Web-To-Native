@@ -67,11 +67,11 @@ const EventNameAndDate = ({ name, format, maxPlayer }) => {
 
   return (
     <div className="flex flex-col items-start flex-1 gap-10">
-      <div className="flex flex-wrap flex-col items-start gap-2.5">
+      <div className="flex flex-col items-start gap-2.5">
         <p className="text-tour_List_Color text-xs sm:text-sm md:text-md lg:text-lg ">
           Event Name
         </p>
-        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg whitespace-nowrap">
+        <p className="text-customColor font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-left ">
           {name}
         </p>
       </div>
