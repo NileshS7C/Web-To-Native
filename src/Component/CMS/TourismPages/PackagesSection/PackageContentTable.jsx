@@ -5,6 +5,8 @@ import DeleteModal from "../DeleteModal";
 import axiosInstance from "../../../../Services/axios";
 import PackageSection from "../../../../Page/CMS/Homepage/PackageSection";
 
+
+
 export default function PackageContentTable({ data, fetchTourismSections }) {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);

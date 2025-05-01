@@ -8,7 +8,7 @@ import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
 import { useEffect, useState } from "react";
 
-export const NavBar = ({ handleHamburgerClose }) => {
+export const NavBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [cookies] = useCookies(["userRole"]);
@@ -112,7 +112,6 @@ export const NavBar = ({ handleHamburgerClose }) => {
                 // Navigate if it doesn't have children
                 dispatch(setNavigation(menu.name));
                 navigate(currentPath);
-                handleHamburgerClose();
               }
             }}
           >

@@ -42,12 +42,13 @@ export const TournamentOrganiserCreation = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [brandLogoImageError, setBrandLogoImageError] = useState("");
   const brandLogoFileInputRef = useRef(null);
+  const modalContentRef = useRef(null);
 
   const uploadImageToS3 = async (file) => {
     try {
       const formData = new FormData();
       formData.append("uploaded-file", file);
-  
+
       const config = {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -58,10 +59,12 @@ export const TournamentOrganiserCreation = ({
         formData,
         config
       );
-      console.log("Upload successful, received S3 URL:", response.data.data.url);
       return { success: true, url: response.data.data.url };
     } catch (error) {
-      return { success: false, message: error?.response?.data?.message || "Image upload failed" };
+      return {
+        success: false,
+        message: error?.response?.data?.message || "Image upload failed",
+      };
     }
   };
 
@@ -71,28 +74,34 @@ export const TournamentOrganiserCreation = ({
       setBrandLogoImageError("");
       const imageUrl = await uploadImageToS3(file);
       if (imageUrl.success) {
-         console.log("Setting Formik field 'ownerDetails.brandLogoImage' to:", imageUrl.url); 
-         setFieldValue("ownerDetails.brandLogoImage", imageUrl.url); 
+        setFieldValue("ownerDetails.brandLogoImage", imageUrl.url);
       } else {
         setBrandLogoImageError(imageUrl.message);
-        setFieldValue("ownerDetails.brandLogoImage", ""); 
+        setFieldValue("ownerDetails.brandLogoImage", "");
       }
-      return imageUrl.success; 
+      return imageUrl.success;
     }
     return false;
   };
-  
+
+  const scrollToTop = () => {
+    if (modalContentRef.current) {
+      modalContentRef.current.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  };
+
   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
-    console.log("Complete form data being sent (from Formik):", values);
-    
     try {
       setSubmitting(true);
       setHasError(false);
       setErrorMessage("");
-      let updatedValues; 
-  
+      let updatedValues;
+
       const valuesWithLogo = values;
-  
+
       if (organiserId) {
         const { password } = valuesWithLogo;
         if (password) {
@@ -102,27 +111,27 @@ export const TournamentOrganiserCreation = ({
               "password",
               "Password must have at least 8 characters, including uppercase, lowercase, a number, and a special character."
             );
-            setSubmitting(false); 
-            return; 
+            setSubmitting(false);
+            return;
           }
-          updatedValues = valuesWithLogo; 
+          updatedValues = valuesWithLogo;
         } else {
           const { password, ...restOfValues } = valuesWithLogo;
-          updatedValues = restOfValues; 
+          updatedValues = restOfValues;
         }
       } else {
-         updatedValues = valuesWithLogo;
+        updatedValues = valuesWithLogo;
       }
-  
+
       const result = !organiserId
-        ? await dispatch(createTournamentOwner(updatedValues)).unwrap() 
+        ? await dispatch(createTournamentOwner(updatedValues)).unwrap()
         : await dispatch(
             updateTournamentOwner({
-              formData: updatedValues, 
+              formData: updatedValues,
               ownerId: organiserId,
             })
           ).unwrap();
-  
+
       if (!result.responseCode) {
         dispatch(
           showSuccess({
@@ -138,20 +147,18 @@ export const TournamentOrganiserCreation = ({
             limit: rowsInOnePage,
           })
         );
-  
+
         dispatch(toggleOrganiserModal());
       }
     } catch (err) {
-      console.log(
-        " Error occured while creating the tournament organiser",
-        err
-      );
-  
+      scrollToTop();
+      console.log("Error occured while creating the tournament organiser", err);
+
       setErrorMessage(
-        err.data.message ||
-        "Oops! some thing went wrong while creating the organiser. Please try again."
+        err.data?.message ||
+          "Oops! something went wrong while creating the organiser. Please try again."
       );
-  
+
       setHasError(true);
     } finally {
       setSubmitting(false);
@@ -165,7 +172,7 @@ export const TournamentOrganiserCreation = ({
       dispatch(resetGlobalLocation());
       setBrandLogoImageError("");
     }
-  }, [isOpen, dispatch]); 
+  }, [isOpen, dispatch]);
 
   return (
     <Dialog
@@ -178,11 +185,12 @@ export const TournamentOrganiserCreation = ({
         className="fixed inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
       />
 
-      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div className="fixed inset-0 z-[11] w-screen overflow-y-auto">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             transition
             className="relative max-h-[90vh] transform overflow-y-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            ref={modalContentRef}
           >
             <div className="flex w-full">
               {actionPending && (
@@ -191,27 +199,31 @@ export const TournamentOrganiserCreation = ({
                 </div>
               )}
               {!actionPending && (
-                <div className="flex flex-col justify-between flex-1 items-between gap-3 w-full ">
+                <div className="flex flex-col justify-between flex-1 items-between gap-3 w-full">
                   <OrganiserModalTitle
                     onCancel={() => dispatch(toggleOrganiserModal())}
                   />
 
                   {hasError && <ErrorBanner message={errorMessage} />}
                   <Formik
-                    enableReinitialize={true} 
-                    initialValues={initialValues} 
+                    enableReinitialize={true}
+                    initialValues={initialValues}
                     validationSchema={validationSchema}
-                    onSubmit={handleSubmit} 
+                    onSubmit={handleSubmit}
                   >
-                    {({ isSubmitting, setFieldValue, values }) => { 
+                    {({ isSubmitting, setFieldValue, values }) => {
                       return (
                         <Form>
                           <div className="flex flex-col justify-between w-full gap-4 flex-1">
                             <OrganiserBasicDetails />
                             <OrganiserPhoneAndPassword />
-                            <BrandEmailAndPhone 
-                              handleBrandLogoImageChange={(event) => handleBrandLogoImageChange(event, setFieldValue)} 
-                              brandLogoImage={values.ownerDetails?.brandLogoImage} 
+                            <BrandEmailAndPhone
+                              handleBrandLogoImageChange={(event) =>
+                                handleBrandLogoImageChange(event, setFieldValue)
+                              }
+                              brandLogoImage={
+                                values.ownerDetails?.brandLogoImage
+                              }
                               brandLogoImageError={brandLogoImageError}
                               brandLogoFileInputRef={brandLogoFileInputRef}
                               setFieldValue={setFieldValue}
@@ -240,7 +252,6 @@ export const TournamentOrganiserCreation = ({
     </Dialog>
   );
 };
-
 export const OrganiserModalTitle = ({ onCancel }) => {
   return (
     <div className="flex justify-between items-center w-full">

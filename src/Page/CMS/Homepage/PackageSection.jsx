@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../Services/axios";
-
 import PackageSectionInfo from "../../../Component/CMS/TourismPages/PackagesSection/PackageSectionInfo";
 import PackageContentTable from "../../../Component/CMS/TourismPages/PackagesSection/PackageContentTable";
 import PackageAddDataModal from "../../../Component/CMS/TourismPages/PackagesSection/PackageAddModal";
+
+
+
 export default function PackageSection() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [packageData,setPackageData]=useState([])

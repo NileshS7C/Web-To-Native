@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
+import { ADMIN_ROLES, TOURNAMENT_OWNER_ROLES } from "../../Constant/Roles";
 
 export const addVenue = createAsyncThunk(
   "Venue/createVenue",
@@ -352,7 +353,7 @@ export const deleteCourt = createAsyncThunk(
 export const getSearchVenues = createAsyncThunk(
   "Venue/getSearchVenues",
   async (
-    { currentPage = 1, selectedFilter, limit = 10, name = "" },
+    { currentPage = 1, selectedFilter, limit = 10, name = "",userRole },
     { rejectWithValue }
   ) => {
     try {
@@ -361,11 +362,24 @@ export const getSearchVenues = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const url = `${
-        import.meta.env.VITE_BASE_URL
-      }/users/admin/venues/search?page=${currentPage}&status=${selectedFilter}&limit=${limit}&search=${
-        name || ""
-      }`;
+      let url =null
+      if(ADMIN_ROLES.includes(userRole)){
+        url = `${
+          import.meta.env.VITE_BASE_URL
+        }/users/admin/venues/search?page=${currentPage}&status=${selectedFilter}&limit=${limit}&search=${
+          name || ""
+        }`;
+      }else if(TOURNAMENT_OWNER_ROLES.includes(userRole)){
+        url = `${
+          import.meta.env.VITE_BASE_URL
+        }/users/tournament-owner/venues/search?page=${currentPage}&status=${selectedFilter}&limit=${limit}&search=${
+          name || ""
+        }`;
+      } else{
+        return rejectWithValue({
+          message: "You do not have permission to access this resource",
+        });
+      }
       const response = await axiosInstance.get(url, config);
       return response.data;
     } catch (err) {

@@ -39,6 +39,7 @@ const tournamentSlice = createSlice({
     tournament_Id: null,
     rejectionComments: "",
     isNotEditable: false,
+    
     isConfirmed: false,
     approvalBody: { action: "APPROVE", rejectionComments: "" },
     pendingArchive: false,
