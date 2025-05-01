@@ -227,7 +227,7 @@ function TournamentListing(props) {
       <div className="flex flex-col gap-2.5 justify-end items-end">
         {selectedTab && selectedTab === "upcoming" && (
           <FilterGroup
-            title="Filter by approved status:"
+            title="Filter by status:"
             options={tournamentStatusFilters}
             selectedValue={selectedFilter}
             defaultValue="all"
@@ -258,7 +258,7 @@ function TournamentListingWrapper() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex w-[40%]">
+      <div className="flex w-full md:w-[40%]">
         <SearchEvents
           dispatch={dispatch}
           page={currentPage || 1}

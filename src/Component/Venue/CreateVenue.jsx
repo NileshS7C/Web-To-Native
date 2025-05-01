@@ -373,7 +373,7 @@ const VenueInfo = () => {
         setIsSubmitting(isSubmitting);
         return (
           <Form>
-            <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
+            <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl p-4 md:py-[50px] md:px-[48px]">
               <ErrorModal />
               <SuccessModal />
               <VenueBasicInfo id={id} />
@@ -690,7 +690,7 @@ const VenueDescription = ({ id }) => {
         onChange={(e) => {
           setFieldValue("description", e);
         }}
-        className="custom-quill"
+        className="custom-quill overflow-hidden"
         value={values.description}
         readOnly={id ? !venueEditMode : false}
       />
@@ -1023,7 +1023,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
         Venue Banners / Videos
       </p>
 
-      <div className="grid grid-cols-[1fr_auto] gap-[30px] min-h-[133px]">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2.5 min-h-[133px] overflow-hidden">
           {Array.from({ length: 7 }).map((_, index) => (
             <div
@@ -1176,7 +1176,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
     <div className="flex flex-col items-start gap-2.5">
       <p className="text-base leading-[19.36px] text-[#232323]">Venue Layout</p>
 
-      <div className="grid grid-cols-[1fr_auto] gap-[30px] h-[133px]">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2.5 h-[133px] overflow-hidden">
           {Array.from({ length: 4 }).map((_, index) => (
             <div

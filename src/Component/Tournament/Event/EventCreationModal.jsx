@@ -316,10 +316,10 @@ export const EventCreationModal = () => {
           <DialogPanel
             ref={modalContentRef}
             transition
-            className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[70%] max-h-[90vh]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 overflow-y-auto"
+            className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[95%] sm:max-w-[85%] max-h-[90vh]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 overflow-y-auto"
           >
             <div >
-              <div className="w-full bg-[#FFFFFF] px-[20px] h-full " ref={modalContentRef}>
+              <div className="w-full bg-[#FFFFFF] h-full " ref={modalContentRef}>
                 <AddEventTitle />
                 {loadingSingleCategory && (
                   <ImSpinner8 className="w-[40px] h-[40px] m-auto animate-spin" />
@@ -335,7 +335,7 @@ export const EventCreationModal = () => {
                   >
                     {({ isSubmitting }) => (
                       <Form>
-                        <div className="grid grid-col-1 gap-[20px]">
+                        <div className="flex flex-col md:grid grid-col-1 gap-[20px]">
                           <EventName />
                           <EventFormat />
                           <RegistrationFee />
@@ -355,17 +355,17 @@ export const EventCreationModal = () => {
                             }
                           />
                           <EventTimings />
-                          <div className="grid justify-self-end gap-[10px]">
-                            <div className="flex gap-2">
+                          <div className="">
+                            <div className="flex gap-2 justify-end mb-4">
                               <Button
                                 type="button"
-                                className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-white text-[14px] leading-[17px] text-[#232323] ml-auto"
+                                className="py-2 px-5 rounded-[10px] shadow-md bg-white text-[14px] leading-[17px] text-[#232323]" 
                                 onClick={() => dispatch(toggleModal())}
                               >
                                 Close
                               </Button>
                               <Button
-                                className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
+                                className="py-2 px-5 rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF]"
                                 type="submit"
                                 loading={isSubmitting}
                               >
@@ -432,7 +432,7 @@ const EventFormat = () => {
   }, [values]);
 
   return (
-    <div className="grid grid-cols-2 gap-[30px]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className="text-base leading-[19.36px] text-[#232323] "
@@ -540,7 +540,7 @@ const RegistrationFee = () => {
 
 const SelectPlayers = () => {
   return (
-    <div className="grid grid-cols-2 gap-[30px]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className="text-base leading-[19.36px] text-[#232323] "
@@ -728,7 +728,7 @@ const VenueSelection = ({
 
           {isVenueNotAvailable && (
             <div className="flex flex-col gap-2.5 w-full">
-              <div className="grid grid-cols-2 gap-[30px] items-center w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-[30px] items-center w-full">
                 <div className="flex flex-col items-start gap-2.5 w-full">
                   <label
                     className=" text-[#232323] text-base leading-[19.36px]"
@@ -780,7 +780,7 @@ const VenueSelection = ({
 
 const EventTimings = () => {
   return (
-    <div className="grid grid-cols-2 gap-[30px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className="text-[16px] leading-[19.3px] text-[#232323]"
@@ -856,7 +856,7 @@ const AddVenueAddress = ({ location }) => {
       <p className=" text-base leading-[19.36px] text-[#232323]">
         Venue Address
       </p>
-      <div className="grid grid-cols-2 gap-2.5 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
         <div className="flex flex-col items-start gap-2.5">
           <label
             className="text-xs text-[#232323]"
@@ -894,7 +894,7 @@ const AddVenueAddress = ({ location }) => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2.5 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
         <div className="flex flex-col items-start gap-2.5">
           <label
             className="text-xs text-[#232323]"
@@ -932,7 +932,7 @@ const AddVenueAddress = ({ location }) => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2.5 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
         <div className="flex flex-col items-start gap-2.5">
           <label
             className="text-xs text-[#232323]"

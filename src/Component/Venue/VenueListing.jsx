@@ -184,7 +184,7 @@ export default function VenueListing() {
   return (
     <div className="grid grid-cols-1 gap-[20px] rounded-[3xl]">
       <div className="flex justify-between flex-wrap">
-        <div className="flex items-center justify-between w-[40%] gap-2.5">
+        <div className="flex items-center justify-between w-full md:w-[40%] gap-2.5 mb-2">
           <SearchVenue
             dispatch={dispatch}
             venueName={venueName}
@@ -201,7 +201,7 @@ export default function VenueListing() {
         </div>
 
         <FilterGroup
-          title="Filter By Approval Status :"
+          title="Filter By Status :"
           options={venueFilters}
           selectedValue={selectedFilter}
           onChange={(value) => dispatch(onFilterChange(value))}
