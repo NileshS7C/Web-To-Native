@@ -51,7 +51,6 @@ import CouponDetails from "../Component/Coupons/CouponDetails";
 import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
 import Dashboard from "../Page/Dashboard";
-
 const AllRoutes = () => {
   return (
     <div>
