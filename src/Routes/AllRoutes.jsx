@@ -70,6 +70,7 @@ const AllRoutes = () => {
         >
           <Route
             index
+            path="/"
             element={
               <Dashboard/>
             }
