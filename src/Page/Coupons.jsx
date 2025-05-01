@@ -183,7 +183,7 @@ const CouponsQueryTools = ({
   ];
 
   return (
-    <div className="flex justify-between mb-2">
+    <div className="flex justify-between mb-2 flex-col md:flex-row gap-3">
       <SearchCoupons
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -196,7 +196,7 @@ const CouponsQueryTools = ({
       <div className="flex items-baseline gap-5">
         <div className="flex space-x-4 mb-4">
           <FilterGroup
-            title="Filter By Coupon Type:"
+            title="Filter By Type:"
             options={couponFilters}
             selectedValue={status}
             onChange={setStatus}

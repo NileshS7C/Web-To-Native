@@ -147,7 +147,7 @@ export const CourtCreation = () => {
       onSubmit={handleSubmit}
     >
       <Form>
-        <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
+        <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl p-4 md:py-[50px] md:px-[48px]">
           <ErrorModal />
           <SuccessModal />
           <CourtDetails />
@@ -459,7 +459,7 @@ const CourtFeatures = () => {
   const { form, values } = useFormikContext();
   return (
     <div className="flex flex-col gap-2.5 justify-between items-start">
-      <div className="flex justify-between w-full">
+      <div className="flex justify-start gap-3 w-full flex-wrap">
         {courtFeatures.map((feature) => (
           <label
             key={feature}

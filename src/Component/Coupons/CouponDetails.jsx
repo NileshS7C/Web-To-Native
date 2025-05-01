@@ -35,7 +35,7 @@ const CouponDetails = () => {
   }, [code]);
 
   return (
-    <div className=" max-w-[70%]">
+    <div className="mx-auto max-w-[100%]">
       {loading && <p>Loading coupon details...</p>}
       {error && <p className="text-red-500">{error}</p>}
 

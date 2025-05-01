@@ -10,9 +10,9 @@ function FilterGroup({
   className = "",
 }) {
   return (
-    <fieldset className={`flex items-center gap-10 ${className}`}>
+    <fieldset className={`flex items-center gap-2 md:gap-10 ${className}`}>
       <p className="text-sm text-[#667085]">{title}</p>
-      <div className=" space-y-6 sm:flex sm:items-center sm:space-x-10 sm:space-y-0">
+      <div className="flex items-center gap-3"> 
         {options.map((option) => (
           <div key={option.id} className="flex items-center">
             <input
@@ -29,7 +29,7 @@ function FilterGroup({
             />
             <label
               htmlFor={option.id}
-              className="ml-3 block text-sm/6 font-medium text-[#718EBF]"
+              className="ml-1 block text-sm/6 font-medium text-[#718EBF]"
             >
               {option.title}
             </label>
