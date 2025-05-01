@@ -163,7 +163,7 @@ const TournamentTableHeaders = [
     key: "tour_logo",
     render: () => {
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-row lg:flex-col justify-between w-full">
           <img
             src={listingIcon}
             width="60px"
@@ -178,9 +178,9 @@ const TournamentTableHeaders = [
     key: "tournamentName",
     render: (item) => {
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-row lg:flex-col justify-between w-full">
           <p className="text-customColor font-semibold">Tournament Name</p>
-          <p className="text-tour_List_Color">{item?.tournamentName}</p>
+          <p className="text-tour_List_Color text-right lg:text-left">{item?.tournamentName}</p>
         </div>
       );
     },
@@ -189,7 +189,7 @@ const TournamentTableHeaders = [
     key: "events",
     render: (item) => {
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-row lg:flex-col justify-between w-full">
           <p className="text-customColor font-semibold">Events</p>
           <p className="text-tour_List_Color">{item?.categoryCount || 0}</p>
         </div>
@@ -200,7 +200,7 @@ const TournamentTableHeaders = [
     key: "startDate",
     render: (item) => {
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-row lg:flex-col justify-between w-full">
           <p className="text-customColor font-semibold">Start Date</p>
           <p className="text-tour_List_Color">{item?.startDate}</p>
         </div>
@@ -219,10 +219,10 @@ const TournamentTableHeaders = [
         tagColor = "bg-gray-300 text-[#5D5D5D] ring-gray-600/20";
       }
       return (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-row lg:flex-col justify-between w-full gap-1">
           <p className="text-customColor font-semibold">Approval Status</p>
           <p
-            className={`inline-flex flex-1 w-full items-center rounded-2xl  px-2 py-1 text-xs font-medium  ring-1 ring-inset  ${tagColor}`}
+            className={`inline-flex flex-1 max-w-fit items-center rounded-2xl  px-2 py-1 text-xs font-medium  ring-1 ring-inset  ${tagColor}`}
           >
             <span>
               <GoDotFill />

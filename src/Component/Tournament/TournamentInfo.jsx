@@ -65,6 +65,7 @@ import {
 } from "../../redux/Upload/uploadImage";
 import { useRef } from "react";
 import { setWasCancelled } from "../../redux/tournament/getTournament";
+import "../Tournament/TournamentQuill.css";
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -540,7 +541,7 @@ const TournamentBasicInfo = ({
     }
   }, [userName]);
   return (
-    <div className="grid grid-cols-2 gap-[30px]">
+    <div className="grid grid-col-1 md:grid-cols-2 gap-3 md:gap-[30px]">
       {!rolesWithTournamentOwnerAccess.includes(userRole) ? (
         <div className="flex flex-col items-start gap-2.5">
           <label className="text-base leading-[19.36px]" htmlFor="ownerUserId">
@@ -629,7 +630,7 @@ const TournamentMetaData = ({
   }, [values.tournamentName]);
 
   return (
-    <div className="grid grid-cols-2 gap-[30px] w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -721,7 +722,7 @@ const TournamentAddress = ({ location, disabled }) => {
       <p className=" text-base leading-[19.36px] text-[#232323]">
         Tournament Address
       </p>
-      <div className="grid grid-cols-2 gap-2.5 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full">
         <div className="flex flex-col items-start gap-2.5">
           <label
             className="text-xs text-[#232323]"
@@ -761,7 +762,7 @@ const TournamentAddress = ({ location, disabled }) => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2.5 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full">
         <div className="flex flex-col items-start gap-2.5">
           <label
             className="text-xs text-[#232323]"
@@ -801,7 +802,7 @@ const TournamentAddress = ({ location, disabled }) => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2.5 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full">
         <div className="flex flex-col items-start gap-2.5">
           <label
             className="text-xs text-[#232323]"
@@ -853,7 +854,6 @@ const TournamentDescription = ({ disabled }) => {
         value={values?.description}
         readOnly={disabled}
       />
-      ;
     </div>
   );
 };
@@ -881,7 +881,6 @@ const TournamentPrerequisite = ({ disabled }) => {
         value={values?.preRequisites}
         readOnly={disabled}
       />
-      ;
     </div>
   );
 };
@@ -941,7 +940,7 @@ const TournamentWhatToExpect = ({ disabled }) => {
       </div>
 
       <div className="overflow-x-auto rounded-md">
-        <table className="min-w-full border-collapse rounded-md">
+        <table className="min-w-[700px] w-full border-collapse rounded-md">
           <thead>
             <tr className="bg-gray-100">
               <th className="border p-2 text-left">Title</th>
@@ -1007,7 +1006,7 @@ const TournamentFileUpload = ({ dispatch, tournamentId, disabled }) => {
   // - In "edit" mode: images are deleted on save.
   const isAddInThePath = window.location.pathname.includes("add");
   return (
-    <div className="grid grid-cols-2 gap-[30px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-[30px]">
       <DesktopBannerImageUpload
         values={values}
         setFieldValue={setFieldValue}
@@ -1326,7 +1325,8 @@ const TournamentSponserTable = ({ disabled }) => {
           <p className="text-base text-[#232323] justify-self-start">
             Sponsors
           </p>
-          <table className="border-[1px] border-[#EAECF0] rounded-[8px] table-auto">
+          <div className="overflow-x-auto rounded-md w-full">
+          <table className="border-[1px] border-[#EAECF0] rounded-[8px] table-auto min-w-[700px] w-full">
             <thead>
               <tr className="text-sm text-[#667085] bg-[#F9FAFB] font-[500] border-b-[1px] h-[44px] ">
                 <th className="text-left p-2">S.No.</th>
@@ -1487,6 +1487,7 @@ const TournamentSponserTable = ({ disabled }) => {
             </tbody>
           </table>
         </div>
+        </div>
       )}
     </FieldArray>
   );
@@ -1498,7 +1499,7 @@ const TournamentDates = ({ disabled }) => {
     setShowStartDate(true);
   };
   return (
-    <div className="grid grid-cols-2 gap-[30px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
         <label className="text-base leading-[19.36px]" htmlFor="startDate">
           Tournament Start Date
@@ -1575,7 +1576,7 @@ const TournamentDates = ({ disabled }) => {
 
 const TournamentBookingDates = ({ disabled }) => {
   return (
-    <div className="grid grid-cols-2 gap-[30px] w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5 w-full">
         <label
           className="text-base leading-[19.36px]"
@@ -1717,22 +1718,22 @@ const TournamentGallery = ({ dispatch, tournamentId, disabled }) => {
     }
   };
   return (
-    <div className="flex flex-col items-start gap-2.5 ">
+    <div className="flex flex-col items-start gap-2.5 mb-2">
       <p className="text-base leading-[19.36px] text-[#232323]">
         Tournament Gallery
       </p>
 
-      <div className="grid grid-cols-[1fr_auto] gap-[30px] min-h-[133px]">
-        <div className="flex flex-wrap gap-2.5 min-h-[133px] w-full overflow-hidden">
+      <div className="flex flex-col gap-[30px]">
+        <div className="flex flex-wrap gap-2.5 w-full overflow-hidden">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
-              className="relative flex h-[133px]"
+              className="relative flex flex-none w-[48%] md:w-[30%] lg:w-[23%] gap-3"
               key={`tournamentGallery-${index}`}
             >
               <img
                 src={previews[index]?.preview || venueUploadImage}
                 alt={`Venue upload ${index + 1}`}
-                className=" object-scale-down rounded h-full w-[223px]"
+                className=" object-scale-down rounded w-full h-auto"
               />
               {previews[index]?.preview && (
                 <IoIosCloseCircleOutline
@@ -1747,7 +1748,7 @@ const TournamentGallery = ({ dispatch, tournamentId, disabled }) => {
             </div>
           ))}
         </div>
-        <div className="relative flex flex-col items-start gap-2.5 w-[223px] h-[133px]">
+        <div className="relative flex flex-col items-start gap-2.5 w-full h-[133px]">
           <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
             <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
 

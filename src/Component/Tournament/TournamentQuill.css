@@ -1,0 +1,12 @@
+.custom-quill .ql-container.ql-snow {
+  height: 200px !important;
+}
+@media screen and (max-width: 768px) {
+  .custom-quill .ql-toolbar.ql-snow {
+    overflow-y: auto;
+    justify-content: flex-start !important;
+  }
+  .custom-quill .ql-container.ql-snow {
+    height: 150px !important;
+  }
+}
