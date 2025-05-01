@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { PencilIcon } from "@heroicons/react/20/solid";
-import SwitchToggle from "../../../Component/CMS/HomePage/SwitchToggle";
-import { uploadImage } from "../../../utils/uploadImage";
-import axiosInstance from "../../../Services/axios";
+import axiosInstance from "../../../../Services/axios";
+import { uploadImage } from "../../../../utils/uploadImage";
+import SwitchToggle from "../SwitchToggle";
+import { PencilIcon } from "@heroicons/react/16/solid";
 
-export default function DestinationDink() {
+
+export default function Instagram() {
   const [isEditing, setIsEditing] = useState(false);
   const [sectionDetails, setSectionDetails] = useState(null);
   const [desktopImage, setDesktopImage] = useState(null);
   const [mobileImage, setMobileImage] = useState(null);
 
-  const fetchDestinationDinkData = async () => {
+  const fetchInstagramData = async () => {
     try {
       const config = {
         headers: {
@@ -20,10 +21,10 @@ export default function DestinationDink() {
       const response = await axiosInstance.get(
         `${
           import.meta.env.VITE_BASE_URL
-        }/users/admin/homepage-sections?section=destinationDink`,
+        }/users/admin/tourism?section=keepUpInstagram`,
         config
       );
-      if (response.data.data && response.data.data.length > 0) {
+      if (response?.data?.data && response.data.data.length > 0) {
         setSectionDetails(response.data.data[0]);
       }
     } catch (error) {
@@ -32,7 +33,7 @@ export default function DestinationDink() {
   };
 
   useEffect(() => {
-    fetchDestinationDinkData();
+     fetchInstagramData();
   }, []);
 
   const handleSave = async () => {
@@ -58,26 +59,27 @@ export default function DestinationDink() {
           "Content-Type": "application/json",
         },
       };
+      delete finalPayload["__v"];
+      delete finalPayload["createdAt"];
       // Send updated details to API
       const response = await axiosInstance.post(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/users/admin/homepage-sections/destinationDink`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/tourism/keepUpInstagram`,
         JSON.stringify(finalPayload),
         config
       );
-      fetchDestinationDinkData(); // Refresh data after update
+       fetchInstagramData(); 
     } catch (error) {
       console.error("Error updating section:", error);
     }
   };
 
+
   if (!sectionDetails) return <p>Loading...</p>;
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="bg-white rounded-lg border border-gray-300 p-4 mx-auto relative w-full">
-        Destination Dink Section
+      <div className="sm:flex-auto text-left">
+        <h1 className="text-base font-semibold text-gray-900">Instagram</h1>
       </div>
       <div className="bg-white rounded-lg shadow-lg border border-gray-300 p-4 mx-auto relative w-full">
         {/* Top Section */}
@@ -98,7 +100,7 @@ export default function DestinationDink() {
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2 w-[20%]">
+          <div className="flex items-center gap-2 w-[40%]">
             <label className="text-gray-700 font-semibold">Link:</label>
             {isEditing ? (
               <input
@@ -106,10 +108,7 @@ export default function DestinationDink() {
                 className="border border-gray-300 p-1 rounded w-full"
                 value={sectionDetails.link}
                 onChange={(e) =>
-                  setSectionDetails({
-                    ...sectionDetails,
-                    link: e.target.value,
-                  })
+                  setSectionDetails({ ...sectionDetails, link: e.target.value })
                 }
               />
             ) : (
@@ -147,7 +146,6 @@ export default function DestinationDink() {
             )}
           </div>
         </div>
-
         {/* Images Section */}
         <div className="grid grid-cols-2 gap-4 mt-8">
           {/* Desktop Image */}

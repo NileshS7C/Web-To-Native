@@ -4,36 +4,52 @@ import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useFormikContextFunction } from "../Providers/formikContext";
+
+import { setTournamentEditMode } from "../redux/tournament/getTournament";
 import { handleTournamentDecision } from "../redux/tournament/tournamentActions";
 import { setApprovalBody } from "../redux/tournament/addTournament";
+
 import { FiEdit3 } from "react-icons/fi";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import { AiFillDelete } from "react-icons/ai";
+
 import Header from "./Header/header";
 import { NavBar } from "./SideNavBar/NavBar";
+
 import { getPageTitle } from "../Constant/titles";
-import { notHaveBackButton, ROLES, uploadedImageLimit, venueImageSize} from "../Constant/app";
+import {
+  notHaveBackButton,
+  ROLES,
+  uploadedImageLimit,
+  venueImageSize,
+} from "../Constant/app";
 import { aboutUsPageRoutes } from "../Constant/Cms/aboutUsPage";
 import { backRoute } from "../utils/tournamentUtils";
-import { showConfirmation, onCancel} from "../redux/Confirmation/confirmationSlice";
+
+import {
+  showConfirmation,
+  onCancel,
+} from "../redux/Confirmation/confirmationSlice";
 import Button from "./Common/Button";
 import { SuccessModal } from "./Common/SuccessModal";
 import { ErrorModal } from "./Common/ErrorModal";
 import { hideActionButtons } from "../Constant/tournament";
 import { toggleOrganiserModal } from "../redux/tournament/tournamentOrganiserSlice";
+
 import { showError } from "../redux/Error/errorSlice";
-import { getUploadedImages, uploadImageForCMS} from "../redux/Upload/uploadActions";
+import {
+  getUploadedImages,
+  uploadImageForCMS,
+} from "../redux/Upload/uploadActions";
 import { showSuccess } from "../redux/Success/successSlice";
 import { cleanUpUpload, setIsUploaded } from "../redux/Upload/uploadImage";
 import { deleteVenue } from "../redux/Venue/venueActions";
-import { resetVenueEditMode, setVenueEditMode, setWasCancelledVenue } from "../redux/Venue/addVenue";
+
+import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
-import {
-  resetEditMode,
-  setWasCancelled,
-  setTournamentEditMode,
-} from "../redux/tournament/getTournament";
-import { downloadSheetOfPlayers } from "../redux/tournament/tournamentActions";
+import { resetEditMode } from "../redux/tournament/getTournament";
+
+
 const hiddenRoutes = [
   "/cms/homepage/featured-tournaments",
   "/cms/homepage/featured-venues",
@@ -52,9 +68,14 @@ const hiddenRoutes = [
   "/cms/static-pages/terms-&-condition",
   "/cms/blogs/blog-posts",
   "/cms/blogs/blog-posts/new",
+  "/cms/tourism",
+  "/cms/tourism-page/top-banner",
+  "/cms/tourism-page/package-section",
+  "/cms/tourism-page/instagram",
+  "/cms/tourism-page/media-gallery",
   ...aboutUsPageRoutes,
 ];
-import { BsDownload } from "react-icons/bs";
+
 const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -64,15 +85,24 @@ const Layout = () => {
   const { submitForm, isSubmitting } = useFormikContextFunction();
   const { tournamentId, eventId, id } = useParams();
   const navRef = useRef(null);
-  const [shouldScroll, setShouldScroll] = useState({ nav: false, page: false });
+
+  const [shouldScroll, setShouldScroll] = useState({
+    nav: false,
+    page: false,
+  });
   const [approveButtonClicked, setApproveButtonClicked] = useState(false);
+
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
-  const { userRole: Role } = useSelector((state) => state.auth);
+ const { userRole: Role } = useSelector((state) => state.auth);
   const { venue } = useSelector((state) => state.getVenues);
-  const { changingDecision, verificationSuccess, approvalBody } = useSelector((state) => state.Tournament);
+  const { changingDecision, verificationSuccess, approvalBody } = useSelector(
+    (state) => state.Tournament
+  );
   const { category } = useSelector((state) => state.event);
-  const { tournament, tournamentEditMode } = useSelector((state) => state.GET_TOUR);
+  const { tournament, tournamentEditMode } = useSelector(
+    (state) => state.GET_TOUR
+  );
 
   const handleMouseEnter = useCallback(() => {
     setShouldScroll((prev) => ({ ...prev, nav: true, page: false }));
@@ -95,8 +125,12 @@ const Layout = () => {
   }, [navRef]);
 
   const isTournament = window.location.pathname.includes("/tournaments");
-  const isVenue =window.location.pathname.includes("/venues");
-  const currentTitle = getPageTitle(location.pathname,{ tournamentId },{ venue, tournament, category });
+
+  const currentTitle = getPageTitle(
+    location.pathname,
+    { tournamentId },
+    { venue, tournament, category }
+  );
 
   useEffect(() => {
     if (
@@ -134,6 +168,7 @@ const Layout = () => {
   const shouldHideTitleBar =
     hiddenRoutes.includes(location.pathname) ||
     location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
+
   return (
     <div className="flex flex-col h-screen">
       <Header />
@@ -147,8 +182,8 @@ const Layout = () => {
           <NavBar />
         </div>
         <div
-          className={`flex-1 h-full ${shouldScroll.page ? "overflow-auto" : "overflow-auto"
-          } scrollbar-hide ${location.pathname === '/' ? 'p-0' : 'p-4 md:p-[50px]'}`}
+          className={`flex-1 p-[50px] h-full ${shouldScroll.page ? "overflow-auto" : "overflow-auto"
+            } scrollbar-hide`}
         >
           <div className="flex gap-2.5 items-center mb-4 ">
             {!notHaveBackButton.includes(currentTitle) &&
@@ -178,7 +213,7 @@ const Layout = () => {
 
             {!shouldHideTitleBar && (
               <div className="flex items-center justify-between w-full">
-                <p className={`inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-base md:text-[22px] ${location.pathname === '/' ? "p-4 md:p-[50px]" : "p-0" }`}>
+                <p className="inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-[22px]">
                   {currentTitle}
                   {tournamentId && (
                     <span
@@ -229,8 +264,8 @@ const Layout = () => {
                   <UploadImageButton dispatch={dispatch} />
                 )}
 
-                {((currentTitle.startsWith("Venue Details") ||
-                  currentTitle.startsWith("Edit")) && isVenue )&& (
+                {(currentTitle === "Venue Details" ||
+                  currentTitle.startsWith("Edit")) && (
                     <VenueActionButtonWrapper
                       dispatch={dispatch}
                       navigate={navigate}
@@ -308,14 +343,8 @@ const TournamentActionButton = ({
               type="button"
               onClick={() => dispatch(setTournamentEditMode())}
               disabled={
-                (!["ADMIN", "SUPER_ADMIN", "TOURNAMENT_OWNER"].includes(
-                  userRole
-                ) &&
-                  tournament?.status !== "REJECTED") ||
-                (userRole === "TOURNAMENT_OWNER" &&
-                  ["PENDING_VERIFICATION", "PUBLISHED"].includes(
-                    tournament?.status
-                  ))
+                !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
+                tournament?.status !== "REJECTED"
               }
             >
               <span>Edit Tournament</span>
@@ -324,10 +353,7 @@ const TournamentActionButton = ({
           ) : (
             <SaveAndCancelButton
               dispatch={dispatch}
-              setEditMode={() =>{
-                dispatch(setTournamentEditMode());
-                dispatch(setWasCancelled());
-              }}
+              setEditMode={() => dispatch(setTournamentEditMode())}
               submitForm={async () => {
                 await submitForm();
                 dispatch(resetEditMode());
@@ -337,13 +363,11 @@ const TournamentActionButton = ({
           ))}
         {ROLES.slice(0, 2).includes(userRole) &&
           tournament?.status &&
-          tournament?.status !== "ARCHIVED" &&
-          tournament?.status !== "REJECTED" && (
+          tournament?.status !== "ARCHIVED" && (
             <div className="flex items-center gap-2">
               <Button
-                className={`${
-                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                  } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
                 type="button"
                 onClick={() => {
                   setApproveButtonClicked(true);
@@ -359,9 +383,8 @@ const TournamentActionButton = ({
                 Accept Tournament
               </Button>
               <Button
-                className={`${
-                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                  } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
                 type="button"
                 onClick={() => {
                   dispatch(
@@ -384,27 +407,6 @@ const TournamentActionButton = ({
       <div>
         <ArchiveButtons tournament={tournament} dispatch={dispatch} />
       </div>
-      {ROLES.slice(0, 3).includes(userRole) &&
-        tournament?.status &&
-        ["ARCHIVED", "PUBLISHED"].includes(tournament?.status) && (
-          <Button
-            className="bg-blue-400 flex w-46 items-center justify-center gap-2 px-4 py-2  text-customColor ml-auto rounded-[8px] hover:bg-[#1570EF] shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 "
-            type="button"
-            onClick={() => {
-              dispatch(
-                downloadSheetOfPlayers({
-                  tournamentId: tournament._id.toString(),
-                  ownerId: tournament?.ownerUserId?.toString(),
-                  userRole,
-                  tournamentName:tournament?.tournamentName || "Tournament-Bookings"
-                })
-              );
-            }}
-          >
-            <BsDownload />
-            Download Sheet
-          </Button>
-        )}
     </div>
   );
 };
@@ -525,7 +527,6 @@ const VenueActionButtons = ({
           dispatch={dispatch}
           setEditMode={()=>{
             dispatch(setVenueEditMode());
-            dispatch(setWasCancelledVenue())
           }}
           submitForm={submitForm}
           isSubmitting={isSubmitting}
