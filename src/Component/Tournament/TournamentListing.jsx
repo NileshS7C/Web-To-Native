@@ -93,6 +93,8 @@ function TournamentListing(props) {
 
   const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
     useSelector((state) => state.GET_TOUR);
+
+  console.log("printing tournaments",tournaments);  
   const { userRole: role } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -191,8 +193,17 @@ function TournamentListing(props) {
             })
           );
           break;
+        default:
+         dispatch(
+          getAllTournaments({
+            page: currentPage || 1,
+            limit: 10,
+            type: userRole,
+            ownerId: singleTournamentOwner?.id,
+          })
+         );
       }
-    } else {
+    } else if (singleTournamentOwner && !searchInput && !selectedTab) {
       dispatch(
         getAllTournaments({
           page: currentPage || 1,
