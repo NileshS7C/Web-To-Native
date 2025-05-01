@@ -30,6 +30,7 @@ import {
   showConfirmation,
   onCancel,
 } from "../redux/Confirmation/confirmationSlice";
+import { downloadSheetOfPlayers } from "../redux/tournament/tournamentActions";
 import Button from "./Common/Button";
 import { SuccessModal } from "./Common/SuccessModal";
 import { ErrorModal } from "./Common/ErrorModal";
@@ -74,7 +75,7 @@ const hiddenRoutes = [
   ...aboutUsPageRoutes,
   "/"
 ];
-
+import { BsDownload } from "react-icons/bs";
 const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -349,8 +350,18 @@ const TournamentActionButton = ({
               type="button"
               onClick={() => dispatch(setTournamentEditMode())}
               disabled={
-                !["ADMIN", "SUPER_ADMIN"].includes(userRole) &&
-                tournament?.status !== "REJECTED"
+                // Disable if the user is NOT ADMIN, SUPER_ADMIN, or TOURNAMENT_OWNER
+                (!["ADMIN", "SUPER_ADMIN", "TOURNAMENT_OWNER"].includes(
+                  userRole
+                ) &&
+                  // AND the tournament status is not REJECTED
+                  tournament?.status !== "REJECTED") ||
+                // OR if the user is a TOURNAMENT_OWNER
+                (userRole === "TOURNAMENT_OWNER" &&
+                  // AND the tournament status is PENDING_VERIFICATION or PUBLISHED
+                  ["PENDING_VERIFICATION", "PUBLISHED"].includes(
+                    tournament?.status
+                  ))
               }
             >
               <span>Edit Tournament</span>
@@ -369,7 +380,8 @@ const TournamentActionButton = ({
           ))}
         {ROLES.slice(0, 2).includes(userRole) &&
           tournament?.status &&
-          tournament?.status !== "ARCHIVED" && (
+          tournament?.status !== "ARCHIVED" &&
+          tournament?.status !== "REJECTED" && (
             <div className="flex items-center gap-2">
               <Button
                 className={`${
@@ -415,6 +427,29 @@ const TournamentActionButton = ({
       <div>
         <ArchiveButtons tournament={tournament} dispatch={dispatch} />
       </div>
+      {/* Roles are Archived and publised then only sheet will be downloaded */}
+      {ROLES.slice(0, 3).includes(userRole) &&
+        tournament?.status &&
+        ["ARCHIVED", "PUBLISHED"].includes(tournament?.status) && (
+          <Button
+            className="bg-blue-400 flex w-46 items-center justify-center gap-2 px-4 py-2  text-customColor ml-auto rounded-[8px] hover:bg-[#1570EF] shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 "
+            type="button"
+            onClick={() => {
+              dispatch(
+                downloadSheetOfPlayers({
+                  tournamentId: tournament._id.toString(),
+                  ownerId: tournament?.ownerUserId?.toString(),
+                  userRole,
+                  tournamentName:
+                    tournament?.tournamentName || "Tournament-Bookings",
+                })
+              );
+            }}
+          >
+            <BsDownload />
+            Download Sheet
+          </Button>
+        )}
     </div>
   );
 };
