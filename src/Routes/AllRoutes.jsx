@@ -50,7 +50,7 @@ import CreateCoupons from "../Component/Coupons/CreateCoupons";
 import CouponDetails from "../Component/Coupons/CouponDetails";
 import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
-import Dashboard from "../Page/Dashboard";
+import DashBoard from '../Page/DashBoard'
 const AllRoutes = () => {
   return (
     <div>
@@ -71,7 +71,7 @@ const AllRoutes = () => {
             index
             path="/"
             element={
-              <Dashboard/>
+              <DashBoard/>
             }
           />
           <Route path="tournaments">

@@ -1,7 +1,7 @@
 import { dashboardIcon } from "../Assests";
 import { dashboardBg } from "../Assests";
 import { useNavigate } from "react-router-dom";
-const  Dashboard=()=>{
+const  DashBoard=()=>{
     const navigate = useNavigate();
     return (
       <div className="w-[100%] h-[100%] relative">
@@ -33,4 +33,4 @@ const  Dashboard=()=>{
     );
 
 }
-export default Dashboard;
+export default DashBoard;
