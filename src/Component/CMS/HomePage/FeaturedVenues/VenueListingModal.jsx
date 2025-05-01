@@ -7,6 +7,8 @@ import {
   getAllVenues,
   getSearchVenues,
 } from "../../../../redux/Venue/venueActions";
+import { Cookies } from "react-cookie";
+const cookies = new Cookies();
 import { onPageChange } from "../../../../redux/Venue/getVenues";
 import { venueLimit } from "../../../../Constant/venue";
 import useDebounce from "../../../../Hooks/useDebounce";
@@ -114,7 +116,8 @@ const SearchVenue = ({
 }) => {
   const [searchVenue, setSearchVenue] = useState("");
   const debouncedValue = useDebounce(searchVenue, 200);
-
+  const userRole=cookies.get("userRole");
+    const {userRole:role}=useSelector(state=>state.auth)
   const handleSearchVenue = (e) => {
     setSearchVenue(e?.target?.value);
     setVenueName(e?.target?.value);
@@ -128,6 +131,7 @@ const SearchVenue = ({
           selectedFilter: "Published",
           limit,
           name: debouncedValue,
+          userRole:userRole || role
         })
       );
     }
