@@ -1000,6 +1000,11 @@ const TournamentWhatToExpect = ({ disabled }) => {
 
 const TournamentFileUpload = ({ dispatch, tournamentId, disabled }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
+  // Determine if the current path includes "add",
+  // which indicates the user is in tournament creation mode.
+  // This flag is used to control image deletion behavior:
+  // - In "add" mode: images are deleted immediately when removed.
+  // - In "edit" mode: images are deleted on save.
   const isAddInThePath = window.location.pathname.includes("add");
   return (
     <div className="grid grid-cols-2 gap-[30px]">
