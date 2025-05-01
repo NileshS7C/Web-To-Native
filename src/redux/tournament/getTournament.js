@@ -16,6 +16,7 @@ const initialState = {
   tournaments: [],
   totalTournaments: 0,
   tournamentEditMode: false,
+  wasCancelled: false,
   isGettingBookings: false,
   bookingError: false,
   bookings: [],
@@ -29,6 +30,9 @@ const getTournament = createSlice({
   name: "GET_TOUR",
   initialState,
   reducers: {
+    setWasCancelled(state) {
+      state.wasCancelled = !state.tournamentEditMode;
+    },
     setTournamentEditMode(state) {
       state.tournamentEditMode = !state.tournamentEditMode;
     },
@@ -38,6 +42,7 @@ const getTournament = createSlice({
 
     resetEditMode(state) {
       state.tournamentEditMode = false;
+      state.wasCancelled = false;
     },
   },
   extraReducers: (builder) => {
@@ -139,7 +144,11 @@ const getTournament = createSlice({
   },
 });
 
-export const { setTournamentEditMode, onTour_FilterChange, resetEditMode } =
-  getTournament.actions;
+export const {
+  setTournamentEditMode,
+  setWasCancelled,
+  onTour_FilterChange,
+  resetEditMode,
+} = getTournament.actions;
 
 export default getTournament.reducer;

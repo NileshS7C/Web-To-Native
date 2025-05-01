@@ -57,9 +57,14 @@ import Combopopover from "../Common/Combobox";
 import { rolesWithTournamentOwnerAccess } from "../../Constant/tournament";
 import { useFormikContextFunction } from "../../Providers/formikContext";
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
-
+import { deleteImages } from "../../redux/Upload/uploadActions";
 import { MdDeleteOutline } from "react-icons/md";
-import { ADMIN_ROLES, TOURNAMENT_OWNER_ROLES } from "../../Constant/Roles";
+import {
+  resetDeletedImages,
+  setDeletedImages,
+} from "../../redux/Upload/uploadImage";
+import { useRef } from "react";
+import { setWasCancelled } from "../../redux/tournament/getTournament";
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -280,7 +285,7 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
           const newEndDate = new Date(endDate).getTime();
           const bookingDate = new Date(value).getTime();
 
-          return bookingDate < newEndDate;
+          return bookingDate < newEndDate && bookingDate < newStartDate;
         }
       ),
     sponserName: yup.string(),
@@ -308,14 +313,12 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
 
   const { userRole: role, userInfo } = useSelector((state) => state.auth);
-
-  const { isSuccess, isGettingTournament } = useSelector(
-    (state) => state.GET_TOUR
-  );
-
+  const { deletedImages } = useSelector((state) => state.upload);
+  const { isSuccess, isGettingTournament, tournamentEditMode, wasCancelled } =
+    useSelector((state) => state.GET_TOUR);
   const currentPage = 1;
   const limit = 100;
-
+  const formikRef = useRef();
   useEffect(() => {
     const userRole = cookies?.userRole || role;
     if (!userRole) {
@@ -326,7 +329,6 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
     }
     dispatch(getAllUniqueTags());
   }, []);
-
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setSubmitting(true);
@@ -363,7 +365,10 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
           onClose: "hideSuccess",
         })
       );
-
+      if (deletedImages?.length > 0) {
+        dispatch(deleteImages(deletedImages));
+      }
+      setInitialState(values);
       if (!result.responseCode && isAddInThePath) {
         dispatch(setFormOpen("event"));
         dispatch(getSingleTournament({ tournamentId, ownerId: user.id }));
@@ -383,7 +388,14 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
       setSubmitting(false);
     }
   };
-
+  const handleCancel = () => {
+    if (formikRef.current) {
+      formikRef.current.resetForm();
+      dispatch(resetDeletedImages());
+    }
+  };
+   
+  
   useEffect(() => {
     if (isSuccess && tournamentId && Object.keys(tournament).length > 0) {
       const updatedTournament = requiredTournamentFields(tournament);
@@ -397,7 +409,7 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
 
       if (owner) {
         const ownerName = owner.name;
-
+        
         setInitialState((prevState) => ({
           ...prevState,
           ...updatedTournament,
@@ -413,6 +425,17 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
       }
     }
   }, [tournament, tournamentId, isSuccess, tournamentOwners]);
+  useEffect(() => {
+    if (!tournamentEditMode && wasCancelled) {
+      handleCancel();
+    }
+    setWasCancelled(false);
+  }, [tournamentEditMode]);
+  useEffect(() => {
+    return () => {
+      dispatch(resetDeletedImages());
+    };
+  }, []);
 
   if (isGettingTournament) {
     return (
@@ -421,13 +444,13 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
       </div>
     );
   }
-
   return (
     <Formik
       enableReinitialize
       initialValues={initialState}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      innerRef={formikRef}
     >
       {({ isSubmitting, submitForm }) => {
         setSubmitForm(() => submitForm);
@@ -977,7 +1000,12 @@ const TournamentWhatToExpect = ({ disabled }) => {
 
 const TournamentFileUpload = ({ dispatch, tournamentId, disabled }) => {
   const { values, setFieldValue, setFieldError } = useFormikContext();
-
+  // Determine if the current path includes "add",
+  // which indicates the user is in tournament creation mode.
+  // This flag is used to control image deletion behavior:
+  // - In "add" mode: images are deleted immediately when removed.
+  // - In "edit" mode: images are deleted on save.
+  const isAddInThePath = window.location.pathname.includes("add");
   return (
     <div className="grid grid-cols-2 gap-[30px]">
       <DesktopBannerImageUpload
@@ -987,6 +1015,7 @@ const TournamentFileUpload = ({ dispatch, tournamentId, disabled }) => {
         dispatch={dispatch}
         tournamentId={tournamentId}
         disabled={disabled}
+        isAddInThePath={isAddInThePath}
       />
       <MobileBannerImageUpload
         values={values}
@@ -995,6 +1024,7 @@ const TournamentFileUpload = ({ dispatch, tournamentId, disabled }) => {
         dispatch={dispatch}
         tournamentId={tournamentId}
         disabled={disabled}
+        isAddInThePath={isAddInThePath}
       />
     </div>
   );
@@ -1007,11 +1037,12 @@ const DesktopBannerImageUpload = ({
   dispatch,
   tournamentId,
   disabled,
+  isAddInThePath,
 }) => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
-
+  const { deletedImages } = useSelector((state) => state.upload);
   useEffect(() => {
     const previewImages = values?.bannerDesktopImages?.length
       ? [{ preview: values.bannerDesktopImages }]
@@ -1021,7 +1052,9 @@ const DesktopBannerImageUpload = ({
   }, [values?.bannerDesktopImages]);
 
   const handleRemoveImageDesk = (value) => {
-    dispatch(deleteUploadedImage(value[0]));
+    if (isAddInThePath) {
+      dispatch(deleteUploadedImage(value[0]));
+    } else dispatch(setDeletedImages([...deletedImages, value[0]]));
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");
@@ -1133,15 +1166,12 @@ const MobileBannerImageUpload = ({
   dispatch,
   tournamentId,
   disabled,
+  isAddInThePath,
 }) => {
-  const tournamentEditMode = useSelector(
-    (state) => state.GET_TOUR.tournamentEditMode
-  );
-  const isDisabled = tournamentId ? !tournamentEditMode : false;
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
-
+  const { deletedImages } = useSelector((state) => state.upload);
   useEffect(() => {
     const previewImages = values?.bannerMobileImages?.length
       ? [{ preview: values.bannerMobileImages }]
@@ -1151,7 +1181,9 @@ const MobileBannerImageUpload = ({
   }, [values?.bannerMobileImages]);
 
   const handleRemoveImageDesk = (value) => {
-    dispatch(deleteUploadedImage(value[0]));
+    if (isAddInThePath) {
+      dispatch(deleteUploadedImage(value[0]));
+    } else dispatch(setDeletedImages([...deletedImages, value[0]]));
     setPreviews([]);
     setIsError(false);
     setErrorMessage("");

@@ -9,6 +9,8 @@ import * as Yup from "yup";
 import Spinner from "../../../../Page/CMS/Spinner";
 import { uploadImage } from "../../../../utils/uploadImage";
 import axiosInstance from "../../../../Services/axios";
+
+
 const MediaGalleryAddDataModal=({
   data,
   isOpen,
@@ -24,7 +26,7 @@ const MediaGalleryAddDataModal=({
 
   // Validation Schema
   const validationSchema = Yup.object().shape({
-    description: Yup.string().required("Location is required"),
+    description: Yup.string().required("Description is required"),
     image: Yup.mixed().required("Image is required"),
   });
   return (

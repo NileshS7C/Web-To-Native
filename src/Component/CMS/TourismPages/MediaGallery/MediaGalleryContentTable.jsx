@@ -4,6 +4,8 @@ import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
 import DeleteModal from "../DeleteModal";
 import axiosInstance from "../../../../Services/axios";
 
+
+
 export default function MediaGalleryContentTable({ data, fetchMediaGallerySections }) {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
