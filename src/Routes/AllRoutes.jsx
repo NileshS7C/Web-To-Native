@@ -8,6 +8,7 @@ import VenueDescription from "../Component/Venue/VenueDetails";
 import { CourtCreation } from "../Component/Venue/CreateCourt";
 import VenueListing from "../Component/Venue/VenueListing";
 import NotCreated from "../Component/Common/NotCreated";
+
 import Explore from "../Page/CMS/Homepage/Explore";
 import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
 import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
@@ -24,6 +25,7 @@ import BuildCourts from "../Page/CMS/Homepage/BuildCourts";
 import NewsUpdates from "../Page/CMS/Homepage/NewsUpdates";
 
 import TournamentCreationForm from "../Component/Tournament/TournamentNav";
+// import TournamentListing from "../Component/Tournament/TournamentListing";
 import TournamentListingWrapper from "../Component/Tournament/TournamentListing";
 import EventDetailPage from "../Component/Tournament/Event/EventDetails";
 import NotFound from "../Component/Common/NotFound";
@@ -36,21 +38,19 @@ import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
 import TournamentOrganisersPage from "../Page/TournamentOrganisers";
 import FAQS from "../Page/CMS/Homepage/FAQ";
 import ProfilePage from "../Page/Profile";
-import Dashboard from "../Component/Dashboard/Dashboard";
-import { UploadedImages } from "../Page/UploadedImages";
 
+import { UploadedImages } from "../Page/UploadedImages";
+import TopBanner from "../Component/CMS/TourismPages/TopBanner/TopBanner";
+import PackageSection from "../Page/CMS/Homepage/PackageSection";
+import Instagram from "../Component/CMS/TourismPages/Instagram/Instagram";
+import MediaGallery from "../Page/CMS/Homepage/MediaGallery";
 import PlayersManager from "../Page/Player";
 import { OwnerDetailContextProvider } from "../Providers/onwerDetailProvider";
 import CreateCoupons from "../Component/Coupons/CreateCoupons";
 import CouponDetails from "../Component/Coupons/CouponDetails";
 import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
-import Tourism from "../Page/CMS/Tourism";
-// import TopBanner from "../Component/CMS/TourismPages/TopBanner/TopBanner";
-// import PackageSection from "../Page/CMS/Homepage/PackageSection";
-// import Instagram from "../Component/CMS/TourismPages/Instagram/Instagram";
-// import top from "../Page/CMS/Homepage/MediaGallery";
-// import Dashboard from "../Page/Dashboard";
+
 const AllRoutes = () => {
   return (
     <div>
@@ -67,7 +67,16 @@ const AllRoutes = () => {
             </Authentication>
           }
         >
-          <Route index element={<Dashboard />} />
+          <Route
+            index
+            element={
+              <NotCreated
+                message="Currently Nothing to display. Will update soon!"
+                buttonText=""
+                disable={true}
+              />
+            }
+          />
           <Route path="tournaments">
             <Route index element={<TournamentListingWrapper />} />
             <Route path="add">
@@ -88,7 +97,6 @@ const AllRoutes = () => {
           <Route path="coupons" element={<Coupons />} />
 
           {/* CMS Routes */}
-          <Route path="cms/tourism-pages" element={<Tourism/>}/>
           <Route path="cms/homepage/explore" element={<Explore />} />
           <Route
             path="cms/homepage/featured-tournaments"
@@ -148,6 +156,16 @@ const AllRoutes = () => {
           </Route>
 
           {/* Ends Here */}
+
+
+
+          {/* Tourism page routes*/}
+          <Route path="cms/tourism-page/top-banner" element={<TopBanner />} />
+          <Route path="cms/tourism-page/package-section" element={<PackageSection/>}/>
+          <Route path="cms/tourism-page/instagram" element={<Instagram/>}/>
+          <Route path="cms/tourism-page/media-gallery" element={<MediaGallery/>}/>
+          {/* Ends Here */}
+
 
           <Route path="venues">
             <Route index element={<VenueListing />} />
