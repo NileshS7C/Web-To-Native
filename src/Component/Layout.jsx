@@ -49,7 +49,6 @@ import { resetVenueEditMode, setVenueEditMode } from "../redux/Venue/addVenue";
 import { ArchiveButtons } from "./Layout/TournamentArchiveButtons";
 import { resetEditMode } from "../redux/tournament/getTournament";
 
-
 const hiddenRoutes = [
   "/cms/homepage/featured-tournaments",
   "/cms/homepage/featured-venues",
@@ -68,12 +67,12 @@ const hiddenRoutes = [
   "/cms/static-pages/terms-&-condition",
   "/cms/blogs/blog-posts",
   "/cms/blogs/blog-posts/new",
-  "/cms/tourism",
   "/cms/tourism-page/top-banner",
   "/cms/tourism-page/package-section",
   "/cms/tourism-page/instagram",
   "/cms/tourism-page/media-gallery",
   ...aboutUsPageRoutes,
+  "/"
 ];
 
 const Layout = () => {
@@ -94,7 +93,7 @@ const Layout = () => {
 
   const [cookies, setCookies] = useCookies();
   const userRole = cookies["userRole"];
- const { userRole: Role } = useSelector((state) => state.auth);
+  const { userRole: Role } = useSelector((state) => state.auth);
   const { venue } = useSelector((state) => state.getVenues);
   const { changingDecision, verificationSuccess, approvalBody } = useSelector(
     (state) => state.Tournament
@@ -125,7 +124,7 @@ const Layout = () => {
   }, [navRef]);
 
   const isTournament = window.location.pathname.includes("/tournaments");
-
+  const isVenue = window.location.pathname.includes("/venues")
   const currentTitle = getPageTitle(
     location.pathname,
     { tournamentId },
@@ -175,15 +174,21 @@ const Layout = () => {
 
       <div className="flex flex-1 bg-[#F5F7FA] overflow-hidden">
         <div
-          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${shouldScroll.nav ? "overflow-auto" : "overflow-auto"
-            }  scrollbar-hide`}
+          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${
+            shouldScroll.nav ? "overflow-auto" : "overflow-auto"
+          }  scrollbar-hide`}
           ref={navRef}
         >
           <NavBar />
         </div>
         <div
-          className={`flex-1 p-[50px] h-full ${shouldScroll.page ? "overflow-auto" : "overflow-auto"
-            } scrollbar-hide`}
+          className={`flex-1 ${
+            currentTitle !== "DASHBOARD" && "p-4 md:p-[50px]"
+          } h-full ${
+            shouldScroll.page ? "overflow-auto" : "overflow-auto"
+          } scrollbar-hide ${
+            currentTitle === "DASHBOARD" && "overflow-hidden"
+          }`}
         >
           <div className="flex gap-2.5 items-center mb-4 ">
             {!notHaveBackButton.includes(currentTitle) &&
@@ -265,7 +270,8 @@ const Layout = () => {
                 )}
 
                 {(currentTitle === "Venue Details" ||
-                  currentTitle.startsWith("Edit")) && (
+                  currentTitle.startsWith("Edit")) &&
+                  isVenue && (
                     <VenueActionButtonWrapper
                       dispatch={dispatch}
                       navigate={navigate}
@@ -366,8 +372,9 @@ const TournamentActionButton = ({
           tournament?.status !== "ARCHIVED" && (
             <div className="flex items-center gap-2">
               <Button
-                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                  } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+                className={`${
+                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
                 type="button"
                 onClick={() => {
                   setApproveButtonClicked(true);
@@ -383,8 +390,9 @@ const TournamentActionButton = ({
                 Accept Tournament
               </Button>
               <Button
-                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                  } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+                className={`${
+                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
                 type="button"
                 onClick={() => {
                   dispatch(
@@ -525,7 +533,7 @@ const VenueActionButtons = ({
       {venueEditMode ? (
         <SaveAndCancelButton
           dispatch={dispatch}
-          setEditMode={()=>{
+          setEditMode={() => {
             dispatch(setVenueEditMode());
           }}
           submitForm={submitForm}

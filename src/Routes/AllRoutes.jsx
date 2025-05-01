@@ -50,6 +50,7 @@ import CreateCoupons from "../Component/Coupons/CreateCoupons";
 import CouponDetails from "../Component/Coupons/CouponDetails";
 import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
+import Dashboard from "../Page/Dashboard";
 
 const AllRoutes = () => {
   return (
@@ -70,11 +71,7 @@ const AllRoutes = () => {
           <Route
             index
             element={
-              <NotCreated
-                message="Currently Nothing to display. Will update soon!"
-                buttonText=""
-                disable={true}
-              />
+              <Dashboard/>
             }
           />
           <Route path="tournaments">
