@@ -3,6 +3,8 @@ import axiosInstance from "../../../../Services/axios";
 import { uploadImage } from "../../../../utils/uploadImage";
 import SwitchToggle from "../SwitchToggle";
 import { PencilIcon } from "@heroicons/react/16/solid";
+
+
 export default function Instagram() {
   const [isEditing, setIsEditing] = useState(false);
   const [sectionDetails, setSectionDetails] = useState(null);

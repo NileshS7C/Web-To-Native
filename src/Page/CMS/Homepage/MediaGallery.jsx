@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../Services/axios";
+
+
 import MediaGallerySectionInfo from "../../../Component/CMS/TourismPages/MediaGallery/MediaGallerySectionInfo";
 import MediaGalleryContentTable from "../../../Component/CMS/TourismPages/MediaGallery/MediaGalleryContentTable";
 import MediaGalleryAddDataModal from "../../../Component/CMS/TourismPages/MediaGallery/MediaGalleryAddModal";
+
+
 export default function MediaGallery() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [mediaGalleryData,setMediaGalleryData]=useState([]);

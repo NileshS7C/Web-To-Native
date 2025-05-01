@@ -8,6 +8,8 @@ import axiosInstance from "../../../../Services/axios";
 import { packageImageSize } from "../../../../Constant/app";
 import { useDispatch } from "react-redux";
 import { uploadImage } from "../../../../redux/Upload/uploadActions";
+
+
 const PackageEditModal = ({
   data,
   selectedCard,

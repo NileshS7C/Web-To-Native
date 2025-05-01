@@ -3,6 +3,8 @@ import { PencilIcon } from "@heroicons/react/16/solid";
 import SwitchToggle from "../../HomePage/SwitchToggle";
 import axiosInstance from "../../../../Services/axios";
 import { uploadImage } from "../../../../utils/uploadImage";
+
+
 const TopBanner=()=> {
     const [isEditing, setIsEditing] = useState(false);
     const [sectionDetails, setSectionDetails] = useState(null);

@@ -9,6 +9,8 @@ import * as Yup from "yup";
 import Spinner from "../../../../Page/CMS/Spinner";
 import { uploadImage } from "../../../../utils/uploadImage";
 import axiosInstance from "../../../../Services/axios";
+
+
 const MediaGalleryAddDataModal=({
   data,
   isOpen,
