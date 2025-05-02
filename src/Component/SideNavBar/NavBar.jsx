@@ -112,7 +112,9 @@ export const NavBar = ({ handleOverlayClick }) => {
                 // Navigate if it doesn't have children
                 dispatch(setNavigation(menu.name));
                 navigate(currentPath);
-                handleOverlayClick();
+                if(typeof(handleOverlayClick) === 'function') {
+                  handleOverlayClick();
+                }
               }
             }}
           >

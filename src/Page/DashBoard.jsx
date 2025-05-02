@@ -5,7 +5,7 @@ const  DashBoard=()=>{
     const navigate = useNavigate();
     return (
       <div className="w-[100%] h-[100%] relative">
-        <div className="flex flex-col items-center justify-center gap-y-2 lg:gap-y-3 xl:gap-y-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full z-10 -mt-6">
+        <div className="flex flex-col items-center justify-center gap-y-2 lg:gap-y-3 xl:gap-y-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -mt-6">
           <img
             src={dashboardIcon}
             alt="Dashboard"
