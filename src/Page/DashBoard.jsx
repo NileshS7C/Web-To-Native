@@ -11,7 +11,7 @@ const  DashBoard=()=>{
             alt="Dashboard"
             className="w-[200px] h-[200px] z-10 md:w-[230px] md:h-[230px] 2xl:w-[300px] 2xl:h-[300px] "
           />
-          <h2 className="text-md md:text-lg xl:text-xl xl:text-2xl text-richBlue-600 font-semibold font-sans-serif w-[90%] sm:w-[70%] md:w-[60%] lg:w-[50%] 2xl:w-[30%] z-10 text-center -mt-2">
+          <h2 className="text-md md:text-lg xl:text-2xl text-richBlue-600 font-semibold font-sans-serif w-[90%] sm:w-[70%] md:w-[60%] lg:w-[50%] 2xl:w-[30%] z-10 text-center -mt-2">
             Game on! Manage your tournament like a pro right from here.
           </h2>
           <button

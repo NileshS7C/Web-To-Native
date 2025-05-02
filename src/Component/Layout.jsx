@@ -196,6 +196,7 @@ const Layout = () => {
           } scrollbar-hide ${
             currentTitle === "DASHBOARD" && "overflow-hidden"
           }`}
+          currentTitle={currentTitle}
         >
           <div className="flex gap-2.5 items-center mb-4 ">
             {!notHaveBackButton.includes(currentTitle) &&

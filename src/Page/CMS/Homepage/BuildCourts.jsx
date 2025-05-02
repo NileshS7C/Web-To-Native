@@ -118,7 +118,7 @@ export default function BuildCourts() {
         </div>
 
         {/* Images Section */}
-        <div className="grid grid-cols-2 gap-4 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
           {/* Desktop Image */}
           <div className="relative border border-gray-300 px-2 pt-4 pb-2 rounded-md">
             {isEditing && (

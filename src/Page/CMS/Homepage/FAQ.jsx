@@ -22,11 +22,11 @@ export default function FAQS() {
         fetchHomePageFAQData();
     }, [])
     return (
-        <div className="bg-white">
-            <div className="mx-auto max-w-7xl px-6 pt-10 pb-24">
+        <div className="px-6 pt-10 pb-24">
+            <div className="mx-auto max-w-7xl bg-white p-4">
                 <div className="mx-auto max-w-4xl">
                     <div className='flex justify-between'>
-                        <h2 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
+                        <h2 className="font-semibold tracking-tight text-gray-900 text-base">
                             Frequently asked questions
                         </h2>
                         <button
