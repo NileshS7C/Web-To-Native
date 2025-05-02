@@ -181,7 +181,14 @@ export const notHaveBackButton = [
   "Users",
   "DASHBOARD",
   "User Details",
-
+  "Explore Picklebay",
+  "Featured Tournaments",
+  "Featured This Week",
+  "Featured Venues",
+  "Why Choose Picklebay",
+  "Build Courts",
+  "The Picklebay Journal",
+  "News & Update",
   "Uploaded Images",
 
   "Players",

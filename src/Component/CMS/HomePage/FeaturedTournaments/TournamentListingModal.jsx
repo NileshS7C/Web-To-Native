@@ -283,8 +283,8 @@ export default function TournamentListingModal({
     <Dialog open={isOpen} onClose={onClose} className="relative z-10">
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
       <div className="fixed inset-0 z-10 w-screen">
-        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-          <DialogPanel className="modal-content w-[70%] mx-auto p-4 bg-white rounded-lg">
+        <div className="flex min-h-full items-start justify-start p-4 text-center sm:items-center sm:p-0 overflow-x-auto">
+          <DialogPanel className="modal-content w-[90%] mx-auto p-4 bg-white rounded-lg min-w-[950px]">
             <div className="mb-4">
               <SearchTournament
                 tournamentName={tournamentName}

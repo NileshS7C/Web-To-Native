@@ -26,7 +26,7 @@ export default function NewsUpdates() {
                 <div className="sm:flex-auto text-left">
                     <h1 className="text-base font-semibold text-gray-900">News & Update</h1>
                 </div>
-                <div className="flex items-end justify-between w-full">
+                <div className="flex items-start md:items-center justify-between w-full flex-col md:flex-row gap-4 mt-2">
                     <NewsSectionInfo sectionInfo={newsData} />
                     <div className="flex justify-end">
                         <button
