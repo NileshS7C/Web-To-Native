@@ -30,7 +30,7 @@ import {
 } from "../../Assests";
 import "react-datepicker/dist/react-datepicker.css";
 
-import { editRow, setFormOpen } from "../../redux/tournament/addTournament";
+import { editRow, setFormOpen,resetEditRow } from "../../redux/tournament/addTournament";
 import {
   deleteUploadedImage,
   uploadImage,
@@ -59,7 +59,6 @@ import { useFormikContextFunction } from "../../Providers/formikContext";
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 import { MdDeleteOutline } from "react-icons/md";
-import { ADMIN_ROLES, TOURNAMENT_OWNER_ROLES } from "../../Constant/Roles";
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -363,13 +362,14 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
           onClose: "hideSuccess",
         })
       );
-
+      
       if (!result.responseCode && isAddInThePath) {
         dispatch(setFormOpen("event"));
         dispatch(getSingleTournament({ tournamentId, ownerId: user.id }));
         navigate(`/tournaments/${result?.data?.tournament._id}/add`);
         resetForm();
       }
+      dispatch(resetEditRow());
     } catch (error) {
       console.log(" error", error);
 
@@ -1286,20 +1286,24 @@ const TournamentSponserTable = ({ disabled }) => {
       setFieldError("sponsors.sponserImage", err.data.message);
     }
   };
-
+  useEffect(()=>{
+    return ()=>{
+      dispatch(resetEditRow())
+    }
+  },[])
   return (
     <FieldArray name="sponsors">
       {({ push, remove, form }) => (
-        <div className="grid grid-cols-1  gap-2.5">
+        <div className="grid grid-cols-1 gap-2.5">
           <p className="text-base text-[#232323] justify-self-start">
             Sponsors
           </p>
           <table className="border-[1px] border-[#EAECF0] rounded-[8px] table-auto">
             <thead>
-              <tr className="text-sm text-[#667085] bg-[#F9FAFB] font-[500] border-b-[1px] h-[44px] ">
+              <tr className="text-sm text-[#667085] bg-[#F9FAFB] font-[500] border-b-[1px] h-[44px]">
                 <th className="text-left p-2">S.No.</th>
                 <th className="text-left p-2">Sponsor Logo</th>
-                <th className="text-left p-2">Sponser Name</th>
+                <th className="text-left p-2">Sponsor Name</th>
                 <th className="text-left p-2">Actions</th>
               </tr>
             </thead>
@@ -1307,31 +1311,31 @@ const TournamentSponserTable = ({ disabled }) => {
               {form.values.sponsors.length > 0 &&
                 form.values.sponsors.map((row, index) => (
                   <tr
-                    className="text-sm text-[#667085] "
-                    key={`sponsors.${index}.sponserImage`}
+                    className="text-sm text-[#667085]"
+                    key={`sponsors.${index}.sponsorImage`}
                   >
                     <td className="text-left p-2">{index + 1}</td>
-                    <td className=" text-left p-2">
-                      <div className=" flex relative ">
+                    <td className="text-left p-2">
+                      <div className="flex relative">
                         <div className="block text-center">
                           <img
                             src={row.sponsorImage || imageUpload}
                             alt="sponsor logo"
-                            className="w-8 h-8 "
+                            className="w-8 h-8"
                           />
                           <p className="text-[11px] text-[#353535]">
                             (Image Size: 200x200)
                           </p>
                         </div>
-                        <Field name={`sponsors.${index}.sponserImage`}>
+                        <Field name={`sponsors.${index}.sponsorImage`}>
                           {({ form, field }) => (
                             <input
                               {...field}
-                              id={`sponsors.${index}.sponserImage`}
-                              name={`sponsors.${index}.sponserImage`}
+                              id={`sponsors.${index}.sponsorImage`}
+                              name={`sponsors.${index}.sponsorImage`}
                               onChange={(e) => {
-                                const files = e.target.files[0];
-                                const url = window.URL.createObjectURL(files);
+                                const file = e.target.files[0];
+                                const url = window.URL.createObjectURL(file);
                                 form.setFieldValue(
                                   `sponsors.${index}.sponsorImage`,
                                   url
@@ -1339,9 +1343,9 @@ const TournamentSponserTable = ({ disabled }) => {
                               }}
                               value=""
                               type="file"
-                              className="absolute  w-8 h-8  inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
+                              className="absolute w-8 h-8 inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
                               multiple={false}
-                              disabled={disabled}
+                              disabled={disabled || editRowIndex !== index}
                             />
                           )}
                         </Field>
@@ -1349,19 +1353,17 @@ const TournamentSponserTable = ({ disabled }) => {
                     </td>
                     <td className="text-left p-2">
                       <Field name={`sponsors.${index}.sponsorName`}>
-                        {({ form, field }) => {
-                          return (
-                            <input
-                              {...field}
-                              id={`sponsors.${index}.sponsorName`}
-                              name={`sponsors.${index}.sponsorName`}
-                              placeholder="Enter Sponsor Name"
-                              className="w-[80%] px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              disabled={editRowIndex !== index}
-                              readOnly={editRowIndex !== index}
-                            />
-                          );
-                        }}
+                        {({ form, field }) => (
+                          <input
+                            {...field}
+                            id={`sponsors.${index}.sponsorName`}
+                            name={`sponsors.${index}.sponsorName`}
+                            placeholder="Enter Sponsor Name"
+                            className="w-[80%] px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled={disabled || editRowIndex !== index}
+                            readOnly={disabled || editRowIndex !== index}
+                          />
+                        )}
                       </Field>
                     </td>
                     <td className="text-left p-2">
@@ -1390,34 +1392,31 @@ const TournamentSponserTable = ({ disabled }) => {
                   </tr>
                 ))}
 
-              <tr
-                className="text-sm text-[#667085] "
-                key="sponsors.sponserImage"
-              >
+              <tr className="text-sm text-[#667085]" key="sponsors.new">
                 <td className="text-left p-2">
                   {form.values.sponsors.length + 1}
                 </td>
-                <td className=" text-left p-2">
-                  <div className=" flex relative ">
+                <td className="text-left p-2">
+                  <div className="flex relative">
                     <div className="block text-center">
                       <img
                         src={sponsorImage || imageUpload}
                         alt="sponsor logo"
-                        className="w-8 h-8 "
+                        className="w-8 h-8"
                       />
                       <p className="text-[11px] text-[#353535]">
                         (Image Size: 200x200)
                       </p>
                     </div>
                     <input
-                      id="sponserImage"
-                      name="sponserImage"
+                      id="sponsorImage"
+                      name="sponsorImage"
                       onChange={(e) => {
                         handleFileUpload(e);
                       }}
                       value=""
                       type="file"
-                      className="absolute  w-8 h-8  inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
+                      className="absolute w-8 h-8 inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
                       multiple={false}
                       disabled={disabled}
                     />
@@ -1436,8 +1435,7 @@ const TournamentSponserTable = ({ disabled }) => {
                     disabled={disabled}
                   />
                 </td>
-
-                <td>
+                <td className="text-left p-2">
                   <Button
                     className="w-[60px] h-[40px] rounded-[8px] text-white"
                     type="button"

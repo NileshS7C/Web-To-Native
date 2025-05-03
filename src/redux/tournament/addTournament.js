@@ -28,7 +28,7 @@ const tournamentSlice = createSlice({
     spnoserName: "",
     isRowAdded: false,
     isEditClicked: false,
-    editRowIndex: "",
+    editRowIndex: -1,
     location: {},
     isGettingALLTO: false,
     err_IN_TO: false,
@@ -152,7 +152,10 @@ const tournamentSlice = createSlice({
       state.isEditClicked = true;
       state.editRowIndex = action.payload;
     },
-
+    resetEditRow(state,action){
+      state.isEditClicked=false,
+      state.editRowIndex=-1
+    },
     stepReducer(state, { payload }) {
       const currentStep = addTournamentSteps.findIndex(
         (el) => el === payload.trim()
@@ -278,6 +281,7 @@ export const {
   resetVerificationState,
   setApprovalBody,
   resetArchiveState,
-  resetDownloadState
+  resetDownloadState,
+  resetEditRow
 } = tournamentSlice.actions;
 export default tournamentSlice.reducer;

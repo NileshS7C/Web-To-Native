@@ -10,7 +10,10 @@ import useDebounce from "../../../Hooks/useDebounce";
 import { Cookies } from "react-cookie";
 const cookies = new Cookies();
 import { toggleModal } from "../../../redux/tournament/eventSlice";
-import { getAllVenues,getSearchVenues } from "../../../redux/Venue/venueActions";
+import {
+  getAllVenues,
+  getSearchVenues,
+} from "../../../redux/Venue/venueActions";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
 
 import {
@@ -183,6 +186,7 @@ export const EventCreationModal = () => {
       modalContentRef.current.scrollTop = 0;
     }
   };
+  
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setHasError(false);
@@ -196,22 +200,30 @@ export const EventCreationModal = () => {
           ...restOfAddress,
           location: locationWithOutExact,
         };
-       
+
         updatedLocation = {
           address: updatedAddress,
           venueImage: selectedVenueData.image,
           handle: selectedVenueData?.handle,
-          name:selectedVenueData?.name
+          name: selectedVenueData?.name,
         };
+      }
+      let location = {};
+      if (venueNotListed && isVenueFinal) {
+        const handle = values?.categoryLocation.name
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+        location = { ...values.categoryLocation, handle: handle };
       }
       const updatedValues = {
         ...values,
-        categoryLocation:
-          !isVenueFinal
-            ? {}
-            : venueNotListed
-            ? values?.categoryLocation || {}
-            : updatedLocation || {},
+        categoryLocation: !isVenueFinal
+          ? {}
+          : venueNotListed
+          ? location || {}
+          : updatedLocation || {},
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
@@ -251,7 +263,7 @@ export const EventCreationModal = () => {
       }
       setHasError(true);
       setErrorMessage(error?.data?.message || "Something went wrong.");
-      scrollToTop()
+      scrollToTop();
     } finally {
       setSubmitting(false);
     }
@@ -296,7 +308,7 @@ export const EventCreationModal = () => {
       setInitialState({});
     }
   }, [categoryId, tournamentId, singleCategorySuccess]);
-  
+
   return (
     <Dialog
       open={showModal}
@@ -305,7 +317,6 @@ export const EventCreationModal = () => {
         dispatch(toggleModal());
       }}
       className="relative z-10 "
-     
     >
       <DialogBackdrop
         transition
@@ -318,8 +329,11 @@ export const EventCreationModal = () => {
             transition
             className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[70%] max-h-[90vh]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 overflow-y-auto"
           >
-            <div >
-              <div className="w-full bg-[#FFFFFF] px-[20px] h-full " ref={modalContentRef}>
+            <div>
+              <div
+                className="w-full bg-[#FFFFFF] px-[20px] h-full "
+                ref={modalContentRef}
+              >
                 <AddEventTitle />
                 {loadingSingleCategory && (
                   <ImSpinner8 className="w-[40px] h-[40px] m-auto animate-spin" />
@@ -732,18 +746,18 @@ const VenueSelection = ({
                 <div className="flex flex-col items-start gap-2.5 w-full">
                   <label
                     className=" text-[#232323] text-base leading-[19.36px]"
-                    htmlFor="categoryLocation.handle"
+                    htmlFor="categoryLocation.name"
                   >
                     Venue Name
                   </label>
                   <Field
                     placeholder="Enter Venue Name"
-                    id="categoryLocation.handle"
-                    name="categoryLocation.handle"
+                    id="categoryLocation.name"
+                    name="categoryLocation.name"
                     className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <ErrorMessage
-                    name="categoryLocation.handle"
+                    name="categoryLocation.name"
                     component={TextError}
                   />
                 </div>
@@ -968,155 +982,213 @@ function ComboboxForVenuesList({
   venueNotListed,
   getLocation,
   updatedCategory,
-  categoryLocation = null
+  categoryLocation = null,
 }) {
-  const [query, setQuery] = useState("");
-  const dispatch = useDispatch();
-  const browserLocation = useLocation();
-  const { venues, totalVenues } = useSelector((state) => state.getVenues);
-  const [selectedPerson, setSelectedPerson] = useState(null);
-  const [updatedVenues, setUpdatedVenues] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [reachedBottom, setReachedBottom] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const selectedFilter = "PUBLISHED";
-  const scrollContainerRef = useRef(null);
-  const scrollPositionRef = useRef(0);
-  const debounceCalls = useDebounce(query, 300);
-  const searchParams = new URLSearchParams(browserLocation.search);
-  const categoryId = searchParams.get("category");
-  const {userRole:role}=useSelector(state=>state.auth);
-  const userRole = cookies.get("userRole");
-  const handleRemoveVenue = () => {
-    setSelectedPerson(null);
-    getLocation({});
-  };
-  useEffect(() => {
-    if (selectedPerson) {
-      const { address } = selectedPerson;
-      getLocation({
-        address,
-        name: selectedPerson?.name,
-        image: selectedPerson?.bannerImages?.[0].url,
-        handle:selectedPerson?.handle
-      });
-    }
-  }, [selectedPerson]);
+    const dispatch = useDispatch();
+    const browserLocation = useLocation();
+    const searchParams = new URLSearchParams(browserLocation.search);
+    const categoryId = searchParams.get("category");
+    const { userRole: role } = useSelector((state) => state.auth);
+    const userRole = cookies.get("userRole");
 
-  useEffect(() => {
-    if (venueNotListed) {
+    // Query & Debounce
+    const [query, setQuery] = useState("");
+    const debounceCalls = useDebounce(query, 300);
+
+    // Selected Venue
+    const [selectedPerson, setSelectedPerson] = useState(null);
+
+    // Venue Data
+    const [updatedVenues, setUpdatedVenues] = useState([]);
+    const [totalVenues, setTotalVenues] = useState(0);
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const [reachedBottom, setReachedBottom] = useState(false);
+    const [isFetchingMore, setIsFetchingMore] = useState(false);
+
+    // UI State
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasError, setHasError] = useState(false);
+
+    // Scroll Refs
+    const scrollContainerRef = useRef(null);
+    const scrollPositionRef = useRef(0);
+
+    const selectedFilter = "PUBLISHED";
+
+    const handleRemoveVenue = () => {
       setSelectedPerson(null);
-    }
-  }, [venueNotListed]);
-
-  useEffect(() => {
-    const getVenueByName = async () => {
-      try {
-        setCurrentPage(1);
-        setIsLoading(true);
-        setHasError(false);
-
-        if (scrollContainerRef.current) {
-          scrollPositionRef.current = scrollContainerRef.current.scrollTop;
-        }
-        const result = await dispatch(
-          getSearchVenues({ currentPage, selectedFilter, limit: 10, name: query ,userRole:userRole || role})
-        ).unwrap();
-
-        if (!result.responseCode) {
-          setUpdatedVenues(result.data.venues);
-        }
-      } catch (err) {
-        setHasError(true);
-      } finally {
-        setIsLoading(false);
-      }
+      getLocation({});
     };
 
-    if ( debounceCalls) {
-      getVenueByName();
-    }
-  }, [debounceCalls]);
-  
-  useEffect(() => {
-    const getInitialVenues = async () => {
-      try {
-        setIsLoading(true);
-        setHasError(false);
-        const result = await dispatch(
-          getSearchVenues({ currentPage, selectedFilter, limit: 10 ,userRole:userRole || role})
-        ).unwrap();
-
-        if (!result.responseCode) {
-          setUpdatedVenues(result.data.venues);
-        }
-      } catch (err) {
-        setHasError(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (!query.length) {
-      getInitialVenues();
-    }
-  }, [query]);
-  useEffect(() => {
-    const getMoreVenues = async () => {
-      try {
-        setIsLoading(true);
-        setHasError(false);
-
-        if (scrollContainerRef.current) {
-          scrollPositionRef.current = scrollContainerRef.current.scrollTop;
-        }
-        const nextPage = currentPage + 1;
-        const result = await dispatch(
-          getSearchVenues({ currentPage: nextPage, selectedFilter, limit: 10 })
-        ).unwrap();
-
-        if (!result.responseCode) {
-          setUpdatedVenues((prev) => [...prev, ...result.data.venues]);
-        }
-        setCurrentPage(nextPage);
-
-        requestAnimationFrame(() => {
-          if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop = scrollPositionRef.current;
-          }
+    useEffect(() => {
+      if (selectedPerson) {
+        const { address } = selectedPerson;
+        getLocation({
+          address,
+          name: selectedPerson?.name,
+          image: selectedPerson?.bannerImages?.[0].url,
+          handle: selectedPerson?.handle,
         });
-      } catch (err) {
-        setHasError(true);
-      } finally {
-        setIsLoading(false);
-        setReachedBottom(false);
+      }
+    }, [selectedPerson]);
+
+    useEffect(() => {
+      if (venueNotListed) {
+        setSelectedPerson(null);
+      }
+    }, [venueNotListed]);
+
+    useEffect(() => {
+      const getVenueByName = async () => {
+        try {
+          setCurrentPage(1);
+          setIsLoading(true);
+          setHasError(false);
+
+          if (scrollContainerRef.current) {
+            scrollPositionRef.current = scrollContainerRef.current.scrollTop;
+          }
+
+          const result = await dispatch(
+            getSearchVenues({
+              currentPage: 1,
+              selectedFilter,
+              limit: 10,
+              name: query,
+              userRole: userRole || role,
+            })
+          ).unwrap();
+
+          if (!result.responseCode) {
+            setUpdatedVenues(result.data.venues);
+            setTotalVenues(result?.data?.total || 0);
+          }
+        } catch (err) {
+          setHasError(true);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      if (debounceCalls) {
+        getVenueByName();
+      }
+    }, [debounceCalls]);
+
+    useEffect(() => {
+      const getInitialVenues = async () => {
+        try {
+          setIsLoading(true);
+          setHasError(false);
+          setCurrentPage(1);
+
+          const result = await dispatch(
+            getAllVenues({
+              currentPage: 1,
+              selectedFilter,
+              limit: 10,
+            })
+          ).unwrap();
+
+          if (!result.responseCode) {
+            setUpdatedVenues(result.data.venues);
+          }
+        } catch (err) {
+          setHasError(true);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      if (!query.length) {
+        getInitialVenues();
+      }
+    }, [query]);
+
+    useEffect(() => {
+      const getMoreVenues = async () => {
+        if (isFetchingMore || updatedVenues.length >= totalVenues) return;
+
+        try {
+          setIsFetchingMore(true);
+          setHasError(false);
+
+          const nextPage = currentPage + 1;
+          const result = await dispatch(
+            query.length > 0
+              ? getSearchVenues({
+                  currentPage: nextPage,
+                  selectedFilter,
+                  limit: 10,
+                  name: query,
+                  userRole: userRole || role,
+                })
+              : getAllVenues({
+                  currentPage: nextPage,
+                  selectedFilter,
+                  limit: 10,
+                })
+          ).unwrap();
+
+          if (!result.responseCode) {
+            const newVenues = [...updatedVenues, ...result.data.venues];
+            const uniqueVenues = Array.from(
+              new Map(newVenues.map((v) => [v._id, v])).values()
+            );
+            setUpdatedVenues(uniqueVenues);
+            setCurrentPage(nextPage);
+            setTotalVenues(result?.data?.total || 0);
+          }
+        } catch (err) {
+          setHasError(true);
+        } finally {
+          setIsFetchingMore(false);
+          setReachedBottom(false);
+        }
+      };
+
+      if (
+        reachedBottom &&
+        !isLoading &&
+        !isFetchingMore &&
+        totalVenues > updatedVenues.length
+      ) {
+        getMoreVenues();
+      }
+    }, [
+      reachedBottom,
+      currentPage,
+      totalVenues,
+      updatedVenues.length,
+      query,
+      isLoading,
+      isFetchingMore,
+    ]);
+
+    const handleScroll = (e) => {
+      const { scrollTop, scrollHeight, clientHeight } = e.target;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 20;
+      if (isAtBottom) {
+        setReachedBottom(true);
       }
     };
 
-    if (reachedBottom && totalVenues > updatedVenues.length) {
-      getMoreVenues();
-    }
-  }, [reachedBottom, currentPage, totalVenues]);
-  const handleScroll = (e) => {
-    const checkBottom = isReachedBottom(e.target);
-    setReachedBottom(checkBottom);
-  };
-  
-  useEffect(()=>{
-    if (
-      categoryId &&
-      categoryLocation && 
-      Object.keys(categoryLocation).length > 0
-    ) {
-      const temp = {
-        ...categoryLocation,
-        bannerImages: [{ url: categoryLocation?.venueImage }],
-        name: categoryLocation?.name || "temp",
-      };
-      setSelectedPerson(temp);
-    }
-  },[])
+    useEffect(() => {
+      if (
+        categoryId &&
+        categoryLocation &&
+        Object.keys(categoryLocation).length > 0
+      ) {
+        const temp = {
+          ...categoryLocation,
+          bannerImages: [{ url: categoryLocation?.venueImage }],
+          name: categoryLocation?.name || "temp",
+        };
+        setSelectedPerson(temp);
+      }
+    }, []);
 
   return (
     <Combobox
@@ -1206,7 +1278,7 @@ function ComboboxForVenuesList({
               </p>
             </div>
           )}
-          {!venues?.length && (
+          {!updatedVenues?.length && (
             <div className="flex justify-center">
               <p className="text-lg text-black-800">No venues found.</p>
             </div>
@@ -1283,7 +1355,7 @@ VenueSelection.propTypes = {
   getLocation: PropTypes.func,
   isVenueNotListed: PropTypes.bool,
   updatedCategory: PropTypes.object,
-  categoryLocation: PropTypes.object
+  categoryLocation: PropTypes.object,
 };
 
 ComboboxForVenuesList.propTypes = {
