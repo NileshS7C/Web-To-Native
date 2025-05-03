@@ -186,7 +186,7 @@ export const EventCreationModal = () => {
       modalContentRef.current.scrollTop = 0;
     }
   };
-  
+
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setHasError(false);
@@ -984,211 +984,207 @@ function ComboboxForVenuesList({
   updatedCategory,
   categoryLocation = null,
 }) {
-    const dispatch = useDispatch();
-    const browserLocation = useLocation();
-    const searchParams = new URLSearchParams(browserLocation.search);
-    const categoryId = searchParams.get("category");
-    const { userRole: role } = useSelector((state) => state.auth);
-    const userRole = cookies.get("userRole");
+  const dispatch = useDispatch();
+  const browserLocation = useLocation();
+  const searchParams = new URLSearchParams(browserLocation.search);
+  const categoryId = searchParams.get("category");
+  const { userRole: role } = useSelector((state) => state.auth);
+  const userRole = cookies.get("userRole");
 
-    // Query & Debounce
-    const [query, setQuery] = useState("");
-    const debounceCalls = useDebounce(query, 300);
+  // Query & Debounce
+  const [query, setQuery] = useState("");
+  const debounceCalls = useDebounce(query, 300);
 
-    // Selected Venue
-    const [selectedPerson, setSelectedPerson] = useState(null);
+  // Selected Venue
+  const [selectedPerson, setSelectedPerson] = useState(null);
 
-    // Venue Data
-    const [updatedVenues, setUpdatedVenues] = useState([]);
-    const [totalVenues, setTotalVenues] = useState(0);
+  // Venue Data
+  const [updatedVenues, setUpdatedVenues] = useState([]);
+  const [totalVenues, setTotalVenues] = useState(0);
 
-    // Pagination
-    const [currentPage, setCurrentPage] = useState(1);
-    const [reachedBottom, setReachedBottom] = useState(false);
-    const [isFetchingMore, setIsFetchingMore] = useState(false);
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [reachedBottom, setReachedBottom] = useState(false);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-    // UI State
-    const [isLoading, setIsLoading] = useState(false);
-    const [hasError, setHasError] = useState(false);
+  // UI State
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-    // Scroll Refs
-    const scrollContainerRef = useRef(null);
-    const scrollPositionRef = useRef(0);
+  // Scroll Refs
+  const scrollContainerRef = useRef(null);
+  const scrollPositionRef = useRef(0);
 
-    const selectedFilter = "PUBLISHED";
+  const selectedFilter = "PUBLISHED";
 
-    const handleRemoveVenue = () => {
+  const handleRemoveVenue = () => {
+    setSelectedPerson(null);
+    getLocation({});
+  };
+
+  useEffect(() => {
+    if (selectedPerson) {
+      const { address } = selectedPerson;
+      getLocation({
+        address,
+        name: selectedPerson?.name,
+        image: selectedPerson?.bannerImages?.[0].url,
+        handle: selectedPerson?.handle,
+      });
+    }
+  }, [selectedPerson]);
+
+  useEffect(() => {
+    if (venueNotListed) {
       setSelectedPerson(null);
-      getLocation({});
-    };
+    }
+  }, [venueNotListed]);
 
-    useEffect(() => {
-      if (selectedPerson) {
-        const { address } = selectedPerson;
-        getLocation({
-          address,
-          name: selectedPerson?.name,
-          image: selectedPerson?.bannerImages?.[0].url,
-          handle: selectedPerson?.handle,
-        });
-      }
-    }, [selectedPerson]);
+  useEffect(() => {
+    const getVenueByName = async () => {
+      try {
+        setCurrentPage(1);
+        setIsLoading(true);
+        setHasError(false);
 
-    useEffect(() => {
-      if (venueNotListed) {
-        setSelectedPerson(null);
-      }
-    }, [venueNotListed]);
-
-    useEffect(() => {
-      const getVenueByName = async () => {
-        try {
-          setCurrentPage(1);
-          setIsLoading(true);
-          setHasError(false);
-
-          if (scrollContainerRef.current) {
-            scrollPositionRef.current = scrollContainerRef.current.scrollTop;
-          }
-
-          const result = await dispatch(
-            getSearchVenues({
-              currentPage: 1,
-              selectedFilter,
-              limit: 10,
-              name: query,
-              userRole: userRole || role,
-            })
-          ).unwrap();
-
-          if (!result.responseCode) {
-            setUpdatedVenues(result.data.venues);
-            setTotalVenues(result?.data?.total || 0);
-          }
-        } catch (err) {
-          setHasError(true);
-        } finally {
-          setIsLoading(false);
+        if (scrollContainerRef.current) {
+          scrollPositionRef.current = scrollContainerRef.current.scrollTop;
         }
-      };
 
-      if (debounceCalls) {
-        getVenueByName();
-      }
-    }, [debounceCalls]);
+        const result = await dispatch(
+          getSearchVenues({
+            currentPage: 1,
+            selectedFilter,
+            limit: 10,
+            name: query,
+            userRole: userRole || role,
+          })
+        ).unwrap();
 
-    useEffect(() => {
-      const getInitialVenues = async () => {
-        try {
-          setIsLoading(true);
-          setHasError(false);
-          setCurrentPage(1);
-
-          const result = await dispatch(
-            getAllVenues({
-              currentPage: 1,
-              selectedFilter,
-              limit: 10,
-            })
-          ).unwrap();
-
-          if (!result.responseCode) {
-            setUpdatedVenues(result.data.venues);
-          }
-        } catch (err) {
-          setHasError(true);
-        } finally {
-          setIsLoading(false);
+        if (!result.responseCode) {
+          setUpdatedVenues(result.data.venues);
+          setTotalVenues(result?.data?.total || 0);
         }
-      };
-
-      if (!query.length) {
-        getInitialVenues();
-      }
-    }, [query]);
-
-    useEffect(() => {
-      const getMoreVenues = async () => {
-        if (isFetchingMore || updatedVenues.length >= totalVenues) return;
-
-        try {
-          setIsFetchingMore(true);
-          setHasError(false);
-
-          const nextPage = currentPage + 1;
-          const result = await dispatch(
-            query.length > 0
-              ? getSearchVenues({
-                  currentPage: nextPage,
-                  selectedFilter,
-                  limit: 10,
-                  name: query,
-                  userRole: userRole || role,
-                })
-              : getAllVenues({
-                  currentPage: nextPage,
-                  selectedFilter,
-                  limit: 10,
-                })
-          ).unwrap();
-
-          if (!result.responseCode) {
-            const newVenues = [...updatedVenues, ...result.data.venues];
-            const uniqueVenues = Array.from(
-              new Map(newVenues.map((v) => [v._id, v])).values()
-            );
-            setUpdatedVenues(uniqueVenues);
-            setCurrentPage(nextPage);
-            setTotalVenues(result?.data?.total || 0);
-          }
-        } catch (err) {
-          setHasError(true);
-        } finally {
-          setIsFetchingMore(false);
-          setReachedBottom(false);
-        }
-      };
-
-      if (
-        reachedBottom &&
-        !isLoading &&
-        !isFetchingMore &&
-        totalVenues > updatedVenues.length
-      ) {
-        getMoreVenues();
-      }
-    }, [
-      reachedBottom,
-      currentPage,
-      totalVenues,
-      updatedVenues.length,
-      query,
-      isLoading,
-      isFetchingMore,
-    ]);
-
-    const handleScroll = (e) => {
-      const { scrollTop, scrollHeight, clientHeight } = e.target;
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 20;
-      if (isAtBottom) {
-        setReachedBottom(true);
+      } catch (err) {
+        setHasError(true);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    useEffect(() => {
-      if (
-        categoryId &&
-        categoryLocation &&
-        Object.keys(categoryLocation).length > 0
-      ) {
-        const temp = {
-          ...categoryLocation,
-          bannerImages: [{ url: categoryLocation?.venueImage }],
-          name: categoryLocation?.name || "temp",
-        };
-        setSelectedPerson(temp);
+    if (debounceCalls) {
+      getVenueByName();
+    }
+  }, [debounceCalls]);
+
+  useEffect(() => {
+    const getInitialVenues = async () => {
+      try {
+        setIsLoading(true);
+        setHasError(false);
+        setCurrentPage(1);
+
+        const result = await dispatch(
+          getSearchVenues({
+            currentPage: 1,
+            selectedFilter,
+            limit: 10,
+            name: query,
+            userRole: userRole || role,
+          })
+        ).unwrap();
+
+        if (!result.responseCode) {
+          setUpdatedVenues(result.data.venues);
+        }
+      } catch (err) {
+        setHasError(true);
+      } finally {
+        setIsLoading(false);
       }
-    }, []);
+    };
+
+    if (!query.length) {
+      getInitialVenues();
+    }
+  }, [query]);
+
+  useEffect(() => {
+    const getMoreVenues = async () => {
+      if (isFetchingMore || updatedVenues.length >= totalVenues) return;
+
+      try {
+        setIsFetchingMore(true);
+        setHasError(false);
+
+        const nextPage = currentPage + 1;
+        const result = await dispatch(
+          getSearchVenues({
+            currentPage: nextPage,
+            selectedFilter,
+            limit: 10,
+            name: query,
+            userRole: userRole || role,
+          })
+        ).unwrap();
+
+        if (!result.responseCode) {
+          const newVenues = [...updatedVenues, ...result.data.venues];
+          const uniqueVenues = Array.from(
+            new Map(newVenues.map((v) => [v._id, v])).values()
+          );
+          setUpdatedVenues(uniqueVenues);
+          setCurrentPage(nextPage);
+          setTotalVenues(result?.data?.total || 0);
+        }
+      } catch (err) {
+        setHasError(true);
+      } finally {
+        setIsFetchingMore(false);
+        setReachedBottom(false);
+      }
+    };
+
+    if (
+      reachedBottom &&
+      !isLoading &&
+      !isFetchingMore &&
+      totalVenues > updatedVenues.length
+    ) {
+      getMoreVenues();
+    }
+  }, [
+    reachedBottom,
+    currentPage,
+    totalVenues,
+    updatedVenues.length,
+    query,
+    isLoading,
+    isFetchingMore,
+  ]);
+
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 20;
+    if (isAtBottom) {
+      setReachedBottom(true);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      categoryId &&
+      categoryLocation &&
+      Object.keys(categoryLocation).length > 0
+    ) {
+      const temp = {
+        ...categoryLocation,
+        bannerImages: [{ url: categoryLocation?.venueImage }],
+        name: categoryLocation?.name || "temp",
+      };
+      setSelectedPerson(temp);
+    }
+  }, []);
 
   return (
     <Combobox
