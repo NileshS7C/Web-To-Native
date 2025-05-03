@@ -9,7 +9,7 @@ import {
 import ReactQuill from "react-quill";
 
 import { useFormikContextFunction } from "../../Providers/formikContext";
-import { setVenueEditMode } from "../../redux/Venue/addVenue";
+import { resetVenueEditMode, setVenueEditMode, setWasCancelledVenue } from "../../redux/Venue/addVenue";
 import TextError from "../Error/formError";
 import { Amenities, Equipment } from "../../Constant/venue";
 import { AiFillQuestionCircle } from "react-icons/ai";
@@ -37,7 +37,9 @@ import { resetVenueState } from "../../redux/Venue/addVenue";
 import Combopopover from "../Common/Combobox";
 import { phoneRegex, venueImageSize } from "../../Constant/app";
 import { Switch } from "@headlessui/react";
-
+import { useRef } from "react";
+import { deleteImages } from "../../redux/Upload/uploadActions";
+import { setDeletedImages,resetDeletedImages } from "../../redux/Upload/uploadImage";
 const requiredVenueFields = (venue) => {
   const {
     name,
@@ -247,12 +249,13 @@ const VenueInfo = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading } = useSelector((state) => state.Venue);
-  const venueEditMode = useSelector((state) => state.Venue.venueEditMode);
+  const { venueEditMode ,wasCancelled} = useSelector((state) => state.Venue);
   const { id } = useParams();
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.Venue);
   const [selectedTags, setSelectedTags] = useState([]);
-
+  const formikRef = useRef();
+    const { deletedImages } = useSelector((state) => state.upload);
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
 
@@ -274,7 +277,9 @@ const VenueInfo = () => {
           onClose: "hideSuccess",
         })
       );
-
+      if (deletedImages?.length > 0) {
+        dispatch(deleteImages(deletedImages));
+      }
       setTimeout(() => {
         !id ? navigate("/venues") : navigate(`/venues/${id}`);
       }, 2000);
@@ -309,11 +314,7 @@ const VenueInfo = () => {
   useEffect(() => {
     dispatch(getUniqueVenueTags());
   }, []);
-  useEffect(()=>{
-   return ()=>{
-    dispatch(setVenueEditMode());
-   }
-  },[])
+  
 
   useEffect(() => {
     if (venue && id && isSuccess) {
@@ -332,7 +333,25 @@ const VenueInfo = () => {
   const { uplodedData, isUploading, isUploaded } = useSelector(
     (state) => state.upload
   );
-
+  const handleCancel = () => {
+    if (formikRef.current) {
+      formikRef.current.resetForm();
+      dispatch(resetDeletedImages());
+    }
+  };
+  useEffect(() => {
+    if (!venueEditMode ) {
+      handleCancel();
+    }
+    setWasCancelledVenue(false);
+  }, [venueEditMode]);
+  useEffect(() => {
+    return () => {
+      dispatch(resetVenueEditMode());
+      dispatch(resetDeletedImages());
+    };
+  }, []);
+  
   if (isGettingVenue) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -347,13 +366,14 @@ const VenueInfo = () => {
       initialValues={initialState}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      innerRef={formikRef}
     >
       {({ isSubmitting, submitForm }) => {
         setSubmitForm(() => submitForm);
         setIsSubmitting(isSubmitting);
         return (
           <Form>
-            <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl py-[50px] px-[48px]">
+            <div className="flex flex-col gap-[30px] bg-[#FFFFFF] text-[#232323] rounded-3xl p-4 md:py-[50px] md:px-[48px]">
               <ErrorModal />
               <SuccessModal />
               <VenueBasicInfo id={id} />
@@ -434,7 +454,7 @@ const VenueBasicInfo = ({ id }) => {
           id="address.location"
           name="address.location"
           setFieldValue={setFieldValue}
-          isEdit={id?true:false}
+          isEdit={id ? true : false}
         />
         <ErrorMessage
           name="address.location.coordinates"
@@ -670,7 +690,7 @@ const VenueDescription = ({ id }) => {
         onChange={(e) => {
           setFieldValue("description", e);
         }}
-        className="custom-quill"
+        className="custom-quill overflow-hidden"
         value={values.description}
         readOnly={id ? !venueEditMode : false}
       />
@@ -1003,7 +1023,7 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
         Venue Banners / Videos
       </p>
 
-      <div className="grid grid-cols-[1fr_auto] gap-[30px] min-h-[133px]">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2.5 min-h-[133px] overflow-hidden">
           {Array.from({ length: 7 }).map((_, index) => (
             <div
@@ -1156,7 +1176,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
     <div className="flex flex-col items-start gap-2.5">
       <p className="text-base leading-[19.36px] text-[#232323]">Venue Layout</p>
 
-      <div className="grid grid-cols-[1fr_auto] gap-[30px] h-[133px]">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2.5 h-[133px] overflow-hidden">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
@@ -1181,7 +1201,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
                 <IoIosCloseCircleOutline
                   className="absolute right-0 w-6 h-6 z-100 text-black cursor-pointer"
                   onClick={() => {
-                    if(!isDisabled){
+                    if (!isDisabled) {
                       handleRemoveImage(index);
                     }
                   }}
@@ -1210,7 +1230,7 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
                     id="layoutImages"
                     name="layoutImages"
                     onChange={(e) => {
-                       handleFileUpload(e);
+                      handleFileUpload(e);
                     }}
                     value=""
                     type="file"

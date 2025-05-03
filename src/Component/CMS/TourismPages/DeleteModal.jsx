@@ -3,6 +3,7 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/re
 import { ExclamationTriangleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Spinner from "../../../Page/CMS/Spinner";
 
+
 export default function DeleteModal({ 
     title, 
     isOpen, 

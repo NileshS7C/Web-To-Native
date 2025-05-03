@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../Services/axios";
+
+
 import MediaGallerySectionInfo from "../../../Component/CMS/TourismPages/MediaGallery/MediaGallerySectionInfo";
 import MediaGalleryContentTable from "../../../Component/CMS/TourismPages/MediaGallery/MediaGalleryContentTable";
 import MediaGalleryAddDataModal from "../../../Component/CMS/TourismPages/MediaGallery/MediaGalleryAddModal";
+
+
 export default function MediaGallery() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [mediaGalleryData,setMediaGalleryData]=useState([]);
@@ -35,7 +39,7 @@ export default function MediaGallery() {
               Media Gallery
             </h1>
           </div>
-          <div className="flex items-end justify-between w-full">
+          <div className="flex items-start md:items-center justify-between w-full flex-col md:flex-row gap-4 mt-2">
             <MediaGallerySectionInfo sectionInfo={mediaGalleryData} />
             <div className="flex justify-end">
               <button

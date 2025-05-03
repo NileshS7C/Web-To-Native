@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { uploadImage } from "./uploadActions";
+import { uploadImage, deleteImages } from "./uploadActions";
 
 const initialState = {
   isUploading: false,
@@ -9,6 +9,8 @@ const initialState = {
   uplodedData: {},
   deleteImageDetails: [],
   deleteImageSuccess: false,
+  deletedImages: [],
+  isDeleting: false,
 };
 
 const uploadSlice = createSlice({
@@ -40,6 +42,13 @@ const uploadSlice = createSlice({
     resetDeleteImageDetails(state) {
       state.deleteImageDetails = [];
     },
+    setDeletedImages(state, { payload }) {
+      state.deletedImages = payload;
+    },
+    resetDeletedImages(state) {
+      state.deletedImages = [];
+      state.isDeleting = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -56,6 +65,16 @@ const uploadSlice = createSlice({
         state.isUploded = false;
         state.uploadErrorMessage = payload.message;
       });
+    builder
+      .addCase(deleteImages.pending, (state) => {
+        state.isDeleting = true;
+      })
+      .addCase(deleteImages.fulfilled, (state, { payload }) => {
+        state.isDeleting = false;
+      })
+      .addCase(deleteImages.rejected, (state) => {
+        state.isDeleting = false;
+      });
   },
 });
 
@@ -66,6 +85,8 @@ export const {
   resetDeleteImageSuccess,
   setDeleteImageDetails,
   resetDeleteImageDetails,
+  setDeletedImages,
+  resetDeletedImages,
 } = uploadSlice.actions;
 
 export default uploadSlice.reducer;

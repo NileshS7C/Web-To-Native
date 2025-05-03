@@ -20,7 +20,7 @@ const FilterPlayer = ({ label, options, selectedValue, onChange }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-2 w-22 md:w-32 bg-white border border-gray-200 rounded-md shadow-lg">
+        <div className="absolute z-50 right-0 mt-2 w-22 md:w-32 bg-white border border-gray-200 rounded-md shadow-lg">
           {options.map((option) => (
             <div
               key={option}

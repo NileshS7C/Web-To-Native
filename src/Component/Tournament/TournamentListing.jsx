@@ -93,6 +93,8 @@ function TournamentListing(props) {
 
   const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
     useSelector((state) => state.GET_TOUR);
+
+  console.log("printing tournaments",tournaments);  
   const { userRole: role } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -191,8 +193,17 @@ function TournamentListing(props) {
             })
           );
           break;
+        default:
+         dispatch(
+          getAllTournaments({
+            page: currentPage || 1,
+            limit: 10,
+            type: userRole,
+            ownerId: singleTournamentOwner?.id,
+          })
+         );
       }
-    } else {
+    } else if (singleTournamentOwner && !searchInput && !selectedTab) {
       dispatch(
         getAllTournaments({
           page: currentPage || 1,
@@ -227,7 +238,7 @@ function TournamentListing(props) {
       <div className="flex flex-col gap-2.5 justify-end items-end">
         {selectedTab && selectedTab === "upcoming" && (
           <FilterGroup
-            title="Filter by approved status:"
+            title="Filter by status:"
             options={tournamentStatusFilters}
             selectedValue={selectedFilter}
             defaultValue="all"
@@ -258,7 +269,7 @@ function TournamentListingWrapper() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex w-[40%]">
+      <div className="flex w-full md:w-[40%]">
         <SearchEvents
           dispatch={dispatch}
           page={currentPage || 1}

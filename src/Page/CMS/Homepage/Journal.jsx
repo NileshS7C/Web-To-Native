@@ -109,14 +109,14 @@ export default function Journal() {
   }, [success, uploadSuccess]);
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="">
       <div className="sm:flex sm:flex-col gap-4">
         <div className="sm:flex-auto text-left">
           <h1 className="text-base font-semibold text-gray-900">
             The Picklebay Journal
           </h1>
         </div>
-        <div className="flex items-end justify-between w-full">
+        <div className="flex items-start md:items-center justify-between w-full flex-col md:flex-row gap-4 mt-2">
           <JournalSectionInfo sectionInfo={journalData} />
           <div className="flex justify-end">
             <button
@@ -130,8 +130,8 @@ export default function Journal() {
         </div>
       </div>
       <div className="mt-8 flow-root">
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full w-full py-2 align-middle sm:px-6 lg:px-8 ">
+        <div className="">
+          <div className="inline-block min-w-full w-full py-2 align-middle">
             <JournalContentTable
               data={journalData.journals}
               fetchHomepageSections={fetchJournalSection}

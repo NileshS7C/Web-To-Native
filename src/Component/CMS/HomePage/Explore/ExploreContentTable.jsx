@@ -48,51 +48,86 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
   const headers = ["Position", "Title", "Link", "Actions"];
 
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-lg border border-gray-300">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-200">
-          <tr>
-            {headers.map((header, index) => (
-              <th
-                key={index}
-                className={`px-3 py-2 text-left text-sm font-semibold text-gray-900 ${header === "Position" || header === "Actions"
-                  ? "w-[10%]"
-                  : header === "Title"
-                    ? "w-[30%]"
-                    : "w-[50%]"
-                  }`}
-              >
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200 bg-white">
-          {data?.features?.map((explore, index) => (
-            <tr key={index} className="text-left">
-              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%] text-center">
-                {explore.position}
-              </td>
-              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
-                {explore.title}
-              </td>
-              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[50%]">
-                {explore.link}
-              </td>
-              <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
-                <div className="flex items-center space-x-3">
-                  <button onClick={() => handleModifyData(explore)} className="hover:text-blue-600">
-                    <PencilIcon className="w-5 h-5" />
-                  </button>
-                  <button onClick={() => handleDelete(explore)} className="hover:text-red-600">
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
-                </div>
-              </td>
+    <>
+      {/* Table for md and up */}
+      <div className="overflow-x-auto bg-white rounded-lg shadow-lg border border-gray-300 hidden md:block">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-200">
+            <tr>
+              {headers.map((header, index) => (
+                <th
+                  key={index}
+                  className={`px-3 py-2 text-left text-sm font-semibold text-gray-900 ${header === "Position" || header === "Actions"
+                    ? "w-[10%]"
+                    : header === "Title"
+                      ? "w-[30%]"
+                      : "w-[50%]"
+                    }`}
+                >
+                  {header}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {data?.features?.map((explore, index) => (
+              <tr key={index} className="text-left">
+                <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%] text-center">
+                  {explore.position}
+                </td>
+                <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
+                  {explore.title}
+                </td>
+                <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[50%]">
+                  {explore.link}
+                </td>
+                <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
+                  <div className="flex items-center space-x-3">
+                    <button onClick={() => handleModifyData(explore)} className="hover:text-blue-600">
+                      <PencilIcon className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => handleDelete(explore)} className="hover:text-red-600">
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Cards for mobile */}
+      <div className="block md:hidden space-y-4">
+        {data?.features?.map((explore, index) => (
+          <div key={index} className="bg-white rounded-lg shadow-lg border border-gray-300 p-4 flex flex-col space-y-2 divide-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-base font-semibold text-gray-500">Position</span>
+              <span className="text-base text-gray-700">{explore.position}</span>
+            </div>
+            <div className="flex justify-between items-center pt-3">
+              <span className="block text-base font-semibold text-gray-500">Title</span>
+              <span className="block text-base font-regular text-gray-500">{explore.title}</span>
+            </div>
+            <div className="flex justify-between items-center pt-3">
+              <span className="block text-base font-semibold text-gray-500">Link</span>
+              <span className="block text-base text-blue-700 font-semibold underline break-all">{explore.link}</span>
+            </div>
+            <div className="flex justify-between items-center pt-3">
+              <p className="block text-base font-semibold text-gray-500">Actions</p> 
+              <div>
+              <button onClick={() => handleModifyData(explore)} className="hover:text-blue-600">
+                <PencilIcon className="w-5 h-5" />
+              </button>
+              <button onClick={() => handleDelete(explore)} className="hover:text-red-600">
+                <TrashIcon className="w-5 h-5" />
+              </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {openEditModal && (
         <ExploreEditDataModal
           data={data}
@@ -110,6 +145,6 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
           handleDeleteItem={handleDeleteItem}
         />
       )}
-    </div>
+    </>
   );
 }
