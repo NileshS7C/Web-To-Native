@@ -33,7 +33,7 @@ const CoponsTable = ({
   return (
     <div className="flex flex-col gap-2.5 justify-start">
       <div className="">
-        <div className="-mx-4  sm:-mx-0">
+        <div className="sm:-mx-0">
           <table
             className={`min-w-full border-none sm:divide-y sm:divide-gray-300 ${className}`}
           >

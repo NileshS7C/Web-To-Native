@@ -22,7 +22,33 @@ export const getPageTitle = (pathname, params, venueData) => {
       // Match for venue edit page: /venues/:id/edit
       return `Edit Venue - ${venueData?.venue?.name || "Venue"}`;
     }
-
+    if (pathname === "/cms/homepage/explore") {
+      return "Explore Picklebay";
+    }
+    if (pathname === "/cms/homepage/why-choose-picklebay") {
+      return "Why Choose Picklebay";
+    }
+    if (pathname === "/cms/homepage/journal") {
+      return "The Picklebay Journal";
+    }
+    if (pathname === "/cms/homepage/news-&-update") {
+      return "News & Update";
+    }
+    if (pathname === "/cms/homepage/destination-dink") {
+      return "Why Choose Picklebay";
+    }
+    if (pathname === "/cms/homepage/build-courts") {
+      return "Build Courts";
+    }
+    if (pathname === "/cms/homepage/featured-tournaments") {
+      return "Featured Tournaments";
+    }
+    if (pathname === "/cms/homepage/featured-week") {
+      return "Featured This Week";
+    }
+    if (pathname === "/cms/homepage/featured-venues") {
+      return "Featured This Week";
+    }
     if (pathname.includes("/add-court")) {
       return "Add Court";
     }
@@ -70,9 +96,7 @@ export const getPageTitle = (pathname, params, venueData) => {
     //for matching /tournaments/:id/event/:id
 
     if (pathname.match(/^\/tournaments\/\w+\/event\/\w+$/)) {
-      return `${venueData?.tournament?.tournamentName || ""}  > ${
-        venueData?.category?.categoryName
-      }`;
+      return `${venueData?.tournament?.tournamentName || ""}  > ${venueData?.category?.categoryName}`;
     }
 
     if (pathname.includes("profile")) {

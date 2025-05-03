@@ -7,6 +7,8 @@ import {
   getAllVenues,
   getSearchVenues,
 } from "../../../../redux/Venue/venueActions";
+import { Cookies } from "react-cookie";
+const cookies = new Cookies();
 import { onPageChange } from "../../../../redux/Venue/getVenues";
 import { venueLimit } from "../../../../Constant/venue";
 import useDebounce from "../../../../Hooks/useDebounce";
@@ -114,7 +116,8 @@ const SearchVenue = ({
 }) => {
   const [searchVenue, setSearchVenue] = useState("");
   const debouncedValue = useDebounce(searchVenue, 200);
-
+  const userRole=cookies.get("userRole");
+    const {userRole:role}=useSelector(state=>state.auth)
   const handleSearchVenue = (e) => {
     setSearchVenue(e?.target?.value);
     setVenueName(e?.target?.value);
@@ -128,6 +131,7 @@ const SearchVenue = ({
           selectedFilter: "Published",
           limit,
           name: debouncedValue,
+          userRole:userRole || role
         })
       );
     }
@@ -265,9 +269,9 @@ export default function VenueListingModal({
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-10">
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
-      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-          <DialogPanel className="modal-content w-[70%] h-[90vh] mx-auto p-4 bg-white rounded-lg shadow-xl transform transition-all">
+      <div className="fixed inset-0 z-[11] w-screen overflow-y-auto">
+        <div className="flex min-h-full items-end overflow-x-auto justify-start p-4 text-center sm:items-center sm:p-0">
+          <DialogPanel className="min-w-[950px] modal-content w-[90%] h-[90vh] mx-auto p-4 bg-white rounded-lg shadow-xl transform transition-all">
             <SearchVenue
               dispatch={dispatch}
               venueName={venueName}

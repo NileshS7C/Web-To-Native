@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../Services/axios";
-
 import PackageSectionInfo from "../../../Component/CMS/TourismPages/PackagesSection/PackageSectionInfo";
 import PackageContentTable from "../../../Component/CMS/TourismPages/PackagesSection/PackageContentTable";
 import PackageAddDataModal from "../../../Component/CMS/TourismPages/PackagesSection/PackageAddModal";
+
+
+
 export default function PackageSection() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [packageData,setPackageData]=useState([])
@@ -37,7 +39,7 @@ export default function PackageSection() {
               Package Section
             </h1>
           </div>
-          <div className="flex items-end justify-between w-full">
+          <div className="flex items-start md:items-center justify-between w-full flex-col md:flex-row gap-4 mt-2">
             <PackageSectionInfo sectionInfo={packageData} />
             <div className="flex justify-end">
               <button

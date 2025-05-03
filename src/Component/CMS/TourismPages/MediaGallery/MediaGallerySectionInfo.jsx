@@ -3,6 +3,8 @@ import { PencilIcon } from "@heroicons/react/20/solid";
 import SwitchToggle from "../SwitchToggle";
 import axiosInstance from "../../../../Services/axios";
 
+
+
 export default function MediaGallerySectionInfo({ sectionInfo }) {
   const [isEditing, setIsEditing] = useState(false);
   const [sectionDetails, setSectionDetails] = useState([]);

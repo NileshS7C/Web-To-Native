@@ -3,6 +3,8 @@ import axiosInstance from "../../../../Services/axios";
 import { uploadImage } from "../../../../utils/uploadImage";
 import SwitchToggle from "../SwitchToggle";
 import { PencilIcon } from "@heroicons/react/16/solid";
+
+
 export default function Instagram() {
   const [isEditing, setIsEditing] = useState(false);
   const [sectionDetails, setSectionDetails] = useState(null);
@@ -65,8 +67,8 @@ export default function Instagram() {
         JSON.stringify(finalPayload),
         config
       );
-      setMobileImage(null);
-      setDesktopImage(null);
+      setMobileImage(null)
+      setDesktopImage(null)
        fetchInstagramData(); 
     } catch (error) {
       console.error("Error updating section:", error);
