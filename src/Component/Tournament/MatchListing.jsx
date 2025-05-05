@@ -108,6 +108,9 @@ export const MatchesListing = () => {
   const [updateFixture, setUpdateFixture] = useState(null);
   const [players, setPlayers] = useState({});
 
+  // Access the first fixture from the array
+  const currentFixture = fixture?.fixtures?.[0];
+
   const handleUpdateFixture = (value) => {
     setUpdateFixture(value);
   };
@@ -136,7 +139,8 @@ export const MatchesListing = () => {
   }, [updateFixture]);
 
   useEffect(() => {
-    if (currentRoundData && fixture?.format === "DE") {
+    // Use currentFixture here
+    if (currentRoundData && currentFixture?.format === "DE") {
       const group_id = currentRoundData[0].group_id;
 
       switch (group_id) {
@@ -158,18 +162,21 @@ export const MatchesListing = () => {
         }
       }
     }
-  }, [currentRoundData, fixture]);
+    // Add currentFixture to dependency array
+  }, [currentRoundData, currentFixture]);
 
   useEffect(() => {
-    if (fixture && currentRound) {
-      const currentRoundId = fixture?.bracketData?.round.filter(
+    // Use currentFixture here
+    if (currentFixture && currentRound) {
+      const currentRoundId = currentFixture?.bracketData?.round.filter(
         (item) => item?.id?.toString() === (currentRound - 1)?.toString()
       );
 
       setCurrentRoundData(currentRoundId);
 
       const currentRoundMatches = currentRoundId.flatMap((round) => {
-        const match = fixture.bracketData.match.filter(
+        // Use currentFixture here
+        const match = currentFixture.bracketData.match.filter(
           (match) => match?.round_id?.toString() === round?.id?.toString()
         );
 
@@ -189,8 +196,9 @@ export const MatchesListing = () => {
             round_id,
             stage_id,
           }) => {
+            // Use currentFixture here
             const participantsById = new Map(
-              fixture?.bracketData?.participant.map((p) => [p.id, p])
+              currentFixture?.bracketData?.participant.map((p) => [p.id, p])
             );
 
             const profilePics1 =
@@ -200,7 +208,7 @@ export const MatchesListing = () => {
                   profilePic: player.profilePic || dummmyProfileIcon,
                 })) || []
               : [];
-      
+
           const profilePics2 =
             opponent2?.id != null
               ? participantsById.get(opponent2.id)?.players.map((player) => ({
@@ -209,14 +217,15 @@ export const MatchesListing = () => {
                 })) || []
               : [];
 
-            const matchGames = fixture?.bracketData?.match_game.filter(
+            // Use currentFixture here
+            const matchGames = currentFixture?.bracketData?.match_game.filter(
               (game) => game?.parent_id?.toString() === id?.toString()
             );
 
             const players = [opponent1?.id, opponent2?.id]
               .map((id) => participantsById.get(id))
-              .filter(Boolean);              
-             
+              .filter(Boolean);
+
 
             return players.length
               ? [
@@ -247,23 +256,13 @@ export const MatchesListing = () => {
         );
 
       setPlayerData(playerData);
-
-      setPlayers(() => {
-        const currentMatchId = currentMatchClicked?.matchId;
-
-        const currentPlayers = playerData?.find(
-          (player) => String(player?.matchId) === String(currentMatchId)
-        );
-
-        return currentPlayers;
-      });
-
-      setTotalRounds(fixture?.bracketData?.round.length);
-      setUpdateFixture(null);
+      // Use currentFixture here
+      setTotalRounds(currentFixture?.bracketData?.round?.length || 0);
     }
-  }, [fixture, currentRound, updateFixture, currentMatchClicked]);
+    // Add currentFixture to dependency array
+  }, [currentFixture, currentRound]);
 
-  if (isFetchingFixture && !showScoreUpdateModal) {
+  if (isFetchingFixture) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spinner />
@@ -271,8 +270,15 @@ export const MatchesListing = () => {
     );
   }
 
+  // Use currentFixture here
+  if (!currentFixture) {
+    return (
+      <EmptyBanner message="No fixture data available for this event yet." />
+    );
+  }
+
   return (
-    <div>
+    <div className="flex flex-col gap-5">
       {!fixture && <NoMatchExist />}
       {fixture && (
         <>
@@ -323,9 +329,10 @@ export const MatchesListing = () => {
 
           <ScoreUpdateModal
             isOpen={showScoreUpdateModal}
-            onCancel={setShowScoreUpdateModal}
-            players={players}
-            fixtureId={fixture?._id}
+            onCancel={() => setShowScoreUpdateModal(false)}
+            players={currentMatchClicked}
+            // Pass the correct fixtureId from currentFixture
+            fixtureId={currentFixture?._id}
             tournamentId={tournamentId}
             eventId={eventId}
             currentMatchId={currentMatchClicked?.matchId}
