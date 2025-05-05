@@ -39,7 +39,7 @@ export default function PackageSection() {
               Package Section
             </h1>
           </div>
-          <div className="flex items-end justify-between w-full">
+          <div className="flex items-start md:items-center justify-between w-full flex-col md:flex-row gap-4 mt-2">
             <PackageSectionInfo sectionInfo={packageData} />
             <div className="flex justify-end">
               <button
