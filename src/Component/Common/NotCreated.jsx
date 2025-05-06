@@ -1,15 +1,21 @@
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { toggleOrganiserModal } from "../../redux/tournament/tournamentOrganiserSlice";
 
 const NotCreated = ({ message, buttonText, type, disable = false }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
   const handleRoutingThroughButton = () => {
     if (type === "tournament") {
       navigate("/tournaments/add");
     } else if (type === "venue") {
       navigate("/venues/new");
     } else if (type === "organizers") {
-      navigate("/tournament-organisers");
+      console.log("Dispatching toggleOrganiserModal action");
+      dispatch(toggleOrganiserModal());
+      console.log("toggleOrganiserModal action dispatched");
     }
   };
   return (
