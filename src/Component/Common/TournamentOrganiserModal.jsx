@@ -156,6 +156,11 @@ export const TournamentOrganiserCreation = ({
           })
         );
 
+        // Clear organiserId from URL after successful save
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete('organiserId');
+        navigate(`/tournament-organisers?${newSearchParams.toString()}`);
+
         dispatch(toggleOrganiserModal());
       }
     } catch (err) {
