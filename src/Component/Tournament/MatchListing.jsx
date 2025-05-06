@@ -256,13 +256,24 @@ export const MatchesListing = () => {
         );
 
       setPlayerData(playerData);
-      // Use currentFixture here
-      setTotalRounds(currentFixture?.bracketData?.round?.length || 0);
-    }
-    // Add currentFixture to dependency array
-  }, [currentFixture, currentRound]);
 
-  if (isFetchingFixture) {
+      setPlayers(() => {
+        const currentMatchId = currentMatchClicked?.matchId;
+
+        const currentPlayers = playerData?.find(
+          (player) => String(player?.matchId) === String(currentMatchId)
+        );
+
+        return currentPlayers;
+      });
+
+      setTotalRounds(currentFixture?.bracketData?.round.length);
+      setUpdateFixture(null);
+    }
+
+  }, [currentFixture, currentRound, updateFixture, currentMatchClicked]);
+
+  if (isFetchingFixture  && !showScoreUpdateModal) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spinner />
@@ -271,14 +282,14 @@ export const MatchesListing = () => {
   }
 
   // Use currentFixture here
-  if (!currentFixture) {
-    return (
-      <EmptyBanner message="No fixture data available for this event yet." />
-    );
-  }
+  // if (!currentFixture) {
+  //   return (
+  //     <EmptyBanner message="No fixture data available for this event yet." />
+  //   );
+  // }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div>
       {!fixture && <NoMatchExist />}
       {fixture && (
         <>
@@ -329,9 +340,8 @@ export const MatchesListing = () => {
 
           <ScoreUpdateModal
             isOpen={showScoreUpdateModal}
-            onCancel={() => setShowScoreUpdateModal(false)}
-            players={currentMatchClicked}
-            // Pass the correct fixtureId from currentFixture
+            onCancel={setShowScoreUpdateModal}
+            players={players}
             fixtureId={currentFixture?._id}
             tournamentId={tournamentId}
             eventId={eventId}
