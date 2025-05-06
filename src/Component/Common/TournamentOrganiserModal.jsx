@@ -123,6 +123,14 @@ export const TournamentOrganiserCreation = ({
         updatedValues = valuesWithLogo;
       }
 
+      if (updatedValues.ownerDetails) {
+        console.log(updatedValues, "<-- This One")
+        if (!updatedValues.ownerDetails.brandLogoImage || updatedValues.ownerDetails.brandLogoImage === null || updatedValues.ownerDetails.brandLogoImage === "") {
+          const { brandLogoImage, ...restOwnerDetails } = updatedValues.ownerDetails;
+          updatedValues.ownerDetails = restOwnerDetails;
+        }
+      }
+
       const result = !organiserId
         ? await dispatch(createTournamentOwner(updatedValues)).unwrap()
         : await dispatch(
