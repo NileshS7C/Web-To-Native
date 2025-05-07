@@ -2,18 +2,18 @@ import React, { useEffect } from 'react'
 import { useGetFixtureId, useGetTournamentStanding } from '../../Hooks/tournamentStandingHooks'
 
 const TournamentStandings = ({ tournamentId, categoryId }) => {  
-  const { data: fixtureID, isLoading: isFixtureLoading, isError: isFixtureError } = useGetFixtureId({ tournamentId, categoryId })
-  const { data: standing, isLoading: isStandingLoading, isError: isStandingError } = useGetTournamentStanding({ tournamentId, categoryId, fixtureId: fixtureID })
+  const { data: fixtureData, isLoading: isFixtureLoading, isError: isFixtureError } = useGetFixtureId({ tournamentId, categoryId })
+  const fixtureID = fixtureData
+  const { data: standingData, isLoading: isStandingLoading, isError: isStandingError } = useGetTournamentStanding({ tournamentId, categoryId, fixtureId: fixtureID })
 
-  useEffect(() => {
-    console.log(standing,'stanidng')
-  },[standing])
+  const standing = standingData
+
+  useEffect(() =>{console.log(fixtureData,'FD', standingData)},[fixtureData])
   
   if (isFixtureLoading || isStandingLoading) {
     return (
       <div>
         <div className='w-full h-[200px] animate-pulse rounded-md bg-gray-200'>
-          
         </div>
       </div>
     )
@@ -27,9 +27,9 @@ const TournamentStandings = ({ tournamentId, categoryId }) => {
     return <div>Error loading standings.</div>
   }
 
-    if (!standing || !standing.groups || standing.groups === 0) {
-      return <div>No standings available.</div>
-    }
+  if (!standing || !standing.groups || standing.groups.length === 0) { 
+    return <div>No standings available.</div>
+  }
 
 
   return (

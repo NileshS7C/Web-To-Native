@@ -20,7 +20,7 @@ export const getFixtureId = async ({ tournamentId, categoryId }) => {
 
   try {
     const response = await axios.request(config);
-    return response.data?.data?._id;
+    return response.data?.data?.fixtures?.[0]?._id;
   } catch (error) {
     console.error("🚀 ~ getFixtureId ~ error:", error)
     throw error.response?.data || error;
