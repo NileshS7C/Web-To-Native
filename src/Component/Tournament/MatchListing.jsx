@@ -133,6 +133,7 @@ export const MatchesListing = () => {
   }, []);
 
   useEffect(() => {
+    console.log("priniting update fixture")
     if (updateFixture) {
       dispatch(getFixture({ tour_Id: tournamentId, eventId }));
     }
