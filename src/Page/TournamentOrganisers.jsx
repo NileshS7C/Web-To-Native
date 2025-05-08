@@ -18,6 +18,7 @@ function TournamentOrganisersPage() {
   );
 
   useEffect(() => {
+    console.log("Fetching tournament organizers");
     dispatch(
       getAll_TO({
         currentPage: currentPage || 1,
@@ -34,15 +35,6 @@ function TournamentOrganisersPage() {
     );
   }
 
-  if (!tournamentOwners?.owners?.length) {
-    return (
-      <NotCreated
-        message="Currently No tournament organisers are present. Please create the tournament organisers to get started."
-        buttonText="Add Tournament Organiser"
-        type="organizers"
-      />
-    );
-  }
 
   return (
     <TournamentOrganisersListing

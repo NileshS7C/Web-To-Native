@@ -8,7 +8,7 @@ import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
 import { useEffect, useState } from "react";
 
-export const NavBar = () => {
+export const NavBar = ({ handleOverlayClick }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [cookies] = useCookies(["userRole"]);
@@ -112,6 +112,9 @@ export const NavBar = () => {
                 // Navigate if it doesn't have children
                 dispatch(setNavigation(menu.name));
                 navigate(currentPath);
+                if(typeof(handleOverlayClick) === 'function') {
+                  handleOverlayClick();
+                }
               }
             }}
           >

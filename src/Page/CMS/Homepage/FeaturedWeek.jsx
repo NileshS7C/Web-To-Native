@@ -22,14 +22,14 @@ export default function FeaturedWeek() {
       const config = {
         headers: { "Content-Type": "application/json" },
       };
-  
+
       const response = await axiosInstance.get(
         `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=featuredThisWeek`,
         config
       );
-  
+
       const data = response.data?.data?.length ? response.data.data[0] : null;
-  
+
       if (data) {
         setOriginalWeekData(data);
         setWeekData(data);
@@ -52,7 +52,7 @@ export default function FeaturedWeek() {
       console.error("Error fetching week data:", error);
     }
   };
-  
+
 
   useEffect(() => {
     fetchWeekData();
@@ -73,8 +73,7 @@ export default function FeaturedWeek() {
       };
 
       await axiosInstance.post(
-        `${
-          import.meta.env.VITE_BASE_URL
+        `${import.meta.env.VITE_BASE_URL
         }/users/admin/homepage-sections/featuredThisWeek`,
         JSON.stringify({
           heading,
@@ -95,7 +94,7 @@ export default function FeaturedWeek() {
 
   const validateFields = () => {
     const newErrors = {};
-    
+
     const stripHtml = (html) => html.replace(/<[^>]*>?/gm, "").trim();  // Remove HTML tags
 
     if (!heading.trim()) newErrors.heading = "Heading is required.";
@@ -106,7 +105,7 @@ export default function FeaturedWeek() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-};
+  };
 
 
   const handleDiscard = () => {
@@ -123,14 +122,23 @@ export default function FeaturedWeek() {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="">
+      <style>
+        {`
+        @media screen and (max-width: 768px) {
+          .ql-container.ql-snow {
+            height: 125px !important; 
+            }
+            }
+            `}
+      </style>
       <div className="sm:flex sm:flex-col gap-4">
         <div className="sm:flex-auto text-left">
           <h1 className="text-base font-semibold text-left text-gray-900">
             {weekData.sectionTitle}
           </h1>
         </div>
-        <div className="flex items-end justify-between w-full">
+        <div className="flex items-start md:items-center justify-between w-full flex-col md:flex-row gap-4 mt-2">
           <WeekSectionInfo sectionInfo={weekData} />
           {!isEditing ? (
             <button
@@ -157,7 +165,7 @@ export default function FeaturedWeek() {
           )}
         </div>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-4 shadow-md rounded-lg border border-gray-300 bg-white py-4 px-4">
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-md rounded-lg border border-gray-300 bg-white py-4 px-4">
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-left">Heading</label>
           <input
@@ -166,9 +174,9 @@ export default function FeaturedWeek() {
             value={heading}
             onChange={(e) => setHeading(e.target.value)}
             disabled={!isEditing}
-            
+
           />
-            {errors.heading && <span className="text-red-500 text-sm">{errors.heading}</span>}
+          {errors.heading && <span className="text-red-500 text-sm">{errors.heading}</span>}
 
           <label className="font-semibold text-left">Sub Heading</label>
           <ReactQuill
@@ -193,7 +201,7 @@ export default function FeaturedWeek() {
             onChange={(e) => setButtonText(e.target.value)}
             disabled={!isEditing}
           />
-            {errors.image && <span className="text-red-500 text-sm">{errors.image}</span>}
+          {errors.image && <span className="text-red-500 text-sm">{errors.image}</span>}
           <label className="font-semibold text-left">Link</label>
           <input
             type="text"

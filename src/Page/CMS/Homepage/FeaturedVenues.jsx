@@ -34,7 +34,7 @@ export default function FeaturedVenues() {
                 <div className="sm:flex-auto text-left">
                     <h1 className="text-base font-semibold text-gray-900">Featured Venue</h1>
                 </div>
-                <div className="flex items-end justify-between w-full">
+                <div className="flex items-start md:items-center justify-between w-full flex-col md:flex-row gap-4 mt-2">
                     <VenueSectionInfo sectionInfo={venuesData} />
                     <div className="flex justify-end">
                         <button

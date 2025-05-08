@@ -123,6 +123,14 @@ export const TournamentOrganiserCreation = ({
         updatedValues = valuesWithLogo;
       }
 
+      if (updatedValues.ownerDetails) {
+        console.log(updatedValues, "<-- This One")
+        if (!updatedValues.ownerDetails.brandLogoImage || updatedValues.ownerDetails.brandLogoImage === null || updatedValues.ownerDetails.brandLogoImage === "") {
+          const { brandLogoImage, ...restOwnerDetails } = updatedValues.ownerDetails;
+          updatedValues.ownerDetails = restOwnerDetails;
+        }
+      }
+
       const result = !organiserId
         ? await dispatch(createTournamentOwner(updatedValues)).unwrap()
         : await dispatch(
@@ -147,6 +155,11 @@ export const TournamentOrganiserCreation = ({
             limit: rowsInOnePage,
           })
         );
+
+        // Clear organiserId from URL after successful save
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete('organiserId');
+        navigate(`/tournament-organisers?${newSearchParams.toString()}`);
 
         dispatch(toggleOrganiserModal());
       }
