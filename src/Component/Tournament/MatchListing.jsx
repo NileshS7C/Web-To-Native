@@ -108,10 +108,9 @@ export const MatchesListing = () => {
   const [updateFixture, setUpdateFixture] = useState(null);
   const [players, setPlayers] = useState({});
 
-  // Access the first fixture from the array
-  const currentFixture = fixture?.fixtures?.[0];
 
   const handleUpdateFixture = (value) => {
+    console.log("🚀 ~ handleUpdateFixture ~ valuesssss:", value)
     setUpdateFixture(value);
   };
 
@@ -140,8 +139,8 @@ export const MatchesListing = () => {
   }, [updateFixture]);
 
   useEffect(() => {
-    // Use currentFixture here
-    if (currentRoundData && currentFixture?.format === "DE") {
+    // Use fixture here
+    if (currentRoundData && fixture?.format === "DE") {
       const group_id = currentRoundData[0].group_id;
 
       switch (group_id) {
@@ -163,21 +162,21 @@ export const MatchesListing = () => {
         }
       }
     }
-    // Add currentFixture to dependency array
-  }, [currentRoundData, currentFixture]);
+    // Add fixture to dependency array
+  }, [currentRoundData, fixture]);
 
   useEffect(() => {
-    // Use currentFixture here
-    if (currentFixture && currentRound) {
-      const currentRoundId = currentFixture?.bracketData?.round.filter(
+    // Use fixture here
+    if (fixture && currentRound) {
+      const currentRoundId = fixture?.bracketData?.round.filter(
         (item) => item?.id?.toString() === (currentRound - 1)?.toString()
       );
 
       setCurrentRoundData(currentRoundId);
 
       const currentRoundMatches = currentRoundId.flatMap((round) => {
-        // Use currentFixture here
-        const match = currentFixture.bracketData.match.filter(
+        // Use fixture here
+        const match = fixture.bracketData.match.filter(
           (match) => match?.round_id?.toString() === round?.id?.toString()
         );
 
@@ -197,9 +196,9 @@ export const MatchesListing = () => {
             round_id,
             stage_id,
           }) => {
-            // Use currentFixture here
+            // Use fixture here
             const participantsById = new Map(
-              currentFixture?.bracketData?.participant.map((p) => [p.id, p])
+              fixture?.bracketData?.participant.map((p) => [p.id, p])
             );
 
             const profilePics1 =
@@ -218,8 +217,8 @@ export const MatchesListing = () => {
                 })) || []
               : [];
 
-            // Use currentFixture here
-            const matchGames = currentFixture?.bracketData?.match_game.filter(
+            // Use fixture here
+            const matchGames = fixture?.bracketData?.match_game.filter(
               (game) => game?.parent_id?.toString() === id?.toString()
             );
 
@@ -255,8 +254,10 @@ export const MatchesListing = () => {
               : [];
           }
         );
+        console.log(playerData, players,"Player Data")
 
       setPlayerData(playerData);
+      console.log(playerData, players,"Player Data")
 
       setPlayers(() => {
         const currentMatchId = currentMatchClicked?.matchId;
@@ -268,11 +269,11 @@ export const MatchesListing = () => {
         return currentPlayers;
       });
 
-      setTotalRounds(currentFixture?.bracketData?.round.length);
+      setTotalRounds(fixture?.bracketData?.round.length);
       setUpdateFixture(null);
     }
 
-  }, [currentFixture, currentRound, updateFixture, currentMatchClicked]);
+  }, [fixture, currentRound, updateFixture, currentMatchClicked]);
 
   if (isFetchingFixture  && !showScoreUpdateModal) {
     return (
@@ -282,8 +283,8 @@ export const MatchesListing = () => {
     );
   }
 
-  // Use currentFixture here
-  // if (!currentFixture) {
+  // Use fixture here
+  // if (!fixture) {
   //   return (
   //     <EmptyBanner message="No fixture data available for this event yet." />
   //   );
@@ -343,7 +344,7 @@ export const MatchesListing = () => {
             isOpen={showScoreUpdateModal}
             onCancel={setShowScoreUpdateModal}
             players={players}
-            fixtureId={currentFixture?._id}
+            fixtureId={fixture?._id}
             tournamentId={tournamentId}
             eventId={eventId}
             currentMatchId={currentMatchClicked?.matchId}
