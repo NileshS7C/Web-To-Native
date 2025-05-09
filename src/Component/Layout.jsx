@@ -181,21 +181,17 @@ const Layout = () => {
 
       <div className="flex flex-1 bg-[#F5F7FA] overflow-hidden">
         <div
-          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${
-            shouldScroll.nav ? "overflow-auto" : "overflow-auto"
-          }  scrollbar-hide`}
+          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${shouldScroll.nav ? "overflow-auto" : "overflow-auto"
+            }  scrollbar-hide`}
           ref={navRef}
         >
           <NavBar />
         </div>
         <div
-          className={`flex-1 ${
-            currentTitle !== "DASHBOARD" && "p-4 md:p-[50px]"
-          } h-full ${
-            shouldScroll.page ? "overflow-auto" : "overflow-auto"
-          } scrollbar-hide ${
-            currentTitle === "DASHBOARD" && "overflow-hidden"
-          }`}
+          className={`flex-1 ${currentTitle !== "DASHBOARD" && "p-4 md:p-[50px]"
+            } h-full ${shouldScroll.page ? "overflow-auto" : "overflow-auto"
+            } scrollbar-hide ${currentTitle === "DASHBOARD" && "overflow-hidden"
+            }`}
           currentTitle={currentTitle}
         >
           <div className="flex gap-2.5 items-center mb-4 ">
@@ -277,9 +273,8 @@ const Layout = () => {
                   <UploadImageButton dispatch={dispatch} />
                 )}
 
-                {(currentTitle === "Venue Details" ||
-                  currentTitle.startsWith("Edit")) &&
-                  isVenue && (
+                {(currentTitle.startsWith("Venue Details") ||
+                  currentTitle.startsWith("Edit")) && isVenue && (
                     <VenueActionButtonWrapper
                       dispatch={dispatch}
                       navigate={navigate}
@@ -394,9 +389,8 @@ const TournamentActionButton = ({
           tournament?.status !== "REJECTED" && (
             <div className="flex items-center gap-2">
               <Button
-                className={`${
-                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                  } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
                 type="button"
                 onClick={() => {
                   setApproveButtonClicked(true);
@@ -412,9 +406,8 @@ const TournamentActionButton = ({
                 Accept Tournament
               </Button>
               <Button
-                className={`${
-                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                  } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
                 type="button"
                 onClick={() => {
                   dispatch(
@@ -573,14 +566,15 @@ const VenueActionButtons = ({
   submitForm,
   isSubmitting,
 }) => {
+  console.log("IsEdit - ", isEditInThePath)
   return (
     <div className="flex items-center gap-2 justify-end ml-auto">
       {venueEditMode ? (
         <SaveAndCancelButton
           dispatch={dispatch}
           setEditMode={() => {
-             dispatch(setVenueEditMode());
-             dispatch(setWasCancelledVenue());
+            dispatch(setVenueEditMode());
+            dispatch(setWasCancelledVenue());
           }}
           submitForm={submitForm}
           isSubmitting={isSubmitting}
