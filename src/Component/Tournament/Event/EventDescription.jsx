@@ -22,7 +22,11 @@ function EventDescription() {
       dispatch(getSingleCategory({ tour_Id: tournamentId, eventId: eventId }));
     }
   }, [eventId]);
-
+  console.log(
+    "Printing category location:",
+    category.categoryLocation,
+    category
+  );
   if (loadingSingleCategory) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -38,23 +42,24 @@ function EventDescription() {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-col-3 gap-10 items-start justify-center bg-[#FFFFFF] rounded-[20px] p-[20px] sm:p-[40px]">
-      <EventNameAndDate
-        name={category?.categoryName}
-        format={category?.format}
-        maxPlayer={category?.maxPlayers}
-      />
-      <EventFormatAndCategory
-        date={category?.categoryStartDate}
-        category={category?.type}
-        minPlayer={category?.minPlayers}
-      />
+    <div className="bg-[#FFFFFF] rounded-[20px] p-[20px] sm:p-[40px] gap-6">
+      <div className="grid grid-cols-2 sm:grid-col-3 gap-10 items-start justify-center ">
+        <EventNameAndDate
+          name={category?.categoryName}
+          format={category?.format}
+          maxPlayer={category?.maxPlayers}
+        />
+        <EventFormatAndCategory
+          date={category?.categoryStartDate}
+          category={category?.type}
+          minPlayer={category?.minPlayers}
+        />
 
-      <EventPlayers
-        fee={category?.registrationFee}
-        skillLevel={category?.skillLevel}
-      />
-
+        <EventPlayers
+          fee={category?.registrationFee}
+          skillLevel={category?.skillLevel}
+        />
+      </div>
       <EventLocationAndImage image="" address={category?.categoryLocation} />
     </div>
   );
@@ -64,7 +69,6 @@ const EventNameAndDate = ({ name, format, maxPlayer }) => {
   const eventFormatName = tournamentEvent.format.find(
     (item) => item.shortName === format
   );
-
   return (
     <div className="flex flex-col items-start flex-1 gap-10">
       <div className="flex flex-col items-start gap-2.5">
@@ -156,61 +160,81 @@ const EventPlayers = ({ fee, skillLevel }) => {
 };
 
 const EventLocationAndImage = ({ image, address }) => {
-  const venueAddress = `${address?.line1 || ""}, ${address?.line2 || ""}, ${
-    address?.city || ""
-  }, ${address?.state || ""}, ${address?.postalCode || ""}`;
+  function generateGoogleMapsLink(address) {
+       console.log("printing address", address);
+    const coords = address?.location?.coordinates;
+    if (coords && coords.length === 2) {
+      const [lng, lat] = coords;
+      return `https://www.google.com/maps?q=${lat},${lng}`;
+    }
+    const addressParts = [
+      address?.line1,
+      address?.line2,
+      address?.city,
+      address?.state,
+      address?.postalCode,
+    ].filter(Boolean);
 
-  const googleMapsLink = `https://www.google.com/maps?q=${encodeURIComponent(
-    venueAddress
-  )}`;
+    const addressString = encodeURIComponent(addressParts.join(", "));
+    return `https://www.google.com/maps?q=${addressString}`;
+  }
+  const googleMapsLink = generateGoogleMapsLink(address?.address);
 
-  const isLocationExist = address && !Object.keys(address).length;
-
+  const isLocationExist = address && Object.keys(address).length > 0;
   return (
     <>
       {isLocationExist && (
-        <div className="flex flex-col gap-2.5 items-start">
-          <p className="text-sm font-medium">
-            {address.line1} | {address.line2}
-          </p>
-          <div className="flex gap-2">
+        <div className="flex flex-col gap-3">
+          <h3 className="text-left">Venue</h3>
+          <div className="flex gap-4 flex-col sm:flex-row">
             <img
-              src={locationIcon}
-              alt="view location"
-              width="24px"
-              height="24px"
-            />
-            <p className="text-sm text-[#101828]">
-              <span>{address?.line1 || ""}</span>
-              {","}
-              <span>{address?.line2 || ""}</span>
-              {","}
-              <span>{address?.city || ""}</span>
-              {","}
-              <span>{address?.state || ""}</span>
-              {","}
-              <span>{address?.postalCode || ""}</span>
-            </p>
-          </div>
+              src={address?.venueImage}
+              className="w-full h-auto sm:w-[240px] sm:h-[200px] lg:h-auto lg:w-[280px] rounded-lg"
+            ></img>
+            <div className="flex flex-col gap-2.5 items-start">
+              <p className="text-sm font-medium">
+                {address?.address?.line1} | {address?.address?.line2}
+              </p>
+              <div className="flex gap-2">
+                <img
+                  src={locationIcon}
+                  alt="view location"
+                  width="24px"
+                  height="24px"
+                />
+                <p className="text-sm text-[#101828] text-left">
+                  <span>{address?.address?.line1 || ""}</span>
+                  {","}
+                  <span>{address?.address?.line2 || ""}</span>
+                  {","}
+                  <span>{address?.address?.city || ""}</span>
+                  {","}
+                  <span>{address?.address?.state || ""}</span>
+                  {","}
+                  <span>{address?.address?.postalCode || ""}</span>
+                </p>
+              </div>
 
-          <div className="flex gap-2">
-            <img
-              src={locationIcon}
-              alt="view location"
-              width="24px"
-              height="24px"
-            />
-            <p className="text-sm text-[#718EBF] cursor-pointer">
-              {" "}
-              <a
-                href={googleMapsLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline"
-              >
-                View Location
-              </a>
-            </p>
+              <div className="flex gap-2">
+                <img
+                  src={locationIcon}
+                  alt="view location"
+                  width="24px"
+                  height="24px"
+                />
+                <p className="text-sm text-[#718EBF] cursor-pointer">
+                  {" "}
+                  <a
+                    href={googleMapsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    View Location
+                  </a>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -13,6 +13,7 @@ import { toggleModal } from "../../../redux/tournament/eventSlice";
 import {
   getAllVenues,
   getSearchVenues,
+
 } from "../../../redux/Venue/venueActions";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
 
@@ -29,7 +30,9 @@ import Button from "../../Common/Button";
 import {
   roundRobbinModeOptions,
   tournamentEvent,
+  grandFinalsDEOption,
 } from "../../../Constant/tournament";
+
 import TextError from "../../Error/formError";
 
 import { formattedDate, parseDate } from "../../../utils/dateUtils";
@@ -89,6 +92,9 @@ const initialValues = {
   maxPlayers: 0,
   minPlayers: 1,
   skillLevel: "",
+  consolationFinal: false,
+  numberOfGroups: "",
+  totalSets: "",
   categoryLocation: {
     handle: "",
     address: {
@@ -119,6 +125,9 @@ export const EventCreationModal = () => {
     format: yup.string().required("Event format is required."),
     type: yup.string().required("Event category is required."),
     roundRobinMode: yup.string().optional(),
+    consolationFinal: yup.boolean().optional(),
+    numberOfGroups: yup.string().optional(),
+    totalSets: yup.string().optional(),
     registrationFee: yup
       .number()
       .required("Registration fee is required.")
@@ -323,7 +332,7 @@ export const EventCreationModal = () => {
         className="fixed inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
       />
       <div className="fixed  inset-0 z-10 overflow-y-auto">
-        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0 ">
           <DialogPanel
             ref={modalContentRef}
             transition
@@ -373,7 +382,7 @@ export const EventCreationModal = () => {
                             <div className="flex gap-2 justify-end mb-4">
                               <Button
                                 type="button"
-                                className="py-2 px-5 rounded-[10px] shadow-md bg-white text-[14px] leading-[17px] text-[#232323]" 
+                                className="py-2 px-5 rounded-[10px] shadow-md bg-white text-[14px] leading-[17px] text-[#232323]"
                                 onClick={() => dispatch(toggleModal())}
                               >
                                 Close
@@ -498,32 +507,89 @@ const EventFormat = () => {
         </Field>
         <ErrorMessage name="type" component={TextError} />
       </div>
-
-      {isRoundRobinSelected && (
-        <div className="flex flex-col items-start gap-2.5">
-          <label
-            className="text-base leading-[19.36px] text-[#232323]"
-            htmlFor="roundRobinMode"
-          >
-            Round Robin Type
-          </label>
-          <Field
-            className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            as="select"
-            name="roundRobinMode"
-            id="roundRobinMode"
-          >
-            {roundRobbinModeOptions.map((mode) => {
-              return (
+      {values?.format === "RR" && (
+        <>
+          <div className="flex flex-col items-start gap-2">
+            <label
+              className="text-base leading-[19.36px] text-black  font-medium"
+              htmlFor="roundRobinMode"
+            >
+              Round Robin Type
+            </label>
+            <Field
+              className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              as="select"
+              name="roundRobinMode"
+              id="roundRobinMode"
+            >
+              {roundRobbinModeOptions.map((mode) => (
                 <option value={mode?.id} key={mode?.id}>
                   {mode?.name}
                 </option>
-              );
-            })}
+              ))}
+            </Field>
+            <ErrorMessage name="roundRobinMode" />
+          </div>
+          <div className="flex flex-col items-start gap-2">
+            <label
+              className="text-base leading-[19.36px] text-black  font-medium"
+              htmlFor="numberOfGroups"
+            >
+              Number of group
+            </label>
+            <Field
+              placeholder="Enter Number Of Groups in Round Robbin"
+              id="numberOfGroups"
+              name="numberOfGroups"
+              className="text-[#718EBF] w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              type="number"
+            />
+
+            <ErrorMessage name="numberOfGroups" component={TextError} />
+          </div>
+        </>
+      )}
+
+      {values?.format === "DE" && (
+        <div className="flex flex-col items-start gap-2.5">
+          <label
+            className="text-base leading-[19.36px] text-[#232323] text-black  font-medium"
+            htmlFor="grandFinalsDE"
+          >
+            Double Elimination Type
+          </label>
+          <Field
+            className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            as="select"
+            name="grandFinalsDE"
+            id="grandFinalsDE"
+          >
+            {grandFinalsDEOption.map((mode) => (
+              <option value={mode?.id} key={mode?.id}>
+                {mode?.name}
+              </option>
+            ))}
           </Field>
-          <ErrorMessage name="roundRobinMode" component={TextError} />
+          <ErrorMessage name="grandFinalsDE" component={TextError} />
         </div>
       )}
+      <div className="flex flex-col items-start gap-2.5">
+        <label
+          className="text-base leading-[19.36px] text-black  font-medium"
+          htmlFor="totalSets"
+        >
+          Number of Sets
+        </label>
+        <Field
+          placeholder="Number Of Sets"
+          id="totalSets"
+          name="totalSets"
+          className="w-full px-[19px] border-[1px] text-[#718EBF] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="number"
+        />
+
+        <ErrorMessage name="totalSets" component={TextError} />
+      </div>
     </div>
   );
 };

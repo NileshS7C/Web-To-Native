@@ -21,6 +21,14 @@ module.exports = {
           5: "#1570EF",
           600: "#19367F",
         },
+        grey: {
+          100: "#718EBF",
+          200: "#F7F9FC",
+          300: "#667085",
+          500: "#667085",
+          600: "#101828",
+          900: "#2B2F38",
+        },
       },
       backgroundColor: {
         customColor: "#FFFFFF",

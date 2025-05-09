@@ -79,7 +79,7 @@ const hiddenRoutes = [
   "/cms/tourism-page/instagram",
   "/cms/tourism-page/media-gallery",
   ...aboutUsPageRoutes,
-  "/"
+  "/",
 ];
 import { BsDownload } from "react-icons/bs";
 const Layout = () => {
@@ -131,13 +131,13 @@ const Layout = () => {
   }, [navRef]);
 
   const isTournament = window.location.pathname.includes("/tournaments");
-  const isVenue = window.location.pathname.includes("/venues")
+  const isVenue = window.location.pathname.includes("/venues");
   const currentTitle = getPageTitle(
     location.pathname,
     { tournamentId },
     { venue, tournament, category }
   );
-
+  
   useEffect(() => {
     if (
       approvalBody?.action === "APPROVE" &&

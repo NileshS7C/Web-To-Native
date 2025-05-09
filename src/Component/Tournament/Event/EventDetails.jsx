@@ -11,9 +11,10 @@ import { MatchesListing } from "../MatchListing";
 import { MatchStandings } from "../MatchStandings";
 import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 import TournamentStandings from "../TournamentStandings";
-
-const options = (tournamentId, eventId) => {
-  return [
+import Spinner from "../../Common/Spinner";
+import RoundsListingWrapper from "./RoundsListingWrapper";
+const options = (tournamentId, eventId, categoryFormat) => {
+  const baseTabs = [
     {
       name: "Overview",
       href: "#",
@@ -29,24 +30,10 @@ const options = (tournamentId, eventId) => {
       path: `/tournaments/${tournamentId}/event/${eventId}`,
     },
     {
-      name: "Fixture",
-      href: "#",
-      current: false,
-      search: "?tab=fixture",
-      path: `/tournaments/${tournamentId}/event/${eventId}`,
-    },
-    {
       name: "Matches",
       href: "#",
       current: false,
       search: "?tab=matches",
-      path: `/tournaments/${tournamentId}/event/${eventId}`,
-    },
-    {
-      name: "Standing",
-      href: "#",
-      current: false,
-      search: "?tab=standing",
       path: `/tournaments/${tournamentId}/event/${eventId}`,
     },
     {
@@ -64,20 +51,57 @@ const options = (tournamentId, eventId) => {
       path: `/tournaments/${tournamentId}/event/${eventId}`,
     },
   ];
+
+  const hybridTabs = [
+    {
+      name: "Rounds",
+      href: "#",
+      current: false,
+      search: "?tab=rounds",
+      path: `/tournaments/${tournamentId}/event/${eventId}`,
+    },
+  ];
+
+  const nonHybridTabs = [
+    {
+      name: "Fixture",
+      href: "#",
+      current: false,
+      search: "?tab=fixture",
+      path: `/tournaments/${tournamentId}/event/${eventId}`,
+    },
+    {
+      name: "Standing",
+      href: "#",
+      current: false,
+      search: "?tab=standing",
+      path: `/tournaments/${tournamentId}/event/${eventId}`,
+    },
+  ];
+
+  return categoryFormat === "HYBRID"
+    ? [...baseTabs.slice(0, 2), ...hybridTabs, ...baseTabs.slice(3)]
+    : [...baseTabs.slice(0, 2), ...nonHybridTabs, ...baseTabs.slice(2)];
 };
 
 function EventDetailPage() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const { tournamentId, eventId } = useParams();
-
+  const [eventData, setEventData] = useState({});
   const [selectedTab, setSelectedTab] = useState("");
-  const eventTabOptions = options(tournamentId, eventId);
+
   const currentTab = searchParams.get("tab");
-  const { tournament } = useSelector((state) => state.GET_TOUR);
-
+  const { tournament, isSuccess, hasErrorInTournament, isGettingTournament } =
+    useSelector((state) => state.GET_TOUR);
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
-
+ useEffect(() => {
+   const event = tournament?.categories?.find((tmt) => {
+     return tmt._id.toString() === eventId;
+   });
+   setEventData(event || {});
+ }, [tournament, eventId]);
+ 
   useEffect(() => {
     if (tournamentId && singleTournamentOwner) {
       dispatch(
@@ -91,12 +115,35 @@ function EventDetailPage() {
 
   useEffect(() => {
     setSelectedTab(currentTab);
+    if (currentTab !== "rounds") {
+      searchParams.delete("round");
+      searchParams.delete("view");
+      setSearchParams(searchParams);
+    }
   }, [currentTab]);
+   useEffect(() => {
+     if (tournamentId && singleTournamentOwner) {
+       dispatch(
+         getSingleTournament({
+           tournamentId,
+           ownerId: singleTournamentOwner?.id,
+         })
+       );
+     }
+   }, [singleTournamentOwner]);
+  if (isGettingTournament) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spinner />
+      </div>
+    );
+  }
   return (
     <div>
       <div className="bg-[#FFFFFF] p-[10px] rounded-md text-[#232323] mb-4">
-        <Tabs options={eventTabOptions} hasLink={true} />
+        <Tabs options={options(tournamentId, eventId, eventData?.format || "")} hasLink={true} />
       </div>
+
       {(!selectedTab || selectedTab === "overview") && <EventDescription />}
       {selectedTab === "players" && (
         <EventRegistrations tournament={tournament} />
@@ -109,7 +156,14 @@ function EventDetailPage() {
       {selectedTab === "matches" && <MatchesListing />}
       {selectedTab === "standing" && (
         // <MatchStandings tournamentId={tournamentId} eventId={eventId} />
-        <TournamentStandings tournamentId={tournamentId} categoryId={eventId}/>
+        <TournamentStandings tournamentId={tournamentId} categoryId={eventId} />
+      )}
+      {selectedTab === "rounds" && (
+        <RoundsListingWrapper
+          tournamentId={tournamentId}
+          eventId={eventId}
+          tournament={tournament}
+        />
       )}
     </div>
   );

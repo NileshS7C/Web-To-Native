@@ -137,8 +137,8 @@ export const TournamentFixture = ({ tournament }) => {
             matchGames: fixture?.bracketData?.match_game,
             participants: fixture?.bracketData?.participant,
           },
-          { 
-            highlightParticipantOnHover: true, 
+          {
+            highlightParticipantOnHover: true,
             clear: true,
             // roundTitles: fixture?.bracketData?.round?.map(r => `Round ${r.number}`),
             // matchStatusConfig: {
@@ -147,7 +147,7 @@ export const TournamentFixture = ({ tournament }) => {
             // }
           }
         );
-        
+
         const players = fixture?.bracketData?.participant?.map(
           (participant) => ({
             name: participant.name,
@@ -256,7 +256,6 @@ export const TournamentFixture = ({ tournament }) => {
           onCancel={handlePlayerSeddingModal}
           players={players}
           participants={fixture?.bracketData?.participant}
-     
         />
         <MatchModal
           isOpen={openMatchModal}
