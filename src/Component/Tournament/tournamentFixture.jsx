@@ -83,23 +83,23 @@ export const TournamentFixture = ({ tournament }) => {
     publishError,
   } = useSelector((state) => state.fixture);
 
-  const currentFixture = fixture?.fixtures?.[0];
+  console.log(fixture);
 
   const handleCreateFixture = useCallback(() => {
     dispatch(createFixture({ tour_Id: tournamentId, eventId }));
   }, []);
 
   const handleplayerShuffling = () => {
-    const result = playerShuffling(currentFixture?.bracketData?.participant);
-    const formattedMatchData = formatMatchData(currentFixture, result);
+    const result = playerShuffling(fixture?.bracketData?.participant);
+    const formattedMatchData = formatMatchData(fixture, result);
 
     dispatch(
       updateSeeding({
         tour_Id: tournamentId,
         eventId,
-        fixtureId: currentFixture?._id,
+        fixtureId: fixture?._id,
         formData: formattedMatchData,
-        stageId: currentFixture?.currentStage,
+        stageId: fixture?.bracketData.stage[0].id,
       })
     );
     setSuffledPlayers(result);
@@ -118,7 +118,7 @@ export const TournamentFixture = ({ tournament }) => {
       publishFixture({
         tour_Id: tournamentId,
         eventId,
-        fixtureId: currentFixture?._id,
+        fixtureId: fixture?._id,
       })
     );
   };
@@ -129,18 +129,18 @@ export const TournamentFixture = ({ tournament }) => {
 
   useEffect(() => {
     if (FixtureCreatedSuccess || isFixtureSuccess) {
-      if (currentFixture) {
+      if (fixture) {
         window?.bracketsViewer?.render(
           {
-            stages: currentFixture?.bracketData?.stage,
-            matches: currentFixture?.bracketData?.match,
-            matchGames: currentFixture?.bracketData?.match_game,
-            participants: currentFixture?.bracketData?.participant,
+            stages: fixture?.bracketData?.stage,
+            matches: fixture?.bracketData?.match,
+            matchGames: fixture?.bracketData?.match_game,
+            participants: fixture?.bracketData?.participant,
           },
           { 
             highlightParticipantOnHover: true, 
             clear: true,
-            // roundTitles: currentFixture?.bracketData?.round?.map(r => `Round ${r.number}`),
+            // roundTitles: fixture?.bracketData?.round?.map(r => `Round ${r.number}`),
             // matchStatusConfig: {
             //   2: { label: 'Pending', className: 'match-status-pending' },
             //   3: { label: 'Completed', className: 'match-status-completed' }
@@ -148,7 +148,7 @@ export const TournamentFixture = ({ tournament }) => {
           }
         );
         
-        const players = currentFixture?.bracketData?.participant?.map(
+        const players = fixture?.bracketData?.participant?.map(
           (participant) => ({
             name: participant.name,
             id: participant.id,
@@ -214,7 +214,7 @@ export const TournamentFixture = ({ tournament }) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
-        {currentFixture?.status !== "PUBLISHED" && (
+        {fixture?.status !== "PUBLISHED" && (
           <NotificationBanner
             message="Fill Match Details Before Publishing"
             messageStyle="text-sm text-[#E82B00]"
@@ -224,7 +224,7 @@ export const TournamentFixture = ({ tournament }) => {
         <button
           className="bg-white border-2 border-[#CAD9FB] p-2 rounded-lg disabled:bg-slate-300"
           onClick={() => setOpenPlayerSeedingModal(true)}
-          disabled={currentFixture?.status === "PUBLISHED" || !currentFixture}
+          disabled={fixture?.status === "PUBLISHED" || !fixture}
         >
           <TbSwipe className="w-[20px] h-[20px]" />
         </button>
@@ -232,7 +232,7 @@ export const TournamentFixture = ({ tournament }) => {
           className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
           onClick={handlePublishFixture}
           loading={isPublishing}
-          disabled={currentFixture?.status === "PUBLISHED" || !currentFixture}
+          disabled={fixture?.status === "PUBLISHED" || !fixture}
         >
           Publish
         </Button>
@@ -243,9 +243,9 @@ export const TournamentFixture = ({ tournament }) => {
           className="w-[200px] h-[50px] ml-auto text-white text-md rounded-lg disabled:bg-blue-400"
           onClick={handleCreateFixture}
           loading={isCreatingFixture}
-          disabled={currentFixture?.status === "PUBLISHED"}
+          disabled={fixture?.status === "PUBLISHED"}
         >
-          {currentFixture ? "Recreate Fixture" : "Create Fixture"}
+          {fixture ? "Recreate Fixture" : "Create Fixture"}
         </Button>
         <div className="brackets-viewer"></div>
         <ErrorModal />
@@ -255,23 +255,23 @@ export const TournamentFixture = ({ tournament }) => {
           isOpen={openPlayerSeedingModal}
           onCancel={handlePlayerSeddingModal}
           players={players}
-          participants={currentFixture?.bracketData?.participant}
-          fixture={currentFixture}
+          participants={fixture?.bracketData?.participant}
+     
         />
         <MatchModal
           isOpen={openMatchModal}
           onCancel={handleMatchModal}
           tournament={tournament}
           matchDetails={matchDetails}
-          participants={currentFixture?.bracketData?.participant}
+          participants={fixture?.bracketData?.participant}
           tournamentId={tournamentId}
           eventId={eventId}
-          fixtureId={currentFixture?._id}
+          fixtureId={fixture?._id}
           metaData={matchMetaData}
         />
 
         <div className="flex items-center justify-center w-full h-full text-lg">
-          {!currentFixture && <NoFixtureExist />}
+          {!fixture && <NoFixtureExist />}
         </div>
       </div>
     </div>

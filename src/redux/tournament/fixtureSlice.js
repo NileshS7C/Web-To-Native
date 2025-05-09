@@ -44,7 +44,7 @@ const fixtureSlice = createSlice({
         state.ErrorMessage = "";
       })
       .addCase(getFixture.fulfilled, (state, { payload }) => {
-        state.fixture = payload?.data ?? null;
+        state.fixture = payload?.data?.fixtures[0] ?? null;
         state.isFetchingFixture = false;
         state.isFixtureSuccess = true;
         state.isFetchingError = false;

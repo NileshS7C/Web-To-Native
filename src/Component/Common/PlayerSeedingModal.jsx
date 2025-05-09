@@ -7,11 +7,12 @@ import { useEffect, useState } from "react";
 import { RiDeleteBinLine } from "react-icons/ri";
 import Button from "./Button";
 import { useDispatch, useSelector } from "react-redux";
-import {getFixture,updateSeeding,} from "../../redux/tournament/fixturesActions";
+import { getFixture, updateSeeding, } from "../../redux/tournament/fixturesActions";
 import { showSuccess } from "../../redux/Success/successSlice";
 import ErrorBanner from "./ErrorBanner";
 import { useParams } from "react-router-dom";
 import { setFixture } from "../../redux/tournament/fixtureSlice";
+
 
 const seededPlayerData = (selections, participants) => {
   if (selections?.length > 0) {
@@ -30,9 +31,9 @@ const seededPlayerData = (selections, participants) => {
           updatedArray[indexOfTheChoosenPlayer],
           updatedArray[swappingPlayerIndex],
         ] = [
-          updatedArray[swappingPlayerIndex],
-          updatedArray[indexOfTheChoosenPlayer],
-        ];
+            updatedArray[swappingPlayerIndex],
+            updatedArray[indexOfTheChoosenPlayer],
+          ];
       }
     });
 
@@ -42,29 +43,29 @@ const seededPlayerData = (selections, participants) => {
 
 const formattedPlayerDataForSeeding = (
   fixture,
-
   seededData,
   tournamentId
 ) => {
+  console.log("parent", fixture, seededData, tournamentId)
   if (!fixture || !tournamentId || !seededData?.length) {
     return;
   }
 
-  const stageId = fixture?.currentStage;
-  const stageData = fixture?.bracketData?.stage;
-  const currentStage =
-    stageData?.length > 0 && stageData.find((stage) => stage.id === stageId);
-  const type = currentStage?.type;
-  const name = currentStage?.name;
-  const settings = currentStage?.settings;
-  const categoryId = currentStage?.tournament_id;
+  const stageId = fixture?.bracketData?.stage[0].id;
+  const stageData = fixture?.bracketData?.stage[0];
+  const currentStage = stageData?.length > 0 && stageData.find((stage) => stage.id === stageId);
+  const type = stageData?.type;
+  const name = stageData?.name;
+  const settings = stageData?.settings;
+  const categoryId = stageData?.tournament_id;
 
   const { seedOrdering, tournament_id, ...requiredKeys } = settings;
 
   const updatedSeedingData = seededData.map((player) => {
-    const { id, tournament_id, number, ...rest } = player;
+    const { id, tournament_id, number, bookingId, ...rest } = player;
     return rest;
   });
+  console.log("stageData",updatedSeedingData)
 
   return {
     stageData: {
@@ -81,8 +82,7 @@ export const PlayerSelectionModal = ({
   isOpen,
   onCancel,
   players,
-  participants,
-  fixture,
+  participants
 }) => {
   const dispatch = useDispatch();
   const { eventId, tournamentId } = useParams();
@@ -91,6 +91,25 @@ export const PlayerSelectionModal = ({
   const [isSubmittings, setisSubmittings] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);
+  const [updatedFixture, setUpdatedFixture] = useState(null)
+  const {
+    fixture
+  } = useSelector((state) => state.fixture);
+
+  console.log("Participants", participants)
+  // console.log("🚀 ~ fixture:", fixture)
+  // const updatedFixture = fixture?.fixtures?.[0];
+  const updatedFixtures = fixture
+
+  console.log("🚀 ~ updatedFixture:", updatedFixture)
+
+  useEffect(() => {
+    console.log("🚀 ~ updatedFixture:", fixture)
+
+    if (fixture) {
+      setUpdatedFixture(fixture)
+    }
+  }, [])
 
   const handleSeededPlayer = (value) => {
     setSelections((_) => [...value]);
@@ -113,9 +132,9 @@ export const PlayerSelectionModal = ({
             updatedArray[indexOfTheChoosenPlayer],
             updatedArray[swappingPlayerIndex],
           ] = [
-            updatedArray[swappingPlayerIndex],
-            updatedArray[indexOfTheChoosenPlayer],
-          ];
+              updatedArray[swappingPlayerIndex],
+              updatedArray[indexOfTheChoosenPlayer],
+            ];
 
           setSeededPlayers(updatedArray);
         }
@@ -131,19 +150,23 @@ export const PlayerSelectionModal = ({
 
       const seededData = seededPlayerData(selections, participants);
 
+
       const formattedData = formattedPlayerDataForSeeding(
-        fixture,
+        updatedFixture,
         seededData,
         tournamentId
       );
+
+      console.log("FormData", updatedFixture, seededData, tournamentId, formattedData)
+
 
       const result = await dispatch(
         updateSeeding({
           tour_Id: tournamentId,
           eventId,
           formData: formattedData,
-          fixtureId: fixture?._id,
-          stageId: fixture?.currentStage,
+          fixtureId: updatedFixture?._id,
+          stageId: updatedFixture?.bracketData.stage[0].id,
         })
       ).unwrap();
       if (!result.responseCode) {
@@ -154,7 +177,7 @@ export const PlayerSelectionModal = ({
           })
         );
 
-        dispatch(setFixture(result?.data?.updatedFixture));
+        dispatch(setFixture(result?.data?.fixture));
         dispatch(getFixture({ tour_Id: tournamentId, eventId }));
       }
     } catch (err) {
@@ -162,7 +185,7 @@ export const PlayerSelectionModal = ({
       setHasError(true);
       setErrorMessage(
         err.data.message ||
-          "Oops! something went wrong while seeding the players. Please try again."
+        "Oops! something went wrong while seeding the players. Please try again."
       );
     } finally {
       setisSubmittings(false);
@@ -252,12 +275,12 @@ const PlayerRow = ({
   const getAvailablePlayers = (currentField) => {
     return players?.length > 0
       ? players.filter((player) => {
-          if (player.id === currentRow[currentField]) return true;
+        if (player.id === currentRow[currentField]) return true;
 
-          return !allSelections.some(
-            (row) => row.player1 === player.id || row.player2 === player.id
-          );
-        })
+        return !allSelections.some(
+          (row) => row.player1 === player.id || row.player2 === player.id
+        );
+      })
       : [];
   };
 
