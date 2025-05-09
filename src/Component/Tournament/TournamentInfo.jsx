@@ -73,6 +73,7 @@ const requiredTournamentFields = (tournament) => {
     tournamentName,
     preRequisites,
     tournamentLocation: {
+      name,
       address: {
         location: { is_location_exact, ...locationWithOutExact },
         ...restOfAddress
@@ -90,6 +91,7 @@ const requiredTournamentFields = (tournament) => {
     sponsors,
     tournamentGallery,
     instagramHandle,
+    whatsappGroupLink,
     whatToExpect,
   } = tournament;
 
@@ -103,7 +105,7 @@ const requiredTournamentFields = (tournament) => {
     tournamentId,
     tournamentName,
     preRequisites,
-    tournamentLocation: { address: updatedTournamentLocation },
+    tournamentLocation: { name,address: updatedTournamentLocation },
     handle,
     tags,
     description,
@@ -117,6 +119,7 @@ const requiredTournamentFields = (tournament) => {
     tournamentGallery,
     instagramHandle,
     whatToExpect,
+    whatsappGroupLink,
   };
 };
 
@@ -126,6 +129,7 @@ const initialValues = {
   tournamentId: "",
   tournamentName: "",
   tournamentLocation: {
+    name,
     address: {
       line1: "",
       line2: "",
@@ -151,6 +155,7 @@ const initialValues = {
   sponsors: [],
   tournamentGallery: [],
   instagramHandle: "",
+  whatsappGroupLink: "",
   whatToExpect: [{ title: "", description: "" }],
 };
 
@@ -159,6 +164,7 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
     ownerUserId: yup.string().required("Name is required"),
     tournamentName: yup.string().required("Please provide a tournament name."),
     tournamentLocation: yup.object().shape({
+      name: yup.string().optional(),
       address: yup.object().shape({
         line1: yup.string().notRequired(),
         line2: yup.string().notRequired(),
@@ -291,6 +297,9 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
       ),
     sponserName: yup.string(),
     instagramHandle: yup.string().nullable(),
+    whatsappGroupLink: yup
+      .string()
+      .nullable(),
     whatToExpect: yup.array().of(
       yup.object().shape({
         title: yup.string().required("Title is required"),
@@ -412,7 +421,6 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
 
       if (owner) {
         const ownerName = owner.name;
-        
         setInitialState((prevState) => ({
           ...prevState,
           ...updatedTournament,
@@ -439,7 +447,6 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
       dispatch(resetDeletedImages());
     };
   }, []);
-
   if (isGettingTournament) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -485,6 +492,7 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
                 <TournamentDescription disabled={disabled} />
                 <TournamentPrerequisite disabled={disabled} />
                 <TournamentInstagramHandle disabled={disabled} />
+                <TournamentWhatsappHandle disabled={disabled}/>
                 <TournamentWhatToExpect disabled={disabled} />
                 <TournamentDates disabled={disabled} />
                 <TournamentFileUpload
@@ -709,6 +717,7 @@ const TournamentAddress = ({ location, disabled }) => {
       setFieldValue("tournamentLocation.address.city", location.city);
       setFieldValue("tournamentLocation.address.state", location.state);
       setFieldValue("tournamentLocation.address.postalCode", location.pin_code);
+      setFieldValue("tournamentLocation.name",location.name)
     }
   }, [
     location.lat,
@@ -718,6 +727,7 @@ const TournamentAddress = ({ location, disabled }) => {
     location.pin_code,
     location.address_line1,
     location.address_line2,
+    location.name
   ]);
   return (
     <div className="flex flex-col items-start gap-2.5">
@@ -725,6 +735,25 @@ const TournamentAddress = ({ location, disabled }) => {
         Tournament Address
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full">
+        <div className="flex flex-col items-start gap-2.5">
+          <label
+            className="text-xs text-[#232323]"
+            htmlFor="tournamentLocation.name"
+          >
+            Location Name
+          </label>
+          <Field
+            disabled={disabled}
+            placeholder="Enter Location Name"
+            id="tournamentLocation.name"
+            name="tournamentLocation.name"
+            className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <ErrorMessage
+            name="tuornamentLocation.name"
+            component={TextError}
+          />
+        </div>
         <div className="flex flex-col items-start gap-2.5">
           <label
             className="text-xs text-[#232323]"
@@ -906,6 +935,29 @@ const TournamentInstagramHandle = ({ disabled }) => {
         disabled={disabled}
       />
       <ErrorMessage name="instagramHandle" component={TextError} />
+    </div>
+  );
+};
+
+const TournamentWhatsappHandle = ({ disabled }) => {
+  
+
+  return (
+    <div className="grid grid-cols-1 gap-2">
+      <label
+        className="text-base leading-[19.36px] justify-self-start"
+        htmlFor="whatsappGroupLink"
+      >
+        Whatsapp Group Link
+      </label>
+      <Field
+        placeholder="Enter Whatsapp Group link"
+        id="whatsappGroupLink"
+        name="whatsappGroupLink"
+        className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+        disabled={disabled}
+      />
+      <ErrorMessage name="whatsappGroupLink" component={TextError} />
     </div>
   );
 };
