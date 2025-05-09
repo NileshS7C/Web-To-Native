@@ -321,7 +321,7 @@ const CourtFileUpload = ({ dispatch }) => {
                     type="file"
                     className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
                     multiple={false}
-                    accept="image/jpeg, image/png,image/gif"
+                    accept="image/jpeg, image/png, image/gif, image/webp"
                   />
                 )}
               </Field>
@@ -441,7 +441,7 @@ const MobileBannerImage = ({ dispatch }) => {
                   value=""
                   type="file"
                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                  accept="image/jpeg, image/png,image/gif"
+                  accept="image/jpeg, image/png, image/gif, image/webp"
                 />
               )}
             </Field>
