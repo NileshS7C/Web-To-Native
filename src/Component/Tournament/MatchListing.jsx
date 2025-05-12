@@ -226,7 +226,7 @@ export const MatchesListing = () => {
 
             const players = [opponent1?.id, opponent2?.id]
               .map((id) => participantsById.get(id))
-              .filter(Boolean);
+              // .filter(Boolean);
 
 
             return players.length
