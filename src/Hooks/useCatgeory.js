@@ -1,7 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createHybridFixture,
   deleteHybridFixture,
+  getFixtureById,
   updateHybridFixture,
 } from "../api/Category";
 
@@ -9,9 +10,6 @@ export const useCreateHybridFixture = () => {
   return useMutation({
     mutationFn: ({ tournamentId, categoryId, payload }) => {
       return createHybridFixture(tournamentId, categoryId, payload);
-    },
-    onSuccess: (data) => {
-      console.log(data);
     },
     onError: (error) => {
       console.log(error);
@@ -22,10 +20,7 @@ export const useCreateHybridFixture = () => {
 export const useUpdateHybridFixture = () => {
   return useMutation({
     mutationFn: ({ tournamentId, categoryId, fixtureId, payload }) => {
-      updateHybridFixture(tournamentId, categoryId, fixtureId, payload);
-    },
-    onSuccess: (data) => {
-      console.log(data);
+      return updateHybridFixture(tournamentId, categoryId, fixtureId, payload);
     },
     onError: (error) => {
       console.log(error);
@@ -37,11 +32,16 @@ export const useDeleteHybridFixture = () => {
   return useMutation({
     mutationFn: ({ tournamentId, categoryId, fixtureId }) =>
       deleteHybridFixture(tournamentId, categoryId, fixtureId),
-    onSuccess: (data) => {
-      console.log(data);
-    },
     onError: (error) => {
       console.log(error);
     },
   });
 };
+
+export const useGetFixtureById=({tournamentId,categoryId,fixtureId})=>{
+  return useQuery({
+    queryKey: ["fixtureById", tournamentId, categoryId, fixtureId],
+    queryFn: () => getFixtureById({ tournamentId, categoryId, fixtureId }),
+    enabled: !!tournamentId && !!categoryId && !!fixtureId,
+  });
+}

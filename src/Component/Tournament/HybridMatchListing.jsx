@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { getFixture } from "../../redux/tournament/fixturesActions";
+import { getFixture, getFixtureById } from "../../redux/tournament/fixturesActions";
 
 import Button from "../Common/Button";
 import Spinner from "../Common/Spinner";
@@ -10,23 +10,24 @@ import DataTable from "../Common/DataTable";
 import EmptyBanner from "../Common/EmptyStateBanner";
 import { backIcon, dummyImage, forwardIcon } from "../../Assests";
 import { ScoreUpdateModal } from "../Common/ScoreUpdateModal";
-import {dummmyProfileIcon} from "../../Assests";
+import { dummmyProfileIcon } from "../../Assests";
 
 const MatchListingHeaders = [
   {
     key: "participant1",
     header: "Opponent 1",
     render: (item) => {
-      const { opponent1 = null, profilePics1 = [] } = item;
-      let isWinner = false;
-      if (opponent1 && opponent1.forfeit) {
-        isWinner = false;
-      } else if (opponent1 && opponent1.result === "win") {
-        isWinner = true;
+      // const { opponent1 = "" } = item;
+      const { opponent1 = "", profilePics1 = [] } = item;
+      let isWinner;
+      if (opponent1) {
+        isWinner = opponent1.result === "win";
       }
 
       const profilePic =
-        profilePics1.length > 0 ? profilePics1[0].profilePic : dummmyProfileIcon;
+        profilePics1.length > 0
+          ? profilePics1[0].profilePic
+          : dummmyProfileIcon;
 
       return (
         <div className="flex items-center justify-center gap-2">
@@ -68,15 +69,16 @@ const MatchListingHeaders = [
     key: "participant2",
     header: "Opponent 2",
     render: (item) => {
-      const { opponent2 = null, profilePics2 = [] } = item;
-      let isWinner = false;
-      if (opponent2 && opponent2.forfeit) {
-        isWinner = false;
-      } else if (opponent2 && opponent2.result === "win") {
-        isWinner = true;
+      // const { opponent2 = "" } = item;
+      const { opponent2 = "", profilePics2 = [] } = item;
+      let isWinner;
+      if (opponent2) {
+        isWinner = opponent2.result === "win";
       }
       const profilePic =
-        profilePics2.length > 0 ? profilePics2[0].profilePic : dummmyProfileIcon;
+        profilePics2.length > 0
+          ? profilePics2[0].profilePic
+          : dummmyProfileIcon;
       return (
         <div className="flex items-center justify-center gap-2">
           <img
@@ -96,7 +98,7 @@ const MatchListingHeaders = [
   },
 ];
 
-export const MatchesListing = () => {
+export const HybridMatchesListing = ({fixtureId}) => {
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const { fixture, isFetchingFixture } = useSelector((state) => state.fixture);
@@ -111,7 +113,6 @@ export const MatchesListing = () => {
 
   const [updateFixture, setUpdateFixture] = useState(null);
   const [players, setPlayers] = useState({});
-
 
   const handleUpdateFixture = (value) => {
     setUpdateFixture(value);
@@ -131,12 +132,12 @@ export const MatchesListing = () => {
   };
 
   useEffect(() => {
-    dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+    dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
   }, []);
 
   useEffect(() => {
     if (updateFixture) {
-      dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+      dispatch(getFixtureById({ tour_Id: tournamentId, eventId,fixtureId }));
     }
   }, [updateFixture]);
 
@@ -184,9 +185,8 @@ export const MatchesListing = () => {
 
         return [...match];
       });
-
       const playerData =
-        currentRoundMatches.length > 0 &&
+        currentRoundMatches.length > 0 ?
         currentRoundMatches.flatMap(
           ({
             opponent1,
@@ -204,20 +204,22 @@ export const MatchesListing = () => {
             );
 
             const profilePics1 =
-            opponent1?.id != null
-              ? participantsById.get(opponent1?.id)?.players.map((player) => ({
-                  name: player.name,
-                  profilePic: player.profilePic || dummmyProfileIcon,
-                })) || []
-              : [];
+              opponent1?.id != null
+                ? participantsById
+                    .get(opponent1?.id)
+                    ?.players.map((player) => ({
+                      name: player.name,
+                      profilePic: player.profilePic || dummmyProfileIcon,
+                    })) || []
+                : [];
 
-          const profilePics2 =
-            opponent2?.id != null
-              ? participantsById.get(opponent2.id)?.players.map((player) => ({
-                  name: player.name,
-                  profilePic: player.profilePic || dummmyProfileIcon,
-                })) || []
-              : [];
+            const profilePics2 =
+              opponent2?.id != null
+                ? participantsById.get(opponent2.id)?.players.map((player) => ({
+                    name: player.name,
+                    profilePic: player.profilePic || dummmyProfileIcon,
+                  })) || []
+                : [];
 
             // Use fixture here
             const matchGames = fixture?.bracketData?.match_game.filter(
@@ -226,7 +228,6 @@ export const MatchesListing = () => {
 
             const players = [opponent1?.id, opponent2?.id]
               .map((id) => participantsById.get(id))
-
 
             return players.length
               ? [
@@ -254,27 +255,27 @@ export const MatchesListing = () => {
                 ]
               : [];
           }
-        );
-
+        ):[];
       setPlayerData(playerData);
+    
 
       setPlayers(() => {
-        const currentMatchId = currentMatchClicked?.matchId;
-
+        const currentMatchId = currentMatchClicked?.matchId; 
         const currentPlayers = playerData?.find(
           (player) => String(player?.matchId) === String(currentMatchId)
         );
 
         return currentPlayers;
       });
-
+     
       setTotalRounds(fixture?.bracketData?.round.length);
       setUpdateFixture(null);
     }
-
   }, [fixture, currentRound, updateFixture, currentMatchClicked]);
-
-  if (isFetchingFixture  && !showScoreUpdateModal) {
+  useEffect(()=>{
+    dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
+  },[])
+  if (isFetchingFixture && !showScoreUpdateModal) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spinner />
@@ -282,12 +283,6 @@ export const MatchesListing = () => {
     );
   }
 
-  //Use fixture here
-  if (!fixture) {
-    return (
-      <EmptyBanner message="No fixture data available for this event yet." />
-    );
-  }
 
   return (
     <div>
@@ -348,7 +343,7 @@ export const MatchesListing = () => {
             eventId={eventId}
             currentMatchId={currentMatchClicked?.matchId}
             handleUpdateFixture={handleUpdateFixture}
-            format="Non-Hybrid"
+            format="Hybrid"
           />
         </>
       )}

@@ -1,15 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import {
-  ComboboxOptions,
-  ComboboxOption,
-  Combobox,
-  Label,
-  ComboboxInput,
-  ComboboxButton,
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-} from "@headlessui/react";
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import { showSuccess } from "../../../redux/Success/successSlice";
+import { showError } from "../../../redux/Error/errorSlice";
 import { nanoid } from "nanoid";
 import { RxCross2 } from "react-icons/rx";
 import * as yup from "yup";
@@ -22,13 +14,8 @@ import {
   FieldArray,
 } from "formik";
 import TextError from "../../Error/formError";
-import SwitchToggle from "../../CMS/HomePage/SwitchToggle";
 import { searchIcon } from "../../../Assests";
-import {
-  tournamentEvent,
-  roundRobbinModeOptions,
-  grandFinalsDEOption,
-} from "../../../Constant/tournament";
+import { tournamentEvent } from "../../../Constant/tournament";
 import AddPlayerModal from "./AddPlayerModal";
 import Button from "../../Common/Button";
 const initialValues = {
@@ -45,15 +32,16 @@ import {
   useUpdateHybridFixture,
   useCreateHybridFixture,
 } from "../../../Hooks/useCatgeory";
-import { getFixture } from "../../../redux/tournament/fixturesActions";
-import { useDispatch } from "react-redux";
+import { getFixtureById, getHybridFixtures } from "../../../redux/tournament/fixturesActions";
+import { useDispatch, useSelector } from "react-redux";
+
 const RoundCreationModal = ({
   toggleModal,
   actionType,
-  roundDetails,
   roundIndex,
   tournamentId,
   categoryId,
+  fixtureId
 }) => {
   const validationSchema = yup.object().shape({
     name: yup
@@ -62,7 +50,7 @@ const RoundCreationModal = ({
       .min(3, "Round name should be minimum 3 characters")
       .max(50, "Round name cannot exceed more than 50 characters."),
 
-    format: yup.string().optional(),
+    format: yup.string().required(),
 
     roundRobinMode: yup.string().optional(),
 
@@ -70,12 +58,17 @@ const RoundCreationModal = ({
 
     numberOfGroups: yup.string().optional(),
 
-    totalSets: yup.string().optional(),
+    totalSets: yup.number().required(),
 
-    participants: yup.array().min(1, "At least one participant is required"),
+    participants: yup
+      .array()
+      .of(yup.object())
+      .required("Participants field is required")
+      .min(2, "At least two participant is required"),
 
     grandFinalsDE: yup.string().optional(),
   });
+
   const {
     mutate: createHybridFixture,
     isSuccess: isCreateFixtureSuccess,
@@ -91,22 +84,22 @@ const RoundCreationModal = ({
     error: updateFixtureError,
     isPending: isUpdateFixturePending,
   } = useUpdateHybridFixture();
-
+  const {fixture}=useSelector(state=>state.fixture)
   const getInitialState = () => {
-    if (actionType === "edit" && roundDetails) {
-
+    if (actionType === "edit" ) {
       const {
         groupCount,
         matchesChildCount,
         roundRobinMode,
         consolationFinal = false,
         grandFinalsDE = "",
-      } = roundDetails?.bracketData?.stage[0]?.settings || {};
+      } = fixture?.bracketData?.stage[0]?.settings || {};
+      
       return {
         ...initialValues,
-        name: roundDetails?.name || "",
-        format: roundDetails?.format || "",
-        participants: roundDetails?.bracketData?.participant || [],
+        name: fixture?.name || "",
+        format: fixture?.format || "",
+        participants: fixture?.bracketData?.participant || [],
         totalSets: matchesChildCount || 0,
         numberOfGroups: groupCount || 0,
         roundRobinMode: roundRobinMode || "",
@@ -116,7 +109,7 @@ const RoundCreationModal = ({
     }
     return initialValues;
   };
- const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const [initialState, setInitialState] = useState(getInitialState());
   const [isPlayerOpenModal, setIsPlayerModalOpen] = useState(false);
 
@@ -127,52 +120,53 @@ const RoundCreationModal = ({
     }));
   }, []);
 
- const createPayload = (values) => {
-   const {
-     format,
-     name,
-     numberOfGroups,
-     totalSets,
-     roundRobinMode,
-     grandFinalsDE,
-     participants,
-     consolationFinal,
-   } = values;
+  const createPayload = (values) => {
+    const {
+      format,
+      name,
+      numberOfGroups,
+      totalSets,
+      roundRobinMode,
+      grandFinalsDE,
+      participants,
+      consolationFinal,
+    } = values;
 
-   const settings = {
-     consolationFinal,
-     ...(totalSets && { totalSets }),
-     ...(roundRobinMode && { roundRobinMode }),
-     ...(numberOfGroups && { numberOfGroups }),
-     ...(grandFinalsDE && { grandFinalsDE }),
-   };
+    const settings = {
+      consolationFinal,
+      ...(totalSets && { totalSets }),
+      ...(roundRobinMode && { roundRobinMode }),
+      ...(numberOfGroups && { numberOfGroups }),
+      ...(grandFinalsDE && { grandFinalsDE }),
+    };
 
-   const bookings =
-     participants?.map((p) => ({ bookingId: p.bookingId })) || [];
+    const bookings =
+      participants?.map((p) => ({ bookingId: p.bookingId })) || [];
 
-   return {
-     tournamentId,
-     categoryId,
-     fixtureData: {
-       format,
-       name,
-       settings,
-       bookings,
-     },
-   };
- };
+    return {
+      tournamentId,
+      categoryId,
+      fixtureData: {
+        format,
+        name,
+        settings,
+        bookings,
+      },
+    };
+  };
 
   const handleSubmit = (values, { setSubmitting }) => {
     try {
-       const payload = createPayload(values);
+      setSubmitting(true);
+      const payload = createPayload(values);
       if (actionType === "add") {
-        createHybridFixture({ tournamentId, categoryId,payload });
+        createHybridFixture({ tournamentId, categoryId, payload });
       } else {
         updateHybridFixture({
           tournamentId,
           categoryId,
-          fixtureId: roundDetails._id.toString(),
-          payload
+          fixtureId: fixtureId,
+          payload,
         });
       }
     } catch (error) {
@@ -181,34 +175,59 @@ const RoundCreationModal = ({
       setSubmitting(false);
     }
   };
- console.log(
-   isCreateFixtureSuccess,
-   isCreateFixtureError,
-   createFixtureError,
-   isCreateFixturePending,
-   isUpdateFixtureSuccess,
-   isUpdateFixtureError,
-   updateFixtureError,
-   isUpdateFixturePending,
-   isUpdateFixturePending
- );
- useEffect(()=>{
-    if(isCreateFixtureSuccess || isUpdateFixtureSuccess){
-      toggleModal()
-     dispatch(getFixture({ tour_Id: tournamentId, eventId:categoryId }))
+  useEffect(() => {
+    if (isCreateFixtureSuccess || isUpdateFixtureSuccess) {
+      toggleModal();
+      dispatch(
+        showSuccess({
+          message:
+            actionType === "add"
+              ? "Round added Successfully."
+              : "Round updated successfully.",
+          onClose: "hideSuccess",
+        })
+      );
+      setTimeout(() => {
+        if (actionType === "add") {
+          dispatch(
+            getHybridFixtures({ tour_Id: tournamentId, eventId: categoryId })
+          );
+        } else {
+          dispatch(
+            getFixtureById({ tour_Id: tournamentId, eventId: categoryId,fixtureId })
+          );
+        }
+      }, 1000);
     }
- },[isCreateFixtureSuccess,isUpdateFixtureSuccess])
+  }, [isCreateFixtureSuccess, isUpdateFixtureSuccess]);
   const togglePlayerModal = useCallback(() => {
     setIsPlayerModalOpen((prev) => !prev);
   }, []);
 
   const handleRemove = useCallback((index) => {
-    
     setInitialState((prev) => ({
       ...prev,
       participants: prev.participants?.filter((_, i) => index !== i),
     }));
   }, []);
+  useEffect(() => {
+    if (isUpdateFixtureError || isCreateFixtureError) {
+      dispatch(
+        showError({
+          message:
+            actionType === "actionType"
+              ? createFixtureError?.message
+              : updateFixtureError?.message ||
+                `Oops! something went wrong ${
+                  actionType === "add"
+                    ? "while creating fixture."
+                    : "while updating fixture"
+                }`,
+          onClose: "hideError",
+        })
+      );
+    }
+  }, [isUpdateFixtureError, isCreateFixtureError]);
 
   return (
     <>
@@ -227,7 +246,7 @@ const RoundCreationModal = ({
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0 ">
             <DialogPanel
               transition
-              className="relative transform overflow-hidden scrollbar-hide rounded-lg bg-white px-2 pb-2 pt-3 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[80%] sm:max-w-[40%] max-h-[90vh]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 overflow-y-auto"
+              className="relative transform overflow-hidden scrollbar-hide rounded-lg bg-white px-2 pb-2 pt-3 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[85%] sm:max-w-[65%] md:max-w-[50%] lg:max-w-[40%] max-h-[90vh]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 overflow-y-auto"
             >
               <div>
                 <div className="w-full bg-[#FFFFFF] h-full">
@@ -241,7 +260,7 @@ const RoundCreationModal = ({
                       <Form>
                         <div className="flex flex-col gap-3">
                           <div className="flex justify-between gap-2.5">
-                            <h3 className="text-lg font-semibold text-grey-600 tracking-wide opacity-[90%]">
+                            <h3 className="text-sm sm:text-base md:text-lg font-semibold text-grey-600 tracking-wide opacity-[90%]">
                               {actionType === "add"
                                 ? "Add Round"
                                 : `Edit Round ${roundIndex + 1}`}
@@ -255,7 +274,7 @@ const RoundCreationModal = ({
                           </div>
                           <div className="flex flex-col items-start gap-2.5">
                             <label
-                              className="text-base leading-[19.36px] text-black  font-medium"
+                              className="text-sm sm:text-base md:text-lg leading-[19.36px] text-black font-normal sm:font-medium"
                               htmlFor="name"
                             >
                               Round Name
@@ -264,144 +283,13 @@ const RoundCreationModal = ({
                               placeholder="Enter Round Name"
                               id="name"
                               name="name"
-                              className="w-full px-[19px] text-[#718EBF] border-[2px] border-[#DFEAF2] rounded-xl h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="text-sm sm:text-base md:text-lg w-full px-[19px] text-[#718EBF] border-[2px] border-[#DFEAF2] rounded-xl h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
                               type="text"
                             />
 
                             <ErrorMessage name="name" component={TextError} />
                           </div>
-                          <div className="grid grid-cols-1 gap-4">
-                            <div className="flex flex-col items-start gap-2.5">
-                              <label
-                                className="text-base leading-[19.36px] text-black  font-medium"
-                                htmlFor="format"
-                              >
-                                Event Format
-                              </label>
-
-                              <Field
-                                name="format"
-                                id="format"
-                                className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px]  border-[1px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                as="select"
-                                onChange={(e) => {
-                                  setFieldValue("format", e.target.value);
-                                }}
-                              >
-                                {tournamentEvent.hybridFormat.map(
-                                  (format, index) => (
-                                    <option
-                                      key={`${format.name}`}
-                                      value={
-                                        index === 0 ? "" : format.shortName
-                                      }
-                                      className={
-                                        index !== 0 ? "text-[#232323]" : ""
-                                      }
-                                    >
-                                      {format.name}
-                                    </option>
-                                  )
-                                )}
-                              </Field>
-                              <ErrorMessage
-                                name="format"
-                                component={TextError}
-                              />
-                            </div>
-                            {values?.format === "RR" && (
-                              <>
-                                <div className="flex flex-col items-start gap-2">
-                                  <label
-                                    className="text-base leading-[19.36px] text-black  font-medium"
-                                    htmlFor="roundRobinMode"
-                                  >
-                                    Round Robin Type
-                                  </label>
-                                  <Field
-                                    className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    as="select"
-                                    name="roundRobinMode"
-                                    id="roundRobinMode"
-                                  >
-                                    {roundRobbinModeOptions.map((mode) => (
-                                      <option value={mode?.id} key={mode?.id}>
-                                        {mode?.name}
-                                      </option>
-                                    ))}
-                                  </Field>
-                                  <ErrorMessage name="roundRobinMode" />
-                                </div>
-                                <div className="flex flex-col items-start gap-2">
-                                  <label
-                                    className="text-base leading-[19.36px] text-black  font-medium"
-                                    htmlFor="numberOfGroups"
-                                  >
-                                    Number of group
-                                  </label>
-                                  <Field
-                                    placeholder="Enter Number Of Groups"
-                                    id="numberOfGroups"
-                                    name="numberOfGroups"
-                                    className="text-[#718EBF] w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    type="number"
-                                  />
-
-                                  <ErrorMessage
-                                    name="numberOfGroups"
-                                    component={TextError}
-                                  />
-                                </div>
-                              </>
-                            )}
-
-                            {values?.format === "DE" && (
-                              <div className="flex flex-col items-start gap-2.5">
-                                <label
-                                  className="text-base leading-[19.36px] text-[#232323] text-black  font-medium"
-                                  htmlFor="grandFinalsDE"
-                                >
-                                  Double Elimination Type
-                                </label>
-                                <Field
-                                  className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  as="select"
-                                  name="grandFinalsDE"
-                                  id="grandFinalsDE"
-                                >
-                                  {grandFinalsDEOption.map((mode) => (
-                                    <option value={mode?.id} key={mode?.id}>
-                                      {mode?.name}
-                                    </option>
-                                  ))}
-                                </Field>
-                                <ErrorMessage
-                                  name="grandFinalsDE"
-                                  component={TextError}
-                                />
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex flex-col items-start gap-2.5">
-                            <label
-                              className="text-base leading-[19.36px] text-black  font-medium"
-                              htmlFor="totalSets"
-                            >
-                              Number of Sets
-                            </label>
-                            <Field
-                              placeholder="Enter Number Of Sets"
-                              id="totalSets"
-                              name="totalSets"
-                              className="w-full px-[19px] border-[1px] text-[#718EBF] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              type="number"
-                            />
-
-                            <ErrorMessage
-                              name="totalSets"
-                              component={TextError}
-                            />
-                          </div>
+                          <EventFormat />
                           <div
                             className="relative w-full"
                             onClick={() => {
@@ -412,7 +300,7 @@ const RoundCreationModal = ({
                             <input
                               readOnly
                               placeholder="Add Players..."
-                              className="cursor-pointer w-full px-2 border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="cursor-pointer w-full px-2 border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base md:text-lg"
                             />
                             <img
                               src={searchIcon}
@@ -424,12 +312,12 @@ const RoundCreationModal = ({
                           {values?.participants?.length > 0 && (
                             <div className="rounded-lg border-2 border-[#DFEAF2]">
                               {/* header */}
-                              <div className="flex items-center py-1.5 border-b-2 border-[#DFEAF2] bg-grey-200">
-                                <span className="flex-[20] text-center text-grey-500 font-medium"></span>
-                                <span className="flex-[35] text-left text-grey-500 font-medium">
+                              <div className=" flex items-center py-1.5 border-b-2 border-[#DFEAF2] bg-grey-200">
+                                <span className="text-sm sm:text-base md:text-lg flex-[20] text-center text-grey-500 font-medium"></span>
+                                <span className="text-sm sm:text-base md:text-lg flex-[35] text-left text-grey-500 font-medium">
                                   Name
                                 </span>
-                                <span className="flex-[35] text-left text-grey-500 font-medium">
+                                <span className="text-sm sm:text-base md:text-lg flex-[35] text-left text-grey-500 font-medium">
                                   Phone No
                                 </span>
                                 <span className="flex-[10] text-left text-grey-500 font-medium"></span>
@@ -451,7 +339,7 @@ const RoundCreationModal = ({
                                                 : ""
                                             }`}
                                           >
-                                            <span className="flex-[20] text-center text-md font-medium">
+                                            <span className="flex-[20] text-center text-sm sm:text-base md:text-lg font-medium">
                                               {(index + 1)
                                                 .toString()
                                                 .padStart(2, "0")}
@@ -463,7 +351,7 @@ const RoundCreationModal = ({
                                                 (player, index) => (
                                                   <span
                                                     key={nanoid()}
-                                                    className="text-md text-grey-500 font-medium"
+                                                    className="text-sm sm:text-base md:text-lg text-grey-500 font-medium"
                                                   >
                                                     {player.name}
                                                   </span>
@@ -474,7 +362,7 @@ const RoundCreationModal = ({
                                               {row?.players?.map((player) => (
                                                 <span
                                                   key={nanoid()}
-                                                  className="text-md text-grey-500 font-medium"
+                                                  className="text-sm sm:text-base md:text-lg text-grey-500 font-medium"
                                                 >
                                                   {player.phone}
                                                 </span>
@@ -495,19 +383,30 @@ const RoundCreationModal = ({
                               </FieldArray>
                             </div>
                           )}
+                          <ErrorMessage
+                            name="participants"
+                            component={TextError}
+                          />
                           <div className="">
-                            <div className="flex gap-2 justify-center mb-4">
+                            <div className="flex gap-2 sm:gap-4 justify-center ">
                               <Button
                                 type="button"
-                                className="py-3 px-8 rounded-[10px] bg-white border-2 border-[#1570EF] text-[#1570EF] text-[14px] leading-[17px] text-[#232323]"
+                                className="py-2 px-6 sm:px-8 md:px-10 rounded-[10px] bg-white border-2 border-[#1570EF] text-[#1570EF] text-sm sm:text-base md:text-lg leading-[17px] text-[#232323]"
                                 onClick={toggleModal}
                               >
                                 Close
                               </Button>
                               <Button
-                                className="py-3 px-8 rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF]"
+                                className="py-2 px-6 sm:px-8 md:px-10 rounded-[10px] shadow-md bg-[#1570EF] text-sm sm:text-base md:text-lg leading-[17px] text-[#FFFFFF]"
                                 type="submit"
-                                loading={isSubmitting}
+                                loading={
+                                  isCreateFixturePending ||
+                                  isUpdateFixturePending
+                                }
+                                disabled={
+                                  isCreateFixturePending ||
+                                  isUpdateFixturePending
+                                }
                               >
                                 Save
                               </Button>
@@ -531,6 +430,146 @@ const RoundCreationModal = ({
         />
       )}
     </>
+  );
+};
+const EventFormat = () => {
+  const { values, setFieldValue } = useFormikContext();
+
+  useEffect(() => {
+    if (values?.format) {
+      const isRR = values.format === "RR";
+      const isDE = values.format === "DE";
+      if (!isRR) {
+        setFieldValue("numberOfGroups", "");
+        setFieldValue("roundRobinMode", "");
+      }
+
+      if (!isDE) {
+        setFieldValue("grandFinalsDE", "");
+      }
+    }
+  }, [values.format, setFieldValue]);
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+      <div className="flex flex-col items-start gap-2.5">
+        <label
+          className="text-sm sm:text-base md:text-lg font-normal sm:font-medium leading-[19.36px] text-[#232323] "
+          htmlFor="format"
+        >
+          Event Format
+        </label>
+
+        <Field
+          name="format"
+          id="format"
+          className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px]  border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          as="select"
+        >
+          {tournamentEvent.format.map((format, index) => (
+            <option
+              key={`${format.name}`}
+              value={index === 0 ? "" : format.shortName}
+              className={index !== 0 ? "text-[#232323]" : ""}
+            >
+              {format.name}
+            </option>
+          ))}
+        </Field>
+        <ErrorMessage name="format" component={TextError} />
+      </div>
+      {values?.format === "RR" && (
+        <>
+          <div className="flex flex-col items-start gap-2">
+            <label
+              className="text-sm sm:text-base md:text-lg font-normal sm:font-medium leading-[19.36px] text-[#232323] "
+              htmlFor="roundRobinMode"
+            >
+              Round Robin Type
+            </label>
+            <Field
+              className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px]  border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              as="select"
+              name="roundRobinMode"
+              id="roundRobinMode"
+            >
+              {tournamentEvent?.roundRobinMode.map((mode) => (
+                <option value={mode?.shortName} key={mode?.id}>
+                  {mode?.name}
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage name="roundRobinMode" />
+          </div>
+          <div className="flex flex-col items-start gap-2">
+            <label
+              className="text-sm sm:text-base md:text-lg font-normal sm:font-medium leading-[19.36px] text-[#232323] "
+              htmlFor="numberOfGroups"
+            >
+              Number of group
+            </label>
+            <Field
+              placeholder="Enter Number Of Groups"
+              id="numberOfGroups"
+              name="numberOfGroups"
+              className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px]  border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              type="number"
+            />
+
+            <ErrorMessage name="numberOfGroups" component={TextError} />
+          </div>
+        </>
+      )}
+
+      {values?.format === "DE" && (
+        <div className="flex flex-col items-start gap-2.5">
+          <label
+            className="text-sm sm:text-base md:text-lg font-normal sm:font-medium leading-[19.36px] text-[#232323] "
+            htmlFor="grandFinalsDE"
+          >
+            Double Elimination Type
+          </label>
+          <Field
+            className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px]  border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            as="select"
+            name="grandFinalsDE"
+            id="grandFinalsDE"
+          >
+            {tournamentEvent.grandFinalsDE.map((mode) => (
+              <option value={mode?.shortName} key={mode?.id}>
+                {mode?.name}
+              </option>
+            ))}
+          </Field>
+          <ErrorMessage name="grandFinalsDE" component={TextError} />
+        </div>
+      )}
+      <div className="flex flex-col items-start gap-2.5">
+        <label
+          className="text-base leading-[19.36px] text-[#232323]"
+          htmlFor="totalSets"
+        >
+          Number of Sets
+        </label>
+        <Field
+          className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          as="select"
+          name="totalSets"
+          id="totalSets"
+        >
+          {tournamentEvent.numberOfSets.map((set, index) => (
+            <option
+              key={`${set}-${index}`}
+              value={set}
+              className="text-[#232323]"
+            >
+              {set}
+            </option>
+          ))}
+        </Field>
+        <ErrorMessage name="totalSets" component={TextError} />
+      </div>
+    </div>
   );
 };
 

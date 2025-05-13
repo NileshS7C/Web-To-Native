@@ -23,6 +23,7 @@ import { TbSwipe } from "react-icons/tb";
 import { PlayerSelectionModal } from "../Common/PlayerSeedingModal";
 import { showSuccess } from "../../redux/Success/successSlice";
 import { resetFixtureSuccess } from "../../redux/tournament/fixtureSlice";
+import { getFixtureById } from "../../redux/tournament/fixturesActions";
 
 const formatMatchData = (fixture, suffledPlayers) => {
   if (!fixture || !suffledPlayers?.length) {
@@ -61,7 +62,7 @@ const playerShuffling = (participants) => {
   return array;
 };
 
-export const TournamentFixture = ({ tournament }) => {
+export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const [openMatchModal, setOpenMatchModal] = useState(false);
@@ -96,7 +97,7 @@ export const TournamentFixture = ({ tournament }) => {
       updateSeeding({
         tour_Id: tournamentId,
         eventId,
-        fixtureId: fixture?._id,
+        fixtureId,
         formData: formattedMatchData,
         stageId: fixture?.bracketData.stage[0].id,
       })
@@ -117,13 +118,13 @@ export const TournamentFixture = ({ tournament }) => {
       publishFixture({
         tour_Id: tournamentId,
         eventId,
-        fixtureId: fixture?._id,
+        fixtureId,
       })
     );
   };
 
   useEffect(() => {
-    dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+    dispatch(getFixtureById({ tour_Id: tournamentId, eventId,fixtureId }));
   }, []);
 
   useEffect(() => {
@@ -173,7 +174,7 @@ export const TournamentFixture = ({ tournament }) => {
   };
 
   useEffect(() => {
-    if (FixtureCreationError || publishError) {
+    if (FixtureCreationError || FixtureCreatedSuccess) {
       dispatch(
         showError({
           message:
@@ -198,7 +199,7 @@ export const TournamentFixture = ({ tournament }) => {
 
   useEffect(() => {
     if (isPublished || FixtureCreatedSuccess) {
-      dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+     dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
     }
   }, [isPublished, FixtureCreatedSuccess]);
 
@@ -216,7 +217,7 @@ export const TournamentFixture = ({ tournament }) => {
         {fixture?.status !== "PUBLISHED" && (
           <NotificationBanner
             message="Fill Match Details Before Publishing"
-            messageStyle="text-sm text-[#E82B00]"
+            messageStyle="text-xs sm:text-sm  text-[#E82B00]"
             wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
           />
         )}
@@ -238,15 +239,15 @@ export const TournamentFixture = ({ tournament }) => {
       </div>
 
       <div className="w-full flex gap-4 flex-col justify-center items-start flex-1 rounded-md overflow-x-auto">
-        <Button
+        {/* <Button
           className="w-[200px] h-[50px] ml-auto text-white text-md rounded-lg disabled:bg-blue-400"
           onClick={handleCreateFixture}
           loading={isCreatingFixture}
           disabled={fixture?.status === "PUBLISHED"}
         >
           {fixture ? "Recreate Fixture" : "Create Fixture"}
-        </Button>
-        <div className="brackets-viewer"></div>
+        </Button> */}
+        <div className="brackets-viewer "></div>
         <ErrorModal />
         <SuccessModal />
 
@@ -255,6 +256,7 @@ export const TournamentFixture = ({ tournament }) => {
           onCancel={handlePlayerSeddingModal}
           players={players}
           participants={fixture?.bracketData?.participant}
+          fixtureId={fixtureId}
         />
         <MatchModal
           isOpen={openMatchModal}
@@ -282,6 +284,6 @@ const NoFixtureExist = () => {
   );
 };
 
-TournamentFixture.propTypes = {
+TournamentHybridFixture.propTypes = {
   tournament: PropTypes.object,
 };

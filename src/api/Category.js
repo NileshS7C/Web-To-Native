@@ -9,7 +9,6 @@ export const createHybridFixture = async (
   categoryId,
   payload
 ) => {
-  console.log(tournamentId, categoryId, payload);
   if (!tournamentId || !categoryId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
   const userRole = cookies.get("userRole");
@@ -100,3 +99,31 @@ export const deleteHybridFixture = async (
     throw error.response?.data || error;
   }
 };
+
+export const getFixtureById = async ({ tournamentId, categoryId, fixtureId }) => {
+  if (!tournamentId || !categoryId || !fixtureId) return null;
+  const baseURl = import.meta.env.VITE_BASE_URL;
+  const userRole = cookies.get("userRole");
+  const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.GET.getFixtureById(
+    userRole,
+    tournamentId,
+    categoryId,
+    fixtureId
+  )}`;
+
+  let config = {
+    method: "GET",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data?.data;
+  } catch (error) {
+    console.error("🚀 ~ Get Fixture by id ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+

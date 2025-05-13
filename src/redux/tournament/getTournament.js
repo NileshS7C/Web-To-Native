@@ -5,6 +5,7 @@ import {
   getSingle_TO,
   getSingleTournament,
   searchTournament,
+  getSearchBookings
 } from "./tournamentActions";
 
 const initialState = {
@@ -124,7 +125,22 @@ const getTournament = createSlice({
         state.bookings = [];
         state.bookingError = true;
       });
-
+     builder
+       .addCase(getSearchBookings.pending, (state) => {
+         state.isGettingBookings = true;
+         state.bookingError = false;
+         state.bookings = [];
+       })
+       .addCase(getSearchBookings.fulfilled, (state, { payload }) => {
+         state.isGettingBookings = false;
+         state.bookings = payload.data;
+         state.bookingError = false;
+       })
+       .addCase(getSearchBookings.rejected, (state) => {
+         state.isGettingBookings = false;
+         state.bookings = [];
+         state.bookingError = true;
+       });
     builder
       .addCase(getSingle_TO.pending, (state) => {
         state.GettingSingleOwner = true;

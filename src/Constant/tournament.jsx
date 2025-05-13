@@ -18,7 +18,6 @@ const tournamentEventTypes = {
     { type: "round_robin", shortName: "RR" },
   ],
 };
-
 const tournamentEvent = {
   format: [
     { name: "Select Event Format", shortName: "" },
@@ -72,6 +71,11 @@ const tournamentEvent = {
       "Point Difference",
     ],
   },
+  numberOfSets: [
+    1,
+    3,
+    5
+  ],
 };
 
 const NotDoublesCategory = ["MS", "WS", "MIS"];
@@ -293,15 +297,6 @@ const approvalBody = {
 };
 
 const hideActionButtons = ["Tournaments", "Add Tournament"];
-
-const roundRobbinModeOptions = [
-  { id: "simple", name: "Single" },
-  { id: "double", name: "Doubles" },
-];
-const grandFinalsDEOption = [
-  { id: "simple", name: "Single" },
-  { id: "double", name: "Doubles" },
-];
 export {
   tournamentDetails,
   tournamentEvent,
@@ -316,8 +311,6 @@ export {
   hideActionButtons,
   tournamentEventTypes,
   NotDoublesCategory,
-  roundRobbinModeOptions,
   tournamentLimit,
-  grandFinalsDEOption,
   playerLimit
 };

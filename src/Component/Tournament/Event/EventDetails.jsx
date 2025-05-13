@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { getSingleTournament } from "../../../redux/tournament/tournamentActions";
 import Tabs from "../../Common/Tabs";
@@ -13,7 +13,11 @@ import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 import TournamentStandings from "../TournamentStandings";
 import Spinner from "../../Common/Spinner";
 import RoundsListingWrapper from "./RoundsListingWrapper";
+import ErrorBanner from "../../Common/ErrorBanner";
 const options = (tournamentId, eventId, categoryFormat) => {
+  if (!categoryFormat) {
+    return [];
+  }
   const baseTabs = [
     {
       name: "Overview",
@@ -77,8 +81,7 @@ const options = (tournamentId, eventId, categoryFormat) => {
       search: "?tab=standing",
       path: `/tournaments/${tournamentId}/event/${eventId}`,
     },
-  ];
-
+  ];  
   return categoryFormat === "HYBRID"
     ? [...baseTabs.slice(0, 2), ...hybridTabs, ...baseTabs.slice(3)]
     : [...baseTabs.slice(0, 2), ...nonHybridTabs, ...baseTabs.slice(2)];
@@ -86,22 +89,23 @@ const options = (tournamentId, eventId, categoryFormat) => {
 
 function EventDetailPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { tournamentId, eventId } = useParams();
-  const [eventData, setEventData] = useState({});
+  const [categoryData, setcategoryData] = useState({});
   const [selectedTab, setSelectedTab] = useState("");
 
   const currentTab = searchParams.get("tab");
   const { tournament, isSuccess, hasErrorInTournament, isGettingTournament } =
     useSelector((state) => state.GET_TOUR);
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
- useEffect(() => {
-   const event = tournament?.categories?.find((tmt) => {
-     return tmt._id.toString() === eventId;
-   });
-   setEventData(event || {});
- }, [tournament, eventId]);
- 
+  useEffect(() => {
+    const event = tournament?.categories?.find((tmt) => {
+      return tmt._id.toString() === eventId;
+    });
+    setcategoryData(event || {});
+  }, [tournament, eventId]);
+
   useEffect(() => {
     if (tournamentId && singleTournamentOwner) {
       dispatch(
@@ -121,16 +125,21 @@ function EventDetailPage() {
       setSearchParams(searchParams);
     }
   }, [currentTab]);
-   useEffect(() => {
-     if (tournamentId && singleTournamentOwner) {
-       dispatch(
-         getSingleTournament({
-           tournamentId,
-           ownerId: singleTournamentOwner?.id,
-         })
-       );
-     }
-   }, [singleTournamentOwner]);
+  useEffect(() => {
+    if (tournamentId && singleTournamentOwner) {
+      dispatch(
+        getSingleTournament({
+          tournamentId,
+          ownerId: singleTournamentOwner?.id,
+        })
+      );
+    }
+  }, [singleTournamentOwner]);
+  useEffect(() => {
+    if (categoryData?.format !== "HYBRID" && currentTab === "rounds") {
+      navigate(`/tournaments/${tournamentId}/event/${eventId}`);
+    }
+  }, [currentTab]);
   if (isGettingTournament) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -138,16 +147,24 @@ function EventDetailPage() {
       </div>
     );
   }
+  if (hasErrorInTournament) {
+    return (
+      <ErrorBanner message="We're having trouble loading category information right now. Please try again later." />
+    );
+  }
   return (
     <div>
       <div className="bg-[#FFFFFF] p-[10px] rounded-md text-[#232323] mb-4">
-        <Tabs options={options(tournamentId, eventId, eventData?.format || "")} hasLink={true} />
+        <Tabs
+          options={options(tournamentId, eventId, categoryData?.format || false)}
+          hasLink={true}
+        />
       </div>
 
-      {(!selectedTab || selectedTab === "overview") && <EventDescription />}
-      {selectedTab === "players" && (
-        <EventRegistrations tournament={tournament} />
+      {(!selectedTab || selectedTab === "overview") && (
+        <EventDescription categoryData={categoryData} />
       )}
+      {selectedTab === "players" && <EventRegistrations />}
 
       {selectedTab === "fixture" && (
         <TournamentFixture tournament={tournament} />

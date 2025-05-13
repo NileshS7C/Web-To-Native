@@ -1,16 +1,74 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Button from "../../Common/Button";
 import { Formik, Form } from "formik";
 import { searchIcon } from "../../../Assests";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllBookings } from "../../../redux/tournament/tournamentActions";
+import {
+  getAllBookings,
+  getSearchBookings,
+} from "../../../redux/tournament/tournamentActions";
 import Spinner from "../../Common/Spinner";
 import ErrorBanner from "../../Common/ErrorBanner";
 import { useParams } from "react-router-dom";
 import { nanoid } from "nanoid";
+import useDebounce from "../../../Hooks/useDebounce";
 const initialValues = {
   player: [],
+};
+
+const SearchBookings = ({
+  dispatch,
+  page,
+  limit,
+  searchInput,
+  setSearchInput,
+  eventId,
+  tournamentId,
+}) => {
+  const [searchValue, setSearchValue] = useState("");
+  const debouncedValue = useDebounce(searchValue, 500);
+  const inputRef = useRef(null);
+  const handleInputChange = (e) => {
+    setSearchValue(e?.target?.value);
+    setSearchInput(e?.target?.value);
+  };
+
+  useEffect(() => {
+    if (debouncedValue) {
+      dispatch(
+        getSearchBookings({
+          tour_Id: tournamentId,
+          eventId,
+          page: page || 1,
+          limit: limit,
+          search: debouncedValue,
+        })
+      );
+    }
+  }, [debouncedValue, page]);
+
+  useEffect(() => {
+    if (inputRef?.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+  return (
+    <div className="relative w-full mb-3">
+      <input
+        placeholder="Search Player..."
+        className="cursor-pointer w-full px-2 border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base md:text-lg"
+        ref={inputRef}
+        onChange={handleInputChange}
+        value={searchInput}
+      />
+      <img
+        src={searchIcon}
+        alt="Search Players"
+        className="absolute right-[20px] top-1/2 transform -translate-y-1/2"
+      />
+    </div>
+  );
 };
 
 const AddPlayerModal = ({
@@ -20,13 +78,13 @@ const AddPlayerModal = ({
 }) => {
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
+  const [searchInput, setSearchInput] = useState("");
   const {
     bookings: bookingData,
     bookingError,
     isGettingBookings,
   } = useSelector((state) => state.GET_TOUR);
 
- 
   const initialSelectedPlayers = useMemo(() => {
     const initialSet = new Set();
     participants.forEach((participant) => {
@@ -42,20 +100,17 @@ const AddPlayerModal = ({
     ...participants,
   ]);
 
- 
   const formatData = useCallback((bookingData) => {
     const data = {
       bookingId: bookingData._id.toString(),
       players: [],
     };
 
-  
     data.players.push({
       name: bookingData.player.name,
       phone: bookingData.player.phone,
-      playerId: bookingData.player.playerId
+      playerId: bookingData.player.playerId,
     });
-
 
     bookingData?.bookingItems?.forEach((item) => {
       if (item?.partnerDetails) {
@@ -87,7 +142,10 @@ const AddPlayerModal = ({
 
   const extractPhones = useCallback((bookingData) => {
     const phones = [
-      { phone: bookingData.player.phone, playerId: bookingData.player.playerId },
+      {
+        phone: bookingData.player.phone,
+        playerId: bookingData.player.playerId,
+      },
     ];
     bookingData?.bookingItems?.forEach((item) => {
       if (item?.partnerDetails?.phone) {
@@ -99,7 +157,6 @@ const AddPlayerModal = ({
     });
     return phones;
   }, []);
-
 
   const handlePlayerToggle = useCallback(
     (booking) => {
@@ -124,12 +181,10 @@ const AddPlayerModal = ({
     [formatData]
   );
 
-
   const handleSave = useCallback(() => {
     handleUpdateParticipant(updatedParticipants);
     toggleModal();
   }, [updatedParticipants, handleUpdateParticipant, toggleModal]);
-
 
   useEffect(() => {
     if (tournamentId && eventId) {
@@ -144,7 +199,6 @@ const AddPlayerModal = ({
     }
   }, [tournamentId, eventId, dispatch]);
 
-
   const selectedPlayersCount = useMemo(() => {
     return selectedPlayers.size;
   }, [selectedPlayers]);
@@ -153,13 +207,6 @@ const AddPlayerModal = ({
     return bookingData?.bookings || [];
   }, [bookingData?.bookings]);
 
-  if (isGettingBookings) {
-    return (
-      <div className="flex items-center justify-center h-full w-full">
-        {/* <Spinner /> */}
-      </div>
-    );
-  }
 
   if (bookingError) {
     return (
@@ -171,8 +218,8 @@ const AddPlayerModal = ({
     <Dialog open={true} onClose={toggleModal} className="relative z-10">
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
       <div className="fixed inset-0 z-10 overflow-y-auto">
-        <div className="flex min-h-full items-end justify-center px-4 pt-4 text-center sm:items-center sm:p-0">
-          <DialogPanel className="relative transform overflow-hidden scrollbar-hide rounded-lg bg-white px-2 pb-2 pt-3 text-left shadow-xl transition-all w-full max-w-[80%] sm:max-w-[40%] max-h-[90vh] overflow-y-auto">
+        <div className="flex min-h-full items-end justify-center px-4 py-2 text-center sm:items-center sm:p-0">
+          <DialogPanel className="relative transform overflow-hidden scrollbar-hide rounded-lg bg-white px-2  text-left shadow-xl transition-all w-full max-w-[90%] sm:max-w-[60%] md:max-w-[50%] lg:max-w-[40%] min-h-[65vh] max-h-[90vh] overflow-y-auto">
             <Formik
               initialValues={initialValues}
               enableReinitialize
@@ -180,27 +227,35 @@ const AddPlayerModal = ({
             >
               {({ isSubmitting }) => (
                 <Form>
-                  <div className="relative h-full flex flex-col">
+                  <div className="relative min-h-[65vh] flex flex-col">
                     {/* Search + Header */}
-                    <div className="sticky top-0 z-20 bg-white px-4 pt-4 ">
-                      <div className="relative w-full mb-3">
-                        <input
-                          placeholder="Search Player..."
-                          className="w-full px-4 border border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                        <img
-                          src={searchIcon}
-                          alt="Search Players"
-                          className="absolute right-[20px] top-1/2 transform -translate-y-1/2"
-                        />
-                      </div>
-                      <div className="flex items-center rounded-t-lg bg-grey-200 py-2">
-                        <span className="flex-[20] text-center"></span>
-                        <span className="flex-[40] text-left">Name</span>
-                        <span className="flex-[35] text-left">Phone No</span>
-                      </div>
+                    <div className="sticky top-0 z-20 bg-white px-4 pt-6">
+                      <SearchBookings
+                        dispatch={dispatch}
+                        page={1}
+                        limit={20}
+                        tournamentId={tournamentId}
+                        eventId={eventId}
+                        searchInput={searchInput}
+                        setSearchInput={setSearchInput}
+                      />
+                      {bookingsList?.length > 0 && (
+                        <div className="flex items-center rounded-t-lg bg-grey-200 py-2 md:py-3">
+                          <span className="flex-[20] text-center"></span>
+                          <span className="text-sm sm:text-base md:text-lg flex-[40] text-left text-grey-500">
+                            Name
+                          </span>
+                          <span className="text-sm sm:text-base md:text-lg flex-[35] text-left text-grey-500">
+                            Phone No
+                          </span>
+                        </div>
+                      )}
                     </div>
-
+                    {isGettingBookings && (
+                      <div className="flex items-center justify-center h-full w-full">
+                        <Spinner />
+                      </div>
+                    )}
                     {/* Player list */}
                     <div className="flex-1 overflow-y-auto scrollbar-hide px-4">
                       {bookingsList.map((booking, index) => {
@@ -210,7 +265,7 @@ const AddPlayerModal = ({
                         return (
                           <div
                             key={booking._id.toString()}
-                            className={`flex items-center py-3 ${
+                            className={`flex items-center py-2 md:py-3 gap-[2px] ${
                               index !== bookingsList.length - 1
                                 ? "border-b-[1.5px] border-[#DFEAF2]"
                                 : ""
@@ -218,7 +273,7 @@ const AddPlayerModal = ({
                           >
                             <input
                               type="checkbox"
-                              className="flex-[20] text-center cursor-pointer w-4 h-4"
+                              className="flex-[20] text-center cursor-pointer w-3 sm:w-4 h-3 sm:h-4"
                               checked={isChecked}
                               onChange={() => handlePlayerToggle(booking)}
                             />
@@ -226,7 +281,7 @@ const AddPlayerModal = ({
                               {extractNames(booking).map((player) => (
                                 <span
                                   key={nanoid()}
-                                  className="text-md text-grey-500 font-medium"
+                                  className="text-sm sm:text-base md:text-lg text-black font-medium"
                                 >
                                   {player.name}
                                 </span>
@@ -236,7 +291,7 @@ const AddPlayerModal = ({
                               {extractPhones(booking).map((player) => (
                                 <span
                                   key={nanoid()}
-                                  className="text-md text-grey-500 font-medium"
+                                  className="text-sm sm:text-base md:text-lg text-grey-500 font-medium"
                                 >
                                   {player.phone}
                                 </span>
@@ -250,19 +305,19 @@ const AddPlayerModal = ({
                     {/* Footer */}
                     <div className="sticky bottom-0 z-20 bg-white px-4 pt-3 pb-4 ">
                       <div className="flex justify-between items-center">
-                        <span className="text-[#718EBF] font-medium text-md">{`${selectedPlayersCount} Players Selected`}</span>
+                        <span className="text-[#718EBF] font-medium text-xs sm:text-sm md:text-base lg:text-lg">{`${selectedPlayersCount} Players Selected`}</span>
                         <div className="flex gap-2 justify-end">
                           <Button
                             type="button"
                             onClick={toggleModal}
-                            className="px-10 py-1.5 bg-white border-2 border-[#1570EF] text-[#1570EF] rounded-[8px] hover:bg-blue-50"
+                            className="px-3 py-1 sm:px-4 md:px-6 lg:px-8 lg:py-1.5 bg-white border-2 border-[#1570EF] text-[#1570EF] rounded-[8px] hover:bg-blue-50 text-sm sm:text-base md:text-lg"
                           >
                             Close
                           </Button>
                           <Button
                             type="submit"
                             loading={isSubmitting}
-                            className="px-12 py-1.5 bg-[#1570EF] text-white rounded-[8px] hover:bg-blue-700"
+                            className="px-3 py-1 sm:px-4 md:px-6 lg:px-8 lg:py-1.5 bg-[#1570EF] text-white rounded-[8px] hover:bg-blue-700 text-sm sm:text-base md:text-lg"
                           >
                             Save
                           </Button>

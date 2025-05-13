@@ -59,7 +59,7 @@ const courtSlice = createSlice({
         state.isSuccess = false;
         state.isLoading = false;
         state.isError = true;
-        state.errorMessage = payload.data.message;
+        state.errorMessage = payload?.data?.message;
       });
 
     builder
@@ -74,7 +74,7 @@ const courtSlice = createSlice({
         state.isDeleting = false;
         state.isDeleted = false;
         state.isError = true;
-        state.errorMessage = payload.data.message;
+        state.errorMessage = payload?.data?.message;
       });
 
     builder
@@ -90,7 +90,7 @@ const courtSlice = createSlice({
         state.isSuccess = false;
         state.isGettingCourt = false;
         state.isError = true;
-        state.errorMessage = payload.data.message;
+        state.errorMessage = payload?.data?.message;
       });
 
     builder
@@ -106,7 +106,7 @@ const courtSlice = createSlice({
         state.isSuccess = false;
         state.isGettingCourt = false;
         state.isError = true;
-        state.errorMessage = payload.data.message;
+        state.errorMessage = payload?.data?.message;
       });
   },
 });

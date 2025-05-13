@@ -83,7 +83,81 @@ export const getFixture = createAsyncThunk(
     }
   }
 );
+export const getHybridFixtures = createAsyncThunk(
+  "fixture/getHybridFixture",
+  async ({ tour_Id, eventId }, { rejectWithValue }) => {
+    try {
+      const userRole = cookies.get("userRole");
 
+      const userAPIEndPoint =
+        API_END_POINTS.tournament.GET.getFixtureByTour_IdAndCategoryId(
+          userRole,
+          tour_Id,
+          eventId
+        );
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
+        config
+      );
+      return response.data;
+    } catch (err) {
+      if (err?.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+export const getFixtureById = createAsyncThunk(
+  "fixture/getFixtureById",
+  async ({ tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
+    try {
+      const userRole = cookies.get("userRole");
+
+      const userAPIEndPoint =
+        API_END_POINTS.tournament.GET.getFixtureById(
+          userRole,
+          tour_Id,
+          eventId,
+          fixtureId
+        );
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
+        config
+      );
+      return response.data;
+    } catch (err) {
+      if (err?.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
 export const updateMatch = createAsyncThunk(
   "fixture/updateMatch",
   async (matchData, { rejectWithValue }) => {

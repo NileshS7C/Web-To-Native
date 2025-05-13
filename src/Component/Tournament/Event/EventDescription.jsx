@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { getSingleCategory } from "../../../redux/tournament/tournamentActions";
 import Spinner from "../../Common/Spinner";
 import ErrorBanner from "../../Common/ErrorBanner";
-import { locationIcon } from "../../../Assests";
+import { defaultVenueImage, locationIcon } from "../../../Assests";
 import { tournamentEvent } from "../../../Constant/tournament";
 import { MdCurrencyRupee } from "react-icons/md";
 
@@ -22,11 +22,6 @@ function EventDescription() {
       dispatch(getSingleCategory({ tour_Id: tournamentId, eventId: eventId }));
     }
   }, [eventId]);
-  console.log(
-    "Printing category location:",
-    category.categoryLocation,
-    category
-  );
   if (loadingSingleCategory) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -161,7 +156,6 @@ const EventPlayers = ({ fee, skillLevel }) => {
 
 const EventLocationAndImage = ({ image, address }) => {
   function generateGoogleMapsLink(address) {
-       console.log("printing address", address);
     const coords = address?.location?.coordinates;
     if (coords && coords.length === 2) {
       const [lng, lat] = coords;
@@ -184,15 +178,17 @@ const EventLocationAndImage = ({ image, address }) => {
   return (
     <>
       {isLocationExist && (
-        <div className="flex flex-col gap-3">
-          <h3 className="text-left">Venue</h3>
+        <div className="flex flex-col gap-3 mt-2">
+          <h3 className="text-left text-tour_List_Color text-sm md:text-md lg:text-lg font-medium">
+            Venue
+          </h3>
           <div className="flex gap-4 flex-col sm:flex-row">
             <img
-              src={address?.venueImage}
+              src={address?.venueImage || defaultVenueImage}
               className="w-full h-auto sm:w-[240px] sm:h-[200px] lg:h-auto lg:w-[280px] rounded-lg"
             ></img>
             <div className="flex flex-col gap-2.5 items-start">
-              <p className="text-sm font-medium">
+              <p className="text-xs sm:text-sm md:text-md lg:text-lg font-medium ">
                 {address?.address?.line1} | {address?.address?.line2}
               </p>
               <div className="flex gap-2">
@@ -202,7 +198,7 @@ const EventLocationAndImage = ({ image, address }) => {
                   width="24px"
                   height="24px"
                 />
-                <p className="text-sm text-[#101828] text-left">
+                <p className="text-xs sm:text-sm md:text-md lg:text-lg text-[#101828] text-left">
                   <span>{address?.address?.line1 || ""}</span>
                   {","}
                   <span>{address?.address?.line2 || ""}</span>
@@ -222,7 +218,7 @@ const EventLocationAndImage = ({ image, address }) => {
                   width="24px"
                   height="24px"
                 />
-                <p className="text-sm text-[#718EBF] cursor-pointer">
+                <p className="text-sm text-[#718EBF] cursor-pointer text-xs sm:text-sm md:text-md lg:text-lg">
                   {" "}
                   <a
                     href={googleMapsLink}

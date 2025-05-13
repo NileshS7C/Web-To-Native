@@ -13,7 +13,6 @@ import { toggleModal } from "../../../redux/tournament/eventSlice";
 import {
   getAllVenues,
   getSearchVenues,
-
 } from "../../../redux/Venue/venueActions";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
 
@@ -27,11 +26,7 @@ import {
 import { crossIcon, calenderIcon } from "../../../Assests";
 import Button from "../../Common/Button";
 
-import {
-  roundRobbinModeOptions,
-  tournamentEvent,
-  grandFinalsDEOption,
-} from "../../../Constant/tournament";
+import { tournamentEvent } from "../../../Constant/tournament";
 
 import TextError from "../../Error/formError";
 
@@ -53,33 +48,32 @@ import {
   DialogPanel,
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import { SlControlStart } from "react-icons/sl";
 
 const requiredCategoryFields = (category) => {
   const {
     categoryName,
     format,
     type,
-    roundRobinMode,
     registrationFee,
     maxPlayers,
     minPlayers,
     skillLevel,
     categoryLocation,
     categoryStartDate,
+    totalSets,
   } = category;
 
   return {
     categoryName,
     format,
     type,
-    roundRobinMode,
     registrationFee,
     maxPlayers,
     minPlayers,
     skillLevel,
     categoryLocation,
     categoryStartDate,
+    totalSets,
   };
 };
 
@@ -87,7 +81,7 @@ const initialValues = {
   categoryName: "",
   format: "",
   type: "",
-  roundRobinMode: "simple",
+  roundRobinMode: "",
   registrationFee: 1,
   maxPlayers: 0,
   minPlayers: 1,
@@ -127,7 +121,7 @@ export const EventCreationModal = () => {
     roundRobinMode: yup.string().optional(),
     consolationFinal: yup.boolean().optional(),
     numberOfGroups: yup.string().optional(),
-    totalSets: yup.string().optional(),
+    totalSets: yup.number().required(),
     registrationFee: yup
       .number()
       .required("Registration fee is required.")
@@ -236,6 +230,26 @@ export const EventCreationModal = () => {
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
+      // Check if values are falsy and remove them from updatedValues
+      if (["SE", "HYBRID"].includes(updatedValues?.format)) {
+        delete updatedValues.numberOfGroups;
+        delete updatedValues.grandFinalsDE;
+        delete updatedValues.roundRobinMode;
+      } else if (updatedValues?.format === "DE") {
+        delete updatedValues.numberOfGroups;
+        delete updatedValues.roundRobinMode;
+      } else if (updatedValues?.format === "RR") {
+        delete updatedValues.grandFinalsDE;
+      }
+      if (!updatedValues?.numberOfGroups) {
+        delete updatedValues.numberOfGroups;
+      }
+      if (!updatedValues?.grandFinalsDE) {
+        delete updatedValues.grandFinalsDE;
+      }
+      if (!updatedValues?.roundRobinMode) {
+        delete updatedValues.grandFinalsDE;
+      }
       !isVenueFinal && delete values["categoryLocation"];
 
       setSubmitting(true);
@@ -267,9 +281,6 @@ export const EventCreationModal = () => {
 
       resetForm();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.log(" err occured in saving the form", error);
-      }
       setHasError(true);
       setErrorMessage(error?.data?.message || "Something went wrong.");
       scrollToTop();
@@ -308,6 +319,9 @@ export const EventCreationModal = () => {
         ...prevState,
         ...updatedCategory,
         categoryStartDate: parseDate(updatedCategory?.categoryStartDate),
+        numberOfGroups: category?.numberOfGroups.toString(),
+        grandFinalsDE: category?.grandFinalsDE,
+        roundRobinMode: category?.roundRobinMode,
       }));
 
       updatedCategory?.categoryLocation
@@ -332,7 +346,7 @@ export const EventCreationModal = () => {
         className="fixed inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
       />
       <div className="fixed  inset-0 z-10 overflow-y-auto">
-        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0 ">
+        <div className="flex min-h-full items-end justify-center px-4 py-2 text-center sm:items-center sm:p-0">
           <DialogPanel
             ref={modalContentRef}
             transition
@@ -443,16 +457,25 @@ const EventName = () => {
 };
 
 const EventFormat = () => {
-  const { values } = useFormikContext();
-  const [isRoundRobinSelected, setIsRoundRobinSelected] = useState(false);
+  const { values, setFieldValue } = useFormikContext();
 
-  useEffect(() => {
-    if (values?.format) {
-      setIsRoundRobinSelected(() => {
-        return values?.format === "RR";
-      });
-    }
-  }, [values]);
+  // useEffect(() => {
+  //   if (values?.format) {
+  //     const isRR = values.format === "RR";
+  //     const isDE = values.format === "DE";
+  //     // if (!isRR) {
+  //     //   setFieldValue("numberOfGroups", "");
+  //     //   setFieldValue("roundRobinMode", "simple");
+  //     // }
+
+  //     // if (!isDE) {
+  //     //   setFieldValue("grandFinalsDE", "");
+  //     // }
+  //     setFieldValue("numberOfGroups", initialState?.numberOfGroups || "");
+  //     setFieldValue("roundRobinMode",initialState?.roundRobinMode || "");
+  //     setFieldValue("grandFinalsDE",initialState?.grandFinalsDE || "")
+  //   }
+  // }, [values.format, setFieldValue]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-[30px]">
@@ -522,8 +545,8 @@ const EventFormat = () => {
               name="roundRobinMode"
               id="roundRobinMode"
             >
-              {roundRobbinModeOptions.map((mode) => (
-                <option value={mode?.id} key={mode?.id}>
+              {tournamentEvent.roundRobinMode.map((mode) => (
+                <option value={mode?.shortName} key={mode?.id}>
                   {mode?.name}
                 </option>
               ))}
@@ -564,8 +587,8 @@ const EventFormat = () => {
             name="grandFinalsDE"
             id="grandFinalsDE"
           >
-            {grandFinalsDEOption.map((mode) => (
-              <option value={mode?.id} key={mode?.id}>
+            {tournamentEvent.grandFinalsDE.map((mode) => (
+              <option value={mode?.shortName} key={mode?.id}>
                 {mode?.name}
               </option>
             ))}
@@ -575,19 +598,27 @@ const EventFormat = () => {
       )}
       <div className="flex flex-col items-start gap-2.5">
         <label
-          className="text-base leading-[19.36px] text-black  font-medium"
+          className="text-base leading-[19.36px] text-[#232323]"
           htmlFor="totalSets"
         >
           Number of Sets
         </label>
         <Field
-          placeholder="Number Of Sets"
-          id="totalSets"
+          className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          as="select"
           name="totalSets"
-          className="w-full px-[19px] border-[1px] text-[#718EBF] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          type="number"
-        />
-
+          id="totalSets"
+        >
+          {tournamentEvent.numberOfSets.map((set, index) => (
+            <option
+              key={`${set}-${index}`}
+              value={set}
+              className="text-[#232323]"
+            >
+              {set}
+            </option>
+          ))}
+        </Field>
         <ErrorMessage name="totalSets" component={TextError} />
       </div>
     </div>

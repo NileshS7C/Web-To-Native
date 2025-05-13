@@ -207,6 +207,13 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/bookings`;
         }
       },
+      searchBookingByCategory:(type,tournamentId,categoryId,search)=>{
+         if (ADMIN_ROLES.includes(type)) {
+           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/bookings/search?search=${search}`;
+         } else {
+           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/bookings/search?search=${search}`;
+         }
+      },
       getBookingById: (type, bookingId, ownerId) => {
         if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/bookings/${bookingId}/owner/${ownerId}/bookings`;

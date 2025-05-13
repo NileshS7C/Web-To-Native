@@ -25,6 +25,8 @@ import NotificationBanner from "./NotificationBanner";
 import { dateAndMonth } from "../../utils/dateUtils";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { showError } from "../../redux/Error/errorSlice";
+import { getFixtureById } from "../../redux/tournament/fixturesActions";
+
 const checkAllField = (scoreData, onValidationError, setDisableButton) => {
   if (!scoreData?.length) {
     return setDisableButton(true);
@@ -128,6 +130,7 @@ export const ScoreUpdateModal = ({
   eventId,
   currentMatchId,
   handleUpdateFixture,
+  format,
 }) => {
   const dispatch = useDispatch();
   const { category } = useSelector((state) => state.event);
@@ -237,7 +240,6 @@ export const ScoreUpdateModal = ({
         players
       );
     }
-
     if (validationError) return;
     
     if (scoreUpdateArray.length % 2 === 0) {
@@ -289,7 +291,13 @@ export const ScoreUpdateModal = ({
             onClose: "hideSuccess",
           })
         );
-        dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+        if (format === "Hybrid") {
+          dispatch(
+            getFixtureById({ tour_Id: tournamentId, eventId, fixtureId })
+          );
+        } else {
+          dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+        }
         onCancel(false);
       }
     } catch (err) {
@@ -303,7 +311,6 @@ export const ScoreUpdateModal = ({
       setIsUpdating(false);
     }
   };
-
   return (
     <Dialog
       open={isOpen}
@@ -319,7 +326,7 @@ export const ScoreUpdateModal = ({
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             transition
-            className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            className="relative max-h-[90vh] transform overflow-y-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[85%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[50%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <div className="flex flex-col gap-2">
               <MatchModalTitle
@@ -327,28 +334,25 @@ export const ScoreUpdateModal = ({
                 eventName={category?.categoryName}
                 onCancel={onCancel}
               />
-
               <NotificationBanner
                 message="Matches cannot end in a tie. Please ensure a clear winner and loser."
-                messageStyle="text-sm text-[#E82B00]"
+                messageStyle="text-xs sm:text-sm md:text-md lg:text-lg text-[#E82B00]"
                 wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
               />
-
               {updateError && <ErrorBanner message={errorMessage} />}
-
               {(players?.player1_id == null || players?.player2_id == null) && (
                 <NotificationBanner
                   message="Both opponents are required to update the match score."
-                  messageStyle="text-sm text-[#E82B00]"
+                  messageStyle="text-xs sm:text-sm md:text-md lg:text-lg text-[#E82B00]"
                   wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
                 />
               )}
+
               {validationError && (
-                <p className="text-md text-red-600">
+                <p className="text-xs sm:text-sm md:text-md lg:text-lg text-red-600">
                   Opponent 1 and Opponent 2 scores are required.
                 </p>
               )}
-
               {players?.player1_id != null && players?.player2_id != null && (
                 <>
                   <PlayerDetails players={players} />
@@ -435,7 +439,9 @@ const ForfietCheckBox = ({ handlePlayerSelection, opponent1, opponent2 }) => {
         }}
         disabled={forfeited}
       />
-      <label htmlFor="forfiet">Do you want to forfeit any player?</label>
+      <label htmlFor="forfiet text-xs sm:text-sm md:text-md lg:text-lg">
+        Do you want to forfeit any player?
+      </label>
     </div>
   );
 };
@@ -467,7 +473,7 @@ const InputSet = ({
   isForfeited,
 }) => {
   return (
-    <div className="flex flex-col gap-2  xl:flex-row  items-center justify-between py-2">
+    <div className="flex  gap-2  items-center justify-between py-2">
       <input
         className="pl-2 w-full  border-[1px] border-[#718EBF] h-[5vh] rounded-md bg-[#F7F9FC] focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none"
         type="number"
@@ -651,7 +657,7 @@ const MatchScoreUpdateSet = ({
 
   return (
     <div>
-      <div className="flex flex-col gap-4 justify-between border-[1px] border-[#696CFF29] p-6 mt-2 rounded-lg divide-y divide-[#718EBF] lg:divide-none">
+      <div className="flex flex-col gap-4 justify-between border-[1px] border-[#696CFF29] p-2 sm:p-6 mt-2 rounded-lg divide-y divide-[#718EBF] lg:divide-none">
         {scoreSet.map((score, index) => {
           return (
             <InputSet
