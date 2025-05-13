@@ -24,7 +24,7 @@ import { IoMdAdd } from "react-icons/io";
 import NotificationBanner from "./NotificationBanner";
 import { dateAndMonth } from "../../utils/dateUtils";
 import { AiOutlineInfoCircle } from "react-icons/ai";
-
+import { showError } from "../../redux/Error/errorSlice";
 const checkAllField = (scoreData, onValidationError, setDisableButton) => {
   if (!scoreData?.length) {
     return setDisableButton(true);
@@ -143,8 +143,8 @@ export const ScoreUpdateModal = ({
   const [scoreUpdateArray, setScoreUpdateArray] = useState([]);
 
   // Check if any player has forfeited
-  const isForfeited = 
-    (players?.opponent1 && players.opponent1.forfeit) || 
+  const isForfeited =
+    (players?.opponent1 && players.opponent1.forfeit) ||
     (players?.opponent2 && players.opponent2.forfeit);
 
   useEffect(() => {
@@ -196,7 +196,34 @@ export const ScoreUpdateModal = ({
       setShowPlayerSelections(false);
     }
   }, [isOpen]);
+  const getMatchSetsUntilVictory = (matchset) => {
+    const winCount = new Map();
+    winCount.set("player1", 0);
+    winCount.set("player2", 0);
 
+    const majority = Math.floor(matchset.length / 2) + 1;
+    let lastIndex = matchset.length;
+
+    for (let index = 0; index < matchset.length; index++) {
+      const set = matchset[index];
+
+      if (set?.opponent1?.result === "win") {
+        winCount.set("player1", winCount.get("player1") + 1);
+      } else if (set?.opponent2?.result === "win") {
+        winCount.set("player2", winCount.get("player2") + 1);
+      }
+
+      if (winCount.get("player1") === majority) {
+        lastIndex = index;
+        break;
+      } else if (winCount.get("player2") === majority) {
+        lastIndex = index;
+        break;
+      }
+    }
+
+    return matchset?.slice(0, lastIndex + 1);
+  };
   const handleScoreUpdate = async (e) => {
     e.preventDefault();
     setUpdateError(false);
@@ -212,7 +239,19 @@ export const ScoreUpdateModal = ({
     }
 
     if (validationError) return;
-
+    
+    if (scoreUpdateArray.length % 2 === 0) {
+      dispatch(
+        showError({
+          message: "Set must always be an odd number like 1, 3, or 5.",
+          onClose: "hideError",
+        })
+      );
+      return;
+    }
+    const updatedMatchSets = getMatchSetsUntilVictory(
+      currentSetUpdated.matchSets
+    );
     try {
       setIsUpdating(true);
       setErrorMessage("");
@@ -220,7 +259,10 @@ export const ScoreUpdateModal = ({
       if (!showPlayerSelections) {
         result = await dispatch(
           updateMatchSet({
-            formData: currentSetUpdated,
+            formData: {
+              ...currentSetUpdated,
+              matchSets:updatedMatchSets
+            },
             tour_Id: tournamentId,
             eventId,
             fixtureId,
@@ -229,7 +271,10 @@ export const ScoreUpdateModal = ({
       } else {
         result = await dispatch(
           updateMatch({
-            formData: currentSetUpdated,
+            formData: {
+              ...currentSetUpdated,
+              matchSets: updatedMatchSets,
+            },
             tour_Id: tournamentId,
             eventId,
             fixtureId,
@@ -307,7 +352,7 @@ export const ScoreUpdateModal = ({
               {players?.player1_id != null && players?.player2_id != null && (
                 <>
                   <PlayerDetails players={players} />
-                  
+
                   {/* Show notification if a player has already forfeited */}
                   {isForfeited && (
                     <NotificationBanner
@@ -354,7 +399,9 @@ export const ScoreUpdateModal = ({
                         type="submit"
                         onClick={(e) => handleScoreUpdate(e)}
                         loading={isUpdating}
-                        disabled={validationError || disableButton || isForfeited} // Disable update button if already forfeited
+                        disabled={
+                          validationError || disableButton || isForfeited
+                        } // Disable update button if already forfeited
                       >
                         Update
                       </Button>
@@ -413,7 +460,12 @@ const PlayerSelector = ({ players, handleSelectedPlayer }) => {
   );
 };
 
-const InputSet = ({ index, handleScoreChange, scoreUpdateArray, isForfeited }) => {
+const InputSet = ({
+  index,
+  handleScoreChange,
+  scoreUpdateArray,
+  isForfeited,
+}) => {
   return (
     <div className="flex flex-col gap-2  xl:flex-row  items-center justify-between py-2">
       <input
@@ -463,12 +515,12 @@ const MatchScoreUpdateSet = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [actionPending, setActionPending] = useState(false);
   const [scoreSet, setScoreSet] = useState([{ set1: "", set2: "" }]);
-  
+
   // Check if any player has forfeited
-  const isForfeited = 
-    (players?.opponent1 && players.opponent1.forfeit) || 
+  const isForfeited =
+    (players?.opponent1 && players.opponent1.forfeit) ||
     (players?.opponent2 && players.opponent2.forfeit);
-  
+
   const handleRow = () => {
     setAddButtonClicked(true);
   };
@@ -596,7 +648,7 @@ const MatchScoreUpdateSet = ({
       setScoreSet([{ set1: "", set2: "" }]);
     }
   }, [scoreUpdateArray]);
-  
+
   return (
     <div>
       <div className="flex flex-col gap-4 justify-between border-[1px] border-[#696CFF29] p-6 mt-2 rounded-lg divide-y divide-[#718EBF] lg:divide-none">
@@ -655,11 +707,13 @@ const PlayerDetails = ({ players }) => {
     opponent1,
     opponent2,
     profilePics1 = [],
-    profilePics2 = []
+    profilePics2 = [],
   } = players;
 
-  const player1ProfilePic = profilePics1?.length > 0 ? profilePics1[0].profilePic : dummyImage;
-  const player2ProfilePic = profilePics2?.length > 0 ? profilePics2[0].profilePic : dummyImage;
+  const player1ProfilePic =
+    profilePics1?.length > 0 ? profilePics1[0].profilePic : dummyImage;
+  const player2ProfilePic =
+    profilePics2?.length > 0 ? profilePics2[0].profilePic : dummyImage;
 
   return (
     <div className="flex flex-col md:flex-row items-center justify-between p-3 mt-3 rounded-lg bg-[#5B8DFF1A] shadow-sm">
@@ -667,7 +721,7 @@ const PlayerDetails = ({ players }) => {
         <div className="relative">
           <img
             src={player1ProfilePic}
-            alt={`${player1 || 'Player 1'}`}
+            alt={`${player1 || "Player 1"}`}
             className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-full border-2 border-blue-200"
           />
           {opponent1?.forfeit && (
@@ -695,7 +749,7 @@ const PlayerDetails = ({ players }) => {
         <div className="relative">
           <img
             src={player2ProfilePic}
-            alt={`${player2 || 'Player 2'}`}
+            alt={`${player2 || "Player 2"}`}
             className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-full border-2 border-blue-200"
           />
           {opponent2?.forfeit && (
