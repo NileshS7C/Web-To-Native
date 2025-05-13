@@ -653,43 +653,60 @@ const PlayerDetails = ({ players }) => {
     time,
     court,
     opponent1,
-    opponent2
+    opponent2,
+    profilePics1 = [],
+    profilePics2 = []
   } = players;
 
+  const player1ProfilePic = profilePics1?.length > 0 ? profilePics1[0].profilePic : dummyImage;
+  const player2ProfilePic = profilePics2?.length > 0 ? profilePics2[0].profilePic : dummyImage;
+
   return (
-    <div className="flex items-center justify-center md:justify-between flex-wrap p-2 mt-2 rounded-md bg-[#5B8DFF1A]">
-      <div className="flex flex-col items-center gap-2">
-        <img
-          src={dummyImage}
-          alt="opponent 1"
-          className="w-[100px] h-[100px] object-cover"
-        />
-        <div className="flex flex-col items-center">
-          <p className="text-matchModalTextColor">{player1}</p>
+    <div className="flex flex-col md:flex-row items-center justify-between p-3 mt-3 rounded-lg bg-[#5B8DFF1A] shadow-sm">
+      <div className="flex flex-col items-center gap-3 w-full md:w-1/4 py-2">
+        <div className="relative">
+          <img
+            src={player1ProfilePic}
+            alt={`${player1 || 'Player 1'}`}
+            className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-full border-2 border-blue-200"
+          />
           {opponent1?.forfeit && (
-            <span className="text-sm text-red-500 font-semibold">Forfeited</span>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+              Forfeited
+            </div>
           )}
         </div>
+        <p className="text-matchModalTextColor font-semibold text-center mt-1 max-w-full truncate">
+          {player1 || "TBD"}
+        </p>
       </div>
-      <MatchLocationDetails
-        match={match}
-        location={location}
-        date={date}
-        time={time}
-        court={court}
-      />
-      <div className="flex flex-col items-center gap-2">
-        <img
-          src={dummyImage}
-          alt="opponent 2"
-          className="w-[100px] h-[100px] object-cover"
+
+      <div className="w-full md:w-2/4 py-4">
+        <MatchLocationDetails
+          match={match}
+          location={location}
+          date={date}
+          time={time}
+          court={court}
         />
-        <div className="flex flex-col items-center">
-          <p className="text-matchModalTextColor">{player2}</p>
+      </div>
+
+      <div className="flex flex-col items-center gap-3 w-full md:w-1/4 py-2">
+        <div className="relative">
+          <img
+            src={player2ProfilePic}
+            alt={`${player2 || 'Player 2'}`}
+            className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-full border-2 border-blue-200"
+          />
           {opponent2?.forfeit && (
-            <span className="text-sm text-red-500 font-semibold">Forfeited</span>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+              Forfeited
+            </div>
           )}
         </div>
+        <p className="text-matchModalTextColor font-semibold text-center mt-1 max-w-full truncate">
+          {player2 || "TBD"}
+        </p>
       </div>
     </div>
   );
