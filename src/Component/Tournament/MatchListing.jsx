@@ -17,19 +17,21 @@ const MatchListingHeaders = [
     key: "participant1",
     header: "Opponent 1",
     render: (item) => {
-      // const { opponent1 = "" } = item;
-      const { opponent1 = "", profilePics1 = [] } = item;
-      let isWinner;
-      if (opponent1) {
-        isWinner = opponent1.result === "win";
+      const { opponent1 = null, profilePics1 = [] } = item;
+      let isWinner = false;
+      if (opponent1 && opponent1.forfeit) {
+        isWinner = false;
+      } else if (opponent1 && opponent1.result === "win") {
+        isWinner = true;
       }
 
-      const profilePic = profilePics1.length > 0 ? profilePics1[0].profilePic : dummmyProfileIcon;
-      
+      const profilePic =
+        profilePics1.length > 0 ? profilePics1[0].profilePic : dummmyProfileIcon;
+
       return (
         <div className="flex items-center justify-center gap-2">
           <img
-             src={profilePic}
+            src={profilePic}
             alt="playerImage"
             className="w-[30px] h-[30px] rounded-full"
           />
@@ -66,13 +68,15 @@ const MatchListingHeaders = [
     key: "participant2",
     header: "Opponent 2",
     render: (item) => {
-      // const { opponent2 = "" } = item;
-      const { opponent2 = "", profilePics2 = [] } = item;
-      let isWinner;
-      if (opponent2) {
-        isWinner = opponent2.result === "win";
+      const { opponent2 = null, profilePics2 = [] } = item;
+      let isWinner = false;
+      if (opponent2 && opponent2.forfeit) {
+        isWinner = false;
+      } else if (opponent2 && opponent2.result === "win") {
+        isWinner = true;
       }
-      const profilePic = profilePics2.length > 0 ? profilePics2[0].profilePic : dummmyProfileIcon; 
+      const profilePic =
+        profilePics2.length > 0 ? profilePics2[0].profilePic : dummmyProfileIcon;
       return (
         <div className="flex items-center justify-center gap-2">
           <img
@@ -110,7 +114,6 @@ export const MatchesListing = () => {
 
 
   const handleUpdateFixture = (value) => {
-    console.log("🚀 ~ handleUpdateFixture ~ valuesssss:", value)
     setUpdateFixture(value);
   };
 
@@ -132,7 +135,6 @@ export const MatchesListing = () => {
   }, []);
 
   useEffect(() => {
-    console.log("priniting update fixture")
     if (updateFixture) {
       dispatch(getFixture({ tour_Id: tournamentId, eventId }));
     }
@@ -224,7 +226,7 @@ export const MatchesListing = () => {
 
             const players = [opponent1?.id, opponent2?.id]
               .map((id) => participantsById.get(id))
-              .filter(Boolean);
+              // .filter(Boolean);
 
 
             return players.length
@@ -254,10 +256,9 @@ export const MatchesListing = () => {
               : [];
           }
         );
-        console.log(playerData, players,"Player Data")
+
 
       setPlayerData(playerData);
-      console.log(playerData, players,"Player Data")
 
       setPlayers(() => {
         const currentMatchId = currentMatchClicked?.matchId;
