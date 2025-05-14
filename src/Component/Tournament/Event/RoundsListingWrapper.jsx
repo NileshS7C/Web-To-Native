@@ -51,7 +51,7 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
        setSelectedRoundIndex(fixtures?.length -1 );
        setActiveTab("Details");
     }else {
-      setSelectedRoundIndex(fixtures?.length - 1);
+      setSelectedRoundIndex(0);
       setActiveTab("Details");
     }
   }, [isHybridFixtureSuccess,fixtures]);
