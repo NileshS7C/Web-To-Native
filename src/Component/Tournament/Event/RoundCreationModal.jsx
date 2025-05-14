@@ -32,7 +32,10 @@ import {
   useUpdateHybridFixture,
   useCreateHybridFixture,
 } from "../../../Hooks/useCatgeory";
-import { getFixtureById, getHybridFixtures } from "../../../redux/tournament/fixturesActions";
+import {
+  getFixtureById,
+  getHybridFixtures,
+} from "../../../redux/tournament/fixturesActions";
 import { useDispatch, useSelector } from "react-redux";
 
 const RoundCreationModal = ({
@@ -41,7 +44,7 @@ const RoundCreationModal = ({
   roundIndex,
   tournamentId,
   categoryId,
-  fixtureId
+  fixtureId,
 }) => {
   const validationSchema = yup.object().shape({
     name: yup
@@ -84,9 +87,9 @@ const RoundCreationModal = ({
     error: updateFixtureError,
     isPending: isUpdateFixturePending,
   } = useUpdateHybridFixture();
-  const {fixture}=useSelector(state=>state.fixture)
+  const { fixture } = useSelector((state) => state.fixture);
   const getInitialState = () => {
-    if (actionType === "edit" ) {
+    if (actionType === "edit") {
       const {
         groupCount,
         matchesChildCount,
@@ -94,7 +97,7 @@ const RoundCreationModal = ({
         consolationFinal = false,
         grandFinalsDE = "",
       } = fixture?.bracketData?.stage[0]?.settings || {};
-      
+
       return {
         ...initialValues,
         name: fixture?.name || "",
@@ -192,9 +195,13 @@ const RoundCreationModal = ({
           dispatch(
             getHybridFixtures({ tour_Id: tournamentId, eventId: categoryId })
           );
-        } else if(actionType === "edit") {
+        } else if (actionType === "edit") {
           dispatch(
-            getFixtureById({ tour_Id: tournamentId, eventId: categoryId,fixtureId })
+            getFixtureById({
+              tour_Id: tournamentId,
+              eventId: categoryId,
+              fixtureId,
+            })
           );
         }
       }, 1000);
