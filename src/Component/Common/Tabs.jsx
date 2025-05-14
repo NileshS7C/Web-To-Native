@@ -23,7 +23,7 @@ function Tabs({ options, onChange, hasLink = false }) {
     if (currentTab) {
       setSelectedTab(currentTab);
     } else {
-      setSelectedTab(options[0]?.name.toLowerCase() || "");
+      setSelectedTab(options[0]?.name.toLowerCase() || "Overview");
     }
   }, [selectedTab, currentTab]);
 

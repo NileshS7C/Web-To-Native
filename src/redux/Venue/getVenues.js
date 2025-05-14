@@ -4,7 +4,7 @@ import {
   getSingleVenue,
   getUniqueVenueTags,
   publishVenue,
-  getSearchVenues
+  getSearchVenues,
 } from "./venueActions";
 
 const initialState = {
@@ -49,9 +49,9 @@ const getVenuesSlice = createSlice({
     setPublish(state) {
       state.isPublished = false;
     },
-    setCurrentPage(state){
-      state.currentPage=1;
-    }
+    setCurrentPage(state) {
+      state.currentPage = 1;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -98,7 +98,7 @@ const getVenuesSlice = createSlice({
         state.isErrorInPublish = true;
         state.isPublished = false;
         state.isPublishing = false;
-        state.publishedErrorMessage = payload.data.message;
+        state.publishedErrorMessage = payload?.data?.message;
       });
 
     builder
@@ -128,11 +128,17 @@ const getVenuesSlice = createSlice({
         state.isSuccess = false;
         state.isLoading = false;
         state.errorMessage = payload?.data?.message || payload.message;
-      });  
+      });
   },
 });
 
-export const { onPageChange, checkVenue, onFilterChange, cleanPublishState, setPublish,setCurrentPage } =
-  getVenuesSlice.actions;
+export const {
+  onPageChange,
+  checkVenue,
+  onFilterChange,
+  cleanPublishState,
+  setPublish,
+  setCurrentPage,
+} = getVenuesSlice.actions;
 
 export default getVenuesSlice.reducer;

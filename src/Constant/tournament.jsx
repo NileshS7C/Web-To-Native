@@ -3,14 +3,14 @@ import { listingIcon } from "../Assests";
 import EventActions from "../Component/Common/EventActions";
 import { GoDotFill } from "react-icons/go";
 import { findFormatName } from "../utils/tournamentUtils";
-const tournamentLimit=10;
+const tournamentLimit = 10;
 const tournamentDetails = {
   steps: ["basic info", "event", "acknowledgement"],
 };
 
 const rolesWithTournamentOwnerAccess = ["SUPER_ADMIN", "ADMIN"];
 const bookingLimit = 10;
-
+const playerLimit = 10;
 const tournamentEventTypes = {
   format: [
     { type: "single_elimination", shortName: "SE" },
@@ -18,9 +18,15 @@ const tournamentEventTypes = {
     { type: "round_robin", shortName: "RR" },
   ],
 };
-
 const tournamentEvent = {
   format: [
+    { name: "Select Event Format", shortName: "" },
+    { name: "Single Elimination", shortName: "SE" },
+    { name: "Double Elimination", shortName: "DE" },
+    { name: "Round Robin", shortName: "RR" },
+    { name: "Hybrid", shortName: "HYBRID" },
+  ],
+  hybridFormat: [
     { name: "Select Event Format", shortName: "" },
     { name: "Single Elimination", shortName: "SE" },
     { name: "Double Elimination", shortName: "DE" },
@@ -35,8 +41,24 @@ const tournamentEvent = {
     { name: "Mix Singles", shortName: "MIS" },
     { name: "Mix Doubles", shortName: "MID" },
   ],
+  grandFinalsDE: [
+    { name: "Select Grand Finals format", shortName: "" },
+    { name: "Once", shortName: "simple" },
+    { name: "Twice", shortName: "double" },
+  ],
+  roundRobinMode: [
+    { name: "Select Participant Play Count", shortName: "" },
+    { name: "Once", shortName: "simple" },
+    { name: "Twice", shortName: "double" },
+  ],
 
-  skillLevels: ["Select Skill Level", "Beginner", "Intermediate", "Advanced", "All Levels"],
+  skillLevels: [
+    "Select Skill Level",
+    "Beginner",
+    "Intermediate",
+    "Advanced",
+    "All Levels",
+  ],
   grandFinales: [1, 2, 3],
   roundRobins: {
     playCount: [1, 2, 3],
@@ -48,6 +70,12 @@ const tournamentEvent = {
       "Point Difference",
     ],
   },
+  numberOfSets: [
+    { name: "Select Number of sets", shortName: "" },
+    { name: "One", shortName: "1" },
+    { name: "Three", shortName: "3" },
+    { name:"Five" ,shortName:"5"}
+  ],
 };
 
 const NotDoublesCategory = ["MS", "WS", "MIS"];
@@ -180,7 +208,9 @@ const TournamentTableHeaders = [
       return (
         <div className="flex flex-row lg:flex-col justify-between w-full">
           <p className="text-customColor font-semibold">Tournament Name</p>
-          <p className="text-tour_List_Color text-right lg:text-left">{item?.tournamentName}</p>
+          <p className="text-tour_List_Color text-right lg:text-left">
+            {item?.tournamentName}
+          </p>
         </div>
       );
     },
@@ -267,12 +297,6 @@ const approvalBody = {
 };
 
 const hideActionButtons = ["Tournaments", "Add Tournament"];
-
-const roundRobbinModeOptions = [
-  { id: "simple", name: "Single" },
-  { id: "double", name: "Doubles" },
-];
-
 export {
   tournamentDetails,
   tournamentEvent,
@@ -287,6 +311,6 @@ export {
   hideActionButtons,
   tournamentEventTypes,
   NotDoublesCategory,
-  roundRobbinModeOptions,
-  tournamentLimit
+  tournamentLimit,
+  playerLimit
 };

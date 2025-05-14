@@ -111,3 +111,8 @@
 #preRequisites .ql-toolbar .ql-formats {
   @apply flex gap-3 mx-2; /* Adjust gap and margin as needed */
 }
+
+
+.brackets-viewer table {
+  display: none;
+}

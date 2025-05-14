@@ -217,7 +217,7 @@ export const MatchModal = ({
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             transition
-            className="relative max-h-[90vh] overflow-y-auto transform  rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[70%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            className="relative max-h-[90vh] overflow-y-auto transform  rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[90%] sm:max-w-md lg:max-w-[70%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <Formik
               enableReinitialize
@@ -259,13 +259,16 @@ export const MatchModal = ({
 export const MatchModalTitle = ({ tournamentName, eventName, onCancel }) => {
   return (
     <div className="flex justify-between items-center w-full">
-      <div className="flex gap-3">
-        <p className="text-lg text-[#343C6A] font-semibold">{tournamentName}</p>
-        <FaGreaterThan color="#343C6A" className="w-[24px] h-[24px]" />
-        <p className="text-lg text-[#343C6A] font-semibold">{eventName}</p>
+      <div className="flex flex-col gap-1 md:gap-2">
+        <p className="text-sm md:text-md lg:text-lg text-[#343C6A] font-semibold">
+          {tournamentName}
+        </p>
+        <p className="text-sm md:text-md lg:text-lg text-[#343C6A] font-semibold">
+          {eventName}
+        </p>
       </div>
       <IoCloseSharp
-        className="w-[24px] h-[24px] shadow-md cursor-pointer"
+        className="sm:w-10 sm:h-10 w-6 h-6 shadow-md cursor-pointer"
         onClick={() => {
           onCancel(false);
         }}
@@ -277,7 +280,7 @@ export const MatchModalTitle = ({ tournamentName, eventName, onCancel }) => {
 const MatchRound = ({ round }) => {
   return (
     <div className="flex justify-center w-full items-center py-3 rounded-lg bg-[#343C6A]">
-      <p className="text-white text-lg font-semibold">
+      <p className="text-white text-xs sm:text-sm md:text-md lg:text-lg font-semibold">
         Round <span>{round}</span>
       </p>
     </div>

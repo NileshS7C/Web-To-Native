@@ -642,6 +642,45 @@ export const getAllBookings = createAsyncThunk(
   }
 );
 
+export const getSearchBookings = createAsyncThunk(
+  "GET_TOUR/getSearchBookings",
+  async ({search="", currentPage = 1, limit = 20, tour_Id, eventId }, { rejectWithValue }) => {
+    try {
+      const userRole = cookies.get("userRole");
+      const userAPIEndPoint =
+        API_END_POINTS.tournament.GET.searchBookingByCategory(
+          userRole,
+          tour_Id,
+          eventId,
+          search
+        );
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.get(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }${userAPIEndPoint}?page=${currentPage}&limit=${limit}`,
+        config
+      ); 
+      return response.data;
+    } catch (err) {
+      if (err.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
 export const createConfirmBooking = createAsyncThunk(
   "GET_TOUR/createConfirmBooking",
   async ({ data, ownerId }, { rejectWithValue }) => {

@@ -36,7 +36,7 @@ const deleteVenueSlice = createSlice({
         state.isDeleting = false;
         state.isDeleted = false;
         state.isError = true;
-        state.errorMessage = payload.data.message;
+        state.errorMessage = payload?.data?.message;
       });
   },
 });
