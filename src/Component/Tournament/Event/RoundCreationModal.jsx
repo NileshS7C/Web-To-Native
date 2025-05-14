@@ -473,7 +473,7 @@ const EventFormat = () => {
           className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px]  border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
           as="select"
         >
-          {tournamentEvent.format.map((format, index) => (
+          {tournamentEvent.format.slice(0,4).map((format, index) => (
             <option
               key={`${format.name}`}
               value={index === 0 ? "" : format.shortName}
@@ -492,7 +492,7 @@ const EventFormat = () => {
               className="text-sm sm:text-base md:text-lg font-normal sm:font-medium leading-[19.36px] text-[#232323] "
               htmlFor="roundRobinMode"
             >
-              Round Robin Type
+              Participant Play Count
             </label>
             <Field
               className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px]  border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -534,7 +534,7 @@ const EventFormat = () => {
             className="text-sm sm:text-base md:text-lg font-normal sm:font-medium leading-[19.36px] text-[#232323] "
             htmlFor="grandFinalsDE"
           >
-            Double Elimination Type
+            Grand Finals
           </label>
           <Field
             className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px]  border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"

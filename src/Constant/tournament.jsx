@@ -42,15 +42,14 @@ const tournamentEvent = {
     { name: "Mix Doubles", shortName: "MID" },
   ],
   grandFinalsDE: [
-    { name: "Select Grand Finals Format", shortName: "" },
-    { name: "None", shortName: "none" },
-    { name: "Single Elimination", shortName: "simple" },
-    { name: "Double Elimination", shortName: "double" },
+    { name: "Select Grand Finals format", shortName: "" },
+    { name: "Once", shortName: "simple" },
+    { name: "Twice", shortName: "double" },
   ],
   roundRobinMode: [
-    { name: "Select Round Robin Mode", shortName: "" },
-    { name: "Single Round Robin", shortName: "simple" },
-    { name: "Double Round Robin", shortName: "double" },
+    { name: "Select Participant Play Count", shortName: "" },
+    { name: "Once", shortName: "simple" },
+    { name: "Twice", shortName: "double" },
   ],
 
   skillLevels: [

@@ -529,7 +529,7 @@ const EventFormat = () => {
               className="text-base leading-[19.36px] text-black  font-medium"
               htmlFor="roundRobinMode"
             >
-              Round Robin Type
+              Participant Play Count
             </label>
             <Field
               className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -571,7 +571,7 @@ const EventFormat = () => {
             className="text-base leading-[19.36px] text-[#232323] text-black  font-medium"
             htmlFor="grandFinalsDE"
           >
-            Double Elimination Type
+            Grand Finals
           </label>
           <Field
             className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
