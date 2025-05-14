@@ -204,10 +204,10 @@ export const ScoreUpdateModal = ({
     winCount.set("player1", 0);
     winCount.set("player2", 0);
 
-    const majority = Math.floor(matchset.length / 2) + 1;
+    const majority = Math.floor(scoreUpdateArray?.length / 2) + 1;
     let lastIndex = matchset.length;
 
-    for (let index = 0; index < matchset.length; index++) {
+    for (let index = 0; index < matchset?.length; index++) {
       const set = matchset[index];
 
       if (set?.opponent1?.result === "win") {
@@ -252,7 +252,7 @@ export const ScoreUpdateModal = ({
       return;
     }
     const updatedMatchSets = getMatchSetsUntilVictory(
-      currentSetUpdated.matchSets
+      currentSetUpdated?.matchSets
     );
     try {
       setIsUpdating(true);
