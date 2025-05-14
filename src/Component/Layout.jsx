@@ -111,8 +111,6 @@ const Layout = () => {
   );
 
   const isTournamentDetailPage = !!tournamentId;
-  console.log(isTournamentDetailPage, "YE --------")
-
 
   const handleMouseEnter = useCallback(() => {
     setShouldScroll((prev) => ({ ...prev, nav: true, page: false }));

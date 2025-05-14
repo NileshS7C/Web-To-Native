@@ -256,6 +256,7 @@ export default function VenueListing() {
             oddRowColor="blue-100"
             alternateRowColors="true"
             rowPaddingY="5"
+            navigateTo="venues"
           />
         </div>
       )}

@@ -77,7 +77,6 @@ const eventTableHeaders = [
       return (
         <Link
           to={`/tournaments/${tournamentId}/event/${item?._id}?event=${formatName?.name}`}
-          className="hover:text-blue-500"
         >
           {item?.categoryName}
         </Link>

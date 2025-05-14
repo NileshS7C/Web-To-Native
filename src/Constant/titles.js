@@ -34,6 +34,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname === "/cms/homepage/news-&-update") {
       return "News & Update";
     }
+    if (pathname === "/cms/homepage/faqs") {
+      return "Frequently asked questions";
+    }
     if (pathname === "/cms/homepage/destination-dink") {
       return "Why Choose Picklebay";
     }
@@ -48,6 +51,15 @@ export const getPageTitle = (pathname, params, venueData) => {
     }
     if (pathname === "/cms/homepage/featured-venues") {
       return "Featured This Week";
+    }
+    if (pathname === "/cms/blogs/blog-posts/new") {
+      return "Create Blog Posts";
+    }
+    if (pathname === "/cms/blogs/blog-posts") {
+      return "Blog Posts";
+    }
+    if (pathname === "/cms/about-us-page/meet-the-team") {
+      return "Meet The Team";
     }
     if (pathname.includes("/add-court")) {
       return "Add Court";
