@@ -291,18 +291,6 @@ export const ScoreUpdateModal = ({
             onClose: "hideSuccess",
           })
         );
-          await dispatch(
-           updateMatchSetCount({
-             formData: {
-               level: "match",
-               id:players?.matchId,
-               childCount: updatedMatchSets?.length || 0,
-             },
-             tour_Id: tournamentId,
-             eventId,
-             fixtureId,
-           })
-         ).unwrap();
         if (format === "Hybrid") {
           dispatch(
             getFixtureById({ tour_Id: tournamentId, eventId, fixtureId })
