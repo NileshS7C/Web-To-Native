@@ -148,23 +148,20 @@ export const HybridMatchesListing = ({ fixtureId }) => {
   useEffect(() => {
     dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
   }, []);
-
+  console.log(isFixtureSuccess)
   useEffect(() => {
     if (fixture?.format === "DE" && isFixtureSuccess) {
-      setTotalRounds(fixture?.bracketData?.round.length);
       fetchDEFinal();
     }
   }, [isFixtureSuccess]);
   
   useEffect(() => {
-    if (fixture?.format === "DE" && deEliminationFinal && fixture) {
-      if (deEliminationFinal?.showBothMatches) {
-        setTotalRounds(fixture?.bracketData?.round.length);
-      } else {
+    if (fixture?.format === "DE" && deEliminationFinal && fixture && !deEliminationFinal.showBothMatches) {
         setTotalRounds(fixture?.bracketData?.round.length - 1);
-      }
+    }else{
+       setTotalRounds(fixture?.bracketData?.round.length);
     }
-  }, [deEliminationFinal]);
+  }, [deEliminationFinal,fixture]);
   
   useEffect(() => {
     if (updateFixture) {

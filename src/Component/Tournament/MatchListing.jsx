@@ -145,22 +145,25 @@ export const MatchesListing = () => {
   useEffect(() => {
     dispatch(getFixture({ tour_Id: tournamentId, eventId }));
   }, []);
+   console.log(isFixtureSuccess);
   useEffect(() => {
     if (fixture?.format === "DE" && isFixtureSuccess) {
-      setTotalRounds(fixture?.bracketData?.round.length);
       fetchDEFinal();
     }
   }, [isFixtureSuccess]);
 
-  useEffect(() => {
-    if (fixture?.format === "DE" && deEliminationFinal && fixture) {
-      if (deEliminationFinal?.showBothMatches) {
-        setTotalRounds(fixture?.bracketData?.round.length);
-      } else {
+    useEffect(() => {
+      if (
+        fixture?.format === "DE" &&
+        deEliminationFinal &&
+        fixture &&
+        !deEliminationFinal.showBothMatches
+      ) {
         setTotalRounds(fixture?.bracketData?.round.length - 1);
+      } else {
+        setTotalRounds(fixture?.bracketData?.round.length);
       }
-    }
-  }, [deEliminationFinal]);
+    }, [deEliminationFinal, fixture]);
   useEffect(() => {
     if (updateFixture) {
       dispatch(getFixture({ tour_Id: tournamentId, eventId }));
@@ -299,7 +302,6 @@ export const MatchesListing = () => {
       setUpdateFixture(null);
     }
   }, [fixture, currentRound, updateFixture, currentMatchClicked]);
-
   if (isFetchingFixture && !showScoreUpdateModal) {
     return (
       <div className="flex items-center justify-center h-full w-full">
