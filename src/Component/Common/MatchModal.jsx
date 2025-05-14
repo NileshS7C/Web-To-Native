@@ -157,7 +157,6 @@ export const MatchModal = ({
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      console.log(metaData);
       setSubmitting(true);
       const updatedValues = {
         ...values,
