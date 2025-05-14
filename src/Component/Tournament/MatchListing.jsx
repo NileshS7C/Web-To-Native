@@ -27,7 +27,9 @@ const MatchListingHeaders = [
       }
 
       const profilePic =
-        profilePics1.length > 0 ? profilePics1[0].profilePic : dummmyProfileIcon;
+        profilePics1.length > 0
+          ? profilePics1[0].profilePic
+          : dummmyProfileIcon;
 
       return (
         <div className="flex items-center justify-center gap-2">
@@ -77,7 +79,9 @@ const MatchListingHeaders = [
         isWinner = true;
       }
       const profilePic =
-        profilePics2.length > 0 ? profilePics2[0].profilePic : dummmyProfileIcon;
+        profilePics2.length > 0
+          ? profilePics2[0].profilePic
+          : dummmyProfileIcon;
       return (
         <div className="flex items-center justify-center gap-2">
           <img
@@ -145,25 +149,24 @@ export const MatchesListing = () => {
   useEffect(() => {
     dispatch(getFixture({ tour_Id: tournamentId, eventId }));
   }, []);
-   console.log(isFixtureSuccess);
   useEffect(() => {
     if (fixture?.format === "DE" && isFixtureSuccess) {
       fetchDEFinal();
     }
   }, [isFixtureSuccess]);
 
-    useEffect(() => {
-      if (
-        fixture?.format === "DE" &&
-        deEliminationFinal &&
-        fixture &&
-        !deEliminationFinal.showBothMatches
-      ) {
-        setTotalRounds(fixture?.bracketData?.round.length - 1);
-      } else {
-        setTotalRounds(fixture?.bracketData?.round.length);
-      }
-    }, [deEliminationFinal, fixture]);
+  useEffect(() => {
+    if (
+      fixture?.format === "DE" &&
+      deEliminationFinal &&
+      fixture &&
+      !deEliminationFinal.showBothMatches
+    ) {
+      setTotalRounds(fixture?.bracketData?.round.length - 1);
+    } else {
+      setTotalRounds(fixture?.bracketData?.round.length);
+    }
+  }, [deEliminationFinal, fixture]);
   useEffect(() => {
     if (updateFixture) {
       dispatch(getFixture({ tour_Id: tournamentId, eventId }));

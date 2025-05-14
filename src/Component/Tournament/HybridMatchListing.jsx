@@ -148,7 +148,6 @@ export const HybridMatchesListing = ({ fixtureId }) => {
   useEffect(() => {
     dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
   }, []);
-  console.log(isFixtureSuccess)
   useEffect(() => {
     if (fixture?.format === "DE" && isFixtureSuccess) {
       fetchDEFinal();
