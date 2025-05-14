@@ -10,7 +10,8 @@ import DataTable from "../Common/DataTable";
 import EmptyBanner from "../Common/EmptyStateBanner";
 import { backIcon, dummyImage, forwardIcon } from "../../Assests";
 import { ScoreUpdateModal } from "../Common/ScoreUpdateModal";
-import {dummmyProfileIcon} from "../../Assests";
+import { dummmyProfileIcon } from "../../Assests";
+import { useGetDEFinal } from "../../Hooks/useCatgeory";
 
 const MatchListingHeaders = [
   {
@@ -99,7 +100,9 @@ const MatchListingHeaders = [
 export const MatchesListing = () => {
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
-  const { fixture, isFetchingFixture } = useSelector((state) => state.fixture);
+  const { fixture, isFetchingFixture, isFixtureSuccess } = useSelector(
+    (state) => state.fixture
+  );
   const [currentRound, setCurrentRound] = useState(1);
   const [playerData, setPlayerData] = useState([]);
   const [totalRounds, setTotalRounds] = useState(0);
@@ -112,7 +115,16 @@ export const MatchesListing = () => {
   const [updateFixture, setUpdateFixture] = useState(null);
   const [players, setPlayers] = useState({});
 
-
+  const { data: deEliminationFinal, refetch: fetchDEFinal } = useGetDEFinal(
+    {
+      tournamentId,
+      categoryId: eventId,
+      fixtureId: fixture?._id.toString(),
+    },
+    {
+      enabled: false,
+    }
+  );
   const handleUpdateFixture = (value) => {
     setUpdateFixture(value);
   };
@@ -133,7 +145,22 @@ export const MatchesListing = () => {
   useEffect(() => {
     dispatch(getFixture({ tour_Id: tournamentId, eventId }));
   }, []);
+  useEffect(() => {
+    if (fixture?.format === "DE" && isFixtureSuccess) {
+      setTotalRounds(fixture?.bracketData?.round.length);
+      fetchDEFinal();
+    }
+  }, [isFixtureSuccess]);
 
+  useEffect(() => {
+    if (fixture?.format === "DE" && deEliminationFinal && fixture) {
+      if (deEliminationFinal?.showBothMatches) {
+        setTotalRounds(fixture?.bracketData?.round.length);
+      } else {
+        setTotalRounds(fixture?.bracketData?.round.length - 1);
+      }
+    }
+  }, [deEliminationFinal]);
   useEffect(() => {
     if (updateFixture) {
       dispatch(getFixture({ tour_Id: tournamentId, eventId }));
@@ -204,29 +231,31 @@ export const MatchesListing = () => {
             );
 
             const profilePics1 =
-            opponent1?.id != null
-              ? participantsById.get(opponent1?.id)?.players.map((player) => ({
-                  name: player.name,
-                  profilePic: player.profilePic || dummmyProfileIcon,
-                })) || []
-              : [];
+              opponent1?.id != null
+                ? participantsById
+                    .get(opponent1?.id)
+                    ?.players.map((player) => ({
+                      name: player.name,
+                      profilePic: player.profilePic || dummmyProfileIcon,
+                    })) || []
+                : [];
 
-          const profilePics2 =
-            opponent2?.id != null
-              ? participantsById.get(opponent2.id)?.players.map((player) => ({
-                  name: player.name,
-                  profilePic: player.profilePic || dummmyProfileIcon,
-                })) || []
-              : [];
+            const profilePics2 =
+              opponent2?.id != null
+                ? participantsById.get(opponent2.id)?.players.map((player) => ({
+                    name: player.name,
+                    profilePic: player.profilePic || dummmyProfileIcon,
+                  })) || []
+                : [];
 
             // Use fixture here
             const matchGames = fixture?.bracketData?.match_game.filter(
               (game) => game?.parent_id?.toString() === id?.toString()
             );
 
-            const players = [opponent1?.id, opponent2?.id]
-              .map((id) => participantsById.get(id))
-
+            const players = [opponent1?.id, opponent2?.id].map((id) =>
+              participantsById.get(id)
+            );
 
             return players.length
               ? [
@@ -267,14 +296,11 @@ export const MatchesListing = () => {
 
         return currentPlayers;
       });
-
-      setTotalRounds(fixture?.bracketData?.round.length);
       setUpdateFixture(null);
     }
-
   }, [fixture, currentRound, updateFixture, currentMatchClicked]);
 
-  if (isFetchingFixture  && !showScoreUpdateModal) {
+  if (isFetchingFixture && !showScoreUpdateModal) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spinner />

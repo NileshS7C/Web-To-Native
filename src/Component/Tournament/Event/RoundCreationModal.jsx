@@ -58,7 +58,7 @@ const RoundCreationModal = ({
 
     numberOfGroups: yup.string().optional(),
 
-    totalSets: yup.number().required(),
+    totalSets: yup.string().optional(),
 
     participants: yup
       .array()
@@ -100,8 +100,8 @@ const RoundCreationModal = ({
         name: fixture?.name || "",
         format: fixture?.format || "",
         participants: fixture?.bracketData?.participant || [],
-        totalSets: matchesChildCount || 0,
-        numberOfGroups: groupCount || 0,
+        totalSets: matchesChildCount?.toString() || "",
+        numberOfGroups: groupCount?.toString() || "",
         roundRobinMode: roundRobinMode || "",
         consolationFinal: consolationFinal || false,
         grandFinalsDE: grandFinalsDE || "",
@@ -192,7 +192,7 @@ const RoundCreationModal = ({
           dispatch(
             getHybridFixtures({ tour_Id: tournamentId, eventId: categoryId })
           );
-        } else {
+        } else if(actionType === "edit") {
           dispatch(
             getFixtureById({ tour_Id: tournamentId, eventId: categoryId,fixtureId })
           );
@@ -512,7 +512,7 @@ const EventFormat = () => {
               placeholder="Enter Number Of Groups"
               id="numberOfGroups"
               name="numberOfGroups"
-              className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px]  border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full text-[15px] text-[#718EBF] placeholder-[#718EBF] leading-[18px] px-[12px] border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
               type="number"
             />
 
@@ -544,30 +544,26 @@ const EventFormat = () => {
           <ErrorMessage name="grandFinalsDE" component={TextError} />
         </div>
       )}
-      <div className="flex flex-col items-start gap-2.5">
+      <div className="flex flex-col items-start gap-2">
         <label
-          className="text-base leading-[19.36px] text-[#232323]"
+          className="text-sm sm:text-base md:text-lg font-normal sm:font-medium leading-[19.36px] text-[#232323] "
           htmlFor="totalSets"
         >
           Number of Sets
         </label>
         <Field
-          className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
           as="select"
           name="totalSets"
           id="totalSets"
         >
-          {tournamentEvent.numberOfSets.map((set, index) => (
-            <option
-              key={`${set}-${index}`}
-              value={set}
-              className="text-[#232323]"
-            >
-              {set}
+          {tournamentEvent.numberOfSets.map((set) => (
+            <option value={set?.shortName} key={nanoid()}>
+              {set?.name}
             </option>
           ))}
         </Field>
-        <ErrorMessage name="totalSets" component={TextError} />
+        <ErrorMessage name="totalSets" />
       </div>
     </div>
   );

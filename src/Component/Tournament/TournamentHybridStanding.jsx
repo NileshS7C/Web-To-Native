@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useGetTournamentStanding } from "../../Hooks/tournamentStandingHooks";
 import Spinner from "../Common/Spinner";
+
 const TournamentHybridStandings = ({ tournamentId, categoryId, fixtureId }) => {
   const {
     data: standingData,
@@ -8,6 +9,7 @@ const TournamentHybridStandings = ({ tournamentId, categoryId, fixtureId }) => {
     isError: isStandingError,
   } = useGetTournamentStanding({ tournamentId, categoryId, fixtureId });
   const standing = standingData;
+
   if (isStandingLoading) {
     return (
       <div className="flex items-center justify-center h-full w-full">

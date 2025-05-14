@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createHybridFixture,
   deleteHybridFixture,
+  getDoubleEliminationFinal,
   getFixtureById,
   updateHybridFixture,
 } from "../api/Category";
@@ -45,3 +46,21 @@ export const useGetFixtureById=({tournamentId,categoryId,fixtureId})=>{
     enabled: !!tournamentId && !!categoryId && !!fixtureId,
   });
 }
+
+export const useGetDEFinal = (
+  { tournamentId, categoryId, fixtureId },
+  options = {}
+) => {
+  return useQuery({
+    queryKey: ["deFinal", tournamentId, categoryId, fixtureId],
+    queryFn: () =>
+      getDoubleEliminationFinal({ tournamentId, categoryId, fixtureId }),
+    enabled:
+      !!tournamentId &&
+      !!categoryId &&
+      !!fixtureId &&
+      options.enabled !== false,
+    retry: false,
+    ...options,
+  });
+};

@@ -103,14 +103,14 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`;
         }
       },
-      updateHybridFixture: (type, tournamentId, categoryId,fixtureId) => {
+      updateHybridFixture: (type, tournamentId, categoryId, fixtureId) => {
         if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/${fixtureId}`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/${fixtureId}`;
         }
       },
-      deleteHybridFixture: (type, tournamentId, categoryId,fixtureId) => {
+      deleteHybridFixture: (type, tournamentId, categoryId, fixtureId) => {
         if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/${fixtureId}/delete`;
         } else {
@@ -207,12 +207,12 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/bookings`;
         }
       },
-      searchBookingByCategory:(type,tournamentId,categoryId,search)=>{
-         if (ADMIN_ROLES.includes(type)) {
-           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/bookings/search?search=${search}`;
-         } else {
-           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/bookings/search?search=${search}`;
-         }
+      searchBookingByCategory: (type, tournamentId, categoryId, search) => {
+        if (ADMIN_ROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/bookings/search?search=${search}`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/bookings/search?search=${search}`;
+        }
       },
       getBookingById: (type, bookingId, ownerId) => {
         if (ADMIN_ROLES.includes(type)) {
@@ -281,6 +281,13 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/owner/${ownerId}/export-bookings`;
         } else {
           return null;
+        }
+      },
+      fixtureDEFinal: (type, tournamentId, categoryId, fixtureId) => {
+        if (ADMIN_ROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/de-finals`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/de-finals`;
         }
       },
     },

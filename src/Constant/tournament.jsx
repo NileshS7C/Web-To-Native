@@ -72,9 +72,10 @@ const tournamentEvent = {
     ],
   },
   numberOfSets: [
-    1,
-    3,
-    5
+    { name: "Select Number of sets", shortName: "" },
+    { name: "One", shortName: "1" },
+    { name: "Three", shortName: "3" },
+    { name:"Five" ,shortName:"5"}
   ],
 };
 

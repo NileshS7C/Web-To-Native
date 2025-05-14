@@ -32,7 +32,9 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
 
   const handleRoundAction = (type) => {
     setActionType(type);
-    toggleModal();
+    if (["add", "edit"].includes(type)) {
+      toggleModal();
+    }
   };
   const {
     fixtures,
@@ -44,10 +46,9 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
     dispatch(getHybridFixtures({ tour_Id: tournamentId, eventId }));
   }, []);
   useEffect(() => {
-    if(actionType === "add"){
+    if (["add", "edit"].includes(actionType)) {
       setSelectedRoundIndex(fixtures?.length - 1);
-    }else{
-      setSelectedRoundIndex(0);
+      setActiveTab("Details");
     }
   }, [fixtures]);
   useEffect(() => {

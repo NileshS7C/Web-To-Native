@@ -125,6 +125,7 @@ const RoundDetails = ({
                          }
                        `}
               onClick={() => {
+                onRoundActionClick("delete");
                 dispatch(
                   showConfirmation({
                     message: "Are you sure you want to delete this fixture?",

@@ -48,6 +48,7 @@ import {
   DialogPanel,
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { nanoid } from "nanoid";
 
 const requiredCategoryFields = (category) => {
   const {
@@ -121,7 +122,7 @@ export const EventCreationModal = () => {
     roundRobinMode: yup.string().optional(),
     consolationFinal: yup.boolean().optional(),
     numberOfGroups: yup.string().optional(),
-    totalSets: yup.number().required(),
+    totalSets: yup.string().optional(),
     registrationFee: yup
       .number()
       .required("Registration fee is required.")
@@ -231,25 +232,34 @@ export const EventCreationModal = () => {
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
       // Check if values are falsy and remove them from updatedValues
-      if (["SE", "HYBRID"].includes(updatedValues?.format)) {
-        delete updatedValues.numberOfGroups;
-        delete updatedValues.grandFinalsDE;
-        delete updatedValues.roundRobinMode;
-      } else if (updatedValues?.format === "DE") {
-        delete updatedValues.numberOfGroups;
-        delete updatedValues.roundRobinMode;
-      } else if (updatedValues?.format === "RR") {
-        delete updatedValues.grandFinalsDE;
+      switch (updatedValues?.format) {
+        case "SE":
+        case "HYBRID":
+          delete updatedValues.numberOfGroups;
+          delete updatedValues.grandFinalsDE;
+          delete updatedValues.roundRobinMode;
+          break;
+        case "DE":
+          delete updatedValues.numberOfGroups;
+          delete updatedValues.roundRobinMode;
+          break;
+        case "RR":
+          delete updatedValues.grandFinalsDE;
+          break;
       }
-      if (!updatedValues?.numberOfGroups) {
-        delete updatedValues.numberOfGroups;
-      }
-      if (!updatedValues?.grandFinalsDE) {
-        delete updatedValues.grandFinalsDE;
-      }
-      if (!updatedValues?.roundRobinMode) {
-        delete updatedValues.grandFinalsDE;
-      }
+
+      // Delete falsy values
+      [
+        "numberOfGroups",
+        "grandFinalsDE",
+        "roundRobinMode",
+        "totalSets",
+      ].forEach((key) => {
+        if (!updatedValues?.[key]) {
+          delete updatedValues[key];
+        }
+      });
+
       !isVenueFinal && delete values["categoryLocation"];
 
       setSubmitting(true);
@@ -319,9 +329,10 @@ export const EventCreationModal = () => {
         ...prevState,
         ...updatedCategory,
         categoryStartDate: parseDate(updatedCategory?.categoryStartDate),
-        numberOfGroups: category?.numberOfGroups.toString(),
-        grandFinalsDE: category?.grandFinalsDE,
-        roundRobinMode: category?.roundRobinMode,
+        numberOfGroups: category?.numberOfGroups.toString() || "",
+        grandFinalsDE: category?.grandFinalsDE || "",
+        roundRobinMode: category?.roundRobinMode || "",
+        totalSets: category?.totalSets.toString() || ""
       }));
 
       updatedCategory?.categoryLocation
@@ -458,25 +469,6 @@ const EventName = () => {
 
 const EventFormat = () => {
   const { values, setFieldValue } = useFormikContext();
-
-  // useEffect(() => {
-  //   if (values?.format) {
-  //     const isRR = values.format === "RR";
-  //     const isDE = values.format === "DE";
-  //     // if (!isRR) {
-  //     //   setFieldValue("numberOfGroups", "");
-  //     //   setFieldValue("roundRobinMode", "simple");
-  //     // }
-
-  //     // if (!isDE) {
-  //     //   setFieldValue("grandFinalsDE", "");
-  //     // }
-  //     setFieldValue("numberOfGroups", initialState?.numberOfGroups || "");
-  //     setFieldValue("roundRobinMode",initialState?.roundRobinMode || "");
-  //     setFieldValue("grandFinalsDE",initialState?.grandFinalsDE || "")
-  //   }
-  // }, [values.format, setFieldValue]);
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
@@ -596,30 +588,26 @@ const EventFormat = () => {
           <ErrorMessage name="grandFinalsDE" component={TextError} />
         </div>
       )}
-      <div className="flex flex-col items-start gap-2.5">
+      <div className="flex flex-col items-start gap-2">
         <label
-          className="text-base leading-[19.36px] text-[#232323]"
+          className="text-base leading-[19.36px] text-black  font-medium"
           htmlFor="totalSets"
         >
           Number of Sets
         </label>
         <Field
-          className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
           as="select"
           name="totalSets"
           id="totalSets"
         >
-          {tournamentEvent.numberOfSets.map((set, index) => (
-            <option
-              key={`${set}-${index}`}
-              value={set}
-              className="text-[#232323]"
-            >
-              {set}
+          {tournamentEvent.numberOfSets.map((set) => (
+            <option value={set?.shortName} key={nanoid()}>
+              {set?.name}
             </option>
           ))}
         </Field>
-        <ErrorMessage name="totalSets" component={TextError} />
+        <ErrorMessage name="totalSets" />
       </div>
     </div>
   );
