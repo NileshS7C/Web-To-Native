@@ -360,7 +360,7 @@ export default function TournamentListingModal({
                                 className="checkbox accent-blue-500 cursor-pointer h-5 w-5"
                                 onChange={() => {}} // Empty onChange to avoid React warning
                               />
-                              <h4 className="font-medium text-[#2B2F38] truncate">
+                              <h4 className="font-medium text-[#2B2F38] truncate max-w-[85%]">
                                 {item.tournamentName}
                               </h4>
                             </div>
@@ -369,7 +369,7 @@ export default function TournamentListingModal({
                           <div className="flex flex-col divide-y divide-gray-100">
                             <div className="flex justify-between items-center gap-3 px-4 py-3">
                               <span className="font-medium text-black">Handle:</span>
-                              <span className="text-gray-600">{item.handle}</span>
+                              <span className="text-gray-600 text-right truncate max-w-[70%]">{item.handle}</span>
                             </div>
                             
                             <div className="flex justify-between items-center gap-3 px-4 py-3">

@@ -25,6 +25,7 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname === "/cms/homepage/explore") {
       return "Explore Picklebay";
     }
+    
     if (pathname === "/cms/homepage/why-choose-picklebay") {
       return "Why Choose Picklebay";
     }
@@ -52,14 +53,44 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname === "/cms/homepage/featured-venues") {
       return "Featured This Week";
     }
-    if (pathname === "/cms/blogs/blog-posts/new") {
-      return "Create Blog Posts";
-    }
-    if (pathname === "/cms/blogs/blog-posts") {
+    if (pathname.startsWith("/cms/blogs/blog-posts")) {
       return "Blog Posts";
     }
     if (pathname === "/cms/about-us-page/meet-the-team") {
       return "Meet The Team";
+    }
+    if (pathname === "/cms/about-us-page/key-section") {
+      return "Key Section";
+    }
+    if (pathname === "/cms/about-us-page/picklebay-in-india") {
+      return "Picklebay In India";
+    }
+    if (pathname === "/cms/about-us-page/picklebay-in-news") {
+      return "Picklebay In News";
+    }
+    if (pathname === "/cms/about-us-page/bottom-section") {
+      return "Bottom Section";
+    }
+    if (pathname === "/cms/tourism-page/package-section") {
+      return "Package Section";
+    }
+    if (pathname === "/cms/tourism-page/instagram") {
+      return "Instagram";
+    }
+    if (pathname === "/cms/tourism-page/top-banner") {
+      return "Top Banner";
+    }
+    if (pathname === "/cms/about-us-page/founder-section") {
+      return "Founder Section";
+    }
+    if (pathname === "/cms/about-us-page/top-section") {
+      return "Top Section";
+    }
+    if (pathname === "/cms/about-us-page/how-it-works") {
+      return "How It Works";
+    }
+    if (pathname.startsWith("/cms/static-pages")) {
+      return "Static Pages";
     }
     if (pathname.includes("/add-court")) {
       return "Add Court";

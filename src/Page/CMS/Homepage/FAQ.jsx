@@ -23,7 +23,7 @@ export default function FAQS() {
     }, [])
     return (
         <div className="">
-            <div className="mx-auto max-w-7xl bg-white p-4 pt-0">
+            <div className="mx-auto max-w-7xl bg-white p-5">
                 <div className="mx-auto max-w-4xl">
                     <div className='flex justify-between'>
                         <h2 className="font-semibold tracking-tight text-gray-900 text-base">

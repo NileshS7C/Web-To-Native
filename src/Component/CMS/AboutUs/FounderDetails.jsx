@@ -133,7 +133,7 @@ const FounderSection = () => {
                   isUploading={isUploading}
                 />
 
-                <div className="mt-12">
+                <div className="mt-12 text-left">
                   <Button
                     type="submit"
                     disabled={isSubmitting}
@@ -168,7 +168,7 @@ const ImageUpload = ({
   return (
     <div className="flex flex-col gap-2 items-start">
       <label htmlFor="image">Founder Image</label>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col items-start gap-4">
         <input
           type="file"
           id="image"
