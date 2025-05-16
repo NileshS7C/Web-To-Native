@@ -284,7 +284,7 @@ export default function TournamentListingModal({
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
       <div className="fixed inset-0 z-10 w-screen">
         <div className="flex min-h-full items-start justify-start p-4 text-center sm:items-center sm:p-0 overflow-x-auto">
-          <DialogPanel className="modal-content w-full md:w-[90%] mx-auto p-4 bg-white rounded-lg md:min-w-[950px]">
+          <DialogPanel className="modal-content w-[90%] mx-auto p-4 bg-white rounded-lg min-w-[950px]">
             <div className="mb-4">
               <SearchTournament
                 tournamentName={tournamentName}
@@ -299,93 +299,38 @@ export default function TournamentListingModal({
             ) : (
               <div className="data-list overflow-y-auto my-4 flex flex-col gap-2 h-[60vh] rounded-lg border border-gray-300 p-2">
                 {tournamentsData.length > 0 ? (
-                  <>
-                    {/* Desktop View */}
-                    <div className="hidden md:flex md:flex-col md:gap-2">
-                      {tournamentsData.map((item) => (
-                        <div
-                          key={item._id}
-                          className={`item flex items-center gap-4 p-3 border border-gray-300 rounded-md cursor-pointer transition-all 
-                          ${
-                            selectedItems.some(
-                              (selectedItem) => selectedItem._id === item._id
-                            )
-                              ? "bg-blue-100 border-[#1570EF]"
-                              : "hover:bg-gray-100"
-                          }`}
-                          onClick={() => handleSelectItem(item)}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedItems.some(
-                              (selectedItem) => selectedItem._id === item._id
-                            )}
-                            className="checkbox accent-blue-500 cursor-pointer"
-                          />
-                          <div className="item-details flex flex-row justify-between w-full text-left gap-4">
-                            <h4 className="w-[40%] font-medium">
-                              {item.tournamentName}
-                            </h4>
-                            <p className="w-[40%] text-gray-600">{item.handle}</p>
-                            <p className="w-[10%] text-gray-600">
-                              {item.startDate}
-                            </p>
-                            <p className="w-[10%] text-gray-600">{item.endDate}</p>
-                          </div>
-                        </div>
-                      ))}
+                  tournamentsData.map((item) => (
+                    <div
+                      key={item._id}
+                      className={`item flex items-center gap-4 p-3 border border-gray-300 rounded-md cursor-pointer transition-all 
+                      ${
+                        selectedItems.some(
+                          (selectedItem) => selectedItem._id === item._id
+                        )
+                          ? "bg-blue-100 border-[#1570EF]"
+                          : "hover:bg-gray-100"
+                      }`}
+                      onClick={() => handleSelectItem(item)}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.some(
+                          (selectedItem) => selectedItem._id === item._id
+                        )}
+                        className="checkbox accent-blue-500 cursor-pointer"
+                      />
+                      <div className="item-details flex flex-row justify-between w-full text-left gap-4">
+                        <h4 className="w-[40%] font-medium">
+                          {item.tournamentName}
+                        </h4>
+                        <p className="w-[40%] text-gray-600">{item.handle}</p>
+                        <p className="w-[10%] text-gray-600">
+                          {item.startDate}
+                        </p>
+                        <p className="w-[10%] text-gray-600">{item.endDate}</p>
+                      </div>
                     </div>
-                    
-                    {/* Mobile View - Card Style */}
-                    <div className="md:hidden flex flex-col gap-3">
-                      {tournamentsData.map((item) => (
-                        <div
-                          key={item._id}
-                          className={`flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border ${
-                            selectedItems.some(
-                              (selectedItem) => selectedItem._id === item._id
-                            )
-                              ? "border-[#1570EF] bg-blue-50"
-                              : "border-gray-200"
-                          }`}
-                          onClick={() => handleSelectItem(item)}
-                        >
-                          <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
-                            <div className="flex items-center gap-3">
-                              <input
-                                type="checkbox"
-                                checked={selectedItems.some(
-                                  (selectedItem) => selectedItem._id === item._id
-                                )}
-                                className="checkbox accent-blue-500 cursor-pointer h-5 w-5"
-                                onChange={() => {}} // Empty onChange to avoid React warning
-                              />
-                              <h4 className="font-medium text-[#2B2F38] truncate max-w-[85%]">
-                                {item.tournamentName}
-                              </h4>
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-col divide-y divide-gray-100">
-                            <div className="flex justify-between items-center gap-3 px-4 py-3">
-                              <span className="font-medium text-black">Handle:</span>
-                              <span className="text-gray-600 text-right truncate max-w-[70%]">{item.handle}</span>
-                            </div>
-                            
-                            <div className="flex justify-between items-center gap-3 px-4 py-3">
-                              <span className="font-medium text-black">Start Date:</span>
-                              <span className="text-gray-600">{item.startDate}</span>
-                            </div>
-                            
-                            <div className="flex justify-between items-center gap-3 px-4 py-3">
-                              <span className="font-medium text-black">End Date:</span>
-                              <span className="text-gray-600">{item.endDate}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
+                  ))
                 ) : (
                   <p className="text-gray-500 text-center py-4">
                     No tournaments available

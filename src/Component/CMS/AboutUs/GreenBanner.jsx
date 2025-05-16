@@ -110,7 +110,7 @@ const GreenBannerWrapper = () => {
   };
 
   return (
-    <div className="w-auto">
+    <div className="w-10/12">
       <Page title="Banner Section" />
       <BannerSectionForm
         initialState={initialState}

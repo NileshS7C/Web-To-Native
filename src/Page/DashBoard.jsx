@@ -27,7 +27,7 @@ const  DashBoard=()=>{
         <img
           src={dashboardBg}
           alt="bottom-image"
-          className="absolute bottom-16 left-0 w-full object-cover z-5 scale-125 rotate-[4deg]  md:scale-100 md:rotate-[-5deg] md:bottom-6 pointer-events-none"
+          className="absolute bottom-16 left-0 w-full object-cover z-5 scale-125 rotate-[4deg]  md:scale-100 md:rotate-[-5deg] md:bottom-6"
         />
       </div>
     );
