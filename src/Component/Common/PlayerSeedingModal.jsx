@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { RiDeleteBinLine } from "react-icons/ri";
 import Button from "./Button";
 import { useDispatch, useSelector } from "react-redux";
-import { getFixture, updateSeeding, } from "../../redux/tournament/fixturesActions";
+import { getFixture, getFixtureById, updateSeeding, } from "../../redux/tournament/fixturesActions";
 import { showSuccess } from "../../redux/Success/successSlice";
 import ErrorBanner from "./ErrorBanner";
 import { useParams } from "react-router-dom";
@@ -46,7 +46,6 @@ const formattedPlayerDataForSeeding = (
   seededData,
   tournamentId
 ) => {
-  console.log("parent", fixture, seededData, tournamentId)
   if (!fixture || !tournamentId || !seededData?.length) {
     return;
   }
@@ -82,7 +81,8 @@ export const PlayerSelectionModal = ({
   isOpen,
   onCancel,
   players,
-  participants
+  participants,
+  fixtureId
 }) => {
   const dispatch = useDispatch();
   const { eventId, tournamentId } = useParams();
@@ -96,15 +96,8 @@ export const PlayerSelectionModal = ({
     fixture
   } = useSelector((state) => state.fixture);
 
-  console.log("Participants", participants)
-  // console.log("🚀 ~ fixture:", fixture)
-  // const updatedFixture = fixture?.fixtures?.[0];
-  const updatedFixtures = fixture
-
-  console.log("🚀 ~ updatedFixture:", updatedFixture)
-
   useEffect(() => {
-    console.log("🚀 ~ updatedFixture:", fixture)
+
 
     if (fixture) {
       setUpdatedFixture(fixture)
@@ -157,8 +150,6 @@ export const PlayerSelectionModal = ({
         tournamentId
       );
 
-      console.log("FormData", updatedFixture, seededData, tournamentId, formattedData)
-
 
       const result = await dispatch(
         updateSeeding({
@@ -178,6 +169,9 @@ export const PlayerSelectionModal = ({
         );
 
         dispatch(setFixture(result?.data?.fixture));
+        if(fixtureId){
+          dispatch(getFixtureById({ tour_Id: tournamentId, eventId ,fixtureId}));
+        }else
         dispatch(getFixture({ tour_Id: tournamentId, eventId }));
       }
     } catch (err) {

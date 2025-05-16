@@ -10,7 +10,7 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import store, { persistor } from "./redux/store";
-
+ 
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")).render(

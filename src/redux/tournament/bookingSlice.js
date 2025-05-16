@@ -38,7 +38,7 @@ const bookingSlice = createSlice({
         state.isBookingCreating = false;
         state.isBookingConfirm = false;
         state.bookingCreationError = true;
-        state.bookingErrorMessage = payload.data.message;
+        state.bookingErrorMessage = payload?.data?.message;
       });
   },
 });

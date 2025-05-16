@@ -23,6 +23,9 @@ import { CiLocationOn } from "react-icons/ci";
 import { IoMdAdd } from "react-icons/io";
 import NotificationBanner from "./NotificationBanner";
 import { dateAndMonth } from "../../utils/dateUtils";
+import { AiOutlineInfoCircle } from "react-icons/ai";
+import { showError } from "../../redux/Error/errorSlice";
+import { getFixtureById } from "../../redux/tournament/fixturesActions";
 
 const checkAllField = (scoreData, onValidationError, setDisableButton) => {
   if (!scoreData?.length) {
@@ -32,8 +35,7 @@ const checkAllField = (scoreData, onValidationError, setDisableButton) => {
   }
 
   const checkAllFieldsAreFilled = scoreData?.some(
-    (score) => (typeof score?.set1 === 'number' || score?.set1 === '0' || score?.set1) && 
-               (typeof score?.set2 === 'number' || score?.set2 === '0' || score?.set2)
+    (score) => score?.set1 && score?.set2
   );
 
   if (!checkAllFieldsAreFilled) {
@@ -65,16 +67,9 @@ const formattedMatchData = (scoreData, players) => {
         const score1 = Number(set?.set1);
         const score2 = Number(set?.set2);
 
-        // Fix for winner determination - ensure only one winner
-        let result1 = "loss";
-        let result2 = "loss";
-        
-        if (score1 > score2) {
-          result1 = "win";
-        } else if (score2 > score1) {
-          result2 = "win";
-        }
-        // If scores are equal, default to no winner (should be handled by validation)
+        // Determine result based on scores
+        const result1 = score1 > score2 ? "win" : "loss";
+        const result2 = score2 > score1 ? "win" : "loss";
 
         return {
           id: currentMatch.id,
@@ -91,11 +86,7 @@ const formattedMatchData = (scoreData, players) => {
         };
       }
     })
-
-    .filter((player) => player && 
-      (typeof player?.opponent1?.score === 'number' || player?.opponent1?.score === 0) && 
-      (typeof player?.opponent2?.score === 'number' || player?.opponent2?.score === 0)
-    );
+    .filter((player) => player?.opponent1?.score && player?.opponent2?.score);
 
   return {
     stage_id,
@@ -105,7 +96,8 @@ const formattedMatchData = (scoreData, players) => {
 };
 
 const formattedMatchDataForForfiet = (forfietPlayerId, players) => {
-  const { player1_id, player2_id, stage_id, group_id, round_id, matchId } = players;
+  const { player1_id, player2_id, stage_id, group_id, round_id, matchId } =
+    players;
 
   // Ensure forfietPlayerId is compared as the same type (string or number)
   const selectedId = Number(forfietPlayerId);
@@ -120,18 +112,15 @@ const formattedMatchDataForForfiet = (forfietPlayerId, players) => {
     opponent1: {
       id: p1Id,
       forfeit: selectedId === p1Id, // Will be true if this player was selected
-      // Add result to explicitly mark winner/loser status when forfeiting
-      result: selectedId === p1Id ? "loss" : "win", // Modified: Add result to ensure winner/loser is clear
     },
     opponent2: {
       id: p2Id,
       forfeit: selectedId === p2Id, // Will be true if this player was selected
-      // Add result to explicitly mark winner/loser status when forfeiting
-      result: selectedId === p2Id ? "loss" : "win", // Modified: Add result to ensure winner/loser is clear
     },
   };
 };
 
+// Now we need to update the ScoreUpdateModal component to pass the players prop to MatchScoreUpdateSet
 export const ScoreUpdateModal = ({
   isOpen,
   onCancel,
@@ -141,6 +130,7 @@ export const ScoreUpdateModal = ({
   eventId,
   currentMatchId,
   handleUpdateFixture,
+  format,
 }) => {
   const dispatch = useDispatch();
   const { category } = useSelector((state) => state.event);
@@ -154,6 +144,11 @@ export const ScoreUpdateModal = ({
   const [showPlayerSelections, setShowPlayerSelections] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
   const [scoreUpdateArray, setScoreUpdateArray] = useState([]);
+
+  // Check if any player has forfeited
+  const isForfeited =
+    (players?.opponent1 && players.opponent1.forfeit) ||
+    (players?.opponent2 && players.opponent2.forfeit);
 
   useEffect(() => {
     const scoreUpdates = players?.matchGames?.map((game) => {
@@ -191,7 +186,14 @@ export const ScoreUpdateModal = ({
   };
 
   useEffect(() => {
-    checkAllField(scoreUpdateArray, handleValidationError, setDisableButton);
+      if(finalScoreData?.length > 0){
+         checkAllField(
+           scoreUpdateArray,
+           handleValidationError,
+           setDisableButton
+         );
+      }
+  
   }, [finalScoreData]);
 
   useEffect(() => {
@@ -204,7 +206,34 @@ export const ScoreUpdateModal = ({
       setShowPlayerSelections(false);
     }
   }, [isOpen]);
+  const getMatchSetsUntilVictory = (matchset) => {
+    const winCount = new Map();
+    winCount.set("player1", 0);
+    winCount.set("player2", 0);
 
+    const majority = Math.floor(scoreUpdateArray?.length / 2) + 1;
+    let lastIndex = matchset?.length;
+
+    for (let index = 0; index < matchset?.length; index++) {
+      const set = matchset[index];
+
+      if (set?.opponent1?.result === "win") {
+        winCount.set("player1", winCount.get("player1") + 1);
+      } else if (set?.opponent2?.result === "win") {
+        winCount.set("player2", winCount.get("player2") + 1);
+      }
+
+      if (winCount.get("player1") === majority) {
+        lastIndex = index;
+        break;
+      } else if (winCount.get("player2") === majority) {
+        lastIndex = index;
+        break;
+      }
+    }
+
+    return matchset?.slice(0, lastIndex + 1);
+  };
   const handleScoreUpdate = async (e) => {
     e.preventDefault();
     setUpdateError(false);
@@ -218,9 +247,20 @@ export const ScoreUpdateModal = ({
         players
       );
     }
-
     if (validationError) return;
-
+    
+    if (scoreUpdateArray?.length % 2 === 0) {
+      dispatch(
+        showError({
+          message: "Set must always be an odd number like 1, 3, or 5.",
+          onClose: "hideError",
+        })
+      );
+      return;
+    }
+    const updatedMatchSets = getMatchSetsUntilVictory(
+      currentSetUpdated?.matchSets
+    );
     try {
       setIsUpdating(true);
       setErrorMessage("");
@@ -228,7 +268,10 @@ export const ScoreUpdateModal = ({
       if (!showPlayerSelections) {
         result = await dispatch(
           updateMatchSet({
-            formData: currentSetUpdated,
+            formData: {
+              ...currentSetUpdated,
+              matchSets:updatedMatchSets
+            },
             tour_Id: tournamentId,
             eventId,
             fixtureId,
@@ -237,7 +280,10 @@ export const ScoreUpdateModal = ({
       } else {
         result = await dispatch(
           updateMatch({
-            formData: currentSetUpdated,
+            formData: {
+              ...currentSetUpdated,
+              matchSets: updatedMatchSets,
+            },
             tour_Id: tournamentId,
             eventId,
             fixtureId,
@@ -252,21 +298,26 @@ export const ScoreUpdateModal = ({
             onClose: "hideSuccess",
           })
         );
-        dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+        if (format === "Hybrid") {
+          dispatch(
+            getFixtureById({ tour_Id: tournamentId, eventId, fixtureId })
+          );
+        } else {
+          dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+        }
         onCancel(false);
       }
     } catch (err) {
       console.log(" error in updating the score", err);
       setUpdateError(true);
       setErrorMessage(
-        err.data.message ||
+        err?.data?.message ||
           "Opps, something went wrong while updating the match score."
       );
     } finally {
       setIsUpdating(false);
     }
   };
-
   return (
     <Dialog
       open={isOpen}
@@ -278,11 +329,11 @@ export const ScoreUpdateModal = ({
         className="fixed inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
       />
 
-      <div className="fixed inset-0 z-[11] w-screen overflow-y-auto">
+      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             transition
-            className="relative max-h-[90vh] transform overflow-y-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-xs sm:max-w-md lg:max-w-[40%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            className="relative max-h-[90vh] transform overflow-y-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[85%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[50%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <div className="flex flex-col gap-2">
               <MatchModalTitle
@@ -290,34 +341,42 @@ export const ScoreUpdateModal = ({
                 eventName={category?.categoryName}
                 onCancel={onCancel}
               />
-
               <NotificationBanner
                 message="Matches cannot end in a tie. Please ensure a clear winner and loser."
-                messageStyle="text-sm text-[#E82B00]"
+                messageStyle="text-xs sm:text-sm md:text-md lg:text-lg text-[#E82B00]"
                 wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
               />
-
               {updateError && <ErrorBanner message={errorMessage} />}
-
               {(players?.player1_id == null || players?.player2_id == null) && (
                 <NotificationBanner
                   message="Both opponents are required to update the match score."
-                  messageStyle="text-sm text-[#E82B00]"
+                  messageStyle="text-xs sm:text-sm md:text-md lg:text-lg text-[#E82B00]"
                   wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
                 />
               )}
+
               {validationError && (
-                <p className="text-md text-red-600">
+                <p className="text-xs sm:text-sm md:text-md lg:text-lg text-red-600">
                   Opponent 1 and Opponent 2 scores are required.
                 </p>
               )}
-
               {players?.player1_id != null && players?.player2_id != null && (
                 <>
                   <PlayerDetails players={players} />
 
+                  {/* Show notification if a player has already forfeited */}
+                  {isForfeited && (
+                    <NotificationBanner
+                      message="A player has forfeited this match. Score editing is disabled."
+                      messageStyle="text-sm text-[#1570EF]"
+                      wrapperStyle="flex items-center w-full p-2 bg-[#E0F2FE] border-2 border-dashed border-[#1570EF] rounded-lg"
+                    />
+                  )}
+
                   <ForfietCheckBox
                     handlePlayerSelection={handlePlayerSelection}
+                    opponent1={players.opponent1}
+                    opponent2={players.opponent2}
                   />
 
                   {showPlayerSelections && (
@@ -328,20 +387,22 @@ export const ScoreUpdateModal = ({
                   )}
                   <MatchScoreUpdateSet
                     getScoreData={getScoreData}
-                    players={players}
+                    players={players} // Pass the entire players object
                     scoreUpdateArray={scoreUpdateArray}
                     tournamentId={tournamentId}
                     eventId={eventId}
                     fixtureId={fixtureId}
-                    matchId={String(players?.matchId)}
+                    matchId={players?.matchId}
                     handleUpdateFixture={handleUpdateFixture}
                   />
                   <div className="mr-0 mt-3 flex items-end justify-between">
                     <Button
                       className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
                       type="submit"
-                      onClick={(e) => handleScoreUpdate(e)}
-                      disabled={!showPlayerSelections}
+                      onClick={(e) => {
+                        handleScoreUpdate(e);
+                      }}
+                      disabled={!showPlayerSelections || isForfeited} // Disable forfeit button if already forfeited
                     >
                       Forfeit
                     </Button>
@@ -351,7 +412,9 @@ export const ScoreUpdateModal = ({
                         type="submit"
                         onClick={(e) => handleScoreUpdate(e)}
                         loading={isUpdating}
-                        disabled={validationError || disableButton}
+                        disabled={
+                          validationError || disableButton || isForfeited
+                        } // Disable update button if already forfeited
                       >
                         Update
                       </Button>
@@ -367,9 +430,15 @@ export const ScoreUpdateModal = ({
   );
 };
 
-const ForfietCheckBox = ({ handlePlayerSelection }) => {
+const ForfietCheckBox = ({ handlePlayerSelection, opponent1, opponent2 }) => {
+  const forfeited =
+    (opponent1 && opponent1.forfeit) || (opponent2 && opponent2.forfeit);
+  let forfeitedName = "";
+  if (opponent1 && opponent1.forfeit) forfeitedName = "Player 1";
+  if (opponent2 && opponent2.forfeit) forfeitedName = "Player 2";
+
   return (
-    <div className="flex flex-1 gap-2">
+    <div className="flex flex-1 gap-2 items-center">
       <input
         type="checkbox"
         name="forfiet"
@@ -377,8 +446,11 @@ const ForfietCheckBox = ({ handlePlayerSelection }) => {
         onChange={(e) => {
           handlePlayerSelection(e.target.checked);
         }}
+        disabled={forfeited}
       />
-      <label htmlFor="forfiet">Do you want to forfeit any player?</label>
+      <label htmlFor="forfiet text-xs sm:text-sm md:text-md lg:text-lg">
+        Do you want to forfeit any player?
+      </label>
     </div>
   );
 };
@@ -393,7 +465,9 @@ const PlayerSelector = ({ players, handleSelectedPlayer }) => {
   return (
     <select
       className="h-[5vh] min-w-full border-[1px] px-[10px] border-[#DFEAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      onChange={(e) => handleSelectedPlayer(e.target.value)}
+      onChange={(e) => {
+        handleSelectedPlayer(e.target.value);
+      }}
       defaultValue=""
     >
       <option value="">Select Player</option>
@@ -403,9 +477,14 @@ const PlayerSelector = ({ players, handleSelectedPlayer }) => {
   );
 };
 
-const InputSet = ({ index, handleScoreChange, scoreUpdateArray }) => {
+const InputSet = ({
+  index,
+  handleScoreChange,
+  scoreUpdateArray,
+  isForfeited,
+}) => {
   return (
-    <div className="flex flex-col gap-2  xl:flex-row  items-center justify-between py-2">
+    <div className="flex  gap-2  items-center justify-between py-2">
       <input
         className="pl-2 w-full  border-[1px] border-[#718EBF] h-[5vh] rounded-md bg-[#F7F9FC] focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none"
         type="number"
@@ -415,6 +494,7 @@ const InputSet = ({ index, handleScoreChange, scoreUpdateArray }) => {
           const value = e.target.value;
           handleScoreChange(value, "set1", index);
         }}
+        disabled={isForfeited}
       />
       <p className="inline-flex items-center gap-1 justify-center text-md text-matchTextColor border-[1px] border-[#718EBF] w-[100px] lg:w-[80px] text-center h-[5vh]  rounded-md p-2">
         Set <span>{index + 1} </span>
@@ -428,6 +508,7 @@ const InputSet = ({ index, handleScoreChange, scoreUpdateArray }) => {
           const value = e.target.value;
           handleScoreChange(value, "set2", index);
         }}
+        disabled={isForfeited}
       />
     </div>
   );
@@ -441,110 +522,24 @@ const MatchScoreUpdateSet = ({
   fixtureId,
   matchId,
   handleUpdateFixture,
+  players, // Add players prop to access forfeit status
 }) => {
   const dispatch = useDispatch();
-  
-  // MODIFIED: Removed state variables that cause UI flickering
-  // const [deleteButtonClicked, setDeleteButtonClicked] = useState(false);
-  // const [addButtonClicked, setAddButtonClicked] = useState(false);
-  
+  const [deleteButtonClicked, setDeleteButtonClicked] = useState(false);
+  const [addButtonClicked, setAddButtonClicked] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [actionPending, setActionPending] = useState(false);
   const [scoreSet, setScoreSet] = useState([{ set1: "", set2: "" }]);
-  
-  // MODIFIED: Optimized action handlers to prevent UI flickering
-  const handleAddRow = async () => {
-    if (actionPending || scoreSet.length >= 5) return;
-    
-    try {
-      setSuccess(false);
-      setActionPending(true);
-      setErrorMessage("");
-      setError(false);
-      
-      // MODIFIED: Prevent UI updates during operation
-      // Only notify parent of changes when we're done with our API call
-      
-      const result = await dispatch(
-        updateMatchSetCount({
-          formData: {
-            level: "match",
-            id: matchId,
-            childCount: scoreSet.length + 1,
-          },
-          tour_Id: tournamentId,
-          eventId,
-          fixtureId,
-        })
-      ).unwrap();
-      
-      if (!result.responseCode) {
-        // MODIFIED: Only update state once after success
-        setScoreSet(prev => {
-          const newSet = [...prev, { set1: "", set2: "" }];
-          getScoreData(newSet);
-          return newSet;
-        });
-        setSuccess(true);
-        handleUpdateFixture(true);
-      }
-    } catch (err) {
-      console.log("Error in Adding the match set", err);
-      setError(true);
-      setErrorMessage(
-        err?.data?.message ||
-          "Oops! Something went wrong while adding the set. Please try again."
-      );
-    } finally {
-      setActionPending(false);
-    }
-  };
 
-  const handleDeleteRow = async () => {
-    // MODIFIED: Early return if already processing or at minimum set count 
-    if (actionPending || scoreSet.length <= 1) return;
-    
-    try {
-      setSuccess(false);
-      setActionPending(true);
-      setErrorMessage("");
-      setError(false);
-      
-      const result = await dispatch(
-        updateMatchSetCount({
-          formData: {
-            level: "match",
-            id: matchId,
-            childCount: scoreSet.length - 1,
-          },
-          tour_Id: tournamentId,
-          eventId,
-          fixtureId,
-        })
-      ).unwrap();
-      
-      if (!result.responseCode) {
-        // MODIFIED: Only update state once after success
-        setScoreSet(prev => {
-          const newSet = prev.slice(0, -1);
-          getScoreData(newSet);
-          return newSet;
-        });
-        setSuccess(true);
-        handleUpdateFixture(true);
-      }
-    } catch (err) {
-      console.log("Error in deleting the match set", err);
-      setError(true);
-      setErrorMessage(
-        err?.data?.message ||
-          "Oops! Something went wrong while deleting the set. Please try again."
-      );
-    } finally {
-      setActionPending(false);
-    }
+  // Check if any player has forfeited
+  const isForfeited =
+    (players?.opponent1 && players.opponent1.forfeit) ||
+    (players?.opponent2 && players.opponent2.forfeit);
+
+  const handleRow = () => {
+    setAddButtonClicked(true);
   };
 
   const handleScoreChange = (value, type, index) => {
@@ -559,9 +554,109 @@ const MatchScoreUpdateSet = ({
     });
   };
 
-  // MODIFIED: Removed unnecessary useEffects that caused flickering
-  // These useEffects were processing state changes from button clicks
-  // which are now handled directly in the handler functions
+  const handleDeleteRow = (index) => {
+    setDeleteButtonClicked(true);
+  };
+
+  useEffect(() => {
+    const deleteSets = async () => {
+      try {
+        setSuccess(false);
+        handleUpdateFixture(null);
+        setActionPending(true);
+        setErrorMessage("");
+        setError(false);
+
+        const result = await dispatch(
+          updateMatchSetCount({
+            formData: {
+              level: "match",
+              id: matchId,
+              childCount: scoreSet.length - 1,
+            },
+            tour_Id: tournamentId,
+            eventId,
+            fixtureId,
+          })
+        ).unwrap();
+        if (!result.responseCode) {
+          setSuccess(true);
+
+          setScoreSet((prev) => {
+            if (prev.length === 0) return prev;
+
+            const newSet = prev.slice(0, -1);
+            getScoreData(newSet);
+            return newSet;
+          });
+
+          handleUpdateFixture(true);
+        }
+      } catch (err) {
+        console.log("Error in deleting the match set", err);
+        setError(true);
+        setErrorMessage(
+          err?.data?.message ||
+            "Oops! Something went wrong while deleting the set. Please try again."
+        );
+      } finally {
+        setActionPending(false);
+        setDeleteButtonClicked(false);
+      }
+    };
+    if (deleteButtonClicked) {
+      deleteSets();
+    }
+  }, [deleteButtonClicked]);
+
+  useEffect(() => {
+    const addMatchSet = async () => {
+      try {
+        setSuccess(false);
+        setActionPending(true);
+        handleUpdateFixture(false);
+        setErrorMessage("");
+        setError(false);
+
+        const result = await dispatch(
+          updateMatchSetCount({
+            formData: {
+              level: "match",
+              id: matchId,
+              childCount: scoreSet.length + 1,
+            },
+            tour_Id: tournamentId,
+            eventId,
+            fixtureId,
+          })
+        ).unwrap();
+        if (!result.responseCode) {
+          setSuccess(true);
+
+          setScoreSet((prev) => {
+            const newSet = [...prev, { set1: "", set2: "" }];
+            getScoreData(newSet);
+            return newSet;
+          });
+
+          handleUpdateFixture(true);
+        }
+      } catch (err) {
+        console.log(" Error in Adding the match set", err);
+        setError(true);
+        setErrorMessage(
+          err?.data?.message ||
+            "Oops! Something went wrong while deleting the set. Please try again."
+        );
+      } finally {
+        setActionPending(false);
+        setAddButtonClicked(false);
+      }
+    };
+    if (addButtonClicked) {
+      addMatchSet();
+    }
+  }, [addButtonClicked]);
 
   useEffect(() => {
     if (scoreUpdateArray?.length > 0) {
@@ -570,10 +665,10 @@ const MatchScoreUpdateSet = ({
       setScoreSet([{ set1: "", set2: "" }]);
     }
   }, [scoreUpdateArray]);
-  
+
   return (
     <div>
-      <div className="flex flex-col gap-4 justify-between border-[1px] border-[#696CFF29] p-6 mt-2 rounded-lg divide-y divide-[#718EBF] lg:divide-none">
+      <div className="flex flex-col gap-4 justify-between border-[1px] border-[#696CFF29] p-2 sm:p-6 mt-2 rounded-lg divide-y divide-[#718EBF] lg:divide-none">
         {scoreSet.map((score, index) => {
           return (
             <InputSet
@@ -581,20 +676,20 @@ const MatchScoreUpdateSet = ({
               index={index}
               handleScoreChange={handleScoreChange}
               scoreUpdateArray={scoreUpdateArray}
+              isForfeited={isForfeited} // Pass the forfeit status to InputSet
             />
           );
         })}
 
         {error && <p className="text-red-500 text-sm">{errorMessage}</p>}
 
-        {/* MODIFIED: Added min-height to prevent content jumping */}
-        <div className="flex items-center justify-center gap-2 m-auto min-h-[48px]">
+        <div className="flex items-center justify-center gap-2 m-auto">
           {scoreSet.length > 1 && (
             <Button
               className="min-w-fit  lg:w-[170px] p-2 h-[6vh] bg-red-700 text-white rounded-[1vh] flex items-center justify-center gap-2 m-auto hover:bg-red-500"
               onClick={handleDeleteRow}
-              // loading={actionPending}
-              // disabled={actionPending}
+              loading={deleteButtonClicked && actionPending}
+              disabled={isForfeited} // Disable the delete button when forfeited
             >
               <RiDeleteBin2Line />
               Delete Row
@@ -603,9 +698,9 @@ const MatchScoreUpdateSet = ({
           {scoreSet.length < 5 && (
             <Button
               className="min-w-fit lg:w-[180px] p-2 h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2 m-auto"
-              onClick={handleAddRow}
-              // loading={actionPending}
-              // disabled={actionPending}
+              onClick={handleRow}
+              loading={addButtonClicked && actionPending}
+              disabled={isForfeited} // Disable the add button when forfeited
             >
               <IoMdAdd />
               Add Set
@@ -617,7 +712,6 @@ const MatchScoreUpdateSet = ({
   );
 };
 
-// MODIFIED: Improved PlayerDetails component with better responsive layout
 const PlayerDetails = ({ players }) => {
   const {
     player1 = "",
@@ -627,25 +721,38 @@ const PlayerDetails = ({ players }) => {
     date,
     time,
     court,
+    opponent1,
+    opponent2,
+    profilePics1 = [],
+    profilePics2 = [],
   } = players;
 
+  const player1ProfilePic =
+    profilePics1?.length > 0 ? profilePics1[0].profilePic : dummyImage;
+  const player2ProfilePic =
+    profilePics2?.length > 0 ? profilePics2[0].profilePic : dummyImage;
+
   return (
-    // MODIFIED: Improved responsive layout for the player section
-    <div className="flex items-center justify-between flex-wrap p-2 mt-2 rounded-md bg-[#5B8DFF1A]">
-      {/* MODIFIED: Added consistent sizing for player columns */}
-      <div className="flex flex-col items-center justify-center w-full sm:w-1/4">
-        <div className="w-[80px] h-[80px] md:w-[100px] md:h-[100px] overflow-hidden rounded-full">
+    <div className="flex flex-col md:flex-row items-center justify-between p-3 mt-3 rounded-lg bg-[#5B8DFF1A] shadow-sm">
+      <div className="flex flex-col items-center gap-3 w-full md:w-1/4 py-2">
+        <div className="relative">
           <img
-            src={players?.profilePics1?.[0]?.profilePic}
-            alt="opponent 1"
-            className="w-full h-full object-cover"
+            src={player1ProfilePic}
+            alt={`${player1 || "Player 1"}`}
+            className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-full border-2 border-blue-200"
           />
+          {opponent1?.forfeit && (
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+              Forfeited
+            </div>
+          )}
         </div>
-        <p className="text-matchModalTextColor text-center mt-2">{player1}</p>
+        <p className="text-matchModalTextColor font-semibold text-center mt-1 max-w-full truncate">
+          {player1 || "TBD"}
+        </p>
       </div>
-      
-      {/* MODIFIED: Center section grows to fill available space */}
-      <div className="w-full sm:w-2/4">
+
+      <div className="w-full md:w-2/4 py-4">
         <MatchLocationDetails
           match={match}
           location={location}
@@ -654,17 +761,23 @@ const PlayerDetails = ({ players }) => {
           court={court}
         />
       </div>
-      
-      {/* MODIFIED: Added consistent sizing for player columns */}
-      <div className="flex flex-col items-center justify-center w-full sm:w-1/4">
-        <div className="w-[80px] h-[80px] md:w-[100px] md:h-[100px] overflow-hidden rounded-full">
+
+      <div className="flex flex-col items-center gap-3 w-full md:w-1/4 py-2">
+        <div className="relative">
           <img
-            src={players?.profilePics2?.[0]?.profilePic}
-            alt="opponent 2"
-            className="w-full h-full object-cover"
+            src={player2ProfilePic}
+            alt={`${player2 || "Player 2"}`}
+            className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-full border-2 border-blue-200"
           />
+          {opponent2?.forfeit && (
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+              Forfeited
+            </div>
+          )}
         </div>
-        <p className="text-matchModalTextColor text-center mt-2">{player2}</p>
+        <p className="text-matchModalTextColor font-semibold text-center mt-1 max-w-full truncate">
+          {player2 || "TBD"}
+        </p>
       </div>
     </div>
   );
@@ -674,7 +787,7 @@ const MatchLocationDetails = ({ match, location, date, time, court }) => {
   const formattedMonth = dateAndMonth(date);
 
   return (
-    <div className="flex flex-col items-center gap-3 py-2">
+    <div className="flex flex-col items-center gap-3 ">
       <p className="text-matchTextColor text-md font-[600]">
         Match <span>{match}</span>
       </p>
@@ -707,7 +820,7 @@ PlayerSelector.propTypes = {
 InputSet.propTypes = {
   index: PropTypes.number,
   handleScoreChange: PropTypes.func,
-  scoreUpdateArray: PropTypes.array,
+  isForfeited: PropTypes.bool,
 };
 
 MatchScoreUpdateSet.propTypes = {
@@ -718,6 +831,7 @@ MatchScoreUpdateSet.propTypes = {
   fixtureId: PropTypes.string,
   matchId: PropTypes.string,
   handleUpdateFixture: PropTypes.func,
+  players: PropTypes.object,
 };
 
 PlayerDetails.propTypes = {

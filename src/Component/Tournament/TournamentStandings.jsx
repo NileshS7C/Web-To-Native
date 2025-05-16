@@ -6,10 +6,7 @@ const TournamentStandings = ({ tournamentId, categoryId }) => {
   const fixtureID = fixtureData
   const { data: standingData, isLoading: isStandingLoading, isError: isStandingError } = useGetTournamentStanding({ tournamentId, categoryId, fixtureId: fixtureID })
 
-  const standing = standingData
-
-  useEffect(() =>{console.log(fixtureData,'FD', standingData)},[fixtureData])
-  
+  const standing = standingData  
   if (isFixtureLoading || isStandingLoading) {
     return (
       <div>

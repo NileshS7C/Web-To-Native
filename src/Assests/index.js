@@ -24,6 +24,7 @@ export { default as DeleteIcon } from "./Venue/delete.svg";
 export { default as ThreeDotIcon } from "./Venue/threedots.svg";
 export { default as locationIcon } from "./Venue/location.svg";
 export { default as expandIcon } from "./Venue/expand.svg";
+export { default as defaultVenueImage} from './Venue/defaultVenue.png'
 export { default as listingIcon } from "./Tournament/listingIcon.svg";
 export { default as infoIcon } from "./Venue/info.svg";
 export { default as suffleIcon } from "./Tournament/suffleIcon.svg";
