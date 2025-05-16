@@ -40,7 +40,7 @@ const RoundDetails = ({
   const [paginatedParticipants, setPaginatedParticipants] = useState([]);
   const { isOpen, message, onClose, isConfirmed, type, withComments } =
     useSelector((state) => state.confirm);
-  const total = fixture?.participants?.length || 0;
+  const total = fixture?.bracketData?.participant?.length || 0;
 
   const handleCurrentPageChange = (page) => {
     setCurrentPage(page);
@@ -54,6 +54,7 @@ const RoundDetails = ({
       )
     );
   }, [currentPage, fixture]);
+  
   useEffect(() => {
     if (isConfirmed && type === "Fixture") {
       deleteHybridFixture({ tournamentId, categoryId: eventId, fixtureId });
@@ -83,10 +84,6 @@ const RoundDetails = ({
       );
     }
   }, [isDeleteFixtureError]);
-  useEffect(() => {
-    if (fixtureId)
-      dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
-  }, [selectedRoundIndex]);
   useEffect(() => {
     if (fixtureId)
       dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));

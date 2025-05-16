@@ -186,7 +186,14 @@ export const ScoreUpdateModal = ({
   };
 
   useEffect(() => {
-    checkAllField(scoreUpdateArray, handleValidationError, setDisableButton);
+      if(finalScoreData?.length > 0){
+         checkAllField(
+           scoreUpdateArray,
+           handleValidationError,
+           setDisableButton
+         );
+      }
+  
   }, [finalScoreData]);
 
   useEffect(() => {
@@ -205,7 +212,7 @@ export const ScoreUpdateModal = ({
     winCount.set("player2", 0);
 
     const majority = Math.floor(scoreUpdateArray?.length / 2) + 1;
-    let lastIndex = matchset.length;
+    let lastIndex = matchset?.length;
 
     for (let index = 0; index < matchset?.length; index++) {
       const set = matchset[index];
@@ -242,7 +249,7 @@ export const ScoreUpdateModal = ({
     }
     if (validationError) return;
     
-    if (scoreUpdateArray.length % 2 === 0) {
+    if (scoreUpdateArray?.length % 2 === 0) {
       dispatch(
         showError({
           message: "Set must always be an odd number like 1, 3, or 5.",
@@ -304,7 +311,7 @@ export const ScoreUpdateModal = ({
       console.log(" error in updating the score", err);
       setUpdateError(true);
       setErrorMessage(
-        err.data.message ||
+        err?.data?.message ||
           "Opps, something went wrong while updating the match score."
       );
     } finally {
@@ -392,7 +399,9 @@ export const ScoreUpdateModal = ({
                     <Button
                       className="w-[12vh] h-[6vh] text-white rounded-[1vh] flex items-center justify-center gap-2"
                       type="submit"
-                      onClick={(e) => handleScoreUpdate(e)}
+                      onClick={(e) => {
+                        handleScoreUpdate(e);
+                      }}
                       disabled={!showPlayerSelections || isForfeited} // Disable forfeit button if already forfeited
                     >
                       Forfeit
@@ -456,7 +465,9 @@ const PlayerSelector = ({ players, handleSelectedPlayer }) => {
   return (
     <select
       className="h-[5vh] min-w-full border-[1px] px-[10px] border-[#DFEAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      onChange={(e) => handleSelectedPlayer(e.target.value)}
+      onChange={(e) => {
+        handleSelectedPlayer(e.target.value);
+      }}
       defaultValue=""
     >
       <option value="">Select Player</option>

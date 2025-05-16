@@ -603,7 +603,7 @@ export const handleTournamentDecision = createAsyncThunk(
 
 export const getAllBookings = createAsyncThunk(
   "GET_TOUR/getAllBookings",
-  async ({ currentPage, limit, tour_Id, eventId }, { rejectWithValue }) => {
+  async ({ currentPage, limit, tour_Id, eventId ,status = ""}, { rejectWithValue }) => {
     try {
       const userRole = cookies.get("userRole");
 
@@ -618,12 +618,15 @@ export const getAllBookings = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.get(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }${userAPIEndPoint}?page=${currentPage}&limit=${limit}`,
-        config
-      );
+      let url = `${
+        import.meta.env.VITE_BASE_URL
+      }${userAPIEndPoint}?page=${currentPage}&limit=${limit}`;
+
+      if (["CONFIRMED"].includes(status)) {
+        url += `&status=${status}`;
+      }
+
+      const response = await axiosInstance.get(url, config);
 
       return response.data;
     } catch (err) {
@@ -644,7 +647,7 @@ export const getAllBookings = createAsyncThunk(
 
 export const getSearchBookings = createAsyncThunk(
   "GET_TOUR/getSearchBookings",
-  async ({search="", currentPage = 1, limit = 20, tour_Id, eventId }, { rejectWithValue }) => {
+  async ({search="", currentPage = 1, limit = 20, tour_Id, eventId,status = "" }, { rejectWithValue }) => {
     try {
       const userRole = cookies.get("userRole");
       const userAPIEndPoint =
@@ -659,12 +662,15 @@ export const getSearchBookings = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.get(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }${userAPIEndPoint}?page=${currentPage}&limit=${limit}`,
-        config
-      ); 
+      let url = `${
+        import.meta.env.VITE_BASE_URL
+      }${userAPIEndPoint}?page=${currentPage}&limit=${limit}`;
+
+      if (["CONFIRMED"].includes(status)) {
+        url += `&status=${status}`;
+      }
+
+      const response = await axiosInstance.get(url, config);
       return response.data;
     } catch (err) {
       if (err.response) {

@@ -43,6 +43,7 @@ const SearchBookings = ({
           page: page || 1,
           limit: limit,
           search: debouncedValue,
+          status:"CONFIRMED"
         })
       );
     }
@@ -194,6 +195,7 @@ const AddPlayerModal = ({
           limit: 200,
           tour_Id: tournamentId,
           eventId,
+          status:"CONFIRMED"
         })
       );
     }
@@ -219,7 +221,7 @@ const AddPlayerModal = ({
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
       <div className="fixed inset-0 z-10 overflow-y-auto">
         <div className="flex min-h-full items-end justify-center px-4 py-2 text-center sm:items-center sm:p-0">
-          <DialogPanel className="relative transform overflow-hidden scrollbar-hide rounded-lg bg-white px-2  text-left shadow-xl transition-all w-full max-w-[90%] sm:max-w-[60%] md:max-w-[50%] lg:max-w-[40%] min-h-[65vh] max-h-[90vh] overflow-y-auto">
+          <DialogPanel className="relative transform overflow-hidden scrollbar-hide rounded-lg bg-white px-2  text-left shadow-xl transition-all w-full max-w-[85%] sm:max-w-[65%] md:max-w-[60%] lg:max-w-[40%] min-h-[65vh] max-h-[90vh] overflow-y-auto">
             <Formik
               initialValues={initialValues}
               enableReinitialize
