@@ -77,10 +77,10 @@ export const ConfirmationModalTour = ({
                     />
                   </div>
                 )}
-                <div className="flex gap-10">
+                <div className="flex gap-5 md:gap-10">
                   <Button
                     type="button"
-                    className="w-[150px] h-[50px] rounded-lg border-[1px] border-blue-400 bg-white text-blue-600 shadow-lg hover:bg-blue-400"
+                    className="w-[120px] md:w-[150px] h-[50px] rounded-lg border-[1px] border-blue-400 bg-white text-blue-600 shadow-lg hover:bg-blue-400"
                     onClick={handleClose}
                     disable={isLoading}
                   >
@@ -88,7 +88,7 @@ export const ConfirmationModalTour = ({
                   </Button>
                   <Button
                     type="button"
-                    className="w-[150px] h-[50px] rounded-lg bg-blue-600 text-white shadow-lg hover:bg-blue-500"
+                    className="w-[120px] md:w-[150px] h-[50px] rounded-lg bg-blue-600 text-white shadow-lg hover:bg-blue-500"
                     onClick={handleConfirm}
                     isLoading={isLoading}
                   >

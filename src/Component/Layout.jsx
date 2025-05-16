@@ -110,6 +110,8 @@ const Layout = () => {
     (state) => state.GET_TOUR
   );
 
+  const isTournamentDetailPage = !!tournamentId;
+
   const handleMouseEnter = useCallback(() => {
     setShouldScroll((prev) => ({ ...prev, nav: true, page: false }));
   }, []);
@@ -221,12 +223,12 @@ const Layout = () => {
             <SuccessModal />
 
             {!shouldHideTitleBar && (
-              <div className="flex items-center justify-between w-full">
-                <p className="inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-base md:text-[22px]">
+              <div className={`flex ${isTournamentDetailPage ? 'flex-col md:flex-row' : 'flex-row'} items-start md:items-center justify-between w-full`}>
+                <p className="inline-flex items-center gap-2.5 text-[#343C6A] font-semibold text-base md:text-[22px]">
                   {currentTitle}
                   {tournamentId && (
                     <span
-                      className={`inline-flex flex-1 w-full items-center rounded-2xl  px-2 py-1 text-xs font-medium  ring-1 ring-inset  ${tagColor}`}
+                      className={`inline-flex items-center rounded-2xl px-2 py-1 text-xs font-medium ring-1 ring-inset ${tagColor}`}
                     >
                       {tournament?.status}
                     </span>
@@ -248,7 +250,7 @@ const Layout = () => {
                 {currentTitle === "Venues" && (
                   <Button
                     type="button"
-                    className="block rounded-md  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    className="block rounded-md px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     onClick={() => navigate("/venues/new")}
                   >
                     Add New Venue
@@ -258,7 +260,7 @@ const Layout = () => {
                   location.pathname === "/coupons" && (
                     <Button
                       type="button"
-                      className="block rounded-md  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      className="block rounded-md px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                       onClick={() => navigate("/coupons/new")}
                     >
                       Add New Coupon
@@ -287,19 +289,22 @@ const Layout = () => {
                 {isTournament &&
                   tournament?.status !== "DRAFT" &&
                   !hideActionButtons.includes(currentTitle) && (
-                    <TournamentActionButton
-                      dispatch={dispatch}
-                      ROLES={ROLES}
-                      userRole={userRole || Role}
-                      approvalBody={approvalBody}
-                      tournament={tournament}
-                      changingDecision={changingDecision}
-                      setApproveButtonClicked={setApproveButtonClicked}
-                      tournamentEditMode={tournamentEditMode}
-                      eventId={eventId}
-                      submitForm={submitForm}
-                      isSubmitting={isSubmitting}
-                    />
+                    <div className={`${isTournamentDetailPage ? 'mt-4 md:mt-0 w-full md:w-auto' : ''}`}>
+                      <TournamentActionButton
+                        dispatch={dispatch}
+                        ROLES={ROLES}
+                        userRole={userRole || Role}
+                        approvalBody={approvalBody}
+                        tournament={tournament}
+                        changingDecision={changingDecision}
+                        setApproveButtonClicked={setApproveButtonClicked}
+                        tournamentEditMode={tournamentEditMode}
+                        eventId={eventId}
+                        submitForm={submitForm}
+                        isSubmitting={isSubmitting}
+                        isMobile={isTournamentDetailPage}
+                      />
+                    </div>
                   )}
               </div>
             )}
@@ -341,14 +346,15 @@ const TournamentActionButton = ({
   eventId,
   submitForm,
   isSubmitting,
+  isMobile,
 }) => {
   return (
-    <div className="flex gap-2.5 items-center">
-      <div className="flex items-center gap-2 justify-end ml-auto">
+    <div className={`${isMobile ? 'flex flex-col md:flex-row gap-2.5 w-full items-center' : 'flex gap-2.5 items-center'}`}>
+      <div className={`${isMobile ? 'flex flex-col md:flex-row gap-2 w-full md:w-auto' : 'flex items-center gap-2 justify-end ml-auto'}`}>
         {!eventId &&
           (!tournamentEditMode ? (
             <button
-              className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+              className={`flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ${isMobile ? 'w-full md:w-auto' : 'ml-auto'} rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400`}
               type="button"
               onClick={() => dispatch(setTournamentEditMode())}
               disabled={
@@ -366,7 +372,7 @@ const TournamentActionButton = ({
                   ))
               }
             >
-              <span className="hidden lg:block">Edit Tournament</span>
+              <span className="hidden lg:inline-flex items-center whitespace-nowrap">Edit Tournament</span>
               <FiEdit3 />
             </button>
           ) : (
@@ -381,16 +387,17 @@ const TournamentActionButton = ({
                 dispatch(resetEditMode());
               }}
               isSubmitting={isSubmitting}
+              isMobile={isMobile}
             />
           ))}
         {ROLES.slice(0, 2).includes(userRole) &&
           tournament?.status &&
           tournament?.status !== "ARCHIVED" &&
           tournament?.status !== "REJECTED" && (
-            <div className="flex items-center gap-2">
+            <div className={`${isMobile ? 'flex flex-col md:flex-row gap-2 w-full' : 'flex items-center gap-2'}`}>
               <Button
                 className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                  } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+                  } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ${isMobile ? 'w-full' : 'ml-auto'} rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
                 type="button"
                 onClick={() => {
                   setApproveButtonClicked(true);
@@ -407,7 +414,7 @@ const TournamentActionButton = ({
               </Button>
               <Button
                 className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                  } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+                  } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ${isMobile ? 'w-full' : 'ml-auto'} rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
                 type="button"
                 onClick={() => {
                   dispatch(
@@ -427,15 +434,15 @@ const TournamentActionButton = ({
           )}
       </div>
 
-      <div>
-        <ArchiveButtons tournament={tournament} dispatch={dispatch} />
+      <div className={`${isMobile && 'w-full md:w-auto'}`}>
+        <ArchiveButtons tournament={tournament} dispatch={dispatch} isMobile={isMobile} />
       </div>
       {/* Roles are Archived and publised then only sheet will be downloaded */}
       {ROLES.slice(0, 3).includes(userRole) &&
         tournament?.status &&
         ["ARCHIVED", "PUBLISHED"].includes(tournament?.status) && (
           <Button
-            className="bg-blue-400 flex w-46 items-center justify-center gap-2 px-4 py-2  text-customColor ml-auto rounded-[8px] hover:bg-[#1570EF] shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 "
+            className={`bg-blue-400 flex ${isMobile ? 'w-full md:w-46' : 'w-46'} items-center justify-center gap-2 px-4 py-2 text-customColor ${isMobile ? '' : 'ml-auto'} rounded-[8px] hover:bg-[#1570EF] shadow-lg transition-transform duration-200 ease-in-out active:translate-y-1 active:scale-95`}
             type="button"
             onClick={() => {
               dispatch(
@@ -566,7 +573,6 @@ const VenueActionButtons = ({
   submitForm,
   isSubmitting,
 }) => {
-  console.log("IsEdit - ", isEditInThePath)
   return (
     <div className="flex items-center gap-2 justify-end ml-auto">
       {venueEditMode ? (
@@ -643,11 +649,12 @@ const SaveAndCancelButton = ({
   setEditMode,
   submitForm,
   isSubmitting,
+  isMobile,
 }) => {
   return (
-    <div className="flex items-center justify-between gap-2">
+    <div className={`${isMobile ? 'flex flex-col md:flex-row items-center justify-between gap-2 w-full' : 'flex items-center justify-between gap-2'}`}>
       <button
-        className="flex items-center justify-center gap-3 px-4 py-2 bg-white shadow-lg text-black ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+        className={`flex items-center justify-center gap-3 px-4 py-2 bg-white shadow-lg text-black ${isMobile ? 'w-full md:w-auto' : 'ml-auto'} rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400`}
         type="button"
         onClick={() => setEditMode()}
       >
@@ -655,7 +662,7 @@ const SaveAndCancelButton = ({
       </button>
 
       <Button
-        className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+        className={`flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ${isMobile ? 'w-full md:w-auto' : 'ml-auto'} rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400`}
         type="button"
         onClick={() => submitForm && submitForm()}
         loading={isSubmitting}
@@ -759,6 +766,7 @@ SaveAndCancelButton.propTypes = {
   setEditMode: PropTypes.func,
   submitForm: PropTypes.func,
   isSubmitting: PropTypes.bool,
+  isMobile: PropTypes.bool,
 };
 
 VenueActionButtonWrapper.propTypes = {
@@ -781,6 +789,7 @@ TournamentActionButton.propTypes = {
   eventId: PropTypes.string,
   submitForm: PropTypes.func,
   isSubmitting: PropTypes.bool,
+  isMobile: PropTypes.bool,
 };
 
 VenueActionButtons.propTypes = {

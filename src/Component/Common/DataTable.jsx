@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { Pagination } from "./Pagination";
+import { useNavigate, useParams } from "react-router-dom";
 
 const DataTable = ({
   columns = [],
@@ -20,7 +21,11 @@ const DataTable = ({
   pageLimit = 10,
   rowsInOnePage,
   hasLink = true,
+  navigateTo = "",
 }) => {
+  const navigate = useNavigate();
+  const { tournamentId } = useParams();
+
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;
   }
@@ -64,7 +69,17 @@ const DataTable = ({
                   return (
                     <tr
                       key={item?.id || item?._id || index}
-                      className={`block text-sm text-[#667085] md:border-t-2 md:h-[55px] md:table-row md:shadow-none shadow-lg align-middle ${backgroundRowColor}`}
+                      className={`block text-sm text-[#667085] md:border-t-2 md:h-[55px] md:table-row md:shadow-none shadow-lg align-middle ${backgroundRowColor} ${navigateTo ? "cursor-pointer" : ""}`}
+                      onClick={() => {
+                        if (navigateTo) {
+                          if(navigateTo === "tournaments"){
+                            navigate(`/${navigateTo}/${tournamentId}/event/${item?._id}`);
+                          }
+                          if(navigateTo === "venues"){
+                            navigate(`/${navigateTo}/${item.id || item._id}`);
+                          }
+                        }
+                      }}
                     >
                       <div className="md:hidden flex flex-col bg-white">
                         {columns.map((column, colIndex) => {
@@ -173,6 +188,7 @@ DataTable.propTypes = {
   onClick: PropTypes.func,
   onDelete: PropTypes.func,
   rowTextAlignment: PropTypes.string,
+  navigateTo: PropTypes.string,
 };
 
 export default DataTable;
