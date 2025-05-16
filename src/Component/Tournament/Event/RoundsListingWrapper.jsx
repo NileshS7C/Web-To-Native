@@ -6,7 +6,7 @@ import { TournamentFixture } from "../tournamentFixture";
 import RoundDetails from "./RoundDetails";
 import Spinner from "../../Common/Spinner";
 import RoundCreationModal from "./RoundCreationModal";
-import { getHybridFixtures } from "../../../redux/tournament/fixturesActions";
+import { getFixtureById, getHybridFixtures } from "../../../redux/tournament/fixturesActions";
 import { useDispatch, useSelector } from "react-redux";
 import { HybridMatchesListing } from "../HybridMatchListing";
 import { ErrorModal } from "../../Common/ErrorModal";
@@ -46,15 +46,30 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
   useEffect(() => {
     dispatch(getHybridFixtures({ tour_Id: tournamentId, eventId }));
   }, []);
+
   useEffect(() => {
-    if(isHybridFixtureSuccess && ["add"].includes(actionType)){
-       setSelectedRoundIndex(fixtures?.length -1 );
-       setActiveTab("Details");
-    }else {
+    if (isHybridFixtureSuccess && ["add"].includes(actionType)) {
+      setSelectedRoundIndex(fixtures?.length - 1);
+      setActiveTab("Details");
+    } else if (isHybridFixtureSuccess && ["delete"].includes(actionType)) {
       setSelectedRoundIndex(0);
       setActiveTab("Details");
     }
-  }, [isHybridFixtureSuccess,fixtures]);
+  }, [isHybridFixtureSuccess, fixtures]);
+
+  useEffect(() => {
+    if (fixtures?.[selectedRoundIndex]?._id?.toString()) {
+      setTimeout(() => {
+        dispatch(
+          getFixtureById({
+            tour_Id: tournamentId,
+            eventId,
+            fixtureId: fixtures?.[selectedRoundIndex]?._id?.toString(),
+          })
+        );
+      }, 500);
+    }
+  }, [selectedRoundIndex]);
   useEffect(() => {
     if (isHybridFetchingError) {
       dispatch(
@@ -174,34 +189,36 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
             </div>
 
             {/* Content Area */}
-            <div>
-              {activeTab.toLowerCase() === "details" && (
-                <RoundDetails
-                  onRoundActionClick={handleRoundAction}
-                  fixtureId={fixtures[selectedRoundIndex]?._id.toString()}
-                  selectedRoundIndex={selectedRoundIndex}
-                />
-              )}
-              {activeTab.toLowerCase() === "fixture" && (
-                // <TournamentFixture tournament={tournament} />
-                <TournamentHybridFixture
-                  tournament={tournament}
-                  fixtureId={fixtures[selectedRoundIndex]?._id.toString()}
-                />
-              )}
-              {activeTab.toLowerCase() === "matches" && (
-                <HybridMatchesListing
-                  fixtureId={fixtures[selectedRoundIndex]?._id.toString()}
-                />
-              )}
-              {activeTab.toLowerCase() === "standing" && (
-                <TournamentHybridStandings
-                  tournamentId={tournamentId}
-                  categoryId={eventId}
-                  fixtureId={fixtures[selectedRoundIndex]?._id.toString()}
-                />
-              )}
-            </div>
+            {isHybridFixtureSuccess && (
+              <div>
+                {activeTab.toLowerCase() === "details" && (
+                  <RoundDetails
+                    onRoundActionClick={handleRoundAction}
+                    fixtureId={fixtures[selectedRoundIndex]?._id.toString()}
+                    selectedRoundIndex={selectedRoundIndex}
+                  />
+                )}
+                {activeTab.toLowerCase() === "fixture" && (
+                  // <TournamentFixture tournament={tournament} />
+                  <TournamentHybridFixture
+                    tournament={tournament}
+                    fixtureId={fixtures[selectedRoundIndex]?._id.toString()}
+                  />
+                )}
+                {activeTab.toLowerCase() === "matches" && (
+                  <HybridMatchesListing
+                    fixtureId={fixtures[selectedRoundIndex]?._id.toString()}
+                  />
+                )}
+                {activeTab.toLowerCase() === "standing" && (
+                  <TournamentHybridStandings
+                    tournamentId={tournamentId}
+                    categoryId={eventId}
+                    fixtureId={fixtures[selectedRoundIndex]?._id.toString()}
+                  />
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

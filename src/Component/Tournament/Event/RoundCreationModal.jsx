@@ -253,7 +253,7 @@ const RoundCreationModal = ({
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0 ">
             <DialogPanel
               transition
-              className="relative transform overflow-hidden scrollbar-hide rounded-lg bg-white px-2 pb-2 pt-3 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[85%] sm:max-w-[65%] md:max-w-[50%] lg:max-w-[40%] max-h-[90vh]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 overflow-y-auto"
+              className="relative transform overflow-hidden scrollbar-hide rounded-lg bg-white px-2 pb-2 pt-3 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[85%] sm:max-w-[65%] md:max-w-[60%] lg:max-w-[40%] max-h-[90vh]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 overflow-y-auto"
             >
               <div>
                 <div className="w-full bg-[#FFFFFF] h-full">
