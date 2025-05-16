@@ -267,7 +267,7 @@ const HowItWorksWrapper = () => {
     <div className="w-full">
       <div className="flex flex-col">
         <Page title="How It Works Section" />
-        <div className="flex flex-col items-start md:flex md:flex-row md:items-center justify-between mb-3">
+        <div className="flex justify-between items-center mb-3">
           <div className="flex items-center gap-2 mb-3">
             <p className="text-md font-semibold">Current Section Visibility</p>
             <SwitchToggle enabled={isVisible} onChange={() => {}} />

@@ -270,8 +270,8 @@ export default function VenueListingModal({
     <Dialog open={isOpen} onClose={onClose} className="relative z-10">
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
       <div className="fixed inset-0 z-[11] w-screen overflow-y-auto">
-        <div className="flex min-h-full items-end sm:items-center justify-center p-4 sm:p-0">
-          <DialogPanel className="w-full sm:min-w-[950px] max-w-[95%] sm:w-[90%] h-[90vh] mx-auto p-2 sm:p-4 bg-white rounded-lg shadow-xl transform transition-all">
+        <div className="flex min-h-full items-end overflow-x-auto justify-start p-4 text-center sm:items-center sm:p-0">
+          <DialogPanel className="min-w-[950px] modal-content w-[90%] h-[90vh] mx-auto p-4 bg-white rounded-lg shadow-xl transform transition-all">
             <SearchVenue
               dispatch={dispatch}
               venueName={venueName}
@@ -287,83 +287,30 @@ export default function VenueListingModal({
             ) : (
               <div className="data-list overflow-y-auto my-4 flex flex-col gap-2 h-[60vh] rounded-lg border border-gray-300 p-2">
                 {venues?.length > 0 ? (
-                  <>
-                    {/* Desktop View */}
-                    <div className="hidden md:flex md:flex-col md:gap-2">
-                      {venues.map((item) => (
-                        <div
-                          key={item._id}
-                          className={`item flex items-center gap-4 p-3 border border-gray-300 rounded-md cursor-pointer transition-all 
-                            ${
-                              selectedVenueIds.includes(item._id)
-                                ? "bg-blue-100 border-[#1570EF]"
-                                : "hover:bg-gray-100"
-                            }`}
-                          onClick={() => handleSelectItem(item)}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedVenueIds.includes(item._id)}
-                            onChange={() => {}} // Handled by parent div click
-                            className="checkbox accent-blue-500 flex-shrink-0"
-                          />
-                          <div className="items-center flex flex-row justify-between w-full text-left gap-4">
-                            <h4 className="w-[40%] truncate">{item.name}</h4>
-                            <p className="w-[40%] line-clamp-1">{item.handle}</p>
-                            <p className="w-[10%]">{item.address?.city || "N/A"}</p>
-                          </div>
-                        </div>
-                      ))}
+                  venues.map((item) => (
+                    <div
+                      key={item._id}
+                      className={`item flex items-center gap-4 p-3 border border-gray-300 rounded-md cursor-pointer transition-all 
+                        ${
+                          selectedVenueIds.includes(item._id)
+                            ? "bg-blue-100 border-[#1570EF]"
+                            : "hover:bg-gray-100"
+                        }`}
+                      onClick={() => handleSelectItem(item)}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedVenueIds.includes(item._id)}
+                        onChange={() => {}} // Handled by parent div click
+                        className="checkbox accent-blue-500"
+                      />
+                      <div className="items-center flex flex-row justify-between w-full text-left gap-4">
+                        <h4 className="w-[40%]">{item.name}</h4>
+                        <p className="w-[40%] line-clamp-1">{item.handle}</p>
+                        <p className="w-[10%]">{item.address?.city || "N/A"}</p>
+                      </div>
                     </div>
-                    
-                    {/* Mobile View - Card Style */}
-                    <div className="md:hidden flex flex-col gap-3">
-                      {venues.map((item) => (
-                        <div
-                          key={item._id}
-                          className={`flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border ${
-                            selectedVenueIds.includes(item._id)
-                              ? "border-[#1570EF] bg-blue-50"
-                              : "border-gray-200"
-                          }`}
-                          onClick={() => handleSelectItem(item)}
-                        >
-                          <div className="flex items-center justify-between px-3 py-3 bg-gray-50">
-                            <div className="flex items-center gap-2 w-full">
-                              <input
-                                type="checkbox"
-                                checked={selectedVenueIds.includes(item._id)}
-                                className="checkbox accent-blue-500 cursor-pointer h-4 w-4 flex-shrink-0"
-                                onChange={() => {}}
-                              />
-                              <h4 className="font-medium text-[#2B2F38] truncate text-sm">
-                                {item.name}
-                              </h4>
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-col divide-y divide-gray-100">
-                            <div className="flex justify-between items-center gap-2 px-3 py-2">
-                              <span className="text-sm font-medium text-black">Handle:</span>
-                              <span className="text-sm text-gray-600 text-right truncate max-w-[60%]">{item.handle}</span>
-                            </div>
-                            
-                            <div className="flex justify-between items-center gap-2 px-3 py-2">
-                              <span className="text-sm font-medium text-black">City:</span>
-                              <span className="text-sm text-gray-600">{item.address?.city || "N/A"}</span>
-                            </div>
-                            
-                            {item.address?.state && (
-                              <div className="flex justify-between items-center gap-2 px-3 py-2">
-                                <span className="text-sm font-medium text-black">State:</span>
-                                <span className="text-sm text-gray-600">{item.address.state}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
+                  ))
                 ) : (
                   <div className="flex items-center justify-center h-full">
                     <p className="text-center text-gray-500">
@@ -387,16 +334,16 @@ export default function VenueListingModal({
                 <div className="h-[30px]" />
               )}
 
-              <div className="flex justify-end gap-2 sm:gap-5">
+              <div className="flex justify-end gap-5">
                 <button
                   onClick={handleDiscard}
-                  className="px-3 sm:px-4 py-2 bg-gray-400 text-white text-sm rounded-md hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
                 >
                   Discard
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-3 sm:px-4 py-2 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   Save
                 </button>

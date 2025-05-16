@@ -259,7 +259,7 @@ const MissionAndVisionWrapper = () => {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex flex-col items-start md:flex md:flex-row md:items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 mb-3">
           <p className="text-md font-semibold">Current Section Visibility</p>
           <SwitchToggle enabled={isVisible} onChange={() => {}} />
