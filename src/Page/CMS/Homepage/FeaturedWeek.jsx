@@ -165,7 +165,7 @@ export default function FeaturedWeek() {
           )}
         </div>
       </div>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-md rounded-lg border border-gray-300 bg-white py-4 px-4">
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-4 shadow-md rounded-lg border border-gray-300 bg-white py-4 px-4">
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-left">Heading</label>
           <input

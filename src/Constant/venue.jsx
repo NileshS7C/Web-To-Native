@@ -39,11 +39,7 @@ const tableHeaders = [
   {
     key: "venueName",
     header: "Venue Name",
-    render: (item) => (
-      <Link to={`/venues/${item._id}`} className="hover:text-blue-600">
-        {item.name}
-      </Link>
-    ),
+    render: (item) => item.name
   },
   {
     key: "courts",
