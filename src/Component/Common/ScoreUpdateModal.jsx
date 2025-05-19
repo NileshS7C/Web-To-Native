@@ -86,7 +86,11 @@ const formattedMatchData = (scoreData, players) => {
         };
       }
     })
-    .filter((player) => player?.opponent1?.score && player?.opponent2?.score);
+    .filter(
+      (player) =>
+        player?.opponent1?.score !== undefined &&
+        player?.opponent2?.score !== undefined
+    );
 
   return {
     stage_id,
@@ -132,6 +136,7 @@ export const ScoreUpdateModal = ({
   handleUpdateFixture,
   format,
 }) => {
+
   const dispatch = useDispatch();
   const { category } = useSelector((state) => state.event);
   const { tournament } = useSelector((state) => state.GET_TOUR);
@@ -152,17 +157,15 @@ export const ScoreUpdateModal = ({
 
   useEffect(() => {
     const scoreUpdates = players?.matchGames?.map((game) => {
-      if (game.opponent1?.score && game.opponent2?.score) {
+      if ((game.opponent1?.score || game?.opponent1?.score === 0) &&( game.opponent2?.score || game?.opponent2?.score === 0)) {
         return {
           set1: game?.opponent1?.score,
           set2: game?.opponent2?.score,
         };
       }
     });
-
     setScoreUpdateArray(scoreUpdates);
   }, [players]);
-
   const getScoreData = (data, index, type, value) => {
     setFinalScoreData(data);
 
@@ -186,14 +189,9 @@ export const ScoreUpdateModal = ({
   };
 
   useEffect(() => {
-      if(finalScoreData?.length > 0){
-         checkAllField(
-           scoreUpdateArray,
-           handleValidationError,
-           setDisableButton
-         );
-      }
-  
+    if (finalScoreData?.length > 0) {
+      checkAllField(scoreUpdateArray, handleValidationError, setDisableButton);
+    }
   }, [finalScoreData]);
 
   useEffect(() => {
@@ -234,11 +232,18 @@ export const ScoreUpdateModal = ({
 
     return matchset?.slice(0, lastIndex + 1);
   };
+  const checkForTie = (matchSets) => {
+    return matchSets.some(
+      (match) => match?.opponent1?.score === match?.opponent2?.score
+    );
+  };
+
   const handleScoreUpdate = async (e) => {
     e.preventDefault();
     setUpdateError(false);
     setValidationError(false);
     let currentSetUpdated;
+
     if (!showPlayerSelections) {
       currentSetUpdated = formattedMatchData(scoreUpdateArray, players);
     } else {
@@ -248,7 +253,7 @@ export const ScoreUpdateModal = ({
       );
     }
     if (validationError) return;
-    
+
     if (scoreUpdateArray?.length % 2 === 0) {
       dispatch(
         showError({
@@ -258,6 +263,14 @@ export const ScoreUpdateModal = ({
       );
       return;
     }
+   const hasTiedMatch = checkForTie(currentSetUpdated?.matchSets || []);
+
+   if (hasTiedMatch) {
+     setValidationError(true);
+     setErrorMessage("A set cannot contain tied scores.");
+     return;
+   }
+
     const updatedMatchSets = getMatchSetsUntilVictory(
       currentSetUpdated?.matchSets
     );
@@ -270,7 +283,7 @@ export const ScoreUpdateModal = ({
           updateMatchSet({
             formData: {
               ...currentSetUpdated,
-              matchSets:updatedMatchSets
+              matchSets: updatedMatchSets,
             },
             tour_Id: tournamentId,
             eventId,
@@ -346,7 +359,9 @@ export const ScoreUpdateModal = ({
                 messageStyle="text-xs sm:text-sm md:text-md lg:text-lg text-[#E82B00]"
                 wrapperStyle="flex item-center w-full p-2 bg-[#FFF0D3] border-2 border-dashed border-[#E82B00] rounded-lg"
               />
-              {updateError && <ErrorBanner message={errorMessage} />}
+              {(updateError || validationError) && (
+                <ErrorBanner message={errorMessage} />
+              )}
               {(players?.player1_id == null || players?.player2_id == null) && (
                 <NotificationBanner
                   message="Both opponents are required to update the match score."
@@ -489,7 +504,11 @@ const InputSet = ({
         className="pl-2 w-full  border-[1px] border-[#718EBF] h-[5vh] rounded-md bg-[#F7F9FC] focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none"
         type="number"
         onWheel={(e) => e.target.blur()}
-        value={(scoreUpdateArray && scoreUpdateArray[index]?.set1) || ""}
+        value={
+          scoreUpdateArray && scoreUpdateArray[index]?.set1 !== undefined
+            ? scoreUpdateArray[index].set1
+            : ""
+        }
         onChange={(e) => {
           const value = e.target.value;
           handleScoreChange(value, "set1", index);
@@ -503,7 +522,11 @@ const InputSet = ({
         className="pl-2  w-full border-[1px] border-[#718EBF] h-[5vh] rounded-md bg-[#F7F9FC] focus:outline-none focus:ring-1 focus:ring-blue-500"
         type="number"
         onWheel={(e) => e.target.blur()}
-        value={(scoreUpdateArray && scoreUpdateArray[index]?.set2) || ""}
+        value={
+          scoreUpdateArray && scoreUpdateArray[index]?.set2 !== undefined
+            ? scoreUpdateArray[index].set2
+            : ""
+        }
         onChange={(e) => {
           const value = e.target.value;
           handleScoreChange(value, "set2", index);

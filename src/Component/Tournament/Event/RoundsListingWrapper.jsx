@@ -13,6 +13,7 @@ import { ErrorModal } from "../../Common/ErrorModal";
 import { showError } from "../../../redux/Error/errorSlice";
 import { MatchesListing } from "../MatchListing";
 import { TournamentHybridFixture } from "../TournamentHybridFixture";
+
 const options = () => [
   { name: "Details" },
   { name: "Fixture" },

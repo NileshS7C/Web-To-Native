@@ -43,7 +43,7 @@ const SearchBookings = ({
           page: page || 1,
           limit: limit,
           search: debouncedValue,
-          status:"CONFIRMED"
+          status: "CONFIRMED",
         })
       );
     }
@@ -80,6 +80,7 @@ const AddPlayerModal = ({
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const [searchInput, setSearchInput] = useState("");
+  const [selectAllPlayers, setSelectAllPlayers] = useState(false);
   const {
     bookings: bookingData,
     bookingError,
@@ -181,26 +182,42 @@ const AddPlayerModal = ({
     },
     [formatData]
   );
-
+  const handleSelectAllPlayers = () => {
+    setSelectAllPlayers((prev) => {
+      const newValue = !prev;
+      if (newValue) {
+        const allPlayerData = bookingData?.bookings?.map((booking) =>
+          formatData(booking)
+        );
+        setUpdatedParticipants(allPlayerData);
+        setSelectedPlayers(() => {
+          return new Set(allPlayerData.map((player) => player.bookingId));
+        });
+      } else {
+        setSelectedPlayers(new Set());
+        setUpdatedParticipants([]);
+      }
+      return newValue;
+    });
+  };
   const handleSave = useCallback(() => {
     handleUpdateParticipant(updatedParticipants);
     toggleModal();
   }, [updatedParticipants, handleUpdateParticipant, toggleModal]);
 
   useEffect(() => {
-    if (tournamentId && eventId) {
+    if (tournamentId && eventId && !searchInput) {
       dispatch(
         getAllBookings({
           currentPage: 1,
           limit: 200,
           tour_Id: tournamentId,
           eventId,
-          status:"CONFIRMED"
+          status: "CONFIRMED",
         })
       );
     }
-  }, [tournamentId, eventId, dispatch]);
-
+  }, [tournamentId, eventId, dispatch,searchInput]);
   const selectedPlayersCount = useMemo(() => {
     return selectedPlayers.size;
   }, [selectedPlayers]);
@@ -208,7 +225,6 @@ const AddPlayerModal = ({
   const bookingsList = useMemo(() => {
     return bookingData?.bookings || [];
   }, [bookingData?.bookings]);
-
 
   if (bookingError) {
     return (
@@ -241,6 +257,21 @@ const AddPlayerModal = ({
                         searchInput={searchInput}
                         setSearchInput={setSearchInput}
                       />
+                      <div
+                        className="flex gap-3 items-center px-2 cursor-pointer"
+                        onClick={handleSelectAllPlayers}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectAllPlayers}
+                          readOnly
+                          className="w-4 sm:w-5 h-4 sm:h-5"
+                        />
+                        <span className="text-base md:text-lg font-semibold">
+                          Select All Players
+                        </span>
+                      </div>
+
                       {bookingsList?.length > 0 && (
                         <div className="flex items-center rounded-t-lg bg-grey-200 py-2 md:py-3">
                           <span className="flex-[20] text-center"></span>
@@ -266,7 +297,7 @@ const AddPlayerModal = ({
                         );
                         return (
                           <div
-                            key={booking._id.toString()}
+                            key={nanoid()}
                             className={`flex items-center py-2 md:py-3 gap-[2px] ${
                               index !== bookingsList.length - 1
                                 ? "border-b-[1.5px] border-[#DFEAF2]"

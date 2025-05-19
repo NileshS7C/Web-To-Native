@@ -122,7 +122,6 @@ const RoundCreationModal = ({
       participants,
     }));
   }, []);
-
   const createPayload = (values) => {
     const {
       format,
@@ -339,7 +338,7 @@ const RoundCreationModal = ({
                                           form.values.participants.length - 1;
                                         return (
                                           <div
-                                            key={row.id}
+                                            key={nanoid()}
                                             className={`flex items-center py-1.5 ${
                                               !isLast
                                                 ? "border-b-2 border-[#DFEAF2]"

@@ -290,7 +290,6 @@ export const MatchesListing = () => {
               : [];
           }
         );
-
       setPlayerData(playerData);
 
       setPlayers(() => {
