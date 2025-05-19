@@ -44,7 +44,7 @@ export default function StaticPage({ PageData, handleSavePage, getPageData }) {
             {/* Heading with Edit, Save, and Discard Buttons */}
             {pageDetails.pageTitle !== "Loading..." ? (
                 <>
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                         {/* Editable Title */}
                         {isEditing ? (
                             <input
@@ -53,17 +53,17 @@ export default function StaticPage({ PageData, handleSavePage, getPageData }) {
                                 onChange={(e) =>
                                     setPageDetails({ ...pageDetails, pageTitle: e.target.value })
                                 }
-                                className="text-2xl font-bold w-fit px-2 border "
+                                className="text-2xl font-bold w-fit px-2 border mb-2 md:mb-0"
                             />
                         ) : (
-                            <h2 className="text-2xl font-bold w-fit px-2">{pageDetails.pageTitle}</h2>
+                            <h2 className="text-2xl font-bold w-fit px-2 mb-2 md:mb-0">{pageDetails.pageTitle}</h2>
                         )}
 
                         {/* Edit, Save, or Discard Buttons */}
                         {isEditing ? (
                             <div>
                                 <button
-                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2"
+                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2 ml-2"
                                     onClick={handleSave}
                                 >
                                     Save
@@ -77,7 +77,7 @@ export default function StaticPage({ PageData, handleSavePage, getPageData }) {
                             </div>
                         ) : (
                             <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ml-2"
                                 onClick={() => setIsEditing(true)}
                             >
                                 Edit

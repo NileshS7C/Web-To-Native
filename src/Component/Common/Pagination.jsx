@@ -65,7 +65,10 @@ export const Pagination = ({
                 : "text-gray-500 hover:border-gray-300 hover:text-gray-700"
             }`}
           >
-            <ArrowLongLeftIcon aria-hidden="true" className="mr-3 size-4 md:size-5" />
+            <ArrowLongLeftIcon
+              aria-hidden="true"
+              className="mr-3 size-4 md:size-5"
+            />
             Previous
           </button>
         )}
@@ -84,7 +87,10 @@ export const Pagination = ({
                 : "text-gray-500 hover:border-gray-300 hover:text-gray-700"
             }`}
           >
-            <ArrowLongLeftIcon aria-hidden="true" className="mr-3 size-4 md:size-5" />
+            <ArrowLongLeftIcon
+              aria-hidden="true"
+              className="mr-3 size-4 md:size-5"
+            />
             Previous
           </Link>
         )}
@@ -112,7 +118,6 @@ export const Pagination = ({
                 onClick={() => {
                   if (page !== "...") {
                     dispatch(onPageChange(page));
-                 
                   }
                 }}
                 className={`inline-flex items-center border-t-2 px-2 md:px-4 pt-4 text-sm font-medium ${
@@ -140,7 +145,10 @@ export const Pagination = ({
             }`}
           >
             Next
-            <ArrowLongRightIcon aria-hidden="true" className="ml-1 md:ml-3 size-4 md:size-5" />
+            <ArrowLongRightIcon
+              aria-hidden="true"
+              className="ml-1 md:ml-3 size-4 md:size-5"
+            />
           </button>
         )}
 
@@ -159,7 +167,10 @@ export const Pagination = ({
             }`}
           >
             Next
-            <ArrowLongRightIcon aria-hidden="true" className="ml-1 md:ml-3 size-4 md:size-5" />
+            <ArrowLongRightIcon
+              aria-hidden="true"
+              className="ml-1 md:ml-3 size-4 md:size-5"
+            />
           </Link>
         )}
       </div>
@@ -171,7 +182,5 @@ Pagination.propTypes = {
   currentPage: PropTypes.number,
   total: PropTypes.number,
   onPageChange: PropTypes.func,
-  hasLink: PropTypes.bool,
-  pathName: PropTypes.string,
   rowsInOnePage: PropTypes.number,
 };

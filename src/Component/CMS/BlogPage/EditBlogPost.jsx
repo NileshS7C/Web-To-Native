@@ -165,8 +165,8 @@ export default function EditBlogPost() {
       ) : blogFetchError.length > 0 ? (
         <div>{blogFetchError}</div>
       ) : (
-        <div className="max-w-5xl mx-auto p-6 space-y-6">
-          <div className="flex justify-between items-center">
+        <div className="max-w-5xl mx-auto p-3 sm:p-6 space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
             <div className="flex items-center gap-x-4">
               <button
                 onClick={() => {
@@ -189,7 +189,7 @@ export default function EditBlogPost() {
                   />
                 </svg>
               </button>
-              <h1 className="text-2xl font-semibold text-left w-64">
+              <h1 className="text-xl sm:text-2xl font-semibold text-left w-full sm:w-64 break-words">
                 {title}
               </h1>
             </div>
@@ -217,7 +217,7 @@ export default function EditBlogPost() {
             </div>
           )}
 
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="col-span-2 space-y-6">
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-6 h-[500px]">
                 <div>

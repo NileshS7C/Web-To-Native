@@ -4,7 +4,7 @@ import {
   getAll_TO,
   getAllUniqueTags,
   handleTournamentDecision,
-  downloadSheetOfPlayers
+  downloadSheetOfPlayers,
 } from "./tournamentActions";
 import { approvalBody } from "../../Constant/tournament";
 
@@ -39,7 +39,7 @@ const tournamentSlice = createSlice({
     tournament_Id: null,
     rejectionComments: "",
     isNotEditable: false,
-    
+
     isConfirmed: false,
     approvalBody: { action: "APPROVE", rejectionComments: "" },
     pendingArchive: false,
@@ -101,10 +101,10 @@ const tournamentSlice = createSlice({
       state.archived = false;
     },
     resetDownloadState(state) {
-       state.pendingDownload= false;
-       state.sheetDownload= false;
-       state.downloadError= false;
-       state.downloadErrorMessage= ""
+      state.pendingDownload = false;
+      state.sheetDownload = false;
+      state.downloadError = false;
+      state.downloadErrorMessage = "";
     },
     removeFiles: {
       reducer(state, action) {
@@ -153,9 +153,8 @@ const tournamentSlice = createSlice({
       state.isEditClicked = true;
       state.editRowIndex = action.payload;
     },
-    resetEditRow(state,action){
-      state.isEditClicked=false,
-      state.editRowIndex=-1
+    resetEditRow(state, action) {
+      (state.isEditClicked = false), (state.editRowIndex = -1);
     },
     stepReducer(state, { payload }) {
       const currentStep = addTournamentSteps.findIndex(
@@ -220,7 +219,7 @@ const tournamentSlice = createSlice({
         state.verificationSuccess = false;
         state.changingDecision = false;
         state.verificationError = true;
-        state.verificationErrorMessage = payload.data.message;
+        state.verificationErrorMessage = payload?.data?.message;
       });
 
     builder
@@ -245,22 +244,22 @@ const tournamentSlice = createSlice({
 
     builder
       .addCase(downloadSheetOfPlayers.pending, (state) => {
-        state.pendingDownload = true,
-        state.sheetDownload = false,
-        state.downloadError = false,
-        state.downloadErrorMessage = "";
+        (state.pendingDownload = true),
+          (state.sheetDownload = false),
+          (state.downloadError = false),
+          (state.downloadErrorMessage = "");
       })
       .addCase(downloadSheetOfPlayers.fulfilled, (state) => {
-        state.pendingDownload = false,
-        state.sheetDownload = true,
-        state.downloadError = false,
-        state.downloadErrorMessage = "";  
+        (state.pendingDownload = false),
+          (state.sheetDownload = true),
+          (state.downloadError = false),
+          (state.downloadErrorMessage = "");
       })
       .addCase(downloadSheetOfPlayers.rejected, (state, { payload }) => {
-        state.pendingDownload = false,
-        state.sheetDownload = false,
-        state.downloadError = true,
-        state.downloadErrorMessage =  payload?.message;  
+        (state.pendingDownload = false),
+          (state.sheetDownload = false),
+          (state.downloadError = true),
+          (state.downloadErrorMessage = payload?.message);
       });
   },
 });
@@ -283,6 +282,6 @@ export const {
   setApprovalBody,
   resetArchiveState,
   resetDownloadState,
-  resetEditRow
+  resetEditRow,
 } = tournamentSlice.actions;
 export default tournamentSlice.reducer;

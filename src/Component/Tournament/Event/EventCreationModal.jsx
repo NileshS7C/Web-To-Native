@@ -26,10 +26,8 @@ import {
 import { crossIcon, calenderIcon } from "../../../Assests";
 import Button from "../../Common/Button";
 
-import {
-  roundRobbinModeOptions,
-  tournamentEvent,
-} from "../../../Constant/tournament";
+import { tournamentEvent } from "../../../Constant/tournament";
+
 import TextError from "../../Error/formError";
 
 import { formattedDate, parseDate } from "../../../utils/dateUtils";
@@ -50,33 +48,33 @@ import {
   DialogPanel,
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import { SlControlStart } from "react-icons/sl";
+import { nanoid } from "nanoid";
 
 const requiredCategoryFields = (category) => {
   const {
     categoryName,
     format,
     type,
-    roundRobinMode,
     registrationFee,
     maxPlayers,
     minPlayers,
     skillLevel,
     categoryLocation,
     categoryStartDate,
+    totalSets,
   } = category;
 
   return {
     categoryName,
     format,
     type,
-    roundRobinMode,
     registrationFee,
     maxPlayers,
     minPlayers,
     skillLevel,
     categoryLocation,
     categoryStartDate,
+    totalSets,
   };
 };
 
@@ -84,11 +82,14 @@ const initialValues = {
   categoryName: "",
   format: "",
   type: "",
-  roundRobinMode: "simple",
+  roundRobinMode: "",
   registrationFee: 1,
   maxPlayers: 0,
   minPlayers: 1,
   skillLevel: "",
+  consolationFinal: false,
+  numberOfGroups: "",
+  totalSets: "",
   categoryLocation: {
     handle: "",
     address: {
@@ -119,6 +120,9 @@ export const EventCreationModal = () => {
     format: yup.string().required("Event format is required."),
     type: yup.string().required("Event category is required."),
     roundRobinMode: yup.string().optional(),
+    consolationFinal: yup.boolean().optional(),
+    numberOfGroups: yup.string().optional(),
+    totalSets: yup.string().optional(),
     registrationFee: yup
       .number()
       .required("Registration fee is required.")
@@ -227,6 +231,35 @@ export const EventCreationModal = () => {
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
+      // Check if values are falsy and remove them from updatedValues
+      switch (updatedValues?.format) {
+        case "SE":
+        case "HYBRID":
+          delete updatedValues.numberOfGroups;
+          delete updatedValues.grandFinalsDE;
+          delete updatedValues.roundRobinMode;
+          break;
+        case "DE":
+          delete updatedValues.numberOfGroups;
+          delete updatedValues.roundRobinMode;
+          break;
+        case "RR":
+          delete updatedValues.grandFinalsDE;
+          break;
+      }
+
+      // Delete falsy values
+      [
+        "numberOfGroups",
+        "grandFinalsDE",
+        "roundRobinMode",
+        "totalSets",
+      ].forEach((key) => {
+        if (!updatedValues?.[key]) {
+          delete updatedValues[key];
+        }
+      });
+
       !isVenueFinal && delete values["categoryLocation"];
 
       setSubmitting(true);
@@ -258,9 +291,6 @@ export const EventCreationModal = () => {
 
       resetForm();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.log(" err occured in saving the form", error);
-      }
       setHasError(true);
       setErrorMessage(error?.data?.message || "Something went wrong.");
       scrollToTop();
@@ -299,6 +329,10 @@ export const EventCreationModal = () => {
         ...prevState,
         ...updatedCategory,
         categoryStartDate: parseDate(updatedCategory?.categoryStartDate),
+        numberOfGroups: category?.numberOfGroups.toString() || "",
+        grandFinalsDE: category?.grandFinalsDE || "",
+        roundRobinMode: category?.roundRobinMode || "",
+        totalSets: category?.totalSets.toString() || ""
       }));
 
       updatedCategory?.categoryLocation
@@ -323,7 +357,7 @@ export const EventCreationModal = () => {
         className="fixed inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
       />
       <div className="fixed  inset-0 z-10 overflow-y-auto">
-        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div className="flex min-h-full items-center justify-center px-4 py-2 text-center sm:items-center sm:p-0">
           <DialogPanel
             ref={modalContentRef}
             transition
@@ -373,7 +407,7 @@ export const EventCreationModal = () => {
                             <div className="flex gap-2 justify-end mb-4">
                               <Button
                                 type="button"
-                                className="py-2 px-5 rounded-[10px] shadow-md bg-white text-[14px] leading-[17px] text-[#232323]" 
+                                className="py-2 px-5 rounded-[10px] shadow-md bg-white text-[14px] leading-[17px] text-[#232323]"
                                 onClick={() => dispatch(toggleModal())}
                               >
                                 Close
@@ -434,17 +468,7 @@ const EventName = () => {
 };
 
 const EventFormat = () => {
-  const { values } = useFormikContext();
-  const [isRoundRobinSelected, setIsRoundRobinSelected] = useState(false);
-
-  useEffect(() => {
-    if (values?.format) {
-      setIsRoundRobinSelected(() => {
-        return values?.format === "RR";
-      });
-    }
-  }, [values]);
-
+  const { values, setFieldValue } = useFormikContext();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
@@ -498,32 +522,93 @@ const EventFormat = () => {
         </Field>
         <ErrorMessage name="type" component={TextError} />
       </div>
-
-      {isRoundRobinSelected && (
-        <div className="flex flex-col items-start gap-2.5">
-          <label
-            className="text-base leading-[19.36px] text-[#232323]"
-            htmlFor="roundRobinMode"
-          >
-            Round Robin Type
-          </label>
-          <Field
-            className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            as="select"
-            name="roundRobinMode"
-            id="roundRobinMode"
-          >
-            {roundRobbinModeOptions.map((mode) => {
-              return (
-                <option value={mode?.id} key={mode?.id}>
+      {values?.format === "RR" && (
+        <>
+          <div className="flex flex-col items-start gap-2">
+            <label
+              className="text-base leading-[19.36px] text-black  font-medium"
+              htmlFor="roundRobinMode"
+            >
+              Participant Play Count
+            </label>
+            <Field
+              className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              as="select"
+              name="roundRobinMode"
+              id="roundRobinMode"
+            >
+              {tournamentEvent.roundRobinMode.map((mode) => (
+                <option value={mode?.shortName} key={mode?.id}>
                   {mode?.name}
                 </option>
-              );
-            })}
+              ))}
+            </Field>
+            <ErrorMessage name="roundRobinMode" />
+          </div>
+          <div className="flex flex-col items-start gap-2">
+            <label
+              className="text-base leading-[19.36px] text-black  font-medium"
+              htmlFor="numberOfGroups"
+            >
+              Number of group
+            </label>
+            <Field
+              placeholder="Enter Number Of Groups in Round Robbin"
+              id="numberOfGroups"
+              name="numberOfGroups"
+              className="text-[#718EBF] w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              type="number"
+            />
+
+            <ErrorMessage name="numberOfGroups" component={TextError} />
+          </div>
+        </>
+      )}
+
+      {values?.format === "DE" && (
+        <div className="flex flex-col items-start gap-2.5">
+          <label
+            className="text-base leading-[19.36px] text-[#232323] text-black  font-medium"
+            htmlFor="grandFinalsDE"
+          >
+            Grand Finals
+          </label>
+          <Field
+            className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            as="select"
+            name="grandFinalsDE"
+            id="grandFinalsDE"
+          >
+            {tournamentEvent.grandFinalsDE.map((mode) => (
+              <option value={mode?.shortName} key={mode?.id}>
+                {mode?.name}
+              </option>
+            ))}
           </Field>
-          <ErrorMessage name="roundRobinMode" component={TextError} />
+          <ErrorMessage name="grandFinalsDE" component={TextError} />
         </div>
       )}
+      <div className="flex flex-col items-start gap-2">
+        <label
+          className="text-base leading-[19.36px] text-black  font-medium"
+          htmlFor="totalSets"
+        >
+          Number of Sets
+        </label>
+        <Field
+          className="w-full px-[12px] border-[1px]  text-[15px] text-[#718EBF] leading-[18px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          as="select"
+          name="totalSets"
+          id="totalSets"
+        >
+          {tournamentEvent.numberOfSets.map((set) => (
+            <option value={set?.shortName} key={nanoid()}>
+              {set?.name}
+            </option>
+          ))}
+        </Field>
+        <ErrorMessage name="totalSets" />
+      </div>
     </div>
   );
 };
@@ -1228,38 +1313,27 @@ function ComboboxForVenuesList({
               <ComboboxOption
                 key={venue._id}
                 value={venue}
-                className="group relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none data-focus:bg-indigo-600 data-focus:text-white data-focus:outline-hidden"
+                className="group relative cursor-default py-3 px-4 text-gray-900 select-none data-focus:bg-indigo-600 data-focus:text-white data-focus:outline-hidden"
                 onChange={() => {
                   setSelectedPerson(venue);
                 }}
               >
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-2.5 items-center">
-                    <img
-                      src={venue?.bannerImages?.[0]?.url ?? ""}
-                      alt={`${venue.name}_image`}
-                      width="50px"
-                      height="50px"
-                    />
-                    <span className="block truncate group-data-selected:font-semibold text-lg text-[#718EBF]">
-                      {venue.name}
-                    </span>
-                  </div>
-
-                  <p className="flex justify-between text-lg text-[#718EBF]">
-                    <span>{venue.address.line1 || venue.address.line2}</span>
-                    {","}
-                    <span>{venue.address.city}</span>
-                    {","}
-                    <span>{venue.address.state}</span>
-                    {","}
-                    <span>{venue.address.postalCode}</span>
-                  </p>
-
-                  <span className="absolute inset-y-0 right-0 hidden items-center pr-4 text-indigo-600 group-data-focus:text-white group-data-selected:flex">
-                    <CheckIcon className="size-5" aria-hidden="true" />
+                <div className="flex flex-col w-full">
+                  <span className="block truncate group-data-selected:font-semibold text-lg text-[#718EBF] mb-1">
+                    {venue.name}
                   </span>
+                  <p className="text-sm text-[#718EBF] break-words">
+                    {[
+                      venue.address.line1 || venue.address.line2,
+                      venue.address.city,
+                      venue.address.state,
+                      venue.address.postalCode
+                    ].filter(Boolean).join(", ")}
+                  </p>
                 </div>
+                <span className="absolute inset-y-0 right-0 hidden items-center pr-4 text-indigo-600 group-data-focus:text-white group-data-selected:flex">
+                  <CheckIcon className="size-5" aria-hidden="true" />
+                </span>
               </ComboboxOption>
             ))
           ) : (
@@ -1267,15 +1341,15 @@ function ComboboxForVenuesList({
           )}
 
           {hasError && (
-            <div className="flex justify-center">
+            <div className="flex justify-center p-4">
               <p className="text-lg text-red-700">
-                Some error has occured while getting the venues. Please try
+                Some error has occurred while getting the venues. Please try
                 again.
               </p>
             </div>
           )}
-          {!updatedVenues?.length && (
-            <div className="flex justify-center">
+          {!updatedVenues?.length && !isLoading && (
+            <div className="flex justify-center p-4">
               <p className="text-lg text-black-800">No venues found.</p>
             </div>
           )}
@@ -1283,59 +1357,31 @@ function ComboboxForVenuesList({
       </div>
 
       {selectedPerson && !categoryId && (
-        <div className="flex items-center justify-between bg-gray-200 mt-3 w-auto max-w-fit rounded-lg p-2">
-          <img
-            src={selectedPerson?.bannerImages?.[0]?.url}
-            alt="Selected Venue logo"
-            className="w-[40px] h-[40px]"
-          />
-          <div className="flex flex-col items-center justify-between gap-2  text-xs">
-            <p>{selectedPerson?.name}</p>
-            <div className="flex  items-center divide-x divide-black">
-              <span className="pl-1 pr-1">
-                {selectedPerson?.address?.line1}
-              </span>
-              <span className="pl-1 pr-1">{selectedPerson?.address?.city}</span>
-              <span className="pl-1 pr-1">
-                {selectedPerson?.address?.state}
-              </span>
-              <span className="pl-1 pr-1">
-                {selectedPerson?.address?.postalCode}
-              </span>
+        <div className="w-full p-4 border border-gray-200 rounded-lg mt-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="relative w-full sm:w-auto">
+            <img
+              src={selectedPerson?.bannerImages?.[0]?.url}
+              alt={selectedPerson?.name}
+              className="w-full sm:w-32 h-32 object-cover rounded-md"
+            />
+            <button
+              onClick={handleRemoveVenue}
+              className="absolute top-2 right-2 sm:-top-2 sm:-right-2 bg-gray-500 text-white rounded-full p-1 shadow-md hover:bg-gray-600"
+            >
+              <RxCrossCircled className="w-5 h-5" />
+            </button>
+            </div>
+            <div className="flex-1 w-full sm:w-auto">
+              <h3 className="text-lg font-medium mb-1">{selectedPerson?.name}</h3>
+              <p className="text-sm text-gray-600 break-words">
+                {selectedPerson?.address?.line1}{selectedPerson?.address?.line2 ? `, ${selectedPerson?.address?.line2}` : ''}
+              </p>
+              <p className="text-sm text-gray-600">
+                {selectedPerson?.address?.city}, {selectedPerson?.address?.state} - {selectedPerson?.address?.postalCode}
+              </p>
             </div>
           </div>
-          <RxCrossCircled
-            className="cursor-pointer"
-            onClick={handleRemoveVenue}
-          />
-        </div>
-      )}
-      {selectedPerson && categoryId && (
-        <div className="flex items-center justify-between bg-gray-200 mt-3 w-auto max-w-fit rounded-lg p-2">
-          <img
-            src={selectedPerson?.bannerImages?.[0]?.url}
-            alt="Selected Venue logo"
-            className="w-[40px] h-[40px]"
-          />
-          <div className="flex flex-col items-center justify-between gap-2  text-xs">
-            <p>{selectedPerson?.name}</p>
-            <div className="flex  items-center divide-x divide-black">
-              <span className="pl-1 pr-1">
-                {selectedPerson?.address?.line1}
-              </span>
-              <span className="pl-1 pr-1">{selectedPerson?.address?.city}</span>
-              <span className="pl-1 pr-1">
-                {selectedPerson?.address?.state}
-              </span>
-              <span className="pl-1 pr-1">
-                {selectedPerson?.address?.postalCode}
-              </span>
-            </div>
-          </div>
-          <RxCrossCircled
-            className="cursor-pointer"
-            onClick={handleRemoveVenue}
-          />
         </div>
       )}
     </Combobox>

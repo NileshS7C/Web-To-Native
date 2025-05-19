@@ -92,7 +92,8 @@ function TournamentListing(props) {
   } = props;
 
   const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
-    useSelector((state) => state.GET_TOUR); 
+    useSelector((state) => state.GET_TOUR);
+ 
   const { userRole: role } = useSelector((state) => state.auth);
 
   useEffect(() => {

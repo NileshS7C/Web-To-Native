@@ -85,12 +85,12 @@ export default function BlogPosts() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
-      <div className="sm:flex sm:items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4">
         <div className="text-2xl font-semibold text-gray-800">Blog Posts</div>
         <div className="w-[40%] flex justify-end">
           <button
             type="button"
-            className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="whitespace-nowrap rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             onClick={addNewBlogHandler}
           >
             Create Blog Post

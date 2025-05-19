@@ -4,6 +4,8 @@ import {
   getFixture,
   publishFixture,
   updateMatch,
+  getFixtureById,
+  getHybridFixtures,
 } from "./fixturesActions";
 
 const initialState = {
@@ -22,6 +24,10 @@ const initialState = {
   isPublishing: false,
   isPublished: false,
   publishError: false,
+  fixtures: [],
+  isFetchingHybridFixtures: false,
+  isHybridFixtureSuccess: true,
+  isHybridFetchingError: false,
 };
 const fixtureSlice = createSlice({
   name: "fixture",
@@ -54,9 +60,48 @@ const fixtureSlice = createSlice({
         state.isFetchingFixture = false;
         state.isFixtureSuccess = false;
         state.isFetchingError = true;
-        state.ErrorMessage = payload.data.message;
+        state.ErrorMessage = payload?.data?.message;
       });
-
+    builder
+      .addCase(getHybridFixtures.pending, (state) => {
+        state.isFetchingHybridFixtures = true;
+        state.isHybridFixtureSuccess = false;
+        state.isHybridFetchingError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(getHybridFixtures.fulfilled, (state, { payload }) => {
+        state.fixtures = payload?.data?.fixtures || [];
+        state.isFetchingHybridFixtures = false;
+        state.isHybridFixtureSuccess = true;
+        state.isHybridFetchingError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(getHybridFixtures.rejected, (state, { payload }) => {
+        state.isFetchingHybridFixtures = false;
+        state.isHybridFixtureSuccess = false;
+        state.isHybridFetchingError = true;
+        state.ErrorMessage = payload?.data?.message;
+      });
+    builder
+      .addCase(getFixtureById.pending, (state) => {
+        state.isFetchingFixture = true;
+        state.isFixtureSuccess = false;
+        state.isFetchingError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(getFixtureById.fulfilled, (state, { payload }) => {
+        state.fixture = payload?.data?.fixture;
+        state.isFetchingFixture = false;
+        state.isFixtureSuccess = true;
+        state.isFetchingError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(getFixtureById.rejected, (state, { payload }) => {
+        state.isFetchingFixture = false;
+        state.isFixtureSuccess = false;
+        state.isFetchingError = true;
+        state.ErrorMessage = payload?.data?.message;
+      });
     builder
       .addCase(createFixture.pending, (state) => {
         state.isCreatingFixture = true;
@@ -115,7 +160,7 @@ const fixtureSlice = createSlice({
         state.isPublishing = false;
         state.isPublished = false;
         state.publishError = true;
-        state.ErrorMessage = payload.data.message;
+        state.ErrorMessage = payload?.data?.message;
       });
   },
 });
