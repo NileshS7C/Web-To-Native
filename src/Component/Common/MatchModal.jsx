@@ -372,7 +372,7 @@ const MatchDateAndTime = () => {
           className="text-base leading-[19.36px]"
           htmlFor="metaData.time.startTime"
         >
-          Start Time in 24 hour format
+          Start Time <span className="text-[11px] ">( 24 hour format )</span>
         </label>
         <TimeInput
           label="Enter Start Time"
@@ -388,7 +388,7 @@ const MatchDateAndTime = () => {
           className="text-base leading-[19.36px]"
           htmlFor="metaData.time.endTime"
         >
-          End Time in 24 hour format
+          End Time <span className="text-[11px]">( 24 hour format )</span>
         </label>
         <TimeInput
           label="Enter End Time"
