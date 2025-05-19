@@ -15,12 +15,14 @@ export default function ContentFAQ({ faqsData, fetchHomepageSections }) {
         setFaqs(faqsData?.faqs || []);
     }, [faqsData]); 
 
-    const handleModifyData = (item) => {
+    const handleModifyData = (event, item) => {
+        event.stopPropagation();
         setDeleteModal(true);
         setSelectedCard(item);
     };
 
-    const handleDelete = async (faqToDelete) => {
+    const handleDelete = async (event, faqToDelete) => {
+        event.stopPropagation();
         try {
             const updatedFaqs = faqs.filter((faq) => faq.position !== faqToDelete.position);
     
@@ -45,8 +47,6 @@ export default function ContentFAQ({ faqsData, fetchHomepageSections }) {
         }
     };
     
-    
-
     return (
         <dl className="mt-16 divide-y divide-gray-900/10">
             {faqs?.map((faq, index) => (
@@ -59,10 +59,16 @@ export default function ContentFAQ({ faqsData, fetchHomepageSections }) {
                                     <span className="ml-6 flex h-7 items-center gap-4">
                                         <PlusSmallIcon aria-hidden="true" className={`size-6 ${open ? 'hidden' : 'block'}`} />
                                         <MinusSmallIcon aria-hidden="true" className={`size-6 ${open ? 'block' : 'hidden'}`} />
-                                        <button onClick={() => handleModifyData(faq)} className="hover:text-blue-600">
+                                        <button 
+                                            onClick={(e) => handleModifyData(e, faq)} 
+                                            className="hover:text-blue-600"
+                                        >
                                             <PencilIcon className="w-5 h-5" />
                                         </button>
-                                        <button onClick={() => handleDelete(faq)} className="hover:text-red-600">
+                                        <button 
+                                            onClick={(e) => handleDelete(e, faq)} 
+                                            className="hover:text-red-600"
+                                        >
                                             <TrashIcon className="w-5 h-5" />
                                         </button>
                                     </span>

@@ -25,7 +25,7 @@ const imageTableHeaders = [
     key: "imageUrl",
     header: "Url",
     render: (item) => (
-      <a href={item?.url} target="_blank" className="hover:text-blue-600">
+      <a href={item?.url} target="_blank" className="hover:text-blue-600 block display-webkit-box webkit-line-clamp-3 webkit-box-orient-vertical overflow-hidden max-w-[150px] md:max-w-full">
         {item?.url}
       </a>
     ),

@@ -151,10 +151,10 @@ export default function CreateBlogPost() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
+    <div className="max-w-5xl mx-auto p-3 sm:p-6 space-y-6">
       {/* Page Title and Save Button */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-left">Create Blog Post</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+        <h1 className="text-xl sm:text-2xl font-semibold text-left">Create Blog Post</h1>
         <button
           onClick={handleSave}
           className="w-full sm:w-auto p-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
@@ -168,11 +168,11 @@ export default function CreateBlogPost() {
           <p className="text-sm">{saveError}</p>
         </div>
       )}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         {/* Left Section */}
-        <div className="col-span-2 space-y-6">
+        <div className="col-span-1 sm:col-span-2 space-y-6">
           {/* Title & Content Card */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-6 h-[500px]">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 space-y-6 min-h-[500px]">
             {/* Title Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 text-left">
@@ -202,7 +202,7 @@ export default function CreateBlogPost() {
           </div>
 
           {/* Handle Label Card */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
             <h2 className="text-lg font-medium text-left">Handle</h2>
             <input
               type="text"
@@ -221,7 +221,7 @@ export default function CreateBlogPost() {
         {/* Right Section */}
         <div className="space-y-6">
           {/* Visibility Toggle */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
             <h2 className="text-lg font-medium text-left">Visibility</h2>
             <div className="flex items-center justify-between">
               <span>{isPublished ? "Visible" : "Hidden"}</span>
@@ -241,7 +241,7 @@ export default function CreateBlogPost() {
           </div>
 
           {/* Image Upload */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
             <h2 className="text-lg font-medium text-left">Blog Cover Image</h2>
             <input
               type="file"
@@ -285,7 +285,7 @@ export default function CreateBlogPost() {
           </div>
 
           {/* Writer Details */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
             <h2 className="text-lg font-medium text-left">Writer Details</h2>
 
             {/* Writer Name */}

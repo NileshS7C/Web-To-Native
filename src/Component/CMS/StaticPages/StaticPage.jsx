@@ -63,7 +63,7 @@ export default function StaticPage({ PageData, handleSavePage, getPageData }) {
                         {isEditing ? (
                             <div>
                                 <button
-                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2"
+                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2 ml-2"
                                     onClick={handleSave}
                                 >
                                     Save
@@ -77,7 +77,7 @@ export default function StaticPage({ PageData, handleSavePage, getPageData }) {
                             </div>
                         ) : (
                             <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ml-2"
                                 onClick={() => setIsEditing(true)}
                             >
                                 Edit
