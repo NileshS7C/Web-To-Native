@@ -8,11 +8,13 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { FaGreaterThan } from "react-icons/fa6";
 import { IoCloseSharp } from "react-icons/io5";
 import { calenderIcon } from "../../Assests";
-import { Field, Formik, Form, ErrorMessage } from "formik";
+import { Field, Formik, Form, ErrorMessage, useFormikContext } from "formik";
 import TextError from "../Error/formError";
+import TimeInput from "./TimeInput";
 import {
   updateMatch,
   getFixture,
+  getFixtureById,
 } from "../../redux/tournament/fixturesActions";
 import { showSuccess } from "../../redux/Success/successSlice";
 import { showError } from "../../redux/Error/errorSlice";
@@ -184,7 +186,7 @@ export const MatchModal = ({
         );
         onCancel(false);
 
-        dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+        dispatch(getFixtureById({ tour_Id: tournamentId, eventId ,fixtureId}));
       }
     } catch (err) {
       console.log("Error in updating the match", err);
@@ -217,7 +219,7 @@ export const MatchModal = ({
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             transition
-            className="relative max-h-[90vh] overflow-y-auto transform  rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[90%] sm:max-w-md lg:max-w-[70%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            className="relative max-h-[90vh] overflow-y-auto transform  rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[90%] sm:max-w-[80%] lg:max-w-[70%]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <Formik
               enableReinitialize
@@ -318,14 +320,25 @@ const PlayersDetails = ({ playersData }) => {
   );
 };
 
+
+
 const MatchDateAndTime = () => {
+  const { values, setFieldValue } = useFormikContext();
+
+  const handleStartTimeChange = (startTime) => {
+    setFieldValue("metaData.time.startTime", startTime);
+  };
+
+  const handleEndTimeChange = (endTime) => {
+    setFieldValue("metaData.time.endTime", endTime);
+  };
   return (
-    <div className="grid grid-cols-2 gap-2 w-full text-[#718EBF]">
-      <div className="flex flex-col gap-2  items-start">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full text-[#718EBF]">
+      <div className="flex flex-col gap-2 items-start">
         <label className="text-base leading-[19.36px]" htmlFor="metaData.date">
           Date
         </label>
-        <div className="relative">
+        <div className="relative w-full">
           <Field name="metaData.date">
             {({ form, field }) => (
               <>
@@ -334,7 +347,7 @@ const MatchDateAndTime = () => {
                   name="metaData.date"
                   placeholderText="Select date"
                   toggleCalendarOnIconClick
-                  className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px]  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                   selected={field.value ? new Date(field.value) : null}
                   onChange={(date) => {
                     if (date) {
@@ -344,7 +357,7 @@ const MatchDateAndTime = () => {
                 />
                 <img
                   src={calenderIcon}
-                  alt="calenderIcon"
+                  alt="calendar icon"
                   className="absolute right-[10px] top-1/2 transform -translate-y-1/2 cursor-pointer"
                 />
               </>
@@ -354,31 +367,33 @@ const MatchDateAndTime = () => {
         <ErrorMessage component={TextError} name="metaData.date" />
       </div>
 
-      <div className="flex flex-col items-start  gap-2 w-full">
+      <div className="flex flex-col items-start gap-2 w-full">
         <label
           className="text-base leading-[19.36px]"
           htmlFor="metaData.time.startTime"
         >
-          Start Time
+          Start Time in 24 hour format
         </label>
-        <Field
-          type="time"
-          name="metaData.time.startTime"
+        <TimeInput
+          label="Enter Start Time"
+          value={values?.metaData?.time?.startTime || ""}
+          onChange={handleStartTimeChange}
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <ErrorMessage component={TextError} name="metaData.time.startTime" />
       </div>
 
-      <div className="flex flex-col items-start  gap-2 w-full">
+      <div className="flex flex-col items-start gap-2 w-full">
         <label
           className="text-base leading-[19.36px]"
           htmlFor="metaData.time.endTime"
         >
-          End Time
+          End Time in 24 hour format
         </label>
-        <Field
-          type="time"
-          name="metaData.time.endTime"
+        <TimeInput
+          label="Enter End Time"
+          value={values?.metaData?.time?.endTime || ""}
+          onChange={handleEndTimeChange}
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <ErrorMessage component={TextError} name="metaData.time.endTime" />
@@ -386,6 +401,7 @@ const MatchDateAndTime = () => {
     </div>
   );
 };
+
 
 const VenueLocationAndCourt = () => {
   return (

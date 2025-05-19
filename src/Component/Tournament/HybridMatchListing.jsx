@@ -285,7 +285,7 @@ export const HybridMatchesListing = ({ fixtureId }) => {
                   : [];
               }
             )
-          : [];
+          : [];   
       setPlayerData(playerData);
 
       setPlayers(() => {
