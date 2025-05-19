@@ -88,6 +88,9 @@ const RoundDetails = ({
     if (fixtureId)
       dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
   }, []);
+  useEffect(()=>{
+    setCurrentPage(1)
+  },[selectedRoundIndex])
   useEffect(() => {
     () => {
       dispatch(resetConfirmationState());
