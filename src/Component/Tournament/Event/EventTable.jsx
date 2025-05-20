@@ -97,7 +97,7 @@ export const EventTable = ({ isDisable, categories }) => {
           className="border-[1px] rounded-md"
           onClick={(id) => handleDelete(id)}
           hasLink={false}
-          navigateTo="tournaments"
+          // navigateTo="tournaments"
         />
       )}
     </div>
