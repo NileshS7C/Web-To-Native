@@ -164,7 +164,11 @@ export const ArchiveButtons = (props) => {
     <div>
       {tournament?.status === "PUBLISHED" && (
         <Button
-          className={`${isSingleEvent ? "hidden" : "flex items-center justify-center gap-3 px-4 py-2 bg-[#FFFFFF] text-customColor ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-200 shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95"}`}
+          className={`${
+            isSingleEvent
+              ? "hidden"
+              : "flex items-center justify-center gap-[2px] sm:gap-3 px-1 sm:px-4 py-1 sm:py-2 bg-[#FFFFFF] text-customColor ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-200 shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 text-xs sm:text-base md:text-md lg:text-lg"
+          }`}
           onClick={() =>
             dispatch(
               showConfirmation({
@@ -183,7 +187,11 @@ export const ArchiveButtons = (props) => {
       )}
       {tournament?.status === "ARCHIVED" && (
         <Button
-          className={`${isSingleEvent ? "hidden" : "flex w-[200px] items-center justify-center gap-3 px-4 py-2 bg-[#FFFFFF] text-customColor ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-200 shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95"}`}
+          className={`${
+            isSingleEvent
+              ? "hidden"
+              : "flex w-[200px] items-center justify-center gap-[2px] sm:gap-3 px-1 sm:px-4 py-1 sm:py-2 bg-[#FFFFFF] text-customColor ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-200 shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 text-xs sm:text-base md:text-md lg:text-lg"
+          }`}
           onClick={() =>
             dispatch(
               showConfirmation({

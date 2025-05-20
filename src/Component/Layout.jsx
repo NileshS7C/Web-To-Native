@@ -137,7 +137,7 @@ const Layout = () => {
     { tournamentId },
     { venue, tournament, category }
   );
-  
+
   useEffect(() => {
     if (
       approvalBody?.action === "APPROVE" &&
@@ -181,20 +181,24 @@ const Layout = () => {
 
       <div className="flex flex-1 bg-[#F5F7FA] overflow-hidden">
         <div
-          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${shouldScroll.nav ? "overflow-auto" : "overflow-auto"
-            }  scrollbar-hide`}
+          className={`w-[250px] hidden lg:block h-full bg-[#FFFFFF] ${
+            shouldScroll.nav ? "overflow-auto" : "overflow-auto"
+          }  scrollbar-hide`}
           ref={navRef}
         >
           <NavBar />
         </div>
         <div
-          className={`flex-1 ${currentTitle !== "DASHBOARD" && "p-4 md:p-[50px]"
-            } h-full ${shouldScroll.page ? "overflow-auto" : "overflow-auto"
-            } scrollbar-hide ${currentTitle === "DASHBOARD" && "overflow-hidden"
-            }`}
+          className={`flex-1 ${
+            currentTitle !== "DASHBOARD" && "p-4 md:p-[50px]"
+          } h-full ${
+            shouldScroll.page ? "overflow-auto" : "overflow-auto"
+          } scrollbar-hide ${
+            currentTitle === "DASHBOARD" && "overflow-hidden"
+          }`}
           currentTitle={currentTitle}
         >
-          <div className="flex gap-2.5 items-center mb-4 ">
+          <div className="flex sm:gap-2.5  mb-4 w-[100%] ">
             {!notHaveBackButton.includes(currentTitle) &&
               !location.pathname.includes("/coupons/") && (
                 <button
@@ -221,86 +225,93 @@ const Layout = () => {
             <SuccessModal />
 
             {!shouldHideTitleBar && (
-              <div className="flex items-center justify-between w-full">
-                <p className="inline-flex  items-center gap-2.5 text-[#343C6A] font-semibold text-base md:text-[22px]">
-                  {currentTitle}
+              <div className="flex flex-wrap items-center justify-between gap-4 w-full">
+                {/* Title + Status Tag */}
+                <div className="flex items-center gap-3 text-[#343C6A] font-semibold text-base md:text-[22px] flex-grow min-w-0">
+                  <span className="text-left text-base sm:text-base md:text-lg text-ellipsis">
+                    {currentTitle}
+                  </span>
+
                   {tournamentId && (
                     <span
-                      className={`inline-flex flex-1 w-full items-center rounded-2xl  px-2 py-1 text-xs font-medium  ring-1 ring-inset  ${tagColor}`}
+                      className={`inline-flex items-center rounded-xl sm:rounded-2xl px-1 sm:px-2 py-1 text-xs sm:text-base md:text-md lg:text-lg font-medium ring-1 ring-inset ${tagColor}`}
                     >
                       {tournament?.status}
                     </span>
                   )}
-                </p>
+                </div>
 
-                {currentTitle === "Tournaments" && (
-                  <Button
-                    onClick={() => {
-                      navigate("/tournaments/add");
-                    }}
-                    disable={false}
-                    className=" flex px-4 py-2 rounded-lg text-[#FFFFFF] text-sm md:text-base"
-                  >
-                    Add New Tournament
-                  </Button>
-                )}
-
-                {currentTitle === "Venues" && (
-                  <Button
-                    type="button"
-                    className="block rounded-md  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    onClick={() => navigate("/venues/new")}
-                  >
-                    Add New Venue
-                  </Button>
-                )}
-                {currentTitle === "Coupons" &&
-                  location.pathname === "/coupons" && (
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center gap-2 justify-end ml-auto">
+                  {currentTitle === "Tournaments" && (
                     <Button
-                      type="button"
-                      className="block rounded-md  px-3 py-2 text-center text-sm font-medium text-[#FFFFFF] shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                      onClick={() => navigate("/coupons/new")}
+                      onClick={() => navigate("/tournaments/add")}
+                      disable={false}
+                      className="px-4 py-2 rounded-lg text-white text-sm md:text-base"
                     >
-                      Add New Coupon
+                      Add New Tournament
                     </Button>
                   )}
 
-                {currentTitle === "Tournament Organisers" && (
-                  <TournamentOrganiserButtons dispatch={dispatch} />
-                )}
-
-                {currentTitle === "Uploaded Images" && (
-                  <UploadImageButton dispatch={dispatch} />
-                )}
-
-                {(currentTitle.startsWith("Venue Details") ||
-                  currentTitle.startsWith("Edit")) && isVenue && (
-                    <VenueActionButtonWrapper
-                      dispatch={dispatch}
-                      navigate={navigate}
-                      venueId={id}
-                      submitForm={submitForm}
-                      isSubmitting={isSubmitting}
-                    />
+                  {currentTitle === "Venues" && (
+                    <Button
+                      type="button"
+                      className="rounded-md px-3 py-2 text-sm font-medium text-white shadow-sm"
+                      onClick={() => navigate("/venues/new")}
+                    >
+                      Add New Venue
+                    </Button>
                   )}
 
-                {isTournament &&
-                  tournament?.status !== "DRAFT" &&
-                  !hideActionButtons.includes(currentTitle) && (
-                    <TournamentActionButton
-                      dispatch={dispatch}
-                      ROLES={ROLES}
-                      userRole={userRole || Role}
-                      approvalBody={approvalBody}
-                      tournament={tournament}
-                      changingDecision={changingDecision}
-                      setApproveButtonClicked={setApproveButtonClicked}
-                      tournamentEditMode={tournamentEditMode}
-                      eventId={eventId}
-                      submitForm={submitForm}
-                      isSubmitting={isSubmitting}
-                    />
+                  {currentTitle === "Coupons" &&
+                    location.pathname === "/coupons" && (
+                      <Button
+                        type="button"
+                        className="rounded-md px-3 py-2 text-sm font-medium text-white shadow-sm"
+                        onClick={() => navigate("/coupons/new")}
+                      >
+                        Add New Coupon
+                      </Button>
+                    )}
+
+                  {currentTitle === "Tournament Organisers" && (
+                    <TournamentOrganiserButtons dispatch={dispatch} />
                   )}
+
+                  {currentTitle === "Uploaded Images" && (
+                    <UploadImageButton dispatch={dispatch} />
+                  )}
+
+                  {(currentTitle.startsWith("Venue Details") ||
+                    currentTitle.startsWith("Edit")) &&
+                    isVenue && (
+                      <VenueActionButtonWrapper
+                        dispatch={dispatch}
+                        navigate={navigate}
+                        venueId={id}
+                        submitForm={submitForm}
+                        isSubmitting={isSubmitting}
+                      />
+                    )}
+
+                  {isTournament &&
+                    tournament?.status !== "DRAFT" &&
+                    !hideActionButtons.includes(currentTitle) && (
+                      <TournamentActionButton
+                        dispatch={dispatch}
+                        ROLES={ROLES}
+                        userRole={userRole || Role}
+                        approvalBody={approvalBody}
+                        tournament={tournament}
+                        changingDecision={changingDecision}
+                        setApproveButtonClicked={setApproveButtonClicked}
+                        tournamentEditMode={tournamentEditMode}
+                        eventId={eventId}
+                        submitForm={submitForm}
+                        isSubmitting={isSubmitting}
+                      />
+                    )}
+                </div>
               </div>
             )}
           </div>
@@ -344,11 +355,11 @@ const TournamentActionButton = ({
 }) => {
   return (
     <div className="flex gap-2.5 items-center">
-      <div className="flex items-center gap-2 justify-end ml-auto">
+      <div className="flex items-center gap-1 sm:gap-2 justify-end ml-auto">
         {!eventId &&
           (!tournamentEditMode ? (
             <button
-              className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+              className="flex items-center justify-center gap-[2px] sm:gap-3 px-1 sm:px-4 py-1 sm:py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
               type="button"
               onClick={() => dispatch(setTournamentEditMode())}
               disabled={
@@ -366,7 +377,9 @@ const TournamentActionButton = ({
                   ))
               }
             >
-              <span className="hidden lg:block">Edit Tournament</span>
+              <span className="hidden lg:block text-xs sm:text-base md:text-md lg:text-lg">
+                Edit Tournament
+              </span>
               <FiEdit3 />
             </button>
           ) : (
@@ -389,8 +402,9 @@ const TournamentActionButton = ({
           tournament?.status !== "REJECTED" && (
             <div className="flex items-center gap-2">
               <Button
-                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                  } items-center justify-center gap-3 px-4 py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400`}
+                className={`${
+                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                } items-center justify-center gap-[2px] sm:gap-3 px-1 sm:px-4 py-2 sm:py-2 bg-white text-black shadow-lg ml-auto rounded-[8px] hover:bg-gray-100 disabled:bg-gray-400 text-xs sm:text-base md:text-md lg:text-lg`}
                 type="button"
                 onClick={() => {
                   setApproveButtonClicked(true);
@@ -406,8 +420,9 @@ const TournamentActionButton = ({
                 Accept Tournament
               </Button>
               <Button
-                className={`${tournament?.status === "PUBLISHED" ? "hidden" : "flex"
-                  } items-center justify-center gap-3 px-4 py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400`}
+                className={`${
+                  tournament?.status === "PUBLISHED" ? "hidden" : "flex"
+                } items-center justify-center gap-[2px] sm:gap-3 px-1 sm:px-4 py-2 sm:py-2 bg-red-700 text-white shadow-lg ml-auto rounded-[8px] hover:bg-red-600 disabled:bg-red-400 text-xs sm:text-base md:text-md lg:text-lg`}
                 type="button"
                 onClick={() => {
                   dispatch(
@@ -430,12 +445,11 @@ const TournamentActionButton = ({
       <div>
         <ArchiveButtons tournament={tournament} dispatch={dispatch} />
       </div>
-      {/* Roles are Archived and publised then only sheet will be downloaded */}
       {ROLES.slice(0, 3).includes(userRole) &&
         tournament?.status &&
         ["ARCHIVED", "PUBLISHED"].includes(tournament?.status) && (
           <Button
-            className="bg-blue-400 flex w-46 items-center justify-center gap-2 px-4 py-2  text-customColor ml-auto rounded-[8px] hover:bg-[#1570EF] shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 "
+            className="bg-blue-400 flex h-[24px] sm:h-auto sm:w-46 items-center justify-center gap-2 px-4 py-2  text-customColor ml-auto rounded-[8px] hover:bg-[#1570EF] shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 text-xs sm:text-base md:text-md lg:text-lg"
             type="button"
             onClick={() => {
               dispatch(
@@ -450,7 +464,7 @@ const TournamentActionButton = ({
             }}
           >
             <BsDownload />
-            <span className="text-white hidden lg:block">Download Sheet</span>
+            <span className="text-white   hidden lg:block">Download Sheet</span>
           </Button>
         )}
     </div>
@@ -566,7 +580,6 @@ const VenueActionButtons = ({
   submitForm,
   isSubmitting,
 }) => {
-  console.log("IsEdit - ", isEditInThePath)
   return (
     <div className="flex items-center gap-2 justify-end ml-auto">
       {venueEditMode ? (
@@ -581,7 +594,7 @@ const VenueActionButtons = ({
         />
       ) : (
         <button
-          className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+          className="flex items-center justify-center gap-[2px] sm:gap-3 px-1 sm:px-4 py-1 sm:py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[5px] sm:rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400 text-xs sm:text-base md:text-md lg:text-lg"
           type="button"
           onClick={() => {
             if (!isEditInThePath) {
@@ -599,7 +612,7 @@ const VenueActionButtons = ({
       {!isEditInThePath && (
         <>
           <Button
-            className="flex items-center justify-center gap-3 px-4 py-2 bg-red-700 shadow-lg text-white ml-auto rounded-[8px] hover:bg-red-500 disabled:bg-red-500"
+            className="flex items-center justify-center gap-[2px] sm:gap-3 px-1 sm:px-4 py-1 sm:py-2 bg-red-700 shadow-lg text-white ml-auto rounded-[5px] sm:rounded-[8px] hover:bg-red-500 disabled:bg-red-500 text-xs sm:text-base md:text-md lg:text-lg"
             type="button"
             onClick={() => {
               setIsDeleteButtonClicked(true);
@@ -610,8 +623,7 @@ const VenueActionButtons = ({
             <AiFillDelete />
           </Button>
           <Button
-            className="flex items-center justify-center gap-3 px-4 py-2 bg-white shadow-lg text-customTextColor ml-auto rounded-[8px] hover:bg-gray-200 disabled:bg-gray-200"
-            type="button"
+            className="flex items-center justify-center  gap-[2px] sm:gap-3 px-1 sm:px-4 py-1 sm:py-2 bg-white shadow-lg text-customTextColor ml-auto rounded-[5px] sm:rounded-[8px] hover:bg-gray-200 disabled:bg-gray-200 text-xs sm:text-base md:text-md lg:text-lg"
             onClick={() =>
               dispatch(
                 showConfirmation({
@@ -626,7 +638,7 @@ const VenueActionButtons = ({
               venue?.status === "PUBLISHED" || venue?.courts?.length === 0
             }
           >
-            <span>
+            <span className="text-xs sm:text-base md:text-md lg:text-lg font-medium">
               {venue?.status !== "PUBLISHED"
                 ? "Publish Venue"
                 : "Venue Published"}
@@ -647,20 +659,24 @@ const SaveAndCancelButton = ({
   return (
     <div className="flex items-center justify-between gap-2">
       <button
-        className="flex items-center justify-center gap-3 px-4 py-2 bg-white shadow-lg text-black ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+        className="flex items-center justify-center gap-[5px] sm:gap-3 px-1 sm:px-4 py-1 sm:py-2 bg-white shadow-lg text-black ml-auto rounded-[5px] sm:rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
         type="button"
         onClick={() => setEditMode()}
       >
-        <span>Cancel</span>
+        <span className="text-xs sm:text-base md:text-md lg:text-lg font-medium">
+          Cancel
+        </span>
       </button>
 
       <Button
-        className="flex items-center justify-center gap-3 px-4 py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
+        className="flex items-center justify-center gap-[5px] sm:gap-3 px-1 sm:px-4 py-1 sm:py-2 bg-[#1570EF] shadow-lg text-white ml-auto rounded-[5px] sm:rounded-[8px] hover:bg-blue-700 disabled:bg-blue-400"
         type="button"
         onClick={() => submitForm && submitForm()}
         loading={isSubmitting}
       >
-        <span>Save</span>
+        <span className="text-xs sm:text-base md:text-md lg:text-lg font-medium">
+          Save
+        </span>
       </Button>
     </div>
   );
