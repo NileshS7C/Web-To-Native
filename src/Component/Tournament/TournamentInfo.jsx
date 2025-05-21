@@ -90,7 +90,6 @@ const requiredTournamentFields = (tournament) => {
     bookingEndDate,
     sponsors,
     tournamentGallery,
-    instagramHandle,
     whatToExpect,
   } = tournament;
 
@@ -116,7 +115,6 @@ const requiredTournamentFields = (tournament) => {
     bookingEndDate,
     sponsors,
     tournamentGallery,
-    instagramHandle,
     whatToExpect,
   };
 };
@@ -361,9 +359,6 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
         bookingStartDate: formattedDate(values.bookingStartDate),
         bookingEndDate: formattedDate(values.bookingEndDate),
       };
-      if(!updatedValues.whatsappGroupLink){
-        delete updatedValues.whatsappGroupLink;
-      }
       const result = await dispatch(
         addTournamentStepOne(updatedValues)
       ).unwrap();
