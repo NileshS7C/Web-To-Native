@@ -40,7 +40,7 @@ const checkAllField = (scoreData, onValidationError, setDisableButton,handleErro
 
   if (!checkAllFieldsAreFilled) {
     onValidationError(true);
-    handleErrorMessage("Set both opponent sscore should be filled");
+    handleErrorMessage("Both opponent scores must be filled");
   } else {
     onValidationError(false);
   }
