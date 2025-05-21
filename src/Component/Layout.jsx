@@ -80,6 +80,7 @@ const hiddenRoutes = [
   "/cms/tourism-page/media-gallery",
   ...aboutUsPageRoutes,
   "/",
+  "/create-admin",
 ];
 import { BsDownload } from "react-icons/bs";
 const Layout = () => {

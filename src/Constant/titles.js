@@ -25,6 +25,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname === "/cms/homepage/explore") {
       return "Explore Picklebay";
     }
+    if (pathname === "/create-admin") {
+      return "Admin";
+    }
     if (pathname === "/cms/homepage/why-choose-picklebay") {
       return "Why Choose Picklebay";
     }

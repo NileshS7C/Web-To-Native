@@ -210,6 +210,7 @@ export const notHaveBackButton = [
   "Coupons",
   "Banner Section",
   "Mission & Vision",
+  "Admin"
 ];
 
 export const ROLES = [

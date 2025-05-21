@@ -568,7 +568,7 @@ const EventFormat = () => {
       {values?.format === "DE" && (
         <div className="flex flex-col items-start gap-2.5">
           <label
-            className="text-base leading-[19.36px] text-[#232323] text-black  font-medium"
+            className="text-base leading-[19.36px] text-[#232323]  font-medium"
             htmlFor="grandFinalsDE"
           >
             Grand Finals

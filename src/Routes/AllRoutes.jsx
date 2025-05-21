@@ -51,7 +51,7 @@ import CouponDetails from "../Component/Coupons/CouponDetails";
 import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
 import DashBoard from '../Page/DashBoard'
-import AddAdmin from "../Component/CreateAdmin/AddAdmin";
+import Admin from "../Page/Admin";
 const AllRoutes = () => {
   return (
     <div>
@@ -76,7 +76,7 @@ const AllRoutes = () => {
             }
           />
 
-          <Route path="create-admin" element={<AddAdmin />} />
+          <Route path="create-admin" element={<Admin />} />
 
           <Route path="tournaments">
             <Route index element={<TournamentListingWrapper />} />

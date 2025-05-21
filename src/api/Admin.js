@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Get all admins
 export const getAllAdmins = async (page = 1, limit = 50) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
   try {
@@ -10,40 +9,53 @@ export const getAllAdmins = async (page = 1, limit = 50) => {
         "Content-Type": "application/json",
       },
     });
-    return response.data;
+    return response.data?.data;
   } catch (error) {
     throw error;
   }
 };
 
-// Create new admin
-export const createAdmin = async (adminData) => {
+export const createAdmin = async (adminObj) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
   try {
-    const response = await axios.post(`${baseURL}/users/admin/admins`, adminData, {
+    const response = await axios.post(`${baseURL}/users/admin/admins`, adminObj ,{
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
       },
     });
-    return response.data;
+    return response.data?.data;
   } catch (error) {
     throw error;
   }
-};
+}
 
-// Update admin
-export const updateAdmin = async (adminId, adminData) => {
+export const getAdminById = async (id) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
   try {
-    const response = await axios.post(`${baseURL}/users/admin/admins/${adminId}`, adminData, {
+    const response = await axios.get(`${baseURL}/users/admin/admins/${id}`, {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
       },
     });
-    return response.data;
+    return response.data?.data;
   } catch (error) {
     throw error;
   }
-};
+}
+
+export const updateAdmin = async (id, adminObj) => {
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  try {
+    const response = await axios.post(`${baseURL}/users/admin/admins/${id}`, adminObj ,{
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data?.data;
+  } catch (error) {
+    throw error;
+  }
+}
