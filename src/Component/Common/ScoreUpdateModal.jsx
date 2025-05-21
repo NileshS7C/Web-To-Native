@@ -64,6 +64,8 @@ const formattedMatchData = (scoreData, players) => {
       );
 
       if (!currentMatch) return null;
+      if(!set?.set1 || !set?.set2)
+        return null;
       const score1 = Number(set?.set1);
       const score2 = Number(set?.set2);
 
@@ -587,9 +589,10 @@ const MatchScoreUpdateSet = ({
       try {
         setSuccess(false);
         setActionPending(true);
+        handleUpdateFixture(false);
         setErrorMessage("");
         setError(false);
-
+   
         const result = await dispatch(
           updateMatchSetCount({
             formData: {
@@ -611,6 +614,7 @@ const MatchScoreUpdateSet = ({
             handleAddAndDeleteRow(newSet);
             return newSet;
           });
+          handleUpdateFixture(true);
         }
       } catch (err) {
         console.log("Error in deleting the match set", err);
