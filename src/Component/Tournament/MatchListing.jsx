@@ -369,17 +369,19 @@ export const MatchesListing = () => {
             onClick={handleMatchUpdateButton}
           />
 
-          <ScoreUpdateModal
-            isOpen={showScoreUpdateModal}
-            onCancel={setShowScoreUpdateModal}
-            players={players}
-            fixtureId={fixture?._id}
-            tournamentId={tournamentId}
-            eventId={eventId}
-            currentMatchId={currentMatchClicked?.matchId}
-            handleUpdateFixture={handleUpdateFixture}
-            format="Non-Hybrid"
-          />
+          {showScoreUpdateModal && (
+            <ScoreUpdateModal
+              isOpen={showScoreUpdateModal}
+              onCancel={setShowScoreUpdateModal}
+              players={players}
+              fixtureId={fixture?._id}
+              tournamentId={tournamentId}
+              eventId={eventId}
+              currentMatchId={currentMatchClicked?.matchId}
+              handleUpdateFixture={handleUpdateFixture}
+              format="Non-Hybrid"
+            />
+          )}
         </>
       )}
     </div>

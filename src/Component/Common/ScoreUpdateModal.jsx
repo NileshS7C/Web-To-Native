@@ -52,7 +52,6 @@ const formattedMatchData = (scoreData, players) => {
     opponent1 = {},
     opponent2 = {},
   } = players;
-
   if (!stage_id?.toString() || !parent_id?.toString()) {
     return;
   }
@@ -149,7 +148,6 @@ export const ScoreUpdateModal = ({
   const [showPlayerSelections, setShowPlayerSelections] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
   const [scoreUpdateArray, setScoreUpdateArray] = useState([]);
-
   // Check if any player has forfeited
   const isForfeited =
     (players?.opponent1 && players.opponent1.forfeit) ||
@@ -164,11 +162,10 @@ export const ScoreUpdateModal = ({
         };
       }
     });
-    setScoreUpdateArray(scoreUpdates);
-  }, [players]);
+    setScoreUpdateArray(scoreUpdates || []);
+  }, [players?.match]);
   const getScoreData = (data, index, type, value) => {
     setFinalScoreData(data);
-
     setScoreUpdateArray((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [type]: value };
@@ -188,6 +185,10 @@ export const ScoreUpdateModal = ({
     setValidationError(data);
   };
 
+  const handleAddAndDeleteRow=(data)=>{
+    setScoreUpdateArray(data);
+  }
+
   useEffect(() => {
     if (finalScoreData?.length > 0) {
       checkAllField(scoreUpdateArray, handleValidationError, setDisableButton);
@@ -205,6 +206,7 @@ export const ScoreUpdateModal = ({
     }
   }, [isOpen]);
   const getMatchSetsUntilVictory = (matchset) => {
+    console.log(matchset);
     const winCount = new Map();
     winCount.set("player1", 0);
     winCount.set("player2", 0);
@@ -237,13 +239,12 @@ export const ScoreUpdateModal = ({
       (match) => match?.opponent1?.score === match?.opponent2?.score
     );
   };
-
+ 
   const handleScoreUpdate = async (e) => {
     e.preventDefault();
     setUpdateError(false);
     setValidationError(false);
     let currentSetUpdated;
-
     if (!showPlayerSelections) {
       currentSetUpdated = formattedMatchData(scoreUpdateArray, players);
     } else {
@@ -264,7 +265,6 @@ export const ScoreUpdateModal = ({
       return;
     }
    const hasTiedMatch = checkForTie(currentSetUpdated?.matchSets || []);
-
    if (hasTiedMatch) {
      setValidationError(true);
      setErrorMessage("A set cannot contain tied scores.");
@@ -409,6 +409,7 @@ export const ScoreUpdateModal = ({
                     fixtureId={fixtureId}
                     matchId={players?.matchId}
                     handleUpdateFixture={handleUpdateFixture}
+                    handleAddAndDeleteRow={handleAddAndDeleteRow}
                   />
                   <div className="mr-0 mt-3 flex items-end justify-between">
                     <Button
@@ -546,7 +547,9 @@ const MatchScoreUpdateSet = ({
   matchId,
   handleUpdateFixture,
   players, // Add players prop to access forfeit status
+  handleAddAndDeleteRow
 }) => {
+  console.log("printing players:",players);
   const dispatch = useDispatch();
   const [deleteButtonClicked, setDeleteButtonClicked] = useState(false);
   const [addButtonClicked, setAddButtonClicked] = useState(false);
@@ -585,7 +588,6 @@ const MatchScoreUpdateSet = ({
     const deleteSets = async () => {
       try {
         setSuccess(false);
-        handleUpdateFixture(null);
         setActionPending(true);
         setErrorMessage("");
         setError(false);
@@ -603,17 +605,15 @@ const MatchScoreUpdateSet = ({
           })
         ).unwrap();
         if (!result.responseCode) {
+          console.log(result.data)
           setSuccess(true);
-
           setScoreSet((prev) => {
             if (prev.length === 0) return prev;
-
             const newSet = prev.slice(0, -1);
             getScoreData(newSet);
+            handleAddAndDeleteRow(newSet);
             return newSet;
           });
-
-          handleUpdateFixture(true);
         }
       } catch (err) {
         console.log("Error in deleting the match set", err);
@@ -631,7 +631,6 @@ const MatchScoreUpdateSet = ({
       deleteSets();
     }
   }, [deleteButtonClicked]);
-
   useEffect(() => {
     const addMatchSet = async () => {
       try {
@@ -655,14 +654,12 @@ const MatchScoreUpdateSet = ({
         ).unwrap();
         if (!result.responseCode) {
           setSuccess(true);
-
-          setScoreSet((prev) => {
-            const newSet = [...prev, { set1: "", set2: "" }];
-            getScoreData(newSet);
-            return newSet;
-          });
-
-          handleUpdateFixture(true);
+          const newSet = [...scoreSet, { set1: "", set2: "" }];
+          console.log("printing new set",newSet)
+          setScoreSet(newSet);
+          getScoreData(newSet);
+          handleAddAndDeleteRow(newSet || []);
+           handleUpdateFixture(true);
         }
       } catch (err) {
         console.log(" Error in Adding the match set", err);

@@ -90,8 +90,6 @@ const requiredTournamentFields = (tournament) => {
     bookingEndDate,
     sponsors,
     tournamentGallery,
-    instagramHandle,
-    whatsappGroupLink,
     whatToExpect,
   } = tournament;
 
@@ -117,9 +115,7 @@ const requiredTournamentFields = (tournament) => {
     bookingEndDate,
     sponsors,
     tournamentGallery,
-    instagramHandle,
     whatToExpect,
-    whatsappGroupLink,
   };
 };
 
@@ -307,7 +303,7 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
       })
     ),
   });
-
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { tournamentId } = useParams();
