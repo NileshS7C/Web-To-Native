@@ -91,6 +91,8 @@ const requiredTournamentFields = (tournament) => {
     sponsors,
     tournamentGallery,
     whatToExpect,
+    whatsappGroupLink,
+    instagramHandle
   } = tournament;
 
   const updatedTournamentLocation = {
@@ -116,6 +118,8 @@ const requiredTournamentFields = (tournament) => {
     sponsors,
     tournamentGallery,
     whatToExpect,
+    whatsappGroupLink,
+    instagramHandle
   };
 };
 
