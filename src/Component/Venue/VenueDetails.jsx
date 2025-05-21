@@ -172,7 +172,7 @@ const Address = ({ address }) => {
   )}`;
   return (
     <div className="flex flex-col gap-2.5 items-start">
-      <p className="text-sm font-medium">
+      <p className="text-sm font-medium text-left">
         {address.line1} | {address.line2}
       </p>
       <div className="flex gap-2">
@@ -182,7 +182,7 @@ const Address = ({ address }) => {
           width="24px"
           height="24px"
         />
-        <p className="text-sm text-[#101828]">
+        <p className="text-sm text-[#101828] text-left">
           <span>{address?.line1 || ""}</span>
           {","}
           <span>{address?.line2 || ""}</span>

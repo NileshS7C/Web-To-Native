@@ -27,7 +27,7 @@ import { AiOutlineInfoCircle } from "react-icons/ai";
 import { showError } from "../../redux/Error/errorSlice";
 import { getFixtureById } from "../../redux/tournament/fixturesActions";
 
-const checkAllField = (scoreData, onValidationError, setDisableButton) => {
+const checkAllField = (scoreData, onValidationError, setDisableButton,handleErrorMessage) => {
   if (!scoreData?.length) {
     return setDisableButton(true);
   } else {
@@ -40,6 +40,7 @@ const checkAllField = (scoreData, onValidationError, setDisableButton) => {
 
   if (!checkAllFieldsAreFilled) {
     onValidationError(true);
+    handleErrorMessage("Both opponent scores must be filled");
   } else {
     onValidationError(false);
   }
@@ -52,7 +53,6 @@ const formattedMatchData = (scoreData, players) => {
     opponent1 = {},
     opponent2 = {},
   } = players;
-
   if (!stage_id?.toString() || !parent_id?.toString()) {
     return;
   }
@@ -63,40 +63,39 @@ const formattedMatchData = (scoreData, players) => {
         (game) => game?.number === index + 1
       );
 
-      if (currentMatch) {
-        const score1 = Number(set?.set1);
-        const score2 = Number(set?.set2);
+      if (!currentMatch) return null;
+      if(!set?.set1 || !set?.set2)
+        return null;
+      const score1 = Number(set?.set1);
+      const score2 = Number(set?.set2);
 
-        // Determine result based on scores
-        const result1 = score1 > score2 ? "win" : "loss";
-        const result2 = score2 > score1 ? "win" : "loss";
+      if (isNaN(score1) || isNaN(score2)) return null;
 
-        return {
-          id: currentMatch.id,
-          opponent1: {
-            id: opponent1.id,
-            score: score1,
-            result: result1,
-          },
-          opponent2: {
-            id: opponent2.id,
-            score: score2,
-            result: result2,
-          },
-        };
-      }
+      const result1 = score1 > score2 ? "win" : "loss";
+      const result2 = score2 > score1 ? "win" : "loss";
+
+      return {
+        id: currentMatch.id,
+        opponent1: {
+          id: opponent1.id,
+          score: score1,
+          result: result1,
+        },
+        opponent2: {
+          id: opponent2.id,
+          score: score2,
+          result: result2,
+        },
+      };
     })
-    .filter(
-      (player) =>
-        player?.opponent1?.score !== undefined &&
-        player?.opponent2?.score !== undefined
-    );
+    .filter(Boolean); 
 
   return {
     stage_id,
     parent_id,
     matchSets: playersData,
   };
+
 };
 
 const formattedMatchDataForForfiet = (forfietPlayerId, players) => {
@@ -149,7 +148,6 @@ export const ScoreUpdateModal = ({
   const [showPlayerSelections, setShowPlayerSelections] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
   const [scoreUpdateArray, setScoreUpdateArray] = useState([]);
-
   // Check if any player has forfeited
   const isForfeited =
     (players?.opponent1 && players.opponent1.forfeit) ||
@@ -164,11 +162,10 @@ export const ScoreUpdateModal = ({
         };
       }
     });
-    setScoreUpdateArray(scoreUpdates);
-  }, [players]);
+    setScoreUpdateArray(scoreUpdates || []);
+  }, [players?.match]);
   const getScoreData = (data, index, type, value) => {
     setFinalScoreData(data);
-
     setScoreUpdateArray((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [type]: value };
@@ -188,9 +185,15 @@ export const ScoreUpdateModal = ({
     setValidationError(data);
   };
 
+  const handleAddAndDeleteRow=(data)=>{
+    setScoreUpdateArray(data);
+  }
+  const handleErrorMessage=(message)=>{
+    setErrorMessage(message);
+  }
   useEffect(() => {
     if (finalScoreData?.length > 0) {
-      checkAllField(scoreUpdateArray, handleValidationError, setDisableButton);
+      checkAllField(scoreUpdateArray, handleValidationError, setDisableButton,handleErrorMessage);
     }
   }, [finalScoreData]);
 
@@ -237,13 +240,11 @@ export const ScoreUpdateModal = ({
       (match) => match?.opponent1?.score === match?.opponent2?.score
     );
   };
-
   const handleScoreUpdate = async (e) => {
     e.preventDefault();
     setUpdateError(false);
     setValidationError(false);
     let currentSetUpdated;
-
     if (!showPlayerSelections) {
       currentSetUpdated = formattedMatchData(scoreUpdateArray, players);
     } else {
@@ -264,7 +265,7 @@ export const ScoreUpdateModal = ({
       return;
     }
    const hasTiedMatch = checkForTie(currentSetUpdated?.matchSets || []);
-
+  
    if (hasTiedMatch) {
      setValidationError(true);
      setErrorMessage("A set cannot contain tied scores.");
@@ -409,6 +410,7 @@ export const ScoreUpdateModal = ({
                     fixtureId={fixtureId}
                     matchId={players?.matchId}
                     handleUpdateFixture={handleUpdateFixture}
+                    handleAddAndDeleteRow={handleAddAndDeleteRow}
                   />
                   <div className="mr-0 mt-3 flex items-end justify-between">
                     <Button
@@ -546,6 +548,7 @@ const MatchScoreUpdateSet = ({
   matchId,
   handleUpdateFixture,
   players, // Add players prop to access forfeit status
+  handleAddAndDeleteRow
 }) => {
   const dispatch = useDispatch();
   const [deleteButtonClicked, setDeleteButtonClicked] = useState(false);
@@ -585,11 +588,11 @@ const MatchScoreUpdateSet = ({
     const deleteSets = async () => {
       try {
         setSuccess(false);
-        handleUpdateFixture(null);
         setActionPending(true);
+        handleUpdateFixture(false);
         setErrorMessage("");
         setError(false);
-
+   
         const result = await dispatch(
           updateMatchSetCount({
             formData: {
@@ -604,15 +607,13 @@ const MatchScoreUpdateSet = ({
         ).unwrap();
         if (!result.responseCode) {
           setSuccess(true);
-
           setScoreSet((prev) => {
             if (prev.length === 0) return prev;
-
             const newSet = prev.slice(0, -1);
             getScoreData(newSet);
+            handleAddAndDeleteRow(newSet);
             return newSet;
           });
-
           handleUpdateFixture(true);
         }
       } catch (err) {
@@ -631,7 +632,6 @@ const MatchScoreUpdateSet = ({
       deleteSets();
     }
   }, [deleteButtonClicked]);
-
   useEffect(() => {
     const addMatchSet = async () => {
       try {
@@ -655,14 +655,11 @@ const MatchScoreUpdateSet = ({
         ).unwrap();
         if (!result.responseCode) {
           setSuccess(true);
-
-          setScoreSet((prev) => {
-            const newSet = [...prev, { set1: "", set2: "" }];
-            getScoreData(newSet);
-            return newSet;
-          });
-
-          handleUpdateFixture(true);
+          const newSet = [...scoreSet, { set1: "", set2: "" }];
+          setScoreSet(newSet);
+          getScoreData(newSet);
+          handleAddAndDeleteRow(newSet || []);
+           handleUpdateFixture(true);
         }
       } catch (err) {
         console.log(" Error in Adding the match set", err);
