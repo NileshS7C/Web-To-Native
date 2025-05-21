@@ -14,7 +14,7 @@ import store, { persistor } from "./redux/store";
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Provider store={store}>
@@ -22,7 +22,7 @@ createRoot(document.getElementById("root")).render(
         </Provider>
       </BrowserRouter>
     </QueryClientProvider>
-  </StrictMode>
+  </StrictMode> 
 );
 
 reportWebVitals();
