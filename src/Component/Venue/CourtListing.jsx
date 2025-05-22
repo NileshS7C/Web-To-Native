@@ -10,8 +10,8 @@ import {
 } from "../../redux/Confirmation/confirmationSlice";
 import { cleanUpSuccess, showSuccess } from "../../redux/Success/successSlice";
 import { cleanUpError, showError } from "../../redux/Error/errorSlice";
-import { resetDeleteState, resetErrorState } from "../../redux/Venue/addCourt";
-import { deleteCourt } from "../../redux/Venue/venueActions";
+import { resetCourtState, resetDeleteState, resetErrorState } from "../../redux/Venue/addCourt";
+import { deleteCourt, getSingleVenue } from "../../redux/Venue/venueActions";
 import { resetConfirmationState } from "../../redux/Confirmation/confirmationSlice";
 
 import { courtTableContent } from "../../Constant/venue";
@@ -33,11 +33,9 @@ export const CourtListing = ({
   const { isDeleting, isDeleted, isError, errorMessage } = useSelector(
     (state) => state.addCourt
   );
-
   const { isConfirmed, type, confirmationId } = useSelector(
     (state) => state.confirm
   );
-
   useEffect(() => {
     if (isConfirmed && type === "Court" && confirmationId) {
       dispatch(deleteCourt(confirmationId));
@@ -53,24 +51,28 @@ export const CourtListing = ({
           onClose: "hideSuccess",
         })
       );
-      dispatch(cleanUpSuccess());
-
-      dispatch(resetDeleteState());
-      dispatch(onCancel());
+      dispatch(getSingleVenue(id));
     }
 
     if (isError) {
+      console.log("called");
       dispatch(
         showError({
           message: errorMessage || "Something went wrong!",
           onClose: "hideError",
         })
       );
-      dispatch(resetErrorState());
-      dispatch(cleanUpError());
-      dispatch(onCancel());
     }
   }, [isDeleted, isError]);
+  useEffect(() => {
+    return () => {
+      dispatch(cleanUpSuccess());
+      dispatch(resetDeleteState());
+      dispatch(onCancel());
+      dispatch(cleanUpError());
+      dispatch(resetCourtState());
+    };
+  }, []);
 
   return (
     <div className="flex flex-col ">
