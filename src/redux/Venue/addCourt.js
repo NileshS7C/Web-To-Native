@@ -37,6 +37,7 @@ const courtSlice = createSlice({
       state.isDeleted = false;
       state.isSuccess = false;
       state.isLoading = false;
+      state.isError = false;
     },
 
     setCourtName(state, { payload }) {

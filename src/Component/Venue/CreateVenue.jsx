@@ -531,6 +531,7 @@ const VenueMetaData = ({ isGettingTags, uniqueTags, selectedTags, id }) => {
         placeholder="Enter Venue Tags"
         label="Venue Tags"
         id={id}
+        disabled={id ? !venueEditMode : false}
       />
       <ErrorMessage name="tags" component={TextError} />
       <div className="flex flex-col items-start gap-2.5">

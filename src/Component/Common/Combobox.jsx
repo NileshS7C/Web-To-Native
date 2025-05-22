@@ -5,7 +5,7 @@ import Spinner from "./Spinner";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
- const CreateTags = ({ selectedTag, handleRemoveTag,Disabled }) => {
+ const CreateTags = ({ selectedTag, handleRemoveTag,disabled }) => {
   return (
     <>
       {selectedTag.map((tag, index) => (
@@ -15,7 +15,7 @@ import { useSelector } from "react-redux";
             <RxCrossCircled
               className="cursor-pointer"
               onClick={() => {
-                 if (Disabled) {
+                 if (!disabled) {
                    handleRemoveTag(tag);
                  }
               }}
