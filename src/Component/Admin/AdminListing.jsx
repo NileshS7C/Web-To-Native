@@ -9,10 +9,6 @@ const AdminListing = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { data, isLoading, isError, error } = useGetAllAdmins(currentPage, 10);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
-
   // Format date function
   const formatDate = (dateString) => {
     try {

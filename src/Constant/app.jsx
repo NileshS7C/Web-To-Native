@@ -57,7 +57,7 @@ export const menus = [
 
 export const ADMIN_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
-  { name: "Create Admin", icon: profileIcon, path: "create-admin" },
+  { name: "Admin Users", icon: profileIcon, path: "admin-users" }, 
   {
     name: "Tournament Organisers",
     icon: tournamentIcon,
@@ -210,7 +210,7 @@ export const notHaveBackButton = [
   "Coupons",
   "Banner Section",
   "Mission & Vision",
-  "Admin"
+  "Admin Users"
 ];
 
 export const ROLES = [

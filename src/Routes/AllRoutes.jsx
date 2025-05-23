@@ -76,7 +76,7 @@ const AllRoutes = () => {
             }
           />
 
-          <Route path="create-admin" element={<Admin />} />
+          <Route path="admin-users" element={<Admin />} />
 
           <Route path="tournaments">
             <Route index element={<TournamentListingWrapper />} />

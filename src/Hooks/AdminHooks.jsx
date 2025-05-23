@@ -14,12 +14,11 @@ export const useCreateAdmin = () => {
   return useMutation ({
     mutationFn: (adminObj) => createAdmin(adminObj),
     onSuccess: (data) => {
-      console.log('Admin created successfully', data);
       // Invalidate and refetch the admins list
       queryClient.invalidateQueries({ queryKey: ['admins'] });
     },
     onError: () => {
-      console.log('Error creating admin');
+      console.error('Error creating admin');
     }
   });
 };
@@ -38,13 +37,12 @@ export const useUpdateAdmin = (id) => {
   return useMutation ({
     mutationFn: (adminObj) => updateAdmin(id, adminObj),
     onSuccess: (data) => {
-      console.log('Admin updated successfully', data);
       // Invalidate and refetch the admins list and the specific admin
       queryClient.invalidateQueries({ queryKey: ['admins'] });
       queryClient.invalidateQueries({ queryKey: ['admin', id] });
     },
     onError: () => {
-      console.log('Error updating admin');
+      console.error('Error updating admin');
     }
   });
 };
