@@ -9,10 +9,6 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
 
-  useEffect(() => {
-    console.log(data,'data')
-  }, [data])
-
   const handleModifyData = (item) => {
     setOpenEditModal(true);
     setSelectedCard(item);
