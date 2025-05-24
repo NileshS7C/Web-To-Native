@@ -22,7 +22,7 @@ createRoot(document.getElementById("root")).render(
         </Provider>
       </BrowserRouter>
     </QueryClientProvider>
-  </StrictMode> 
+   </StrictMode> 
 );
 
 reportWebVitals();
