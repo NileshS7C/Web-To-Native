@@ -80,6 +80,7 @@ const hiddenRoutes = [
   "/cms/tourism-page/media-gallery",
   ...aboutUsPageRoutes,
   "/",
+  "/admin-users",
 ];
 import { BsDownload } from "react-icons/bs";
 const Layout = () => {
@@ -174,7 +175,6 @@ const Layout = () => {
   const shouldHideTitleBar =
     hiddenRoutes.includes(location.pathname) ||
     location.pathname.match(/^\/cms\/blogs\/blog-posts\/[\w-]+$/);
-
   return (
     <div className="flex flex-col h-screen">
       <Header />
@@ -283,7 +283,7 @@ const Layout = () => {
                   )}
 
                   {(currentTitle.startsWith("Venue Details") ||
-                    currentTitle.startsWith("Edit")) &&
+                    currentTitle.startsWith("Edit Venue")) &&
                     isVenue && (
                       <VenueActionButtonWrapper
                         dispatch={dispatch}

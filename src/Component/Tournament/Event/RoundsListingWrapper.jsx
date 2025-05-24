@@ -124,9 +124,9 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
                   setActiveTab("Details");
                 }}
               >
-                {fixtures?.map((_, index) => (
+                {fixtures?.map((fixture, index) => (
                   <option key={index} value={index}>
-                    {`Round ${index + 1}`}
+                    {`${fixture?.name}`}
                   </option>
                 ))}
               </select>
@@ -142,8 +142,8 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
 
             {/* Desktop round list (hidden on small screens) */}
             <div className="hidden md:flex md:flex-col w-full space-y-1">
-              {fixtures?.map((_, index) => {
-                const roundLabel = `Round ${index + 1}`;
+              {fixtures?.map((fixture, index) => {
+                const roundLabel = `${fixture?.name}`;
                 const isSelected = selectedRoundIndex === index;
                 return (
                   <button

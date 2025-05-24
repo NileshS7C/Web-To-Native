@@ -34,7 +34,10 @@ export const ActionButtons = ({
                 <div className="mt-1 flex gap-2.5 size-4 flex-none items-center justify-start rounded-lg bg-gray-50 group-hover:bg-white">
                   <button
                     className="flex gap-2.5"
-                    onClick={() => handleAction(item.action)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAction(item.action)
+                    }} 
                   >
                     <img
                       src={item.icon}

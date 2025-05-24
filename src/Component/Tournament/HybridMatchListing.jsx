@@ -306,7 +306,6 @@ export const HybridMatchesListing = ({ fixtureId }) => {
       </div>
     );
   }
-
   return (
     <div>
       {!fixture && <NoMatchExist />}

@@ -124,6 +124,13 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
         }
       },
+      unPublishFixture: (type, tournamentId, categoryId, fixtureId) => {
+        if (ADMIN_ROLES.includes(type)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/unpublish`;
+        } else {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/unpublish`;
+        }
+      },
       updatePlayerSeeding: (
         type,
         tournamentId,

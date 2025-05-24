@@ -3,6 +3,7 @@ import {
   createFixture,
   getFixture,
   publishFixture,
+  unPublishFixture,
   updateMatch,
   getFixtureById,
   getHybridFixtures,
@@ -28,6 +29,9 @@ const initialState = {
   isFetchingHybridFixtures: false,
   isHybridFixtureSuccess: true,
   isHybridFetchingError: false,
+  isUnPublishing: false,
+  isUnPublished: false,
+  unPublishError: false,
 };
 const fixtureSlice = createSlice({
   name: "fixture",
@@ -160,6 +164,25 @@ const fixtureSlice = createSlice({
         state.isPublishing = false;
         state.isPublished = false;
         state.publishError = true;
+        state.ErrorMessage = payload?.data?.message;
+      });
+    builder
+      .addCase(unPublishFixture.pending, (state) => {
+        state.isUnPublishing = true;
+        state.isUnPublished = false;
+        state.unPublishError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(unPublishFixture.fulfilled, (state) => {
+        state.isUnPublishing = false;
+        state.isUnPublished = true;
+        state.unPublishError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(unPublishFixture.rejected, (state, { payload }) => {
+        state.isUnPublishing = false;
+        state.isUnPublished = false;
+        state.unPublishError = true;
         state.ErrorMessage = payload?.data?.message;
       });
   },
