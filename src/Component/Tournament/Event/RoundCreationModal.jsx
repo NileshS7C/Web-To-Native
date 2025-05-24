@@ -54,9 +54,7 @@ const RoundCreationModal = ({
       .max(50, "Round name cannot exceed more than 50 characters."),
     groupName: yup
       .string()
-      .optional("Group name is required")
-      .min(3, "Group name should be minimum 3 characters")
-      .max(50, "Group name cannot exceed more than 50 characters."),
+      .optional(),
 
     format: yup.string().required(),
 
