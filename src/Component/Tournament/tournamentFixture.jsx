@@ -7,6 +7,7 @@ import {
   getFixture,
   publishFixture,
   updateSeeding,
+  unPublishFixture,
 } from "../../redux/tournament/fixturesActions";
 import { showError } from "../../redux/Error/errorSlice";
 
@@ -81,6 +82,9 @@ export const TournamentFixture = ({ tournament }) => {
     isPublishing,
     isPublished,
     publishError,
+    isUnPublishing,
+    isUnPublished,
+    unPublishError,
   } = useSelector((state) => state.fixture);
 
 
@@ -120,6 +124,10 @@ export const TournamentFixture = ({ tournament }) => {
         fixtureId: fixture?._id,
       })
     );
+  };
+
+  const handleUnPublishFixture = () => {
+    dispatch(unPublishFixture({ tour_Id: tournamentId, eventId, fixtureId: fixture?._id }));
   };
 
   useEffect(() => {
@@ -194,13 +202,22 @@ export const TournamentFixture = ({ tournament }) => {
         })
       );
     }
-  }, [FixtureCreationError, publishError]);
+    if (unPublishError) { 
+      dispatch(
+        showError({
+          message: "Oops! something went wrong while unpublishing the fixture.",
+          onClose: "hideError",
+        })  
+      );
+    }
+    
+  }, [FixtureCreationError, publishError, unPublishError  ]);
 
   useEffect(() => {
-    if (isPublished || FixtureCreatedSuccess) {
+    if (isPublished || FixtureCreatedSuccess || isUnPublished) {
       dispatch(getFixture({ tour_Id: tournamentId, eventId }));
     }
-  }, [isPublished, FixtureCreatedSuccess]);
+  }, [isPublished, FixtureCreatedSuccess, isUnPublished]);
 
   if (isFetchingFixture) {
     return (
@@ -227,14 +244,25 @@ export const TournamentFixture = ({ tournament }) => {
         >
           <TbSwipe className="w-[20px] h-[20px]" />
         </button>
-        <Button
-          className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
-          onClick={handlePublishFixture}
-          loading={isPublishing}
-          disabled={fixture?.status === "PUBLISHED" || !fixture}
-        >
-          Publish
-        </Button>
+        {fixture?.status === "PUBLISHED" ? (
+          <Button
+            className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
+            onClick={handleUnPublishFixture}
+            loading={isUnPublishing}
+            disabled={fixture?.status !== "PUBLISHED" || !fixture}
+          >
+            UnPublish
+          </Button>
+        ) : (
+          <Button
+            className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
+            onClick={handlePublishFixture}
+            loading={isPublishing}
+            disabled={fixture?.status === "PUBLISHED" || !fixture}
+          >
+            Publish
+          </Button>
+        )}
       </div>
 
       <div className="w-full flex gap-4 flex-col justify-center items-start flex-1 rounded-md overflow-x-auto">

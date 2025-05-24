@@ -46,16 +46,13 @@ const TournamentHybridStandings = ({ tournamentId, categoryId, fixtureId }) => {
                         Player Name
                       </th>
                       <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">
-                        Matches Played
+                        P
                       </th>
                       <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">
-                        Won
+                        W
                       </th>
                       <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">
-                        Lost
-                      </th>
-                      <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">
-                        Points
+                        L
                       </th>
                     </tr>
                   </thead>
@@ -79,9 +76,6 @@ const TournamentHybridStandings = ({ tournamentId, categoryId, fixtureId }) => {
                         </td>
                         <td className="border-y border-gray-300 px-3 py-2 text-center opacity-85">
                           {player.matchesLost}
-                        </td>
-                        <td className="border-y border-gray-300 px-3 py-2 text-center opacity-85">
-                          {player.points}
                         </td>
                       </tr>
                     ))}
@@ -113,10 +107,6 @@ const TournamentHybridStandings = ({ tournamentId, categoryId, fixtureId }) => {
                       <div className="flex justify-between mb-2">
                         <span className="font-semibold">Lost:</span>
                         <span>{player.matchesLost}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-semibold">Points:</span>
-                        <span>{player.points}</span>
                       </div>
                     </div>
                   ))}
