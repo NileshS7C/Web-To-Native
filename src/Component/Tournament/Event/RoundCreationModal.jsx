@@ -139,6 +139,7 @@ const RoundCreationModal = ({
       grandFinalsDE,
       participants,
       consolationFinal,
+      groupName
     } = values;
 
     const settings = {
@@ -158,6 +159,7 @@ const RoundCreationModal = ({
       fixtureData: {
         format,
         name,
+        groupName,
         settings,
         bookings,
       },
