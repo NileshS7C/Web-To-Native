@@ -172,7 +172,6 @@ export const EventCreationModal = () => {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedVenueData, setSelectedVenueData] = useState(null);
-
   const { tournamentId } = useParams();
   const { category, loadingSingleCategory, singleCategorySuccess } =
     useSelector((state) => state.event);
@@ -342,7 +341,6 @@ export const EventCreationModal = () => {
       setInitialState({});
     }
   }, [categoryId, tournamentId, singleCategorySuccess]);
-
   return (
     <Dialog
       open={showModal}
@@ -568,7 +566,7 @@ const EventFormat = () => {
       {values?.format === "DE" && (
         <div className="flex flex-col items-start gap-2.5">
           <label
-            className="text-base leading-[19.36px] text-[#232323] text-black  font-medium"
+            className="text-base leading-[19.36px] text-[#232323]  font-medium"
             htmlFor="grandFinalsDE"
           >
             Grand Finals
@@ -1356,7 +1354,7 @@ function ComboboxForVenuesList({
         </ComboboxOptions>
       </div>
 
-      {selectedPerson && !categoryId && (
+      {selectedPerson  && (
         <div className="w-full p-4 border border-gray-200 rounded-lg mt-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="relative w-full sm:w-auto">

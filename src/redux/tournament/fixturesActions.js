@@ -407,3 +407,42 @@ export const publishFixture = createAsyncThunk(
     }
   }
 );
+
+export const unPublishFixture = createAsyncThunk(
+  "fixture/unPublishFixture",
+  async (matchData, { rejectWithValue }) => {
+    try {
+      const userRole = cookies.get("userRole");
+
+      const userAPIEndPoint = API_END_POINTS.tournament.POST.unPublishFixture(
+        userRole,
+        matchData.tour_Id,
+        matchData.eventId,
+        matchData.fixtureId
+      );
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err?.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);

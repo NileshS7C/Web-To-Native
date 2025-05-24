@@ -753,8 +753,8 @@ const PlayerDetails = ({ players }) => {
     profilePics2?.length > 0 ? profilePics2[0].profilePic : dummyImage;
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between p-3 mt-3 rounded-lg bg-[#5B8DFF1A] shadow-sm">
-      <div className="flex flex-col items-center gap-3 w-full md:w-1/4 py-2">
+    <div className="flex flex-col md:flex-row items-center justify-between p-3 mt-3 rounded-lg bg-[#5B8DFF1A] shadow-sm gap-2">
+      <div className="flex flex-col items-center gap-3 w-full md:w-[40%] py-2">
         <div className="relative">
           <img
             src={player1ProfilePic}
@@ -767,12 +767,12 @@ const PlayerDetails = ({ players }) => {
             </div>
           )}
         </div>
-        <p className="text-matchModalTextColor font-semibold text-center mt-1 max-w-full truncate">
+        <p className="text-matchModalTextColor font-semibold text-center mt-1 max-w-full">
           {player1 || "TBD"}
         </p>
       </div>
 
-      <div className="w-full md:w-2/4 py-4">
+      <div className="w-full md:w-[20%] py-4">
         <MatchLocationDetails
           match={match}
           location={location}
@@ -782,7 +782,7 @@ const PlayerDetails = ({ players }) => {
         />
       </div>
 
-      <div className="flex flex-col items-center gap-3 w-full md:w-1/4 py-2">
+      <div className="flex flex-col items-center gap-3 w-full  md:w-[40%] py-2">
         <div className="relative">
           <img
             src={player2ProfilePic}
@@ -795,7 +795,7 @@ const PlayerDetails = ({ players }) => {
             </div>
           )}
         </div>
-        <p className="text-matchModalTextColor font-semibold text-center mt-1 max-w-full truncate">
+        <p className="text-matchModalTextColor font-semibold text-center mt-1 max-w-full">
           {player2 || "TBD"}
         </p>
       </div>
@@ -819,11 +819,11 @@ const MatchLocationDetails = ({ match, location, date, time, court }) => {
         </p>
       </div>
 
-      <div className="flex items-center justify-between gap-2">
+      {/* <div className="flex items-center justify-between gap-2">
         <CiLocationOn color="#1570EF" className="w-[24px] h-[24px]" />
         <p className="text-md text-[#1570EF]">{location?.name || ""}</p>
         <p className="text-md text-[#1570EF]">{court || 1}</p>
-      </div>
+      </div> */}
     </div>
   );
 };

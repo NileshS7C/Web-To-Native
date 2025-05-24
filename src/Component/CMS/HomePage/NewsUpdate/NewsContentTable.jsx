@@ -35,6 +35,7 @@ export default function NewsContentTable({ data, fetchHomepageSections }) {
     };
     const headers = [
         "Position",
+        "Image",
         "Title",
         "Date",
         "Link",
@@ -51,8 +52,10 @@ export default function NewsContentTable({ data, fetchHomepageSections }) {
                             <th key={index} className={`px-3 py-2 text-left text-sm font-semibold text-gray-900 ${header === "Position" || header === "Actions"
                                 ? "w-[10%]"
                                 : header === "Title" || header === "Link"
-                                    ? "w-[30%]"
-                                    : "w-[20%]"
+                                    ? "w-[25%]"
+                                    : header === "Image"
+                                        ? "w-[15%]"
+                                        : "w-[15%]"
                                 }`}>
                                 {header}
                             </th>
@@ -64,6 +67,15 @@ export default function NewsContentTable({ data, fetchHomepageSections }) {
                         <tr key={index} className="text-left">
                             <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
                                 {index + 1}
+                            </td>
+                            <td className="px-3 py-4 text-sm text-gray-500">
+                                {item.image && (
+                                    <img 
+                                        src={item.image} 
+                                        alt={item.title} 
+                                        className="h-16 w-auto object-contain"
+                                    />
+                                )}
                             </td>
                             <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
                                 {item.title}
@@ -110,6 +122,18 @@ export default function NewsContentTable({ data, fetchHomepageSections }) {
                             </span>
                             <span className="text-base text-gray-700">{index + 1}</span>
                         </div>
+                        {item.image && (
+                            <div className="pt-3 flex flex-col items-center">
+                                <span className="block text-base font-semibold text-gray-500 mb-2">
+                                    Image
+                                </span>
+                                <img 
+                                    src={item.image} 
+                                    alt={item.title} 
+                                    className="h-32 w-auto object-contain"
+                                />
+                            </div>
+                        )}
                         <div className="flex justify-between items-center pt-3">
                             <span className="block text-base font-semibold text-gray-500">
                                 Title

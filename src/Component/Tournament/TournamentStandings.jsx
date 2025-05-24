@@ -43,10 +43,9 @@ const TournamentStandings = ({ tournamentId, categoryId }) => {
                     <tr className='bg-white'>
                       <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">Rank</th>
                       <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">Player Name</th>
-                      <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">Matches Played</th>
-                      <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">Won</th>
-                      <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">Lost</th>
-                      <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">Points</th>
+                      <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">P</th>
+                      <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">W</th>
+                      <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">L</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -57,7 +56,6 @@ const TournamentStandings = ({ tournamentId, categoryId }) => {
                         <td className="border-y border-gray-300 px-3 py-2 text-center opacity-85">{player.matchesPlayed}</td>
                         <td className="border-y border-gray-300 px-3 py-2 text-center opacity-85">{player.matchesWon}</td>
                         <td className="border-y border-gray-300 px-3 py-2 text-center opacity-85">{player.matchesLost}</td>
-                        <td className="border-y border-gray-300 px-3 py-2 text-center opacity-85">{player.points}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -81,14 +79,6 @@ const TournamentStandings = ({ tournamentId, categoryId }) => {
                       <div className="flex justify-between mb-2">
                         <span className="font-semibold">Won:</span>
                         <span>{player.matchesWon}</span>
-                      </div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-semibold">Lost:</span>
-                        <span>{player.matchesLost}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-semibold">Points:</span>
-                        <span>{player.points}</span>
                       </div>
                     </div>
                   ))}

@@ -7,7 +7,6 @@ import { useEffect } from "react";
 export const ErrorModal = () => {
   const dispatch = useDispatch();
   const { isOpen, message, onClose } = useSelector((state) => state.error);
-
   const handleClose = () => {
     if (onClose) {
       dispatch(hideError());

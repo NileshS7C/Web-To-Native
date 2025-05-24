@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ExploreEditDataModal from "./ExploreEditDataModal";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
 import DeleteModal from "../DeleteModal";
@@ -45,7 +45,7 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
   };
 
 
-  const headers = ["Position", "Title", "Link", "Actions"];
+  const headers = ["Position", "Image", "Title", "Link", "Actions"];
 
   return (
     <>
@@ -60,8 +60,10 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
                   className={`px-3 py-2 text-left text-sm font-semibold text-gray-900 ${header === "Position" || header === "Actions"
                     ? "w-[10%]"
                     : header === "Title"
-                      ? "w-[30%]"
-                      : "w-[50%]"
+                      ? "w-[25%]"
+                      : header === "Image"
+                        ? "w-[15%]"
+                        : "w-[40%]"
                     }`}
                 >
                   {header}
@@ -75,10 +77,19 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
                 <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%] text-center">
                   {explore.position}
                 </td>
-                <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[30%]">
+                <td className="px-3 py-4 text-sm text-gray-500">
+                  {explore.image && (
+                    <img 
+                      src={explore.image} 
+                      alt={explore.title} 
+                      className="h-16 w-auto object-contain"
+                    />
+                  )}
+                </td>
+                <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[25%]">
                   {explore.title}
                 </td>
-                <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[50%]">
+                <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[40%]">
                   {explore.link}
                 </td>
                 <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
@@ -105,6 +116,18 @@ export default function ExploreContentTable({ data, fetchHomepageSections }) {
               <span className="text-base font-semibold text-gray-500">Position</span>
               <span className="text-base text-gray-700">{explore.position}</span>
             </div>
+            {explore.image && (
+              <div className="pt-3 flex flex-col items-center">
+                <span className="block text-base font-semibold text-gray-500 mb-2">
+                  Image
+                </span>
+                <img 
+                  src={explore.image} 
+                  alt={explore.title} 
+                  className="h-32 w-auto object-contain"
+                />
+              </div>
+            )}
             <div className="flex justify-between items-center pt-3">
               <span className="block text-base font-semibold text-gray-500">Title</span>
               <span className="block text-base font-regular text-gray-500">{explore.title}</span>
