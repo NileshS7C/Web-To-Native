@@ -157,8 +157,8 @@ const RoundDetails = ({
         </div>
 
         <div className="flex flex-col py-6 rounded-xl bg-white gap-1 md:gap-3 px-3 sm:px-8 md:px-10">
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 md:gap-8 justify-between w-full">
-            <div className="flex flex-col gap-1 sm:gap-2 items-start flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-6 md:gap-8 justify-between w-full">
+            <div className="flex flex-col gap-1 sm:gap-2 items-start w-full">
               <label className="text-sm sm:text-base md:text-lg font-normal md:semibold text-grey-300">
                 Name
               </label>
@@ -169,7 +169,21 @@ const RoundDetails = ({
                 className="cursor-pointer w-full px-2 border-2 border-[#DFEAF2] rounded-xl h-8 sm:h-11 focus:outline-none text-grey-100 text-sm sm:text-base md:text-lg font-normal md:semibold"
               />
             </div>
-            <div className="flex flex-col gap-1 sm:gap-2 items-start flex-1">
+            {fixture?.groupName && (
+              <div className="flex flex-col gap-1 sm:gap-2 items-start w-full">
+                <label className="text-sm sm:text-base md:text-lg font-normal md:semibold text-grey-300">
+                  Group Name
+                </label>
+                <input
+                  type="text"
+                  value={fixture?.groupName}
+                  readOnly
+                  placeholder="Enter Group Name..."
+                  className="cursor-pointer w-full px-2 border-2 border-[#DFEAF2] rounded-xl h-8 sm:h-11 focus:outline-none text-grey-100 text-sm sm:text-base md:text-lg font-normal md:semibold"
+                />
+              </div>
+            )}
+            <div className="flex flex-col gap-1 sm:gap-2 items-start w-full">
               <label className="text-sm sm:text-base md:text-lg font-normal md:semibold text-grey-300">
                 Event Type
               </label>

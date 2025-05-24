@@ -52,6 +52,11 @@ const RoundCreationModal = ({
       .required("Round name is required")
       .min(3, "Round name should be minimum 3 characters")
       .max(50, "Round name cannot exceed more than 50 characters."),
+    groupName: yup
+      .string()
+      .optional("Group name is required")
+      .min(3, "Group name should be minimum 3 characters")
+      .max(50, "Group name cannot exceed more than 50 characters."),
 
     format: yup.string().required(),
 
@@ -101,6 +106,7 @@ const RoundCreationModal = ({
       return {
         ...initialValues,
         name: fixture?.name || "",
+        groupName: fixture?.groupName || "",
         format: fixture?.format || "",
         participants: fixture?.bracketData?.participant || [],
         totalSets: matchesChildCount?.toString() || "",
@@ -108,6 +114,7 @@ const RoundCreationModal = ({
         roundRobinMode: roundRobinMode || "",
         consolationFinal: consolationFinal || false,
         grandFinalsDE: grandFinalsDE || "",
+      
       };
     }
     return initialValues;
@@ -294,6 +301,22 @@ const RoundCreationModal = ({
                             />
 
                             <ErrorMessage name="name" component={TextError} />
+                          </div>
+                          <div className="flex flex-col items-start gap-2.5">
+                            <label
+                              className="text-sm sm:text-base md:text-lg leading-[19.36px] text-black font-normal sm:font-medium"
+                              htmlFor="groupName"
+                            >
+                              Group Name
+                            </label>
+                            <Field
+                              placeholder="Enter Group Name"
+                              id="groupName"
+                              name="groupName"
+                              className="text-sm sm:text-base md:text-lg w-full px-[19px] text-[#718EBF] border-[2px] border-[#DFEAF2] rounded-xl h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              type="text"
+                            />
+                            <ErrorMessage name="groupName" component={TextError} />
                           </div>
                           <EventFormat />
                           <div
