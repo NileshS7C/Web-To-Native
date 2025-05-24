@@ -57,7 +57,7 @@ export const menus = [
 
 export const ADMIN_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
-  { name: "Admin Users", icon: profileIcon, path: "admin-users" }, 
+  // { name: "Admin Users", icon: profileIcon, path: "admin-users" }, 
   {
     name: "Tournament Organisers",
     icon: tournamentIcon,

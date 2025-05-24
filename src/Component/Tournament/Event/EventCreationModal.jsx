@@ -172,7 +172,6 @@ export const EventCreationModal = () => {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedVenueData, setSelectedVenueData] = useState(null);
-
   const { tournamentId } = useParams();
   const { category, loadingSingleCategory, singleCategorySuccess } =
     useSelector((state) => state.event);
@@ -342,7 +341,6 @@ export const EventCreationModal = () => {
       setInitialState({});
     }
   }, [categoryId, tournamentId, singleCategorySuccess]);
-
   return (
     <Dialog
       open={showModal}
@@ -1356,7 +1354,7 @@ function ComboboxForVenuesList({
         </ComboboxOptions>
       </div>
 
-      {selectedPerson && !categoryId && (
+      {selectedPerson  && (
         <div className="w-full p-4 border border-gray-200 rounded-lg mt-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="relative w-full sm:w-auto">

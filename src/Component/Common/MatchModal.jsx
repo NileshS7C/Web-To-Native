@@ -32,15 +32,11 @@ const initialValues = {
     id: "",
   },
   metaData: {
-    location: {
-      name: "",
-    },
     date: "",
     time: {
       startTime: "",
-      endTime: "",
     },
-    court: 1,
+    // court: 1,
   },
 };
 
@@ -57,31 +53,13 @@ export const MatchModal = ({
 }) => {
   const validationSchema = yup.object().shape({
     metaData: yup.object().shape({
-      location: yup.object().shape({
-        name: yup.string().required("Venue Name is required."),
-      }),
       date: yup.date().required("Match Start Date is required."),
       time: yup.object().shape({
         startTime: yup
           .string()
           .required("Start time of the match is required."),
-        endTime: yup
-          .string()
-          .required("End time of the match is required.")
-          .test(
-            "valid-end-time",
-            "End time must be greater than start time.",
-            function (value) {
-              const { startTime } = this.parent;
-              if (!startTime || !value) return true;
-              const startTimeInMin = timeInMins(startTime);
-              const endTimeInMin = timeInMins(value);
-
-              return startTimeInMin < endTimeInMin;
-            }
-          ),
       }),
-      court: yup.number().optional(),
+      // court: yup.number().optional(),
     }),
   });
 
@@ -144,13 +122,11 @@ export const MatchModal = ({
         round_id,
         metaData: {
           ...prev.metaData,
-          location: { name: metaData?.location?.name },
-          court: metaData?.court,
+          // court: metaData?.court,
           date: metaData?.date && parseDate(metaData?.date),
           time: {
             ...prev.metaData.time,
             startTime: metaData?.time?.startTime,
-            endTime: metaData?.time?.endTime,
           },
         },
       }));
@@ -238,7 +214,7 @@ export const MatchModal = ({
                     <MatchRound round={roundNumber} />
                     <PlayersDetails playersData={playersData} />
                     <MatchDateAndTime />
-                    <VenueLocationAndCourt />
+                    {/* <VenueLocationAndCourt /> */}
                     <Button
                       className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
                       loading={isSubmitting}
@@ -329,9 +305,6 @@ const MatchDateAndTime = () => {
     setFieldValue("metaData.time.startTime", startTime);
   };
 
-  const handleEndTimeChange = (endTime) => {
-    setFieldValue("metaData.time.endTime", endTime);
-  };
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full text-[#718EBF]">
       <div className="flex flex-col gap-2 items-start">
@@ -382,22 +355,6 @@ const MatchDateAndTime = () => {
         />
         <ErrorMessage component={TextError} name="metaData.time.startTime" />
       </div>
-
-      <div className="flex flex-col items-start gap-2 w-full">
-        <label
-          className="text-base leading-[19.36px]"
-          htmlFor="metaData.time.endTime"
-        >
-          End Time <span className="text-[11px]">( 24 hour format )</span>
-        </label>
-        <TimeInput
-          label="Enter End Time"
-          value={values?.metaData?.time?.endTime || ""}
-          onChange={handleEndTimeChange}
-          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <ErrorMessage component={TextError} name="metaData.time.endTime" />
-      </div>
     </div>
   );
 };
@@ -406,23 +363,6 @@ const MatchDateAndTime = () => {
 const VenueLocationAndCourt = () => {
   return (
     <div className="flex items-start text-[#718EBF] gap-3">
-      <div className="flex flex-col gap-2 w-full">
-        <div className="flex flex-col gap-2 items-start justify-between w-full">
-          <label
-            className="text-base leading-[19.36px]"
-            htmlFor="metaData.location.name"
-          >
-            Venue
-          </label>
-          <Field
-            placeholder="Enter Venue name"
-            id="metaData.location.name"
-            name="metaData.location.name"
-            className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <ErrorMessage component={TextError} name="metaData.location.name" />
-      </div>
 
       <div className="flex flex-col gap-2 items-start justify-center w-full">
         <label className="text-base leading-[19.36px]" htmlFor="metaData.court">
