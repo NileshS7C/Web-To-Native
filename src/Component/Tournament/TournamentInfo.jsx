@@ -1365,6 +1365,7 @@ const TournamentSponserTable = ({ disabled }) => {
       const url = result.data.url;
       setSponsorImage(url);
       setErrorMessage(result?.message);
+      return url;
     } catch (err) {
       setErrorMessage(err.data?.message);
       setIsError(true);
@@ -1419,9 +1420,8 @@ const TournamentSponserTable = ({ disabled }) => {
                               {...field}
                               id={`sponsors.${index}.sponsorImage`}
                               name={`sponsors.${index}.sponsorImage`}
-                              onChange={(e) => {
-                                const file = e.target.files[0];
-                                const url = window.URL.createObjectURL(file);
+                              onChange={async (e) => {
+                                const url =await  handleFileUpload(e);
                                 form.setFieldValue(
                                   `sponsors.${index}.sponsorImage`,
                                   url
