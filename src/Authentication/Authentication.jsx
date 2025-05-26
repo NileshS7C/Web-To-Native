@@ -3,10 +3,9 @@ import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
 const Authentication = ({ children }) => {
-  const [cookies, setCookies] = useCookies(["userRole"]);
-  const { userRole } = useSelector((state) => state.auth);
-
-  if (cookies?.userRole || userRole) {
+  const [cookies, setCookies] = useCookies(["userRoles"]);
+  const { userRoles } = useSelector((state) => state.auth);
+  if (cookies?.userRoles?.length > 0 || userRoles?.length > 0) {
     return children;
   }
 

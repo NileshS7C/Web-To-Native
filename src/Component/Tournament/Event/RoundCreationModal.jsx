@@ -39,6 +39,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { object } from "prop-types";
 
+import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 
 const RoundCreationModal = ({
   toggleModal,
@@ -116,6 +117,7 @@ const RoundCreationModal = ({
     error: updateFixtureError,
     isPending: isUpdateFixturePending,
   } = useUpdateHybridFixture();
+  const {rolesAccess}=useOwnerDetailsContext()
   const { fixture } = useSelector((state) => state.fixture);
   const getInitialState = () => {
     if (actionType === "edit") {
@@ -291,13 +293,19 @@ const RoundCreationModal = ({
       }
       const payload = createPayload(initialState,actionType,values,groupSizes);
       if (actionType === "add") {
-        createHybridFixture({ tournamentId, categoryId, payload });
+        createHybridFixture({
+          tournamentId,
+          categoryId,
+          payload,
+          type: rolesAccess?.tournament,
+        });
       } else {
         updateHybridFixture({
           tournamentId,
           categoryId,
           fixtureId: fixtureId,
           payload,
+          type: rolesAccess?.tournament,
         });
       }
     } catch (error) {
@@ -321,7 +329,11 @@ const RoundCreationModal = ({
       setTimeout(() => {
         if (actionType === "add") {
           dispatch(
-            getHybridFixtures({ tour_Id: tournamentId, eventId: categoryId })
+            getHybridFixtures({
+              tour_Id: tournamentId,
+              eventId: categoryId,
+              type: rolesAccess?.tournament,
+            })
           );
         } else if (actionType === "edit") {
           dispatch(
@@ -329,6 +341,7 @@ const RoundCreationModal = ({
               tour_Id: tournamentId,
               eventId: categoryId,
               fixtureId,
+              type: rolesAccess?.tournament,
             })
           );
         }

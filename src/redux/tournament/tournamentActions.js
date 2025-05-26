@@ -3,15 +3,14 @@ import axiosInstance from "../../Services/axios";
 import { formatURL } from "../../utils/dateUtils";
 import { Cookies } from "react-cookie";
 import { API_END_POINTS } from "../../Constant/routes";
+import { ADMIN_ROLES, TOURNAMENT_OWNER_ROLES } from "../../Constant/Roles";
 const cookies = new Cookies();
 export const addTournamentStepOne = createAsyncThunk(
   "Tournament/addTournamentStepOne",
-  async (formData, { rejectWithValue }) => {
+  async ({ formData ,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
-        API_END_POINTS.tournament.POST.tournamentCreation(userRole);
+        API_END_POINTS.tournament.POST.tournamentCreation(type);
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -74,11 +73,10 @@ export const searchTournament = createAsyncThunk(
 
 export const archiveTournament = createAsyncThunk(
   "Tournament/archiveTournament",
-  async ({ tournamentId, ownerId }, { rejectWithValue }) => {
+  async ({ type,tournamentId, ownerId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
       const userAPIEndPoint = API_END_POINTS.tournament.POST.archiveTournament(
-        userRole,
+        type,
         tournamentId,
         ownerId
       );
@@ -118,12 +116,12 @@ export const archiveTournament = createAsyncThunk(
 
 export const submitFinalTournament = createAsyncThunk(
   "Tournament/submitFinalTournament",
-  async (formData, { rejectWithValue }) => {
+  async ({ formData ,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
+    
+    
       const userAPIEndPoint =
-        API_END_POINTS.tournament.POST.tournamentCreation(userRole);
+        API_END_POINTS.tournament.POST.tournamentCreation(type);
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -168,7 +166,6 @@ export const getAll_TO = createAsyncThunk(
         }/users/admin/tournament-owners?page=${currentPage}&limit=${limit}`,
         config
       );
-
       return response.data;
     } catch (err) {
       if (err.response) {
@@ -191,10 +188,9 @@ export const getSingle_TO = createAsyncThunk(
   async (type, { rejectWithValue }) => {
     try {
       let userEndPoint;
-
-      if (type === "ADMIN") {
+      if (ADMIN_ROLES.includes(type)) {
         userEndPoint = "/users/admin/get-details";
-      } else {
+      } else if(TOURNAMENT_OWNER_ROLES.includes(type)) {
         userEndPoint = "/users/tournament-owner/get-details";
       }
 
@@ -227,12 +223,10 @@ export const getSingle_TO = createAsyncThunk(
 
 export const getAllUniqueTags = createAsyncThunk(
   "Tournament/getAllUniqueTags",
-  async (_, { rejectWithValue }) => {
+  async (type, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
-        API_END_POINTS.tournament.GET.getAllTags(userRole);
+        API_END_POINTS.tournament.GET.getAllTags(type);
 
       const config = {
         headers: {
@@ -263,12 +257,10 @@ export const getAllUniqueTags = createAsyncThunk(
 
 export const getSingleTournament = createAsyncThunk(
   "Tournament/getSingleTournament",
-  async ({ tournamentId, ownerId }, { rejectWithValue }) => {
+  async ({ tournamentId, ownerId ,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.GET.tournamentById(
-        userRole,
+        type,
         tournamentId,
         ownerId
       );
@@ -334,11 +326,10 @@ export const updateTournament = createAsyncThunk(
 
 export const addEventCategory = createAsyncThunk(
   "Event/createCategory",
-  async ({ formData, id }, { rejectWithValue }) => {
+  async ({ formData, id ,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
       const userAPIEndPoint = API_END_POINTS.tournament.POST.createCategory(
-        userRole,
+        type,
         id
       );
       const config = {
@@ -372,12 +363,12 @@ export const addEventCategory = createAsyncThunk(
 // come here after confirmation
 export const updateEventCategory = createAsyncThunk(
   "Event/createCategory",
-  async ({ formData, id, categoryId }, { rejectWithValue }) => {
+  async ({ type,formData, id, categoryId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
+
 
       const userAPIEndPoint = API_END_POINTS.tournament.POST.updateCategory(
-        userRole,
+        type,
         id,
         categoryId
       );
@@ -412,13 +403,11 @@ export const updateEventCategory = createAsyncThunk(
 
 export const getAllCategories = createAsyncThunk(
   "Tournament/getAllCategories",
-  async ({ currentPage, limit, id }, { rejectWithValue }) => {
+  async ({type, currentPage, limit, id }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getAllCategoriesByTournament(
-          userRole,
+          type,
           id
         );
       const config = {
@@ -452,12 +441,10 @@ export const getAllCategories = createAsyncThunk(
 
 export const getSingleCategory = createAsyncThunk(
   "Event/getSingleCategory",
-  async ({ tour_Id, eventId }, { rejectWithValue }) => {
+  async ({type, tour_Id, eventId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.GET.getCategoryById(
-        userRole,
+        type,
         tour_Id,
         eventId
       );
@@ -490,12 +477,11 @@ export const getSingleCategory = createAsyncThunk(
 
 export const deleteSingleCategory = createAsyncThunk(
   "Event/deleteSingleCategory",
-  async ({ tour_Id, eventId }, { rejectWithValue }) => {
+  async ({ tour_Id, eventId,type }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
+      
       const userAPIEndPoint = API_END_POINTS.tournament.POST.deleteCategory(
-        userRole,
+        type,
         tour_Id,
         eventId
       );
@@ -536,7 +522,11 @@ export const getAllTournaments = createAsyncThunk(
         rest.ownerId,
         rest.type
       );
-
+      if(!userAPIEndPoint){
+        return rejectWithValue({
+          message:"U not write to access this resource",
+        });
+      }
       const { type, ownerId, ...updatedParams } = rest;
       const config = {
         headers: {
@@ -603,13 +593,13 @@ export const handleTournamentDecision = createAsyncThunk(
 
 export const getAllBookings = createAsyncThunk(
   "GET_TOUR/getAllBookings",
-  async ({ currentPage, limit, tour_Id, eventId ,status = ""}, { rejectWithValue }) => {
+  async ({ currentPage, limit, tour_Id, eventId ,status = "",type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
+      
 
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getBookingByCategory(
-          userRole,
+          type,
           tour_Id,
           eventId
         );
@@ -647,12 +637,11 @@ export const getAllBookings = createAsyncThunk(
 
 export const getSearchBookings = createAsyncThunk(
   "GET_TOUR/getSearchBookings",
-  async ({search="", currentPage = 1, limit = 20, tour_Id, eventId,status = "" }, { rejectWithValue }) => {
+  async ({search="", currentPage = 1, limit = 20, tour_Id, eventId,status = "" ,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.searchBookingByCategory(
-          userRole,
+          type,
           tour_Id,
           eventId,
           search
@@ -689,12 +678,12 @@ export const getSearchBookings = createAsyncThunk(
 );
 export const createConfirmBooking = createAsyncThunk(
   "GET_TOUR/createConfirmBooking",
-  async ({ data, ownerId }, { rejectWithValue }) => {
+  async ({ data, ownerId,type }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
+    
 
       const userAPIEndPoint = API_END_POINTS.tournament.POST.createBooking(
-        userRole,
+        type,
         ownerId
       );
       const config = {
@@ -729,11 +718,9 @@ export const cancelAndRefundBooking = createAsyncThunk(
   "GET_TOUR/cancelAndRefundBooking",
   async ({ data, type, bookingId, ownerId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.cancelAndRefundBooking(
-          userRole,
+          type,
           ownerId,
           bookingId
         );

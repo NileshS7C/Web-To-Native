@@ -16,6 +16,7 @@ import { showError } from "../../../redux/Error/errorSlice";
 import { showSuccess } from "../../../redux/Success/successSlice";
 import Spinner from "../../Common/Spinner";
 import EmptyBanner from "../../Common/EmptyStateBanner";
+import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 const RoundDetails = ({
   fixtureId,
   onRoundActionClick,
@@ -28,6 +29,7 @@ const RoundDetails = ({
   };
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
+  const {rolesAccess}=useOwnerDetailsContext()
   const {
     mutate: deleteHybridFixture,
     isSuccess: isDeleteFixtureSuccess,
@@ -57,7 +59,12 @@ const RoundDetails = ({
   
   useEffect(() => {
     if (isConfirmed && type === "Fixture") {
-      deleteHybridFixture({ tournamentId, categoryId: eventId, fixtureId });
+      deleteHybridFixture({
+        tournamentId,
+        categoryId: eventId,
+        fixtureId,
+        type: rolesAccess?.tournament,
+      });
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed]);
@@ -70,7 +77,13 @@ const RoundDetails = ({
         })
       );
       setTimeout(() => {
-        dispatch(getHybridFixtures({ tour_Id: tournamentId, eventId }));
+        dispatch(
+          getHybridFixtures({
+            tour_Id: tournamentId,
+            eventId,
+            type: rolesAccess?.tournament,
+          })
+        );
       }, [1000]);
     }
   }, [isDeleteFixtureSuccess]);
@@ -86,7 +99,14 @@ const RoundDetails = ({
   }, [isDeleteFixtureError]);
   useEffect(() => {
     if (fixtureId)
-      dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
+      dispatch(
+        getFixtureById({
+          tour_Id: tournamentId,
+          eventId,
+          fixtureId,
+          type: rolesAccess?.tournament,
+        })
+      );
   }, []);
   useEffect(()=>{
     setCurrentPage(1)

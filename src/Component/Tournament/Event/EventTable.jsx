@@ -19,13 +19,14 @@ import DataTable from "../../Common/DataTable";
 import { eventTableHeaders } from "../../../Constant/tournament";
 import Spinner from "../../Common/Spinner";
 import { resetConfirmationState } from "../../../redux/Confirmation/confirmationSlice";
+import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 export const EventTable = ({ isDisable, categories }) => {
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
   const { currentPage, totalCategories, isLoading, deleteCategoryId } =
     useSelector((state) => state.event);
   const { isConfirmed, type } = useSelector((state) => state.confirm);
-
+  const {rolesAccess}=useOwnerDetailsContext()
   useEffect(() => {
     if (isConfirmed && type === "Event" && tournamentId && deleteCategoryId) {
       dispatch(
@@ -41,6 +42,7 @@ export const EventTable = ({ isDisable, categories }) => {
             currentPage,
             limit: 10,
             id: tournamentId,
+            type: rolesAccess?.tournament,
           })
         );
       });
@@ -56,6 +58,7 @@ export const EventTable = ({ isDisable, categories }) => {
         currentPage,
         limit: 10,
         id: tournamentId,
+        type: rolesAccess?.tournament,
       })
     );
   },[currentPage])
@@ -97,7 +100,7 @@ export const EventTable = ({ isDisable, categories }) => {
           className="border-[1px] rounded-md"
           onClick={(id) => handleDelete(id)}
           hasLink={false}
-          navigateTo="tournaments"
+          // navigateTo="tournaments"
         />
       )}
     </div>

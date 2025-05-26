@@ -13,6 +13,7 @@ import { ErrorModal } from "../../Common/ErrorModal";
 import { showError } from "../../../redux/Error/errorSlice";
 import { MatchesListing } from "../MatchListing";
 import { TournamentHybridFixture } from "../TournamentHybridFixture";
+import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 
 const options = () => [
   { name: "Details" },
@@ -22,6 +23,7 @@ const options = () => [
 ];
 
 const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
+  const {rolesAccess}=useOwnerDetailsContext()
   const [selectedRoundIndex, setSelectedRoundIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("Details");
   const dispatch = useDispatch();
@@ -45,7 +47,13 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
     ErrorMessage,
   } = useSelector((state) => state.fixture);
   useEffect(() => {
-    dispatch(getHybridFixtures({ tour_Id: tournamentId, eventId }));
+    dispatch(
+      getHybridFixtures({
+        tour_Id: tournamentId,
+        eventId,
+        type: rolesAccess?.tournament,
+      })
+    );
   }, []);
 
   useEffect(() => {
@@ -66,6 +74,7 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
             tour_Id: tournamentId,
             eventId,
             fixtureId: fixtures?.[selectedRoundIndex]?._id?.toString(),
+            type: rolesAccess?.tournament,
           })
         );
       }, 500);

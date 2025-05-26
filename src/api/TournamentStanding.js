@@ -4,12 +4,11 @@ import { API_END_POINTS } from "../Constant/routes";
 
 const cookies = new Cookies();
 
-export const getFixtureId = async ({ tournamentId, categoryId }) => {
+export const getFixtureId = async ({ tournamentId, categoryId,type }) => {
   if (!tournamentId || !categoryId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const userRole = cookies.get("userRole");
   // Use API_END_POINTS to get the correct endpoint based on role
-  const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.POST.createFixture(userRole, tournamentId, categoryId)}`;
+  const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.POST.createFixture(type, tournamentId, categoryId)}`;
 
   let config = {
     method: "GET",
@@ -27,12 +26,11 @@ export const getFixtureId = async ({ tournamentId, categoryId }) => {
   }
 }
 
-export const getTournamentStanding = async ({ tournamentId, categoryId, fixtureId }) => {
+export const getTournamentStanding = async ({ tournamentId, categoryId, fixtureId,type }) => {
   if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const userRole = cookies.get("userRole");
   // Use API_END_POINTS to get the correct endpoint based on role
-  const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.GET.getMatchStandings(userRole, tournamentId, categoryId, fixtureId, 0)}`;
+  const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.GET.getMatchStandings(type, tournamentId, categoryId, fixtureId, 0)}`;
 
   let config = {
     method: "GET",

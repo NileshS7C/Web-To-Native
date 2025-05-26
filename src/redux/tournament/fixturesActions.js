@@ -6,12 +6,10 @@ import { API_END_POINTS } from "../../Constant/routes";
 const cookies = new Cookies();
 export const createFixture = createAsyncThunk(
   "fixture/createFixture",
-  async ({ tour_Id, eventId }, { rejectWithValue }) => {
+  async ({ type,tour_Id, eventId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.POST.createFixture(
-        userRole,
+        type,
         tour_Id,
         eventId
       );
@@ -47,13 +45,12 @@ export const createFixture = createAsyncThunk(
 
 export const getFixture = createAsyncThunk(
   "fixture/getFixture",
-  async ({ tour_Id, eventId }, { rejectWithValue }) => {
+  async ({ type,tour_Id, eventId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
+      
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getFixtureByTour_IdAndCategoryId(
-          userRole,
+          type,
           tour_Id,
           eventId
         );
@@ -85,13 +82,13 @@ export const getFixture = createAsyncThunk(
 );
 export const getHybridFixtures = createAsyncThunk(
   "fixture/getHybridFixture",
-  async ({ tour_Id, eventId }, { rejectWithValue }) => {
+  async ({type, tour_Id, eventId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
+      
 
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getFixtureByTour_IdAndCategoryId(
-          userRole,
+          type,
           tour_Id,
           eventId
         );
@@ -122,17 +119,18 @@ export const getHybridFixtures = createAsyncThunk(
 );
 export const getFixtureById = createAsyncThunk(
   "fixture/getFixtureById",
-  async ({ tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
+  async ({ type,tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
     try {
       const userRole = cookies.get("userRole");
 
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getFixtureById(
-          userRole,
+          type,
           tour_Id,
           eventId,
           fixtureId
         );
+        
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -198,12 +196,10 @@ export const getMatches = createAsyncThunk(
 );
 export const updateMatch = createAsyncThunk(
   "fixture/updateMatch",
-  async (matchData, { rejectWithValue }) => {
+  async ({matchData,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.POST.fixtureMatchUpdate(
-        userRole,
+        type,
         matchData.tour_Id,
         matchData.eventId,
         matchData.fixtureId
@@ -239,13 +235,13 @@ export const updateMatch = createAsyncThunk(
 
 export const updateMatchSetCount = createAsyncThunk(
   "fixture/updateMatchSetCount",
-  async (matchData, { rejectWithValue }) => {
+  async ({ matchData ,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
+      c
 
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.fixtureMatchSetCount(
-          userRole,
+          type,
           matchData.tour_Id,
           matchData.eventId,
           matchData.fixtureId
@@ -282,12 +278,11 @@ export const updateMatchSetCount = createAsyncThunk(
 
 export const getStandings = createAsyncThunk(
   "fixture/getStandings",
-  async (matchData, { rejectWithValue }) => {
+  async ({ matchData ,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
 
       const userAPIEndPoint = API_END_POINTS.tournament.GET.getMatchStandings(
-        userRole,
+        type,
         matchData.tour_Id,
         matchData.eventId,
         matchData.fixtureId,
@@ -324,13 +319,11 @@ export const getStandings = createAsyncThunk(
 
 export const updateSeeding = createAsyncThunk(
   "fixture/updateSeeding",
-  async (matchData, { rejectWithValue }) => {
+  async ({ matchData ,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.updatePlayerSeeding(
-          userRole,
+          type,
           matchData.tour_Id,
           matchData.eventId,
           matchData.fixtureId,
@@ -366,13 +359,13 @@ export const updateSeeding = createAsyncThunk(
 
 export const updateMatchSet = createAsyncThunk(
   "fixture/updateMatchSet",
-  async (matchData, { rejectWithValue }) => {
+  async ({ matchData ,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
+     
 
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.fixtureMatchSetUpdated(
-          userRole,
+          type,
           matchData.tour_Id,
           matchData.eventId,
           matchData.fixtureId
@@ -388,7 +381,6 @@ export const updateMatchSet = createAsyncThunk(
         JSON.stringify(matchData?.formData),
         config
       );
-
 
       return response.data;
     } catch (err) {
@@ -409,12 +401,12 @@ export const updateMatchSet = createAsyncThunk(
 
 export const publishFixture = createAsyncThunk(
   "fixture/publishFixture",
-  async (matchData, { rejectWithValue }) => {
+  async ({ matchData ,type}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
+   
 
       const userAPIEndPoint = API_END_POINTS.tournament.POST.publishFixture(
-        userRole,
+        type,
         matchData.tour_Id,
         matchData.eventId,
         matchData.fixtureId

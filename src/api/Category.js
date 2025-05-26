@@ -7,14 +7,13 @@ const cookies = new Cookies();
 export const createHybridFixture = async (
   tournamentId,
   categoryId,
-  payload
+  payload,
+  type
 ) => {
   if (!tournamentId || !categoryId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const userRole = cookies.get("userRole");
- 
   const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.POST.createHybridFixture(
-    userRole,
+    type,
     tournamentId,
     categoryId
   )}`;
@@ -40,13 +39,13 @@ export const updateHybridFixture = async (
   tournamentId,
   categoryId,
   fixtureId,
-  payload
+  payload,
+  type
 ) => {
   if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const userRole = cookies.get("userRole");
   const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.POST.updateHybridFixture(
-    userRole,
+    type,
     tournamentId,
     categoryId,
     fixtureId
@@ -72,13 +71,13 @@ export const updateHybridFixture = async (
 export const deleteHybridFixture = async (
   tournamentId,
   categoryId,
-  fixtureId
+  fixtureId,
+  type
 ) => {
   if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const userRole = cookies.get("userRole");
   const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.POST.deleteHybridFixture(
-    userRole,
+    type,
     tournamentId,
     categoryId,
     fixtureId
@@ -103,9 +102,8 @@ export const deleteHybridFixture = async (
 export const getFixtureById = async ({ tournamentId, categoryId, fixtureId }) => {
   if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const userRole = cookies.get("userRole");
   const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.GET.getFixtureById(
-    userRole,
+    type,
     tournamentId,
     categoryId,
     fixtureId
@@ -132,12 +130,12 @@ export const getDoubleEliminationFinal = async ({
   tournamentId,
   categoryId,
   fixtureId,
+  type
 }) => {
   if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const userRole = cookies.get("userRole");
   const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.GET.fixtureDEFinal(
-    userRole,
+    type,
     tournamentId,
     categoryId,
     fixtureId

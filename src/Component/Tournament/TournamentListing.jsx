@@ -49,7 +49,7 @@ const SearchEvents = ({
         searchTournament({
           page: page || 1,
           limit: limit,
-          type: type,
+          type,
           ownerId: singleTournamentOwner?.id,
           search: debouncedValue,
         })
@@ -84,31 +84,27 @@ function TournamentListing(props) {
   const {
     dispatch,
     currentPage,
-    singleTournamentOwner,
-    cookies,
+    singleTournamentOwner = {},
     searchInput,
     selectedTab,
     setSearchInput,
   } = props;
-
+  const {rolesAccess}=useOwnerDetailsContext();
   const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
     useSelector((state) => state.GET_TOUR);
- 
-  const { userRole: role } = useSelector((state) => state.auth);
-
+   
   useEffect(() => {
-    const userRole = cookies?.userRole || role;
     if (!searchInput) {
       dispatch(
         getAllTournaments({
           page: currentPage || 1,
           limit: 10,
-          type: userRole,
+          type: rolesAccess?.tournament,
           ownerId: singleTournamentOwner?.id,
         })
       );
     }
-  }, [searchInput, currentPage, role, singleTournamentOwner?.id]);
+  }, [searchInput, currentPage, singleTournamentOwner?.id]);
 
   useEffect(() => {
     if (selectedFilter || selectedTab) {
@@ -116,7 +112,6 @@ function TournamentListing(props) {
     }
   }, [selectedFilter, selectedTab]);
   useEffect(() => {
-    const userRole = cookies.userRole || role;
     if (singleTournamentOwner && !searchInput && selectedTab) {
       switch (selectedTab) {
         case "all":
@@ -124,7 +119,7 @@ function TournamentListing(props) {
             getAllTournaments({
               page: currentPage || 1,
               limit: 10,
-              type: userRole,
+              type: rolesAccess?.tournament,
               ownerId: singleTournamentOwner?.id,
             })
           );
@@ -135,7 +130,7 @@ function TournamentListing(props) {
               page: currentPage || 1,
               limit: 10,
               status: selectedTab?.toUpperCase(),
-              type: userRole,
+              type: rolesAccess?.tournament,
               ownerId: singleTournamentOwner?.id,
             })
           );
@@ -148,7 +143,7 @@ function TournamentListing(props) {
               limit: 10,
               "dateRange[startDate]": formattedDate(new Date()),
               timeline: "ACTIVE",
-              type: userRole,
+              type: rolesAccess?.tournament,
               ownerId: singleTournamentOwner?.id,
             })
           );
@@ -163,7 +158,7 @@ function TournamentListing(props) {
                 "dateRange[endDate]": formattedDate(new Date()),
                 status: selectedFilter?.toUpperCase(),
                 timeline: "UPCOMING",
-                type: userRole,
+                type: rolesAccess?.tournament,
                 ownerId: singleTournamentOwner?.id,
               })
             );
@@ -174,7 +169,7 @@ function TournamentListing(props) {
                 limit: 10,
                 "dateRange[endDate]": formattedDate(new Date()),
                 timeline: "UPCOMING",
-                type: userRole,
+                type: rolesAccess?.tournament,
                 ownerId: singleTournamentOwner?.id,
               })
             );
@@ -187,19 +182,19 @@ function TournamentListing(props) {
               page: currentPage || 1,
               limit: 10,
               status: "ARCHIVED",
-              type: userRole,
+              type: rolesAccess?.tournament,
               ownerId: singleTournamentOwner?.id,
             })
           );
           break;
         default:
          dispatch(
-          getAllTournaments({
-            page: currentPage || 1,
-            limit: 10,
-            type: userRole,
-            ownerId: singleTournamentOwner?.id,
-          })
+           getAllTournaments({
+             page: currentPage || 1,
+             limit: 10,
+             type: rolesAccess?.tournament,
+             ownerId: singleTournamentOwner?.id,
+           })
          );
       }
     } else if (singleTournamentOwner && !searchInput && !selectedTab) {
@@ -207,7 +202,7 @@ function TournamentListing(props) {
         getAllTournaments({
           page: currentPage || 1,
           limit: 10,
-          type: userRole,
+          type: rolesAccess?.tournament,
           ownerId: singleTournamentOwner?.id,
         })
       );
@@ -259,13 +254,11 @@ function TournamentListing(props) {
 function TournamentListingWrapper() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [cookies] = useCookies(["name", "userRole"]);
   const currentPage = searchParams.get("page");
   const selectedTab = searchParams.get("tab");
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [searchInput, setSearchInput] = useState("");
-  const { userRole: role } = useSelector((state) => state.auth);
-
+  const {rolesAccess}=useOwnerDetailsContext() 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex w-full md:w-[40%]">
@@ -273,7 +266,7 @@ function TournamentListingWrapper() {
           dispatch={dispatch}
           page={currentPage || 1}
           limit={10}
-          type={cookies?.userRole || role}
+          type={rolesAccess?.tournament}
           searchInput={searchInput}
           setSearchInput={setSearchInput}
           singleTournamentOwner={singleTournamentOwner}
@@ -285,7 +278,6 @@ function TournamentListingWrapper() {
         dispatch={dispatch}
         currentPage={currentPage}
         singleTournamentOwner={singleTournamentOwner}
-        cookies={cookies}
         searchInput={searchInput}
         selectedTab={selectedTab}
         setSearchInput={setSearchInput}
@@ -299,7 +291,6 @@ TournamentListing.propTypes = {
   searchInput: PropTypes.string,
   currentPage: PropTypes.string || PropTypes.number,
   singleTournamentOwner: PropTypes.object,
-  cookies: PropTypes.object,
   selectedTab: PropTypes.string,
   setSearchInput: PropTypes.func,
 };

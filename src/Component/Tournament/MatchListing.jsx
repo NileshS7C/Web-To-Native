@@ -12,6 +12,7 @@ import { backIcon, dummyImage, forwardIcon } from "../../Assests";
 import { ScoreUpdateModal } from "../Common/ScoreUpdateModal";
 import { dummmyProfileIcon } from "../../Assests";
 import { useGetDEFinal } from "../../Hooks/useCatgeory";
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 const MatchListingHeaders = [
   {
@@ -110,6 +111,7 @@ const MatchListingHeaders = [
 ];
 
 export const MatchesListing = () => {
+  const {rolesAccess}=useOwnerDetailsContext();
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const {
@@ -139,6 +141,7 @@ export const MatchesListing = () => {
       tournamentId,
       categoryId: eventId,
       fixtureId: fixture?._id.toString(),
+      type:rolesAccess?.tournament
     },
     {
       enabled: false,

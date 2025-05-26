@@ -83,6 +83,7 @@ const hiddenRoutes = [
   "/admin-users",
 ];
 import { BsDownload } from "react-icons/bs";
+import { useOwnerDetailsContext } from "../Providers/onwerDetailProvider";
 const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -98,10 +99,6 @@ const Layout = () => {
     page: false,
   });
   const [approveButtonClicked, setApproveButtonClicked] = useState(false);
-
-  const [cookies, setCookies] = useCookies();
-  const userRole = cookies["userRole"];
-  const { userRole: Role } = useSelector((state) => state.auth);
   const { venue } = useSelector((state) => state.getVenues);
   const { changingDecision, verificationSuccess, approvalBody } = useSelector(
     (state) => state.Tournament
@@ -277,7 +274,6 @@ const Layout = () => {
                   {currentTitle === "Tournament Organisers" && (
                     <TournamentOrganiserButtons dispatch={dispatch} />
                   )}
-
                   {currentTitle === "Uploaded Images" && (
                     <UploadImageButton dispatch={dispatch} />
                   )}
@@ -300,7 +296,6 @@ const Layout = () => {
                       <TournamentActionButton
                         dispatch={dispatch}
                         ROLES={ROLES}
-                        userRole={userRole || Role}
                         approvalBody={approvalBody}
                         tournament={tournament}
                         changingDecision={changingDecision}
@@ -343,7 +338,6 @@ const TournamentOrganiserButtons = ({ dispatch }) => {
 const TournamentActionButton = ({
   dispatch,
   ROLES,
-  userRole,
   approvalBody,
   tournament,
   changingDecision,
@@ -353,6 +347,7 @@ const TournamentActionButton = ({
   submitForm,
   isSubmitting,
 }) => {
+  const {rolesAccess}=useOwnerDetailsContext()
   return (
     <div className="flex gap-2.5 items-center">
       <div className="flex items-center gap-1 sm:gap-2 justify-end ml-auto">
@@ -365,12 +360,12 @@ const TournamentActionButton = ({
               disabled={
                 // Disable if the user is NOT ADMIN, SUPER_ADMIN, or TOURNAMENT_OWNER
                 (!["ADMIN", "SUPER_ADMIN", "TOURNAMENT_OWNER"].includes(
-                  userRole
+                  rolesAccess?.tournament
                 ) &&
                   // AND the tournament status is not REJECTED
                   tournament?.status !== "REJECTED") ||
                 // OR if the user is a TOURNAMENT_OWNER
-                (userRole === "TOURNAMENT_OWNER" &&
+                (rolesAccess?.tournament === "TOURNAMENT_OWNER" &&
                   // AND the tournament status is PENDING_VERIFICATION or PUBLISHED
                   ["PENDING_VERIFICATION", "PUBLISHED"].includes(
                     tournament?.status
@@ -396,7 +391,7 @@ const TournamentActionButton = ({
               isSubmitting={isSubmitting}
             />
           ))}
-        {ROLES.slice(0, 2).includes(userRole) &&
+        {ROLES.slice(0, 2).includes(rolesAccess?.tournament) &&
           tournament?.status &&
           tournament?.status !== "ARCHIVED" &&
           tournament?.status !== "REJECTED" && (
@@ -445,7 +440,8 @@ const TournamentActionButton = ({
       <div>
         <ArchiveButtons tournament={tournament} dispatch={dispatch} />
       </div>
-      {ROLES.slice(0, 3).includes(userRole) &&
+      {/* Roles are Archived and publised then only sheet will be downloaded */}
+      {ROLES.slice(0, 3).includes(rolesAccess?.tournament) &&
         tournament?.status &&
         ["ARCHIVED", "PUBLISHED"].includes(tournament?.status) && (
           <Button
@@ -456,7 +452,7 @@ const TournamentActionButton = ({
                 downloadSheetOfPlayers({
                   tournamentId: tournament._id.toString(),
                   ownerId: tournament?.ownerUserId?.toString(),
-                  userRole,
+                  type: rolesAccess?.tournament,
                   tournamentName:
                     tournament?.tournamentName || "Tournament-Bookings",
                 })
@@ -788,7 +784,6 @@ VenueActionButtonWrapper.propTypes = {
 TournamentActionButton.propTypes = {
   dispatch: PropTypes.func,
   ROLES: PropTypes.array,
-  userRole: PropTypes.string,
   approvalBody: PropTypes.object,
   tournament: PropTypes.object,
   changingDecision: PropTypes.bool,

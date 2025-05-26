@@ -11,9 +11,9 @@ import { useEffect, useState } from "react";
 export const NavBar = ({ handleOverlayClick }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [cookies] = useCookies(["userRole"]);
+  const [cookies] = useCookies(["userRoles"]);
   const location = useLocation();
-  const { userRole: role } = useSelector((state) => state.auth);
+  const { userRoles: roles } = useSelector((state) => state.auth);
   const [expandedMenus, setExpandedMenus] = useState({});
   const [currentMenu, setCurrentMenu] = useState("Dashboard");
   const [navigationBar, setNavigationBar] = useState(null);
@@ -37,23 +37,19 @@ export const NavBar = ({ handleOverlayClick }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (cookies?.userRole || role) {
-      switch (cookies.userRole || role) {
-        case "SUPER_ADMIN":
-          setNavigationBar(ADMIN_NAVIGATION);
-          break;
-        case "ADMIN":
-          setNavigationBar(ADMIN_NAVIGATION);
-          break;
-        case "TOURNAMENT_OWNER":
-          setNavigationBar(TOURNAMENT_OWNER_NAVIGATION);
-          break;
-        case "VENUE_OWNER":
-          setNavigationBar(VENUE_OWNER_NAVIGATION);
-          break;
+    if (cookies?.userRoles?.length > 0  || roles?.length > 0) {
+      const userRoles = cookies?.userRoles || roles;
+
+      if (userRoles?.includes("SUPER_ADMIN") || userRoles?.includes("ADMIN")) {
+        setNavigationBar(ADMIN_NAVIGATION);
+      } else if (userRoles?.includes("TOURNAMENT_OWNER")) {
+        setNavigationBar(TOURNAMENT_OWNER_NAVIGATION);
+      } else if (userRoles?.includes("VENUE_OWNER")) {
+        setNavigationBar(VENUE_OWNER_NAVIGATION);
       }
+
     }
-  }, [cookies?.userRole, role]);
+  }, [cookies?.userRoles, roles]);
 
   const toggleMenu = (menuName) => {
     setCurrentMenu(menuName);

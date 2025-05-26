@@ -49,6 +49,7 @@ import {
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { nanoid } from "nanoid";
+import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 
 const requiredCategoryFields = (category) => {
   const {
@@ -166,7 +167,7 @@ export const EventCreationModal = () => {
       }),
     categoryStartDate: yup.date().optional(),
   });
-
+  const {rolesAccess}=useOwnerDetailsContext()
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showModal } = useSelector((state) => state.event);
@@ -275,6 +276,7 @@ export const EventCreationModal = () => {
             addEventCategory({
               formData: updatedValues,
               id: tournamentId,
+              type: rolesAccess?.tournament,
             })
           ).unwrap()
         : await dispatch(
@@ -282,6 +284,7 @@ export const EventCreationModal = () => {
               formData: updatedValues,
               id: tournamentId,
               categoryId: categoryId,
+              type: rolesAccess?.tournament,
             })
           ).unwrap();
 
@@ -292,6 +295,7 @@ export const EventCreationModal = () => {
             currentPage: 1,
             limit: 10,
             id: tournamentId,
+            type:rolesAccess?.tournament
           })
         );
       }
@@ -322,7 +326,7 @@ export const EventCreationModal = () => {
   useEffect(() => {
     if (categoryId && tournamentId) {
       dispatch(
-        getSingleCategory({ tour_Id: tournamentId, eventId: categoryId })
+        getSingleCategory({ tour_Id: tournamentId, eventId: categoryId ,type:rolesAccess?.tournament})
       );
     }
   }, [categoryId, tournamentId]);
@@ -1081,8 +1085,7 @@ function ComboboxForVenuesList({
   const browserLocation = useLocation();
   const searchParams = new URLSearchParams(browserLocation.search);
   const categoryId = searchParams.get("category");
-  const { userRole: role } = useSelector((state) => state.auth);
-  const userRole = cookies.get("userRole");
+  const {rolesAccess}=useOwnerDetailsContext()
 
   // Query & Debounce
   const [query, setQuery] = useState("");
@@ -1150,7 +1153,7 @@ function ComboboxForVenuesList({
             selectedFilter,
             limit: 10,
             name: query,
-            userRole: userRole || role,
+            userRole: rolesAccess?.tournament,
           })
         ).unwrap();
 
@@ -1183,7 +1186,7 @@ function ComboboxForVenuesList({
             selectedFilter,
             limit: 10,
             name: query,
-            userRole: userRole || role,
+            userRole: rolesAccess?.tournament,
           })
         ).unwrap();
 
@@ -1217,7 +1220,7 @@ function ComboboxForVenuesList({
             selectedFilter,
             limit: 10,
             name: query,
-            userRole: userRole || role,
+            userRole: rolesAccess?.tournament,
           })
         ).unwrap();
 

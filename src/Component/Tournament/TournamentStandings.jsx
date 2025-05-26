@@ -1,10 +1,29 @@
 import React, { useEffect } from 'react'
 import { useGetFixtureId, useGetTournamentStanding } from '../../Hooks/tournamentStandingHooks'
+import { useOwnerDetailsContext } from '../../Providers/onwerDetailProvider';
 
 const TournamentStandings = ({ tournamentId, categoryId }) => {  
-  const { data: fixtureData, isLoading: isFixtureLoading, isError: isFixtureError } = useGetFixtureId({ tournamentId, categoryId })
+  const {rolesAccess}=useOwnerDetailsContext();
+  const {
+    data: fixtureData,
+    isLoading: isFixtureLoading,
+    isError: isFixtureError,
+  } = useGetFixtureId({
+    tournamentId,
+    categoryId,
+    type: rolesAccess?.tournament,
+  });
   const fixtureID = fixtureData
-  const { data: standingData, isLoading: isStandingLoading, isError: isStandingError } = useGetTournamentStanding({ tournamentId, categoryId, fixtureId: fixtureID })
+  const {
+    data: standingData,
+    isLoading: isStandingLoading,
+    isError: isStandingError,
+  } = useGetTournamentStanding({
+    tournamentId,
+    categoryId,
+    fixtureId: fixtureID,
+    type: rolesAccess?.tournament,
+  });
 
   const standing = standingData  
   if (isFixtureLoading || isStandingLoading) {

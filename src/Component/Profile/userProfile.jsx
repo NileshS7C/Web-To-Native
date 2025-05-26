@@ -26,47 +26,52 @@ export const UserProfile = ({ onwerDetails }) => {
               <div className="flex items-center space-x-2">
                 <span className="font-medium text-gray-600">Role:</span>
                 <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                  {onwerDetails?.roleName}
+                  {onwerDetails?.roleNames}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Brand Information */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">
-              Brand Information
-            </h3>
-            <div className="grid gap-4">
-              <div className="flex items-center space-x-2 text-gray-600">
-                <span className="font-medium">Brand Name:</span>
-                <span>{onwerDetails?.owner.brandName}</span>
-              </div>
-              <div className="flex items-center space-x-2 text-gray-600">
-                <span className="font-medium">Brand Email:</span>
-                <span>{onwerDetails?.owner.brandEmail}</span>
-              </div>
-              <div className="flex items-center space-x-2 text-gray-600">
-                <span className="font-medium">Brand Phone:</span>
-                <span>{onwerDetails?.owner.brandPhone}</span>
-              </div>
-            </div>
-          </div>
+          <div className="flex gap-2 flex-wrap">
+            {onwerDetails?.owner?.map((owner, index) => (
+              <div key={index}>
+                {/* Brand Info */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                    Brand Information
+                  </h3>
+                  <div className="grid gap-4">
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      <span className="font-medium">Brand Name:</span>
+                      <span>{owner?.brandName}</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      <span className="font-medium">Brand Email:</span>
+                      <span>{owner?.brandEmail}</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      <span className="font-medium">Brand Phone:</span>
+                      <span>{owner?.brandPhone}</span>
+                    </div>
+                  </div>
+                </div>
 
-          {/* Address */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">
-              Address
-            </h3>
-            <div className="text-gray-600">
-              <p>{onwerDetails?.owner.address.line1}</p>
-              <p>{onwerDetails?.owner.address.line2}</p>
-              <p>
-                {onwerDetails?.owner.address.city},{" "}
-                {onwerDetails?.owner.address.state}{" "}
-                {onwerDetails?.owner.address.postalCode}
-              </p>
-            </div>
+                {/* Address */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                    Address
+                  </h3>
+                  <div className="text-gray-600">
+                    <p>{owner?.address?.line1}</p>
+                    <p>{owner?.address?.line2}</p>
+                    <p>
+                      {owner?.address?.city}, {owner?.address?.state}{" "}
+                      {owner?.address?.postalCode}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -11,8 +11,10 @@ import Button from "../../Common/Button";
 import { ConfirmationModalTour } from "../ConfimTournament";
 import { TournamentSuccessPopUp } from "../SuccessPopUp";
 import { ErrorModal } from "../../Common/ErrorModal";
+import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 
 export const AcknowledgementText = ({ ownerUserId, disabled }) => {
+  const {rolesAccess}=useOwnerDetailsContext()
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState({
@@ -48,7 +50,7 @@ export const AcknowledgementText = ({ ownerUserId, disabled }) => {
       setShowSuccessPop(false);
 
       const result = await dispatch(
-        submitFinalTournament(initialValues)
+        submitFinalTournament({ formData:initialValues, type: rolesAccess?.tournament })
       ).unwrap();
 
       if (!result.responseCode) {

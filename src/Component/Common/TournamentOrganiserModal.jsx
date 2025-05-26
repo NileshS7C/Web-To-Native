@@ -43,7 +43,6 @@ export const TournamentOrganiserCreation = ({
   const [brandLogoImageError, setBrandLogoImageError] = useState("");
   const brandLogoFileInputRef = useRef(null);
   const modalContentRef = useRef(null);
-
   const uploadImageToS3 = async (file) => {
     try {
       const formData = new FormData();
@@ -124,9 +123,13 @@ export const TournamentOrganiserCreation = ({
       }
 
       if (updatedValues.ownerDetails) {
-        console.log(updatedValues, "<-- This One")
-        if (!updatedValues.ownerDetails.brandLogoImage || updatedValues.ownerDetails.brandLogoImage === null || updatedValues.ownerDetails.brandLogoImage === "") {
-          const { brandLogoImage, ...restOwnerDetails } = updatedValues.ownerDetails;
+        if (
+          !updatedValues.ownerDetails.brandLogoImage ||
+          updatedValues.ownerDetails.brandLogoImage === null ||
+          updatedValues.ownerDetails.brandLogoImage === ""
+        ) {
+          const { brandLogoImage, ...restOwnerDetails } =
+            updatedValues.ownerDetails;
           updatedValues.ownerDetails = restOwnerDetails;
         }
       }
@@ -158,7 +161,7 @@ export const TournamentOrganiserCreation = ({
 
         // Clear organiserId from URL after successful save
         const newSearchParams = new URLSearchParams(searchParams);
-        newSearchParams.delete('organiserId');
+        newSearchParams.delete("organiserId");
         navigate(`/tournament-organisers?${newSearchParams.toString()}`);
 
         dispatch(toggleOrganiserModal());
@@ -230,6 +233,7 @@ export const TournamentOrganiserCreation = ({
                           <div className="flex flex-col justify-between w-full gap-4 flex-1">
                             <OrganiserBasicDetails />
                             <OrganiserPhoneAndPassword />
+                            <OrganiserTmsAccess />
                             <BrandEmailAndPhone
                               handleBrandLogoImageChange={(event) =>
                                 handleBrandLogoImageChange(event, setFieldValue)
@@ -321,7 +325,7 @@ const OrganiserBasicDetails = () => {
 
 const OrganiserPhoneAndPassword = () => {
   const handlePhoneInput = (e) => {
-    const value = e.target.value.replace(/\D/g, '');
+    const value = e.target.value.replace(/\D/g, "");
     const truncatedValue = value.slice(0, 10);
     e.target.value = truncatedValue;
   };
@@ -364,7 +368,27 @@ const OrganiserPhoneAndPassword = () => {
     </div>
   );
 };
-
+const OrganiserTmsAccess = () => {
+  return (
+    <>
+      <div className="flex items-start gap-2 w-full cursor-pointer">
+        <Field
+          type="checkbox"
+          id="haveFullAccess"
+          name="haveFullAccess"
+          className="form-checkbox h-4 sm:h-5 w-4 sm:w-5 text-blue-600 cursor-pointer"
+        />
+        <label
+          className=" text-[#232323] text-base leading-[19.36px] cursor-pointer"
+          htmlFor="haveFullAccess"
+        >
+          Give Full Tms Access
+        </label>
+        <ErrorMessage name="email" component={TextError} />
+      </div>
+    </>
+  );
+};
 const BrandEmailAndPhone = ({
   handleBrandLogoImageChange,
   brandLogoImage,
@@ -373,13 +397,13 @@ const BrandEmailAndPhone = ({
   setFieldValue,
 }) => {
   const [isUploading, setIsUploading] = useState(false);
-  
+
   const handleImageChange = async (event) => {
     setIsUploading(true);
-    await handleBrandLogoImageChange(event); 
+    await handleBrandLogoImageChange(event);
     setIsUploading(false);
     if (brandLogoFileInputRef.current) {
-        brandLogoFileInputRef.current.value = "";
+      brandLogoFileInputRef.current.value = "";
     }
   };
 
@@ -389,7 +413,7 @@ const BrandEmailAndPhone = ({
       brandLogoFileInputRef.current.value = "";
     }
   };
-  
+
   return (
     <div className="grid grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
@@ -412,7 +436,7 @@ const BrandEmailAndPhone = ({
           <label className="block text-[#232323] text-base leading-[19.36px] mb-2">
             Brand Logo Image
           </label>
-          
+
           <input
             type="file"
             accept="image/*"
@@ -421,7 +445,7 @@ const BrandEmailAndPhone = ({
             id="brandLogoImageUpload"
             ref={brandLogoFileInputRef}
           />
-          
+
           {!brandLogoImage ? (
             <label
               htmlFor="brandLogoImageUpload"
@@ -434,11 +458,24 @@ const BrandEmailAndPhone = ({
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg className="w-8 h-8 mb-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  <svg
+                    className="w-8 h-8 mb-3 text-blue-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    ></path>
                   </svg>
                   <p className="mb-1 text-sm text-blue-500">Click to upload</p>
-                  <p className="text-xs text-gray-500 mt-1">(Max. File size: 5MB)</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    (Max. File size: 5MB)
+                  </p>
                   <p className="text-xs text-gray-500">(Image Size: 300x300)</p>
                 </div>
               )}
@@ -459,7 +496,7 @@ const BrandEmailAndPhone = ({
               </button>
             </div>
           )}
-          
+
           {brandLogoImageError && (
             <p className="text-red-500 text-xs mt-1">{brandLogoImageError}</p>
           )}
@@ -487,7 +524,7 @@ const BrandEmailAndPhone = ({
 
 const BrandPhoneAndLocation = () => {
   const handlePhoneInput = (e) => {
-    const value = e.target.value.replace(/\D/g, '');
+    const value = e.target.value.replace(/\D/g, "");
     const truncatedValue = value.slice(0, 10);
     e.target.value = truncatedValue;
   };
@@ -534,13 +571,13 @@ const BrandPhoneAndLocation = () => {
 
 const OrganiserAddress = ({ location }) => {
   const { setFieldValue } = useFormikContext();
-  
+
   const handlePostalCodeInput = (e) => {
-    const value = e.target.value.replace(/\D/g, '');
+    const value = e.target.value.replace(/\D/g, "");
     const truncatedValue = value.slice(0, 6);
     e.target.value = truncatedValue;
   };
-  
+
   useEffect(() => {
     if (location && (location.city || location.state)) {
       setFieldValue(
@@ -551,12 +588,21 @@ const OrganiserAddress = ({ location }) => {
         "ownerDetails.address.location.coordinates[1]",
         location?.lat || 0
       );
-      setFieldValue("ownerDetails.address.line1", location?.address_line1 || "");
-      setFieldValue("ownerDetails.address.line2", location?.address_line2 || "");
+      setFieldValue(
+        "ownerDetails.address.line1",
+        location?.address_line1 || ""
+      );
+      setFieldValue(
+        "ownerDetails.address.line2",
+        location?.address_line2 || ""
+      );
       setFieldValue("ownerDetails.address.city", location?.city || "");
       setFieldValue("ownerDetails.address.state", location?.state || "");
-      setFieldValue("ownerDetails.address.postalCode", location?.pin_code || "");
-      
+      setFieldValue(
+        "ownerDetails.address.postalCode",
+        location?.pin_code || ""
+      );
+
       setFieldValue("ownerDetails.address.location.type", "Point");
     }
   }, [
@@ -567,7 +613,7 @@ const OrganiserAddress = ({ location }) => {
     location?.pin_code,
     location?.address_line1,
     location?.address_line2,
-    setFieldValue
+    setFieldValue,
   ]);
   return (
     <div className="flex flex-col items-start gap-2.5">
@@ -693,8 +739,11 @@ TournamentOrganiserCreation.propTypes = {
   actionPending: PropTypes.bool,
 };
 
-
-export default function TournamentOrganiserModal({ isOpen, onClose, fetchHomepageSections }) {
+export default function TournamentOrganiserModal({
+  isOpen,
+  onClose,
+  fetchHomepageSections,
+}) {
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [initialState, setInitialState] = useState(initialValues);
@@ -730,9 +779,7 @@ export default function TournamentOrganiserModal({ isOpen, onClose, fetchHomepag
                   onClose();
                 }
               }}
-            >
-             
-            </Formik>
+            ></Formik>
           </DialogPanel>
         </div>
       </div>

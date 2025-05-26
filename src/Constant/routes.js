@@ -33,9 +33,10 @@ export const API_END_POINTS = {
       tournamentCreation: (type) => {
         if (ADMIN_ROLES.includes(type)) {
           return "/users/admin/tournaments";
-        } else {
+        } else if(TOURNAMENT_OWNER_ROLES.includes(type)) {
           return "/users/tournament-owner/tournaments";
-        }
+        } else
+          return null
       },
 
       archiveTournament: (type, tour_Id, ownerId) => {
@@ -53,16 +54,18 @@ export const API_END_POINTS = {
       createBooking: (type, ownerId) => {
         if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/bookings/owner/${ownerId}`;
-        } else {
+        } else if (TOURNAMENT_OWNER_ROLES.includes(type)) {
           return `/users/tournament-owner/bookings/owner/${ownerId}`;
-        }
+        } else 
+         return null;
       },
       cancelAndRefundBooking: (type, ownerId, bookingId) => {
         if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/bookings/${bookingId}/owner/${ownerId}`;
-        } else {
+        } else if (TOURNAMENT_OWNER_ROLES.includes(type)) {
           return `/users/tournament-owner/bookings/${bookingId}/owner/${ownerId}`;
-        }
+        } 
+        return null;
       },
 
       createCategory: (type, tournamentId) => {
@@ -179,9 +182,10 @@ export const API_END_POINTS = {
       getAllTouranaments: (ownerId, type) => {
         if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/`;
-        } else {
+        } else if(TOURNAMENT_OWNER_ROLES.includes(type)) {
           return `/users/tournament-owner/tournaments/owner/${ownerId}`;
-        }
+        } else 
+          return null;
       },
 
       searchTournaments: (ownerId, type) => {
@@ -194,15 +198,16 @@ export const API_END_POINTS = {
       tournamentById: (type, tournamentId, ownerId) => {
         if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}`;
-        } else {
+        } else if(TOURNAMENT_OWNER_ROLES.includes(type)) {
           return `/users/tournament-owner/tournaments/${tournamentId}/owner/${ownerId}`;
-        }
+        }else 
+         return null;
       },
 
       getAllTags: (type) => {
         if (ADMIN_ROLES.includes(type)) {
           return "/users/admin/tournaments/tournament-tags";
-        } else {
+        } else if(TOURNAMENT_OWNER_ROLES.includes(type)) {
           return "/users/tournament-owner/tournaments/tournament-tags";
         }
       },
@@ -247,7 +252,7 @@ export const API_END_POINTS = {
       getAllCategoriesByTournament: (type, tournamentId) => {
         if (ADMIN_ROLES.includes(type)) {
           return `/users/admin/tournaments/${tournamentId}/categories`;
-        } else {
+        } else if(TOURNAMENT_OWNER_ROLES.includes(type)){
           return `/users/tournament-owner/tournaments/${tournamentId}/categories`;
         }
       },
@@ -335,7 +340,14 @@ export const API_END_POINTS = {
   players: {
     GET: {
       getAllPlayers: () => {
-        return "api/users/admin/players";
+        return "/users/admin/players";
+      },
+    },
+  },
+  profile: {
+    GET: {
+      getProfile: () => {
+        return "/users/get-details";
       },
     },
   },

@@ -8,8 +8,10 @@ import ErrorBanner from "../../Common/ErrorBanner";
 import { defaultVenueImage, locationIcon } from "../../../Assests";
 import { tournamentEvent } from "../../../Constant/tournament";
 import { MdCurrencyRupee } from "react-icons/md";
+import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 
 function EventDescription() {
+  const {rolesAccess}=useOwnerDetailsContext()
   const dispatch = useDispatch();
   const params = useParams();
   const { tournamentId, eventId } = params;
@@ -19,7 +21,7 @@ function EventDescription() {
 
   useEffect(() => {
     if (eventId && tournamentId) {
-      dispatch(getSingleCategory({ tour_Id: tournamentId, eventId: eventId }));
+      dispatch(getSingleCategory({ tour_Id: tournamentId, eventId: eventId ,type:rolesAccess?.tournament}));
     }
   }, [eventId]);
   if (loadingSingleCategory) {

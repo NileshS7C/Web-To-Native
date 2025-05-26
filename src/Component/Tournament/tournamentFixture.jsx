@@ -26,6 +26,7 @@ import { PlayerSelectionModal } from "../Common/PlayerSeedingModal";
 import { showSuccess } from "../../redux/Success/successSlice";
 import { resetFixtureSuccess } from "../../redux/tournament/fixtureSlice";
 import GroupAndRoundNameModal from "./GroupAndRoundNameModal";
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 const formatMatchData = (fixture, suffledPlayers) => {
   if (!fixture || !suffledPlayers?.length) {
@@ -65,6 +66,7 @@ const playerShuffling = (participants) => {
 };
 
 export const TournamentFixture = ({ tournament }) => {
+  const {rolesAccess}=useOwnerDetailsContext();
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const [openMatchModal, setOpenMatchModal] = useState(false);
@@ -94,7 +96,7 @@ export const TournamentFixture = ({ tournament }) => {
   } = useSelector((state) => state.fixture);
 
   const handleCreateFixture = useCallback(() => {
-    dispatch(createFixture({ tour_Id: tournamentId, eventId }));
+    dispatch(createFixture({ tour_Id: tournamentId, eventId ,type:rolesAccess?.tournament}));
   }, []);
 
   const handleplayerShuffling = () => {
@@ -108,6 +110,7 @@ export const TournamentFixture = ({ tournament }) => {
         fixtureId: fixture?._id,
         formData: formattedMatchData,
         stageId: fixture?.bracketData.stage[0].id,
+        type:rolesAccess?.tournament
       })
     );
     setSuffledPlayers(result);
@@ -127,6 +130,7 @@ export const TournamentFixture = ({ tournament }) => {
         tour_Id: tournamentId,
         eventId,
         fixtureId: fixture?._id,
+        type: rolesAccess?.tournament,
       })
     );
   };
@@ -136,7 +140,7 @@ export const TournamentFixture = ({ tournament }) => {
   };
 
   useEffect(() => {
-    dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+    dispatch(getFixture({ tour_Id: tournamentId, eventId,type:rolesAccess?.tournament }));
   }, []);
 
   useEffect(() => {

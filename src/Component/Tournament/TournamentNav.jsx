@@ -35,6 +35,7 @@ import { TournamentInfo } from "./TournamentInfo";
 
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 const TournamentCreationForm = () => {
+  const {rolesAccess}=useOwnerDetailsContext()
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
   const {
@@ -56,8 +57,6 @@ const TournamentCreationForm = () => {
   const { archived } = useSelector((state) => state.Tournament);
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
-  const [cookies] = useCookies(["name", "userRole"]);
-  const { userRole: role } = useSelector((state) => state.auth);
   const isAddInThePath = window.location.pathname.includes("/add");
 
   useEffect(() => {
@@ -66,7 +65,7 @@ const TournamentCreationForm = () => {
       tournamentId,
       tournamentEditMode,
       isAddInThePath,
-      cookies?.userRole || role,
+      rolesAccess.tournament,
       tournament?._id
     );
     dispatch(setIsEditable(isDisable));
@@ -81,7 +80,7 @@ const TournamentCreationForm = () => {
     tournamentId,
     tournamentEditMode,
     isAddInThePath,
-    cookies?.userRole,
+    rolesAccess?.tournament,
     tournament?._id,
   ]);
 
@@ -91,11 +90,12 @@ const TournamentCreationForm = () => {
         getSingleTournament({
           tournamentId,
           ownerId: singleTournamentOwner?.id,
+          type:rolesAccess?.tournament
         })
       );
     }
   }, [tournamentId, singleTournamentOwner]);
-
+  console.log(tournament,rolesAccess);
   useEffect(() => {
     if (isConfirmed && tournamentId && type === "Tour") {
       const rejectionBody = {
@@ -117,7 +117,7 @@ const TournamentCreationForm = () => {
 
   useEffect(() => {
     if (isConfirmed && tournament && type === "Archive") {
-      dispatch(archiveTournament({tournamentId:tournamentId, ownerId:tournament?.ownerUserId}));
+      dispatch(archiveTournament({tournamentId:tournamentId, ownerId:tournament?.ownerUserId,type:rolesAccess?.tournament}));
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed, tournamentId]);
@@ -127,6 +127,7 @@ const TournamentCreationForm = () => {
         getSingleTournament({
           tournamentId,
           ownerId: singleTournamentOwner?.id,
+          type: rolesAccess?.tournament,
         })
       );
 
@@ -153,6 +154,7 @@ const TournamentCreationForm = () => {
         getSingleTournament({
           tournamentId,
           ownerId: singleTournamentOwner?.id,
+          type: rolesAccess?.tournament,
         })
       );
 
