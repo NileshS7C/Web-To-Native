@@ -65,7 +65,6 @@ import {
 import { useRef } from "react";
 import { setWasCancelled } from "../../redux/tournament/getTournament";
 import "../Tournament/TournamentQuill.css";
-import { ADMIN_ROLES, TOURNAMENT_OWNER_ROLES } from "../../Constant/Roles";
 const requiredTournamentFields = (tournament) => {
   const {
     ownerUserId,
@@ -166,7 +165,6 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
     tournamentOwnerUserId,
     rolesAccess,
   } = useOwnerDetailsContext();
-  console.log
   const validationSchema = yup.object({
     ownerUserId: yup.string().required("Name is required"),
     tournamentName: yup.string().required("Please provide a tournament name."),
@@ -323,17 +321,18 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
   const { location } = useSelector((state) => state.location);
   const [selectedTags, setSelectedTags] = useState([]);
   const isAddInThePath = window.location.pathname.includes("add");
-  const {  isGettingTags, tags,isGettingALLTO } =
-    useSelector((state) => state.Tournament);
+  const { isGettingTags, tags, isGettingALLTO, err_IN_TO } = useSelector(
+    (state) => state.Tournament
+  );
 
   const {  userInfo } = useSelector((state) => state.auth);
-  console.log(userInfo);
+  // console.log(userInfo);
   const { deletedImages } = useSelector((state) => state.upload);
   const { isSuccess, isGettingTournament, tournamentEditMode, wasCancelled } =
     useSelector((state) => state.GET_TOUR);
   const formikRef = useRef();
   useEffect(() => {
-    dispatch(getAllUniqueTags(rolesAccess?.tournament));
+    dispatch(getAllUniqueTags());
   }, []);
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
@@ -360,7 +359,7 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
         bookingEndDate: formattedDate(values.bookingEndDate),
       };
       const result = await dispatch(
-        addTournamentStepOne({ formData: updatedValues ,type:rolesAccess.tournament})
+        addTournamentStepOne({ formData: updatedValues })
       ).unwrap();
 
       dispatch(
@@ -443,14 +442,13 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
       dispatch(resetDeletedImages());
     };
   }, []);
-  // if (isGettingTournament) {
-  //   return (
-  //     <div className="flex items-center justify-center h-full w-full">
-  //       <Spinner />
-  //     </div>
-  //   );
-  // }
-  console.log(userInfo)
+  if (isGettingTournament) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spinner />
+      </div>
+    );
+  }
   return (
     <Formik
       enableReinitialize
@@ -472,8 +470,8 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
                   userName={userInfo?.name || ""}
                   userRole={rolesAccess?.tournament}
                   tournamentOwners={tournamentOwners}
-                  // isGettingALLTO={isGettingALLTO}
-                  // hasError={err_IN_TO}
+                  isGettingALLTO={isGettingALLTO}
+                  hasError={err_IN_TO}
                   tournamentId={tournamentId}
                   isDisable={isDisable}
                   disabled={disabled}

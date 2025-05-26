@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useCookies } from "react-cookie";
 import { resetEditMode } from "../../redux/tournament/getTournament";
 import {
   resetArchiveState,
@@ -89,13 +88,11 @@ const TournamentCreationForm = () => {
       dispatch(
         getSingleTournament({
           tournamentId,
-          ownerId: singleTournamentOwner?.id,
-          type:rolesAccess?.tournament
+          ownerId: singleTournamentOwner?.id
         })
       );
     }
   }, [tournamentId, singleTournamentOwner]);
-  console.log(tournament,rolesAccess);
   useEffect(() => {
     if (isConfirmed && tournamentId && type === "Tour") {
       const rejectionBody = {
@@ -126,8 +123,7 @@ const TournamentCreationForm = () => {
       dispatch(
         getSingleTournament({
           tournamentId,
-          ownerId: singleTournamentOwner?.id,
-          type: rolesAccess?.tournament,
+          ownerId: singleTournamentOwner?.id
         })
       );
 
@@ -153,8 +149,7 @@ const TournamentCreationForm = () => {
       dispatch(
         getSingleTournament({
           tournamentId,
-          ownerId: singleTournamentOwner?.id,
-          type: rolesAccess?.tournament,
+          ownerId: singleTournamentOwner?.id
         })
       );
 

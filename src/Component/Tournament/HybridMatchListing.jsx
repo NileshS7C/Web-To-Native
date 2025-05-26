@@ -12,7 +12,7 @@ import { backIcon, dummyImage, forwardIcon } from "../../Assests";
 import { ScoreUpdateModal } from "../Common/ScoreUpdateModal";
 import { dummmyProfileIcon } from "../../Assests";
 import { useGetDEFinal } from "../../Hooks/useCatgeory";
-import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
+
 
 const MatchListingHeaders = [
   {
@@ -109,7 +109,6 @@ const MatchListingHeaders = [
 ];
 
 export const HybridMatchesListing = ({ fixtureId }) => {
-  const {rolesAccess}=useOwnerDetailsContext();
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const {
@@ -133,7 +132,6 @@ export const HybridMatchesListing = ({ fixtureId }) => {
       tournamentId,
       categoryId: eventId,
       fixtureId,
-      type: rolesAccess?.tournament,
     },
     {
       enabled: false,

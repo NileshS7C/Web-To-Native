@@ -41,6 +41,7 @@ import { object } from "prop-types";
 
 import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 
+
 const RoundCreationModal = ({
   toggleModal,
   actionType,
@@ -117,7 +118,6 @@ const RoundCreationModal = ({
     error: updateFixtureError,
     isPending: isUpdateFixturePending,
   } = useUpdateHybridFixture();
-  const {rolesAccess}=useOwnerDetailsContext()
   const { fixture } = useSelector((state) => state.fixture);
   const getInitialState = () => {
     if (actionType === "edit") {
@@ -296,16 +296,14 @@ const RoundCreationModal = ({
         createHybridFixture({
           tournamentId,
           categoryId,
-          payload,
-          type: rolesAccess?.tournament,
+          payload
         });
       } else {
         updateHybridFixture({
           tournamentId,
           categoryId,
           fixtureId: fixtureId,
-          payload,
-          type: rolesAccess?.tournament,
+          payload
         });
       }
     } catch (error) {
@@ -331,8 +329,7 @@ const RoundCreationModal = ({
           dispatch(
             getHybridFixtures({
               tour_Id: tournamentId,
-              eventId: categoryId,
-              type: rolesAccess?.tournament,
+              eventId: categoryId
             })
           );
         } else if (actionType === "edit") {
@@ -340,8 +337,7 @@ const RoundCreationModal = ({
             getFixtureById({
               tour_Id: tournamentId,
               eventId: categoryId,
-              fixtureId,
-              type: rolesAccess?.tournament,
+              fixtureId
             })
           );
         }

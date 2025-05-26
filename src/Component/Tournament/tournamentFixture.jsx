@@ -66,7 +66,6 @@ const playerShuffling = (participants) => {
 };
 
 export const TournamentFixture = ({ tournament }) => {
-  const {rolesAccess}=useOwnerDetailsContext();
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const [openMatchModal, setOpenMatchModal] = useState(false);
@@ -96,7 +95,7 @@ export const TournamentFixture = ({ tournament }) => {
   } = useSelector((state) => state.fixture);
 
   const handleCreateFixture = useCallback(() => {
-    dispatch(createFixture({ tour_Id: tournamentId, eventId ,type:rolesAccess?.tournament}));
+    dispatch(createFixture({ tour_Id: tournamentId, eventId }));
   }, []);
 
   const handleplayerShuffling = () => {
@@ -110,7 +109,6 @@ export const TournamentFixture = ({ tournament }) => {
         fixtureId: fixture?._id,
         formData: formattedMatchData,
         stageId: fixture?.bracketData.stage[0].id,
-        type:rolesAccess?.tournament
       })
     );
     setSuffledPlayers(result);
@@ -129,8 +127,7 @@ export const TournamentFixture = ({ tournament }) => {
       publishFixture({
         tour_Id: tournamentId,
         eventId,
-        fixtureId: fixture?._id,
-        type: rolesAccess?.tournament,
+        fixtureId: fixture?._id
       })
     );
   };
@@ -140,7 +137,7 @@ export const TournamentFixture = ({ tournament }) => {
   };
 
   useEffect(() => {
-    dispatch(getFixture({ tour_Id: tournamentId, eventId,type:rolesAccess?.tournament }));
+    dispatch(getFixture({ tour_Id: tournamentId, eventId }));
   }, []);
 
   useEffect(() => {
@@ -216,7 +213,7 @@ export const TournamentFixture = ({ tournament }) => {
         showError({
           message: "Oops! something went wrong while unpublishing the fixture.",
           onClose: "hideError",
-        })  
+        }) 
       );
     }
     

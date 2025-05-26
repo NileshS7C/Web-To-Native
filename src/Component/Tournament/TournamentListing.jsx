@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useCookies } from "react-cookie";
 import {
   TournamentTableHeaders,
   tournamentListingTabs as initialTour_Tabs,
@@ -30,7 +29,6 @@ const SearchEvents = ({
   dispatch,
   page,
   limit,
-  type,
   searchInput,
   setSearchInput,
   singleTournamentOwner,
@@ -49,7 +47,6 @@ const SearchEvents = ({
         searchTournament({
           page: page || 1,
           limit: limit,
-          type,
           ownerId: singleTournamentOwner?.id,
           search: debouncedValue,
         })
@@ -89,7 +86,6 @@ function TournamentListing(props) {
     selectedTab,
     setSearchInput,
   } = props;
-  const {rolesAccess}=useOwnerDetailsContext();
   const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
     useSelector((state) => state.GET_TOUR);
    
@@ -99,7 +95,6 @@ function TournamentListing(props) {
         getAllTournaments({
           page: currentPage || 1,
           limit: 10,
-          type: rolesAccess?.tournament,
           ownerId: singleTournamentOwner?.id,
         })
       );
@@ -119,7 +114,6 @@ function TournamentListing(props) {
             getAllTournaments({
               page: currentPage || 1,
               limit: 10,
-              type: rolesAccess?.tournament,
               ownerId: singleTournamentOwner?.id,
             })
           );
@@ -130,7 +124,6 @@ function TournamentListing(props) {
               page: currentPage || 1,
               limit: 10,
               status: selectedTab?.toUpperCase(),
-              type: rolesAccess?.tournament,
               ownerId: singleTournamentOwner?.id,
             })
           );
@@ -143,7 +136,6 @@ function TournamentListing(props) {
               limit: 10,
               "dateRange[startDate]": formattedDate(new Date()),
               timeline: "ACTIVE",
-              type: rolesAccess?.tournament,
               ownerId: singleTournamentOwner?.id,
             })
           );
@@ -158,7 +150,6 @@ function TournamentListing(props) {
                 "dateRange[endDate]": formattedDate(new Date()),
                 status: selectedFilter?.toUpperCase(),
                 timeline: "UPCOMING",
-                type: rolesAccess?.tournament,
                 ownerId: singleTournamentOwner?.id,
               })
             );
@@ -169,7 +160,6 @@ function TournamentListing(props) {
                 limit: 10,
                 "dateRange[endDate]": formattedDate(new Date()),
                 timeline: "UPCOMING",
-                type: rolesAccess?.tournament,
                 ownerId: singleTournamentOwner?.id,
               })
             );
@@ -182,7 +172,6 @@ function TournamentListing(props) {
               page: currentPage || 1,
               limit: 10,
               status: "ARCHIVED",
-              type: rolesAccess?.tournament,
               ownerId: singleTournamentOwner?.id,
             })
           );
@@ -192,7 +181,6 @@ function TournamentListing(props) {
            getAllTournaments({
              page: currentPage || 1,
              limit: 10,
-             type: rolesAccess?.tournament,
              ownerId: singleTournamentOwner?.id,
            })
          );
@@ -202,7 +190,6 @@ function TournamentListing(props) {
         getAllTournaments({
           page: currentPage || 1,
           limit: 10,
-          type: rolesAccess?.tournament,
           ownerId: singleTournamentOwner?.id,
         })
       );
@@ -258,7 +245,6 @@ function TournamentListingWrapper() {
   const selectedTab = searchParams.get("tab");
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [searchInput, setSearchInput] = useState("");
-  const {rolesAccess}=useOwnerDetailsContext() 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex w-full md:w-[40%]">
@@ -266,7 +252,6 @@ function TournamentListingWrapper() {
           dispatch={dispatch}
           page={currentPage || 1}
           limit={10}
-          type={rolesAccess?.tournament}
           searchInput={searchInput}
           setSearchInput={setSearchInput}
           singleTournamentOwner={singleTournamentOwner}

@@ -7,8 +7,6 @@ import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import DatePicker from "react-datepicker";
 import * as yup from "yup";
 import useDebounce from "../../../Hooks/useDebounce";
-import { Cookies } from "react-cookie";
-const cookies = new Cookies();
 import { toggleModal } from "../../../redux/tournament/eventSlice";
 import {
   getAllVenues,
@@ -49,7 +47,7 @@ import {
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { nanoid } from "nanoid";
-import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
+
 
 const requiredCategoryFields = (category) => {
   const {
@@ -167,7 +165,6 @@ export const EventCreationModal = () => {
       }),
     categoryStartDate: yup.date().optional(),
   });
-  const {rolesAccess}=useOwnerDetailsContext()
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showModal } = useSelector((state) => state.event);
@@ -275,16 +272,14 @@ export const EventCreationModal = () => {
         ? await dispatch(
             addEventCategory({
               formData: updatedValues,
-              id: tournamentId,
-              type: rolesAccess?.tournament,
+              id: tournamentId
             })
           ).unwrap()
         : await dispatch(
             updateEventCategory({
               formData: updatedValues,
               id: tournamentId,
-              categoryId: categoryId,
-              type: rolesAccess?.tournament,
+              categoryId: categoryId
             })
           ).unwrap();
 
@@ -294,8 +289,7 @@ export const EventCreationModal = () => {
           getAllCategories({
             currentPage: 1,
             limit: 10,
-            id: tournamentId,
-            type:rolesAccess?.tournament
+            id: tournamentId
           })
         );
       }
@@ -326,7 +320,7 @@ export const EventCreationModal = () => {
   useEffect(() => {
     if (categoryId && tournamentId) {
       dispatch(
-        getSingleCategory({ tour_Id: tournamentId, eventId: categoryId ,type:rolesAccess?.tournament})
+        getSingleCategory({ tour_Id: tournamentId, eventId: categoryId })
       );
     }
   }, [categoryId, tournamentId]);
@@ -1085,7 +1079,6 @@ function ComboboxForVenuesList({
   const browserLocation = useLocation();
   const searchParams = new URLSearchParams(browserLocation.search);
   const categoryId = searchParams.get("category");
-  const {rolesAccess}=useOwnerDetailsContext()
 
   // Query & Debounce
   const [query, setQuery] = useState("");
@@ -1152,8 +1145,7 @@ function ComboboxForVenuesList({
             currentPage: 1,
             selectedFilter,
             limit: 10,
-            name: query,
-            userRole: rolesAccess?.tournament,
+            name: query
           })
         ).unwrap();
 
@@ -1185,8 +1177,7 @@ function ComboboxForVenuesList({
             currentPage: 1,
             selectedFilter,
             limit: 10,
-            name: query,
-            userRole: rolesAccess?.tournament,
+            name: query
           })
         ).unwrap();
 
@@ -1219,8 +1210,7 @@ function ComboboxForVenuesList({
             currentPage: nextPage,
             selectedFilter,
             limit: 10,
-            name: query,
-            userRole: rolesAccess?.tournament,
+            name: query
           })
         ).unwrap();
 

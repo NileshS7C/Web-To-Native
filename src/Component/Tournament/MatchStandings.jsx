@@ -7,7 +7,7 @@ import EmptyBanner from "../Common/EmptyStateBanner";
 import Spinner from "../Common/Spinner";
 import ErrorBanner from "../Common/ErrorBanner";
 import DataTable from "../Common/DataTable";
-import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
+
 
 const standingHeaders = [
   {
@@ -39,7 +39,6 @@ const standingHeaders = [
 ];
 
 export const MatchStandings = ({ tournamentId, eventId }) => {
-  const {rolesAccess}=useOwnerDetailsContext();
   const dispatch = useDispatch();
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -60,8 +59,7 @@ export const MatchStandings = ({ tournamentId, eventId }) => {
             tour_Id: tournamentId,
             eventId,
             fixtureId: fixture?._id,
-            stageId: fixture?.currentStage,
-            type: rolesAccess?.tournament,
+            stageId: fixture?.currentStage
           })
         ).unwrap();
         if (!result.responseCode) {

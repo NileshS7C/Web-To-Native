@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
+import Cookies from 'js-cookie'
 import { useDispatch, useSelector } from "react-redux";
 import { getAll_TO, getSingle_TO } from "../redux/tournament/tournamentActions";
 import { userLogout } from "../redux/Authentication/authActions";
@@ -39,17 +40,28 @@ const generateRolesAccess = (userRoles = []) => {
 
 export const OwnerDetailContextProvider = ({ children }) => {
   const dispatch = useDispatch();
-  const [cookies] = useCookies(["userRoles"]);
+  const cookieRoles = Cookies.get("userRoles");
+  const parsedRoles = useMemo(() => {
+    try {
+      return cookieRoles ? JSON.parse(cookieRoles) : null;
+    } catch (e) {
+      console.error("Failed to parse roles from cookies:", e.message);
+      return null;
+    }
+  }, [cookieRoles]);
 
   const { userRoles: reduxRoles } = useSelector((state) => state.auth);
   const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
   const { tournamentOwners } = useSelector((state) => state.Tournament);
 
-  const userRoles = cookies?.userRoles || reduxRoles || [];
-  const rolesAccess = useMemo(
-    () => generateRolesAccess(userRoles),
-    [userRoles]
-  );
+  const userRoles = useMemo(() => {
+    return reduxRoles?.length ? reduxRoles : parsedRoles || [];
+  }, [reduxRoles, parsedRoles]);
+
+
+  const rolesAccess = useMemo(() => {
+    return generateRolesAccess(userRoles);
+  }, [userRoles]);
 
   useEffect(() => {
     if (!userRoles?.length) {
@@ -57,12 +69,15 @@ export const OwnerDetailContextProvider = ({ children }) => {
       return;
     }
 
-    if (ADMIN_ROLES.includes(rolesAccess?.tournament)) {
+    const role = rolesAccess?.tournament;
+    if (!role) return;
+
+    if (ADMIN_ROLES.includes(role)) {
       dispatch(getAll_TO({ currentPage: 1, limit: 100 }));
-    } else if (TOURNAMENT_OWNER_ROLES.includes(rolesAccess?.tournament)) {
-      dispatch(getSingle_TO(rolesAccess?.tournament));
+    } else if (TOURNAMENT_OWNER_ROLES.includes(role)) {
+      dispatch(getSingle_TO(role));
     }
-  }, [userRoles, rolesAccess?.tournament, dispatch]);
+  }, [dispatch, userRoles, rolesAccess?.tournament]);
 
   const value = useMemo(
     () => ({

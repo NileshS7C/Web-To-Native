@@ -1,17 +1,13 @@
 import React, { useEffect } from 'react'
 import { useGetFixtureId, useGetTournamentStanding } from '../../Hooks/tournamentStandingHooks'
-import { useOwnerDetailsContext } from '../../Providers/onwerDetailProvider';
-
 const TournamentStandings = ({ tournamentId, categoryId }) => {  
-  const {rolesAccess}=useOwnerDetailsContext();
   const {
     data: fixtureData,
     isLoading: isFixtureLoading,
     isError: isFixtureError,
   } = useGetFixtureId({
     tournamentId,
-    categoryId,
-    type: rolesAccess?.tournament,
+    categoryId
   });
   const fixtureID = fixtureData
   const {
@@ -21,8 +17,7 @@ const TournamentStandings = ({ tournamentId, categoryId }) => {
   } = useGetTournamentStanding({
     tournamentId,
     categoryId,
-    fixtureId: fixtureID,
-    type: rolesAccess?.tournament,
+    fixtureId: fixtureID
   });
 
   const standing = standingData  

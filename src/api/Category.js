@@ -1,19 +1,14 @@
-import axios from "axios";
-import { Cookies } from "react-cookie";
+import axios from "axios";;
 import { API_END_POINTS } from "../Constant/routes";
-
-const cookies = new Cookies();
 
 export const createHybridFixture = async (
   tournamentId,
   categoryId,
   payload,
-  type
 ) => {
   if (!tournamentId || !categoryId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
   const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.POST.createHybridFixture(
-    type,
     tournamentId,
     categoryId
   )}`;
@@ -40,12 +35,10 @@ export const updateHybridFixture = async (
   categoryId,
   fixtureId,
   payload,
-  type
 ) => {
   if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
   const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.POST.updateHybridFixture(
-    type,
     tournamentId,
     categoryId,
     fixtureId
@@ -72,12 +65,10 @@ export const deleteHybridFixture = async (
   tournamentId,
   categoryId,
   fixtureId,
-  type
 ) => {
   if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
   const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.POST.deleteHybridFixture(
-    type,
     tournamentId,
     categoryId,
     fixtureId
@@ -103,7 +94,6 @@ export const getFixtureById = async ({ tournamentId, categoryId, fixtureId }) =>
   if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
   const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.GET.getFixtureById(
-    type,
     tournamentId,
     categoryId,
     fixtureId
@@ -130,12 +120,10 @@ export const getDoubleEliminationFinal = async ({
   tournamentId,
   categoryId,
   fixtureId,
-  type
 }) => {
   if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
   const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.GET.fixtureDEFinal(
-    type,
     tournamentId,
     categoryId,
     fixtureId

@@ -16,7 +16,6 @@ import { showError } from "../../../redux/Error/errorSlice";
 import { showSuccess } from "../../../redux/Success/successSlice";
 import Spinner from "../../Common/Spinner";
 import EmptyBanner from "../../Common/EmptyStateBanner";
-import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 const RoundDetails = ({
   fixtureId,
   onRoundActionClick,
@@ -29,7 +28,6 @@ const RoundDetails = ({
   };
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
-  const {rolesAccess}=useOwnerDetailsContext()
   const {
     mutate: deleteHybridFixture,
     isSuccess: isDeleteFixtureSuccess,
@@ -62,8 +60,7 @@ const RoundDetails = ({
       deleteHybridFixture({
         tournamentId,
         categoryId: eventId,
-        fixtureId,
-        type: rolesAccess?.tournament,
+        fixtureId
       });
       dispatch(resetConfirmationState());
     }
@@ -80,8 +77,7 @@ const RoundDetails = ({
         dispatch(
           getHybridFixtures({
             tour_Id: tournamentId,
-            eventId,
-            type: rolesAccess?.tournament,
+            eventId
           })
         );
       }, [1000]);
@@ -103,8 +99,7 @@ const RoundDetails = ({
         getFixtureById({
           tour_Id: tournamentId,
           eventId,
-          fixtureId,
-          type: rolesAccess?.tournament,
+          fixtureId
         })
       );
   }, []);

@@ -1,15 +1,13 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
-import { Cookies } from "react-cookie";
+import Cookies from 'js-cookie'
 import { API_END_POINTS } from "../../Constant/routes";
 
-const cookies = new Cookies();
 export const createFixture = createAsyncThunk(
   "fixture/createFixture",
-  async ({ type,tour_Id, eventId }, { rejectWithValue }) => {
+  async ({ tour_Id, eventId }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint = API_END_POINTS.tournament.POST.createFixture(
-        type,
         tour_Id,
         eventId
       );
@@ -45,12 +43,10 @@ export const createFixture = createAsyncThunk(
 
 export const getFixture = createAsyncThunk(
   "fixture/getFixture",
-  async ({ type,tour_Id, eventId }, { rejectWithValue }) => {
+  async ({ tour_Id, eventId }, { rejectWithValue }) => {
     try {
-      
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getFixtureByTour_IdAndCategoryId(
-          type,
           tour_Id,
           eventId
         );
@@ -82,13 +78,10 @@ export const getFixture = createAsyncThunk(
 );
 export const getHybridFixtures = createAsyncThunk(
   "fixture/getHybridFixture",
-  async ({type, tour_Id, eventId }, { rejectWithValue }) => {
+  async ({tour_Id, eventId }, { rejectWithValue }) => {
     try {
-      
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getFixtureByTour_IdAndCategoryId(
-          type,
           tour_Id,
           eventId
         );
@@ -119,13 +112,10 @@ export const getHybridFixtures = createAsyncThunk(
 );
 export const getFixtureById = createAsyncThunk(
   "fixture/getFixtureById",
-  async ({ type,tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
+  async ({tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getFixtureById(
-          type,
           tour_Id,
           eventId,
           fixtureId
@@ -196,13 +186,12 @@ export const getMatches = createAsyncThunk(
 );
 export const updateMatch = createAsyncThunk(
   "fixture/updateMatch",
-  async ({matchData,type}, { rejectWithValue }) => {
+  async ({tour_Id,eventId,fixtureId,formData}, { rejectWithValue }) => {
     try {
       const userAPIEndPoint = API_END_POINTS.tournament.POST.fixtureMatchUpdate(
-        type,
-        matchData.tour_Id,
-        matchData.eventId,
-        matchData.fixtureId
+        tour_Id,
+        eventId,
+        fixtureId
       );
 
       const config = {
@@ -212,7 +201,7 @@ export const updateMatch = createAsyncThunk(
       };
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
-        JSON.stringify(matchData?.formData),
+        JSON.stringify(formData),
         config
       );
 
@@ -235,16 +224,13 @@ export const updateMatch = createAsyncThunk(
 
 export const updateMatchSetCount = createAsyncThunk(
   "fixture/updateMatchSetCount",
-  async ({ matchData ,type}, { rejectWithValue }) => {
+  async ({ tour_Id,eventId,fixtureId ,formData}, { rejectWithValue }) => {
     try {
-      c
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.fixtureMatchSetCount(
-          type,
-          matchData.tour_Id,
-          matchData.eventId,
-          matchData.fixtureId
+          tour_Id,
+          eventId,
+          fixtureId
         );
 
       const config = {
@@ -255,7 +241,7 @@ export const updateMatchSetCount = createAsyncThunk(
 
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
-        JSON.stringify(matchData?.formData),
+        JSON.stringify(formData),
         config
       );
 
@@ -278,15 +264,13 @@ export const updateMatchSetCount = createAsyncThunk(
 
 export const getStandings = createAsyncThunk(
   "fixture/getStandings",
-  async ({ matchData ,type}, { rejectWithValue }) => {
+  async ({ tour_Id,eventId,fixtureId,stageId}, { rejectWithValue }) => {
     try {
-
       const userAPIEndPoint = API_END_POINTS.tournament.GET.getMatchStandings(
-        type,
-        matchData.tour_Id,
-        matchData.eventId,
-        matchData.fixtureId,
-        matchData.stageId
+        tour_Id,
+        eventId,
+        fixtureId,
+        stageId
       );
 
       const config = {
@@ -319,15 +303,14 @@ export const getStandings = createAsyncThunk(
 
 export const updateSeeding = createAsyncThunk(
   "fixture/updateSeeding",
-  async ({ matchData ,type}, { rejectWithValue }) => {
+  async ({formData,tour_Id,eventId,fixtureId,stageId }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.updatePlayerSeeding(
-          type,
-          matchData.tour_Id,
-          matchData.eventId,
-          matchData.fixtureId,
-          matchData.stageId
+          tour_Id,
+          eventId,
+          fixtureId,
+          stageId
         );
       const config = {
         headers: {
@@ -336,7 +319,7 @@ export const updateSeeding = createAsyncThunk(
       };
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
-        JSON.stringify(matchData?.formData),
+        JSON.stringify(formData),
         config
       );
 
@@ -359,16 +342,13 @@ export const updateSeeding = createAsyncThunk(
 
 export const updateMatchSet = createAsyncThunk(
   "fixture/updateMatchSet",
-  async ({ matchData ,type}, { rejectWithValue }) => {
+  async ({ formData,tour_Id,eventId,fixtureId }, { rejectWithValue }) => {
     try {
-     
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.fixtureMatchSetUpdated(
-          type,
-          matchData.tour_Id,
-          matchData.eventId,
-          matchData.fixtureId
+          tour_Id,
+          eventId,
+          fixtureId
         );
       const config = {
         headers: {
@@ -378,7 +358,7 @@ export const updateMatchSet = createAsyncThunk(
 
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
-        JSON.stringify(matchData?.formData),
+        JSON.stringify(formData),
         config
       );
 
@@ -401,15 +381,12 @@ export const updateMatchSet = createAsyncThunk(
 
 export const publishFixture = createAsyncThunk(
   "fixture/publishFixture",
-  async ({ matchData ,type}, { rejectWithValue }) => {
+  async ({  tour_Id,eventId,fixtureId}, { rejectWithValue }) => {
     try {
-   
-
       const userAPIEndPoint = API_END_POINTS.tournament.POST.publishFixture(
-        type,
-        matchData.tour_Id,
-        matchData.eventId,
-        matchData.fixtureId
+        tour_Id,
+        eventId,
+        fixtureId
       );
       const config = {
         headers: {

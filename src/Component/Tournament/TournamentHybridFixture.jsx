@@ -28,6 +28,7 @@ import { getFixtureById } from "../../redux/tournament/fixturesActions";
 import GroupAndRoundNameModal from "./GroupAndRoundNameModal";
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
+
 const formatMatchData = (fixture, suffledPlayers) => {
   if (!fixture || !suffledPlayers?.length) {
     return;
@@ -66,7 +67,6 @@ const playerShuffling = (participants) => {
 };
 
 export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
-  const {rolesAccess}=useOwnerDetailsContext();
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const [openMatchModal, setOpenMatchModal] = useState(false);
@@ -100,8 +100,7 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
     dispatch(
       createFixture({
         tour_Id: tournamentId,
-        eventId,
-        type: rolesAccess?.tournament,
+        eventId
       })
     );
   }, []);
@@ -116,8 +115,7 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
         eventId,
         fixtureId,
         formData: formattedMatchData,
-        stageId: fixture?.bracketData.stage[0].id,
-        type: rolesAccess?.tournament,
+        stageId: fixture?.bracketData.stage[0].id
       })
     );
     setSuffledPlayers(result);
@@ -136,8 +134,7 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
       publishFixture({
         tour_Id: tournamentId,
         eventId,
-        fixtureId,
-        type: rolesAccess?.tournament,
+        fixtureId
       })
     );
   };

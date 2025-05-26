@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useGetTournamentStanding } from "../../Hooks/tournamentStandingHooks";
 import Spinner from "../Common/Spinner";
-import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
+
 
 const TournamentHybridStandings = ({ tournamentId, categoryId, fixtureId }) => {
-  const {rolesAccess}=useOwnerDetailsContext()
   const {
     data: standingData,
     isLoading: isStandingLoading,
@@ -12,8 +11,7 @@ const TournamentHybridStandings = ({ tournamentId, categoryId, fixtureId }) => {
   } = useGetTournamentStanding({
     tournamentId,
     categoryId,
-    fixtureId,
-    type: rolesAccess?.tournament,
+    fixtureId
   });
   const standing = standingData;
 

@@ -20,10 +20,9 @@ import { Button } from "@headlessui/react";
 import AddParticipants from "./AddParticipantPage";
 import { ConfirmationModal } from "../../Common/ConfirmationModal";
 import PropTypes from "prop-types";
-import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
+
 
 function EventRegistrations() {
-  const {rolesAccess}=useOwnerDetailsContext()
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = searchParams.get("page");
   const dispatch = useDispatch();
@@ -51,8 +50,7 @@ function EventRegistrations() {
           currentPage: currentPage || 1,
           limit: bookingLimit,
           tour_Id: tournamentId,
-          eventId,
-          type:rolesAccess?.tournament
+          eventId
         })
       );
     }

@@ -16,7 +16,7 @@ import ErrorBanner from "../../Common/ErrorBanner";
 import { bookingLimit, NotDoublesCategory } from "../../../Constant/tournament";
 import { SearchPlayer } from "../../Common/SeachPlayerModal";
 import ToggleButton from "../../Common/ToggleButton";
-import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
+
 
 const PlayerExistenceSelector = ({ handlePlayerExist, type }) => {
   const [isPlayerExist, setIsPlayerExist] = useState({
@@ -92,7 +92,6 @@ const AddParticipants = () => {
       },
     ],
   };
-  const {rolesAccess}=useOwnerDetailsContext()
   const dispatch = useDispatch();
   const { eventId, tournamentId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -277,8 +276,7 @@ const AddParticipants = () => {
             currentPage: currentPage || 1,
             limit: bookingLimit,
             tour_Id: tournamentId,
-            eventId,
-            type:rolesAccess?.tournament
+            eventId
           })
         );
       }

@@ -51,7 +51,6 @@ const SearchVenue = ({
 }) => {
   const [searchVenue, setSearchVenue] = useState("");
   const debouncedValue = useDebounce(searchVenue, 300);
-  const {rolesAccess}=useOwnerDetailsContext()
   const handleSearchVenue = (e) => {
     setSearchVenue(e?.target?.value);
     setVenueName(e?.target?.value);
@@ -64,8 +63,7 @@ const SearchVenue = ({
           currentPage,
           selectedFilter,
           limit,
-          name: debouncedValue,
-          userRole: rolesAccess?.tournament,
+          name: debouncedValue
         })
       );
     }

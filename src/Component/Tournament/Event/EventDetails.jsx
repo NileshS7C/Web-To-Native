@@ -21,7 +21,6 @@ const options = ({ tournamentId, eventId, categoryFormat, role }) => {
 
   const formatKey = categoryFormat === "HYBRID" ? "HYBRID" : "DEFAULT";
   const baseTabs = eventTabs?.[role]?.[formatKey] || [];
-  console.log(baseTabs);
   return baseTabs.map((tab, index) => ({
     ...tab,
     search: index === 0 ? "" : `?tab=${tab.name?.toLowerCase()}`,
@@ -31,18 +30,16 @@ const options = ({ tournamentId, eventId, categoryFormat, role }) => {
 };
 
 function EventDetailPage() {
-  const { rolesAccess } = useOwnerDetailsContext();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { tournamentId, eventId } = useParams();
   const [categoryData, setcategoryData] = useState({});
   const [selectedTab, setSelectedTab] = useState("");
-
   const currentTab = searchParams.get("tab");
   const { tournament, isSuccess, hasErrorInTournament, isGettingTournament } =
     useSelector((state) => state.GET_TOUR);
-  const { singleTournamentOwner = {} } = useOwnerDetailsContext();
+  const { singleTournamentOwner = {},rolesAccess } = useOwnerDetailsContext();
 
   useEffect(() => {
     const event = tournament?.categories?.find((tmt) => {
@@ -56,8 +53,7 @@ function EventDetailPage() {
       dispatch(
         getSingleTournament({
           tournamentId,
-          ownerId: singleTournamentOwner?.id,
-          type: rolesAccess?.tournament,
+          ownerId: singleTournamentOwner?.id
         })
       );
     }
