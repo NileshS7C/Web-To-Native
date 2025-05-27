@@ -283,6 +283,7 @@ export const TournamentFixture = ({ tournament }) => {
           onCancel={handlePlayerSeddingModal}
           players={players}
           participants={fixture?.bracketData?.participant}
+          playersList={fixture?.playersList}
         />
         <MatchModal
           isOpen={openMatchModal}
