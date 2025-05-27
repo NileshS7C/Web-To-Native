@@ -291,6 +291,7 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
           players={players}
           participants={fixture?.bracketData?.participant}
           fixtureId={fixtureId}
+          playersList={fixture?.playersList}
         />
         <MatchModal
           isOpen={openMatchModal}
