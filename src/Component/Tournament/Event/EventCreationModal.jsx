@@ -88,7 +88,7 @@ const initialValues = {
   minPlayers: 1,
   skillLevel: "",
   consolationFinal: false,
-  numberOfGroups: "",
+  numberOfGroups: "1",
   totalSets: "",
   categoryLocation: {
     handle: "",
@@ -121,7 +121,15 @@ export const EventCreationModal = () => {
     type: yup.string().required("Event category is required."),
     roundRobinMode: yup.string().optional(),
     consolationFinal: yup.boolean().optional(),
-    numberOfGroups: yup.string().optional(),
+    numberOfGroups: yup
+      .string()
+      .default("1")
+      .when("format", {
+        is: "RR",
+        then: (schema) =>
+          schema.required("Number of groups is required in Round Robin format"),
+        otherwise: (schema) => schema.optional(),
+      }),
     totalSets: yup.string().optional(),
     registrationFee: yup
       .number()
@@ -331,7 +339,7 @@ export const EventCreationModal = () => {
         numberOfGroups: category?.numberOfGroups.toString() || "",
         grandFinalsDE: category?.grandFinalsDE || "",
         roundRobinMode: category?.roundRobinMode || "",
-        totalSets: category?.totalSets.toString() || ""
+        totalSets: category?.totalSets.toString() || "",
       }));
 
       updatedCategory?.categoryLocation
@@ -1325,8 +1333,10 @@ function ComboboxForVenuesList({
                       venue.address.line1 || venue.address.line2,
                       venue.address.city,
                       venue.address.state,
-                      venue.address.postalCode
-                    ].filter(Boolean).join(", ")}
+                      venue.address.postalCode,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
                   </p>
                 </div>
                 <span className="absolute inset-y-0 right-0 hidden items-center pr-4 text-indigo-600 group-data-focus:text-white group-data-selected:flex">
@@ -1354,29 +1364,36 @@ function ComboboxForVenuesList({
         </ComboboxOptions>
       </div>
 
-      {selectedPerson  && (
+      {selectedPerson && (
         <div className="w-full p-4 border border-gray-200 rounded-lg mt-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="relative w-full sm:w-auto">
-            <img
-              src={selectedPerson?.bannerImages?.[0]?.url}
-              alt={selectedPerson?.name}
-              className="w-full sm:w-32 h-32 object-cover rounded-md"
-            />
-            <button
-              onClick={handleRemoveVenue}
-              className="absolute top-2 right-2 sm:-top-2 sm:-right-2 bg-gray-500 text-white rounded-full p-1 shadow-md hover:bg-gray-600"
-            >
-              <RxCrossCircled className="w-5 h-5" />
-            </button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="relative w-full sm:w-auto">
+              <img
+                src={selectedPerson?.bannerImages?.[0]?.url}
+                alt={selectedPerson?.name}
+                className="w-full sm:w-32 h-32 object-cover rounded-md"
+              />
+              <button
+                onClick={handleRemoveVenue}
+                className="absolute top-2 right-2 sm:-top-2 sm:-right-2 bg-gray-500 text-white rounded-full p-1 shadow-md hover:bg-gray-600"
+              >
+                <RxCrossCircled className="w-5 h-5" />
+              </button>
             </div>
             <div className="flex-1 w-full sm:w-auto">
-              <h3 className="text-lg font-medium mb-1">{selectedPerson?.name}</h3>
+              <h3 className="text-lg font-medium mb-1">
+                {selectedPerson?.name}
+              </h3>
               <p className="text-sm text-gray-600 break-words">
-                {selectedPerson?.address?.line1}{selectedPerson?.address?.line2 ? `, ${selectedPerson?.address?.line2}` : ''}
+                {selectedPerson?.address?.line1}
+                {selectedPerson?.address?.line2
+                  ? `, ${selectedPerson?.address?.line2}`
+                  : ""}
               </p>
               <p className="text-sm text-gray-600">
-                {selectedPerson?.address?.city}, {selectedPerson?.address?.state} - {selectedPerson?.address?.postalCode}
+                {selectedPerson?.address?.city},{" "}
+                {selectedPerson?.address?.state} -{" "}
+                {selectedPerson?.address?.postalCode}
               </p>
             </div>
           </div>
