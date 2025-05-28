@@ -13,17 +13,26 @@ import ErrorBanner from "./ErrorBanner";
 import { useParams } from "react-router-dom";
 import { setFixture } from "../../redux/tournament/fixtureSlice";
 
+// Helper function to create players with IDs for internal use
+const createPlayersWithIds = (playersList) => {
+  return playersList?.map((player, index) => ({
+    id: index,
+    name: player.name,
+  })) || [];
+};
 
-const seededPlayerData = (selections, participants) => {
+const seededPlayerData = (selections, playersList) => {
   if (selections?.length > 0) {
-    const updatedArray = [...participants];
-    selections.forEach((selections) => {
-      const indexOfTheChoosenPlayer = participants.findIndex(
-        (element) => element.id === selections.player1
+    const playersWithIds = createPlayersWithIds(playersList);
+    const updatedArray = [...playersWithIds];
+    
+    selections.forEach((selection) => {
+      const indexOfTheChoosenPlayer = playersWithIds.findIndex(
+        (element) => element.id === selection.player1
       );
 
-      const swappingPlayerIndex = participants.findIndex(
-        (element) => element.id === selections.player2
+      const swappingPlayerIndex = playersWithIds.findIndex(
+        (element) => element.id === selection.player2
       );
 
       if (indexOfTheChoosenPlayer !== -1 && swappingPlayerIndex !== -1) {
@@ -39,6 +48,7 @@ const seededPlayerData = (selections, participants) => {
 
     return updatedArray;
   }
+  return createPlayersWithIds(playersList);
 };
 
 const formattedPlayerDataForSeeding = (
@@ -64,7 +74,7 @@ const formattedPlayerDataForSeeding = (
     const { id, tournament_id, number, bookingId, ...rest } = player;
     return rest;
   });
-  console.log("stageData",updatedSeedingData)
+  console.log("stageData", updatedSeedingData);
 
   return {
     stageData: {
@@ -80,9 +90,10 @@ const formattedPlayerDataForSeeding = (
 export const PlayerSelectionModal = ({
   isOpen,
   onCancel,
-  players,
-  participants,
-  fixtureId
+  players, // This is now playersList from the parent
+  participants, // Keep for backward compatibility if needed
+  fixtureId,
+  playersList // New prop for the playersList array
 }) => {
   const dispatch = useDispatch();
   const { eventId, tournamentId } = useParams();
@@ -91,33 +102,44 @@ export const PlayerSelectionModal = ({
   const [isSubmittings, setisSubmittings] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);
-  const [updatedFixture, setUpdatedFixture] = useState(null)
+  const [updatedFixture, setUpdatedFixture] = useState(null);
+
+  const isSaveEnabled = selections.length > 0 && selections.every(
+    s =>
+      typeof s.player1 === "number" &&
+      typeof s.player2 === "number" &&
+      s.player1 !== s.player2
+  );
+  
   const {
     fixture
   } = useSelector((state) => state.fixture);
 
+  // Use playersList if provided, otherwise fall back to players
+  const currentPlayersList = playersList || players || [];
+
   useEffect(() => {
-
-
     if (fixture) {
-      setUpdatedFixture(fixture)
+      setUpdatedFixture(fixture);
     }
-  }, [])
+  }, [fixture]);
 
   const handleSeededPlayer = (value) => {
-    setSelections((_) => [...value]);
+    setSelections([...value]);
   };
 
   useEffect(() => {
     if (selections?.length > 0) {
-      const updatedArray = [...participants];
-      selections.forEach((selections) => {
-        const indexOfTheChoosenPlayer = participants.findIndex(
-          (element) => element.id === selections.player1
+      const playersWithIds = createPlayersWithIds(currentPlayersList);
+      const updatedArray = [...playersWithIds];
+      
+      selections.forEach((selection) => {
+        const indexOfTheChoosenPlayer = playersWithIds.findIndex(
+          (element) => element.id === selection.player1
         );
 
-        const swappingPlayerIndex = participants.findIndex(
-          (element) => element.id === selections.player2
+        const swappingPlayerIndex = playersWithIds.findIndex(
+          (element) => element.id === selection.player2
         );
 
         if (indexOfTheChoosenPlayer !== -1 && swappingPlayerIndex !== -1) {
@@ -133,7 +155,7 @@ export const PlayerSelectionModal = ({
         }
       });
     }
-  }, [selections]);
+  }, [selections, currentPlayersList]);
 
   const handlePlayerSeeding = async () => {
     try {
@@ -141,15 +163,13 @@ export const PlayerSelectionModal = ({
       setHasError(false);
       setErrorMessage("");
 
-      const seededData = seededPlayerData(selections, participants);
-
+      const seededData = seededPlayerData(selections, currentPlayersList);
 
       const formattedData = formattedPlayerDataForSeeding(
         updatedFixture,
         seededData,
         tournamentId
       );
-
 
       const result = await dispatch(
         updateSeeding({
@@ -160,6 +180,7 @@ export const PlayerSelectionModal = ({
           stageId: updatedFixture?.bracketData.stage[0].id,
         })
       ).unwrap();
+      
       if (!result.responseCode) {
         dispatch(
           showSuccess({
@@ -169,16 +190,17 @@ export const PlayerSelectionModal = ({
         );
 
         dispatch(setFixture(result?.data?.fixture));
-        if(fixtureId){
-          dispatch(getFixtureById({ tour_Id: tournamentId, eventId ,fixtureId}));
-        }else
-        dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+        if (fixtureId) {
+          dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
+        } else {
+          dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+        }
       }
     } catch (err) {
-      console.log(" Error occured while doing player seeding", err);
+      console.log("Error occurred while doing player seeding", err);
       setHasError(true);
       setErrorMessage(
-        err.data.message ||
+        err.data?.message ||
         "Oops! something went wrong while seeding the players. Please try again."
       );
     } finally {
@@ -193,6 +215,7 @@ export const PlayerSelectionModal = ({
       setisSubmittings(false);
       setErrorMessage("");
       setSeededPlayers([]);
+      setSelections([]);
     }
   }, [isOpen]);
 
@@ -219,7 +242,7 @@ export const PlayerSelectionModal = ({
               {hasError && <ErrorBanner message={errorMessage} />}
 
               <PlayerSelectionManager
-                players={players}
+                players={currentPlayersList}
                 handleSeededPlayer={handleSeededPlayer}
               />
 
@@ -228,7 +251,7 @@ export const PlayerSelectionModal = ({
                 type="submit"
                 loading={isSubmittings}
                 onClick={handlePlayerSeeding}
-                disabled={!seededPlayers?.length}
+                disabled={!isSaveEnabled}
               >
                 Save
               </Button>
@@ -239,7 +262,6 @@ export const PlayerSelectionModal = ({
     </Dialog>
   );
 };
-
 const PlayerSwipeTitle = ({ onCancel }) => {
   return (
     <div className="flex justify-between items-center w-full text-[#718EBF]">
@@ -265,10 +287,11 @@ const PlayerRow = ({
   onDelete,
 }) => {
   const currentRow = allSelections[rowIndex] || { player1: "", player2: "" };
+  const playersWithIds = createPlayersWithIds(players);
 
   const getAvailablePlayers = (currentField) => {
-    return players?.length > 0
-      ? players.filter((player) => {
+    return playersWithIds?.length > 0
+      ? playersWithIds.filter((player) => {
         if (player.id === currentRow[currentField]) return true;
 
         return !allSelections.some(
@@ -317,7 +340,7 @@ const PlayerRow = ({
         <select
           name={`player2-${rowIndex}`}
           id={`player2-${rowIndex}`}
-          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-[19px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={currentRow.player2}
           onChange={(e) =>
             handlePlayerChange(rowIndex, "player2", e.target.value)
@@ -347,15 +370,15 @@ const PlayerSelectionManager = ({ players, handleSeededPlayer }) => {
   const [selections, setSelections] = useState([{ player1: "", player2: "" }]);
 
   const handlePlayerChange = (rowIndex, field, value) => {
-    const playerData = players.find((player) => player.id === Number(value));
-    let name;
+    const playersWithIds = createPlayersWithIds(players);
+    const playerData = playersWithIds.find((player) => player.id === Number(value));
+    
     if (playerData) {
-      name = playerData.id;
       setSelections((prev) => {
         const newSelections = [...prev];
         newSelections[rowIndex] = {
           ...newSelections[rowIndex],
-          [field]: name,
+          [field]: playerData.id,
         };
         handleSeededPlayer(newSelections);
         return newSelections;
@@ -364,12 +387,25 @@ const PlayerSelectionManager = ({ players, handleSeededPlayer }) => {
   };
 
   const handleAddRow = () => {
-    setSelections((prev) => [...prev, { player1: "", player2: "" }]);
+    setSelections((prev) => {
+      const newSelections = [...prev, { player1: "", player2: "" }];
+      handleSeededPlayer(newSelections);
+      return newSelections;
+    });
   };
 
   const handleDeleteRow = (index) => {
-    setSelections((prev) => prev.filter((_, i) => i !== index));
+    setSelections((prev) => {
+      const newSelections = prev.filter((_, i) => i !== index);
+      handleSeededPlayer(newSelections);
+      return newSelections;
+    });
   };
+
+  // Update parent when selections change
+  useEffect(() => {
+    handleSeededPlayer(selections);
+  }, [selections]);
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -395,6 +431,7 @@ const PlayerSelectionManager = ({ players, handleSeededPlayer }) => {
     </div>
   );
 };
+
 PlayerRow.propTypes = {
   players: PropTypes.array,
   rowIndex: PropTypes.number,
@@ -418,5 +455,6 @@ PlayerSelectionModal.propTypes = {
   onCancel: PropTypes.func,
   players: PropTypes.array,
   participants: PropTypes.array,
-  fixture: PropTypes.object,
+  fixtureId: PropTypes.string,
+  playersList: PropTypes.array,
 };
