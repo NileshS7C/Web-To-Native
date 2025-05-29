@@ -192,8 +192,36 @@ const RoundCreationModal = ({
 
     return { isValid: true, message: "" };
   };
+  const checkChangeValue = (initialState, values) => {
+    const changed = {};
 
-  const createPayload = (values, groupSizes) => {
+    for (const key in values) {
+      if (key === "participants") {
+        const initialParticipants = initialState.participants || [];
+        const currentParticipants = values.participants || [];
+        if(initialParticipants?.length !== currentParticipants?.length){
+          changed.participants = true;
+        }
+        const changedParticipants = currentParticipants.filter((current, i) => {
+          const init = initialParticipants[i];
+          return init.id !== current.id;
+        });
+
+        if (changedParticipants.length > 0) {
+          changed.participants = true;
+        }
+        
+      } else {
+        if (JSON.stringify(initialState[key]) !== JSON.stringify(values[key])) {
+          changed[key] = true;
+        }
+      }
+    }
+   
+    return changed;
+  };
+  
+  const createPayload = (initialState,actionType,values, groupSizes) => {
     const {
       format,
       name,
@@ -204,7 +232,7 @@ const RoundCreationModal = ({
       participants,
       consolationFinal,
     } = values;
-
+   
     const settings = {
       consolationFinal,
       ...(totalSets && { totalSets }),
@@ -215,7 +243,18 @@ const RoundCreationModal = ({
 
     const bookings =
       participants?.map((p) => ({ bookingId: p.bookingId })) || [];
-
+    if(actionType === "edit"){
+      const changedField = checkChangeValue(initialState, values);
+      if(Object.keys(changedField).length === 1 && changedField?.name){
+        return {
+          tournamentId,
+          categoryId,
+          fixtureData: {
+            name
+          },
+        };
+      }
+    }
     return {
       tournamentId,
       categoryId,
@@ -246,7 +285,7 @@ const RoundCreationModal = ({
           return;
         }
       }
-      const payload = createPayload(values, groupSizes);
+      const payload = createPayload(initialState,actionType,values,groupSizes);
       if (actionType === "add") {
         createHybridFixture({ tournamentId, categoryId, payload });
       } else {
