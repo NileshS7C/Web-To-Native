@@ -25,7 +25,7 @@ const seededPlayerData = (selections, playersList) => {
   if (selections?.length > 0) {
     const playersWithIds = createPlayersWithIds(playersList);
     const updatedArray = [...playersWithIds];
-    
+
     selections.forEach((selection) => {
       const indexOfTheChoosenPlayer = playersWithIds.findIndex(
         (element) => element.id === selection.player1
@@ -110,7 +110,7 @@ export const PlayerSelectionModal = ({
       typeof s.player2 === "number" &&
       s.player1 !== s.player2
   );
-  
+
   const {
     fixture
   } = useSelector((state) => state.fixture);
@@ -132,7 +132,7 @@ export const PlayerSelectionModal = ({
     if (selections?.length > 0) {
       const playersWithIds = createPlayersWithIds(currentPlayersList);
       const updatedArray = [...playersWithIds];
-      
+
       selections.forEach((selection) => {
         const indexOfTheChoosenPlayer = playersWithIds.findIndex(
           (element) => element.id === selection.player1
@@ -180,7 +180,7 @@ export const PlayerSelectionModal = ({
           stageId: updatedFixture?.bracketData.stage[0].id,
         })
       ).unwrap();
-      
+
       if (!result.responseCode) {
         dispatch(
           showSuccess({
@@ -322,11 +322,17 @@ const PlayerRow = ({
           }
         >
           <option value="">Select Player</option>
-          {getAvailablePlayers("player1").map((player, index) => (
-            <option key={`${player.name}_${index}`} value={player?.id}>
-              {player.name} - {participants?.find((p) => p.id === player.id)?.groupId}
-            </option>
-          ))}
+          {getAvailablePlayers("player1").map((player, index) => {
+            const participant = participants?.find((p) => p.name === player.name); // or match by id if possible
+            const groupId = participant?.groupId;
+
+            return (
+              <option key={`${player.name}_${index}`} value={player.id}>
+                {player.name} {groupId !== undefined ? `- (Group ${groupId})` : ""}
+              </option>
+            );
+          })}
+
         </select>
       </div>
 
@@ -349,11 +355,16 @@ const PlayerRow = ({
           }
         >
           <option value="">Select Player</option>
-          {getAvailablePlayers("player2").map((player, index) => (
-            <option key={`${player.name}_${index}`} value={player.id}>
-              {player.name} - {participants?.find((p) => p.id === player.id)?.groupId}
-            </option>
-          ))}
+          {getAvailablePlayers("player2").map((player, index) => {
+            const participant = participants?.find((p) => p.name === player.name); // or match by id
+            const groupId = participant?.groupId;
+
+            return (
+              <option key={`${player.name}_${index}`} value={player.id}>
+                {player.name} {groupId !== undefined ? `- (Group ${groupId})` : ""}
+              </option>
+            );
+          })}
         </select>
       </div>
 
@@ -374,7 +385,7 @@ const PlayerSelectionManager = ({ players, handleSeededPlayer, participants }) =
   const handlePlayerChange = (rowIndex, field, value) => {
     const playersWithIds = createPlayersWithIds(players);
     const playerData = playersWithIds.find((player) => player.id === Number(value));
-    
+
     if (playerData) {
       setSelections((prev) => {
         const newSelections = [...prev];
