@@ -151,10 +151,10 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
       if (fixture) {
         window?.bracketsViewer?.render(
           {
-            stages: fixture?.bracketData?.stage,
-            matches: fixture?.bracketData?.match,
-            matchGames: fixture?.bracketData?.match_game,
-            participants: fixture?.bracketData?.participant,
+            stages: fixture?.bracketData?.stage || [],
+            matches: fixture?.bracketData?.match || [],
+            matchGames: fixture?.bracketData?.match_game || [],
+            participants: fixture?.bracketData?.participant || [],
           },
           {
             highlightParticipantOnHover: true,
@@ -372,7 +372,7 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
             loading={isUnPublishing}
             disabled={fixture?.status !== "PUBLISHED" || !fixture}
           >
-            UnPublish
+            Unpublish
           </Button>
         ) : (
           <Button

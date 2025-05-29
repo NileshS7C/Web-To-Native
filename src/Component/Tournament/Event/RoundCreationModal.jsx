@@ -38,6 +38,7 @@ import {
 } from "../../../redux/tournament/fixturesActions";
 import { useDispatch, useSelector } from "react-redux";
 
+
 const RoundCreationModal = ({
   toggleModal,
   actionType,
@@ -52,17 +53,21 @@ const RoundCreationModal = ({
       .required("Round name is required")
       .min(3, "Round name should be minimum 3 characters")
       .max(50, "Round name cannot exceed more than 50 characters."),
-    groupName: yup
-      .string()
-      .optional(),
-
     format: yup.string().required(),
 
     roundRobinMode: yup.string().optional(),
 
     consolationFinal: yup.boolean().optional(),
 
-    numberOfGroups: yup.string().optional(),
+    numberOfGroups: yup
+      .string()
+      .default("1")
+      .when("format", {
+        is: "RR",
+        then: (schema) =>
+          schema.required("Number of groups is required in Round Robin format"),
+        otherwise: (schema) => schema.optional(),
+      }),
 
     totalSets: yup.string().optional(),
 
@@ -74,7 +79,27 @@ const RoundCreationModal = ({
 
     grandFinalsDE: yup.string().optional(),
   });
-
+  const [groupSizes, setGroupSizes] = useState([]);
+  const onGroupChangeHandler = (noOfGroups) => {
+    if (noOfGroups > groupSizes?.length) {
+      const newGroupsLength = noOfGroups - groupSizes.length;
+      const newGroups = Array.from({ length: newGroupsLength }, (_, index) => ({
+        id: groupSizes.length + index + 1,
+        totalParticipants: "",
+      }));
+      setGroupSizes((prev) => [...prev, ...newGroups]);
+    } else if (noOfGroups < groupSizes?.length) {
+      const newGroup = groupSizes.slice(0, noOfGroups);
+      setGroupSizes(newGroup);
+    }
+  };
+  const handleGroupValueChange = (index, event) => {
+    const updatedValue = event.target.value; 
+    const updatedGroups = [...groupSizes];
+    updatedGroups[index].totalParticipants = updatedValue;
+    setGroupSizes(updatedGroups);
+  };
+ 
   const {
     mutate: createHybridFixture,
     isSuccess: isCreateFixtureSuccess,
@@ -104,7 +129,6 @@ const RoundCreationModal = ({
       return {
         ...initialValues,
         name: fixture?.name || "",
-        groupName: fixture?.groupName || "",
         format: fixture?.format || "",
         participants: fixture?.bracketData?.participant || [],
         totalSets: matchesChildCount?.toString() || "",
@@ -112,7 +136,6 @@ const RoundCreationModal = ({
         roundRobinMode: roundRobinMode || "",
         consolationFinal: consolationFinal || false,
         grandFinalsDE: grandFinalsDE || "",
-      
       };
     }
     return initialValues;
@@ -127,7 +150,50 @@ const RoundCreationModal = ({
       participants,
     }));
   }, []);
-  const createPayload = (values) => {
+  useEffect(() => {
+    if (actionType === 'edit' && fixture) {
+      const { groupSizes } = fixture?.bracketData?.stage[0]?.settings || {};
+
+      if (groupSizes && Array.isArray(groupSizes)) {
+        const clonedGroupSizes = groupSizes.map((group) => ({ ...group }));
+        setGroupSizes(clonedGroupSizes);
+      } else {
+        setGroupSizes([]);
+      }
+    }
+  }, [actionType]);
+
+  const validateGroupParticipants = (groups, totalPlayers) => {
+    let totalParticipants = 0;
+
+    for (const group of groups) {
+      if (!group.totalParticipants) {
+        return {
+          isValid: false,
+          message: "Total participants in the group cannot be empty.",
+        };
+      }
+      
+      if (group.totalParticipants < 2) {
+        return {
+          isValid: false,
+          message: "All groups should contain at least 2 participants",
+        };
+      }
+      totalParticipants += Number(group.totalParticipants);
+    }
+    if (totalParticipants !== totalPlayers) {
+      return {
+        isValid: false,
+        message:
+          "Total participants in all groups must equal the number you selected",
+      };
+    }
+
+    return { isValid: true, message: "" };
+  };
+
+  const createPayload = (values, groupSizes) => {
     const {
       format,
       name,
@@ -137,13 +203,12 @@ const RoundCreationModal = ({
       grandFinalsDE,
       participants,
       consolationFinal,
-      groupName
     } = values;
 
     const settings = {
       consolationFinal,
       ...(totalSets && { totalSets }),
-      ...(roundRobinMode && { roundRobinMode }),
+      ...(roundRobinMode && { roundRobinMode, groupSizes }),
       ...(numberOfGroups && { numberOfGroups }),
       ...(grandFinalsDE && { grandFinalsDE }),
     };
@@ -157,17 +222,31 @@ const RoundCreationModal = ({
       fixtureData: {
         format,
         name,
-        groupName,
         settings,
         bookings,
       },
     };
   };
-
   const handleSubmit = (values, { setSubmitting }) => {
     try {
       setSubmitting(true);
-      const payload = createPayload(values);
+
+      if (values?.format === "RR" && values.numberOfGroups > 0) {
+        const { isValid, message } = validateGroupParticipants(
+          groupSizes,
+          values.participants.length
+        );
+        if (!isValid) {
+          dispatch(
+            showError({
+              message,
+              onClose: "hideError",
+            })
+          );
+          return;
+        }
+      }
+      const payload = createPayload(values, groupSizes);
       if (actionType === "add") {
         createHybridFixture({ tournamentId, categoryId, payload });
       } else {
@@ -241,7 +320,7 @@ const RoundCreationModal = ({
       );
     }
   }, [isUpdateFixtureError, isCreateFixtureError]);
-
+ 
   return (
     <>
       <Dialog
@@ -302,23 +381,14 @@ const RoundCreationModal = ({
 
                             <ErrorMessage name="name" component={TextError} />
                           </div>
-                          <div className="flex flex-col items-start gap-2.5">
-                            <label
-                              className="text-sm sm:text-base md:text-lg leading-[19.36px] text-black font-normal sm:font-medium"
-                              htmlFor="groupName"
-                            >
-                              Group Name
-                            </label>
-                            <Field
-                              placeholder="Enter Group Name"
-                              id="groupName"
-                              name="groupName"
-                              className="text-sm sm:text-base md:text-lg w-full px-[19px] text-[#718EBF] border-[2px] border-[#DFEAF2] rounded-xl h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              type="text"
-                            />
-                            <ErrorMessage name="groupName" component={TextError} />
-                          </div>
-                          <EventFormat />
+                          <EventFormat onChange={onGroupChangeHandler} />
+                          {(values?.numberOfGroups && values?.numberOfGroups > 0) && (
+                              <GroupSize
+                                groupSizes={groupSizes}
+                                onChange={handleGroupValueChange}
+                              />
+                            )}
+
                           <div
                             className="relative w-full"
                             onClick={() => {
@@ -461,7 +531,7 @@ const RoundCreationModal = ({
     </>
   );
 };
-const EventFormat = () => {
+const EventFormat = ({ onChange }) => {
   const { values, setFieldValue } = useFormikContext();
 
   useEffect(() => {
@@ -478,7 +548,11 @@ const EventFormat = () => {
       }
     }
   }, [values.format, setFieldValue]);
-
+  useEffect(() => {
+    if(values?.numberOfGroups > 0 && values?.numberOfGroups){
+      onChange(values?.numberOfGroups);
+    }
+  }, [values?.numberOfGroups]);
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
       <div className="flex flex-col items-start gap-2.5">
@@ -495,7 +569,7 @@ const EventFormat = () => {
           className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px]  border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
           as="select"
         >
-          {tournamentEvent.format.slice(0,4).map((format, index) => (
+          {tournamentEvent.format.slice(0, 4).map((format, index) => (
             <option
               key={`${format.name}`}
               value={index === 0 ? "" : format.shortName}
@@ -543,6 +617,7 @@ const EventFormat = () => {
               name="numberOfGroups"
               className="w-full text-[15px] text-[#718EBF] placeholder-[#718EBF] leading-[18px] px-[12px] border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
               type="number"
+              min={1}
             />
 
             <ErrorMessage name="numberOfGroups" component={TextError} />
@@ -597,5 +672,44 @@ const EventFormat = () => {
     </div>
   );
 };
-
+const GroupSize = ({ groupSizes, onChange }) => {
+  return (
+    <div className="flex flex-col w-full rounded-md border-2 border-gray-200 ">
+      <div className="flex  font-semibold text-gray-700 border-b  py-2 justify-around">
+        <h3 className="w-[40%] max-w-[40%] text-center">Group No.</h3>
+        <h3 className="w-[60%] max-w-[60%] text-center">
+          Total Participants (Each Group)
+        </h3>
+      </div>
+      <div className="flex flex-col gap-3 max-h-[120px] md:max-h-[150px] overflow-y-scroll">
+        {groupSizes?.map((group, index) => (
+          <div
+            key={group.id}
+            className="flex w-full border-b-2 justify-around py-2"
+          >
+            <span className="text-gray-800 text-center w-[40%] max-w-[40%]">
+              {group.id}
+            </span>
+            <div className="flex justify-center w-[60%] max-w-[60%] mx-auto w-full">
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder={`Enter Group ${index + 1} total participants...`}
+                value={group.totalParticipants}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (/^\d*$/.test(value)) {
+                    onChange(index, event);
+                  }
+                }}
+                className="text-[15px] text-[#718EBF] w-10"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 export default RoundCreationModal;
