@@ -7,6 +7,7 @@ import {
   updateMatch,
   updateMatchSetCount,
   getFixture,
+  getMatches,
 } from "../../redux/tournament/fixturesActions";
 
 import { setFixture } from "../../redux/tournament/fixtureSlice";
@@ -312,14 +313,8 @@ export const ScoreUpdateModal = ({
             onClose: "hideSuccess",
           })
         );
-        if (format === "Hybrid") {
-          dispatch(
-            getFixtureById({ tour_Id: tournamentId, eventId, fixtureId })
-          );
-        } else {
-          dispatch(getFixture({ tour_Id: tournamentId, eventId }));
-        }
         onCancel(false);
+        dispatch(getMatches({ tour_Id: tournamentId, eventId, fixtureId }));
       }
     } catch (err) {
       console.log(" error in updating the score", err);
