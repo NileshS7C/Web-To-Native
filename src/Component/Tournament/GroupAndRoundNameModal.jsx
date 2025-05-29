@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUpdateGroupName, useUpdateRoundName } from '../../Hooks/fixtureHooks';
 
 const GroupAndRoundNameModal = ({
@@ -16,6 +16,11 @@ const GroupAndRoundNameModal = ({
   const updateGroupNameMutation = useUpdateGroupName();
   const updateRoundNameMutation = useUpdateRoundName();
 
+  // Update the input value when changedName prop changes
+  useEffect(() => {
+    setNewTitle(changedName);
+  }, [changedName]);
+
   const handleSave = () => {
     if (!newTitle.trim()) {
       alert('Please enter a valid name');
@@ -32,7 +37,7 @@ const GroupAndRoundNameModal = ({
           groupName: newTitle,
         },
       }, {
-        onSuccess: () => {
+        onSuccess: (data) => {
           onClose();
         }
       });
@@ -47,7 +52,7 @@ const GroupAndRoundNameModal = ({
           roundName: newTitle,
         },
       }, {
-        onSuccess: () => {
+        onSuccess: (data) => {
           onClose();
         }
       });
@@ -76,6 +81,7 @@ const GroupAndRoundNameModal = ({
               className='w-full border border-gray-300 p-2'
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
+              placeholder={changedName ? changedName : currentTitle}
             />
           </div>
         </div>

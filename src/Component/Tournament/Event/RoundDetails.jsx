@@ -24,7 +24,7 @@ const RoundDetails = ({
   const formatMapping = {
     SE: "Single Elimination",
     DE: "Double Elimination",
-    RR: "Round Robbin",
+    RR: "Round Robin",
   };
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
