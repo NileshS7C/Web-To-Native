@@ -199,14 +199,15 @@ const RoundCreationModal = ({
 
     for (const key in values) {
       if (key === "participants") {
-        const initialParticipants = initialState.participants || [];
+        const initialParticipants = fixture?.bracketData?.participant || [];
+        
         const currentParticipants = values.participants || [];
         if(initialParticipants?.length !== currentParticipants?.length){
           changed.participants = true;
         }
         const changedParticipants = currentParticipants.filter((current, i) => {
-          const init = initialParticipants[i];
-          return init.id !== current.id;
+          const init = initialParticipants?.[i];
+          return init?.id !== current?.id;
         });
 
         if (changedParticipants.length > 0) {
@@ -245,7 +246,6 @@ const RoundCreationModal = ({
       participants?.map((p) => ({ bookingId: p.bookingId })) || [];
     if(actionType === "edit"){
       const changedField = checkChangeValue(initialState, values);
-     
       if (
         (Object.keys(changedField).length === 1 && changedField?.name) ||
         Object.keys(changedField).length === 0
