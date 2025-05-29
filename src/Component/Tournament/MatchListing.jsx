@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { getFixture } from "../../redux/tournament/fixturesActions";
+import { getFixture, getMatches } from "../../redux/tournament/fixturesActions";
 
 import Button from "../Common/Button";
 import Spinner from "../Common/Spinner";
@@ -55,8 +55,16 @@ const MatchListingHeaders = [
       return (
         <div className="flex flex-col items-center gap-2">
           <p className="text-matchTextColor font-semibold">
-            Match <span>{item?.match}</span>
+            Match <span>{index + 1}</span>
           </p>
+          <span className="text-matchTextColor font-semibold">
+            {`Date : ${item?.date ? item?.date : "TBD"}`}
+          </span>
+          {item?.time?.startTime && (
+            <span className="text-matchTextColor font-semibold">
+              {`Time : ${item?.time.startTime}`}
+            </span>
+          )}
           <Button
             className="px-2 py-2 w-[100px] text-white rounded-md"
             onClick={() => handleClick(item)}
@@ -104,18 +112,25 @@ const MatchListingHeaders = [
 export const MatchesListing = () => {
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
-  const { fixture, isFetchingFixture, isFixtureSuccess } = useSelector(
-    (state) => state.fixture
-  );
+  const {
+    fixture,
+    isFetchingFixture,
+    isFixtureSuccess,
+    matches,
+    isFetchingMatches,
+    isMatchesSuccess,
+  } = useSelector((state) => state.fixture);
   const [currentRound, setCurrentRound] = useState(1);
+  const [currentGroup, setCurrentGroup] = useState(1);
   const [playerData, setPlayerData] = useState([]);
   const [totalRounds, setTotalRounds] = useState(0);
+  const [totalGroups, setTotalGroups] = useState(0);
   const [showScoreUpdateModal, setShowScoreUpdateModal] = useState(false);
   const [currentMatchClicked, setCurrentMatchClicked] = useState(null);
 
   const [bracketName, setBracketName] = useState(null);
   const [currentRoundData, setCurrentRoundData] = useState(null);
-
+  const [currentGroupData, setCurrentGroupData] = useState(null);
   const [updateFixture, setUpdateFixture] = useState(null);
   const [players, setPlayers] = useState({});
 
@@ -140,15 +155,18 @@ export const MatchesListing = () => {
       setCurrentRound((prev) => (prev !== totalRounds ? prev + 1 : 1));
     }
   };
-
+  const handleChangeGroups = (type) => {
+    if (type === "back") {
+      setCurrentGroup((prev) => (prev > 1 ? prev - 1 : 1));
+    } else {
+      setCurrentGroup((prev) => (prev !== totalGroups ? prev + 1 : 1));
+    }
+  };
   const handleMatchUpdateButton = (data) => {
     setShowScoreUpdateModal(true);
     setCurrentMatchClicked(data);
   };
 
-  useEffect(() => {
-    dispatch(getFixture({ tour_Id: tournamentId, eventId }));
-  }, []);
   useEffect(() => {
     if (fixture?.format === "DE" && isFixtureSuccess) {
       fetchDEFinal();
@@ -157,19 +175,27 @@ export const MatchesListing = () => {
 
   useEffect(() => {
     if (
-      fixture?.format === "DE" &&
+      matches?.format === "DE" &&
       deEliminationFinal &&
-      fixture &&
+      matches &&
       !deEliminationFinal.showBothMatches
     ) {
-      setTotalRounds(fixture?.bracketData?.round.length - 1);
-    } else {
-      setTotalRounds(fixture?.bracketData?.round.length);
+      setTotalRounds(matches?.bracketData?.round.length - 1);
+    } else if (matches?.format !== "RR") {
+      setTotalRounds(matches?.bracketData?.round.length);
+    } else if (matches) {
+      setTotalGroups(fixture?.bracketData?.group?.length);
     }
-  }, [deEliminationFinal, fixture]);
+  }, [deEliminationFinal, matches]);
   useEffect(() => {
     if (updateFixture) {
-      dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+      dispatch(
+        getMatches({
+          tour_Id: tournamentId,
+          eventId,
+          fixtureId: fixture._id.toString(),
+        })
+      );
     }
   }, [updateFixture]);
 
@@ -198,12 +224,12 @@ export const MatchesListing = () => {
       }
     }
     // Add fixture to dependency array
-  }, [currentRoundData, fixture]);
+  }, [currentRoundData, matches]);
 
   useEffect(() => {
     // Use fixture here
-    if (fixture && currentRound) {
-      const currentRoundId = fixture?.bracketData?.round.filter(
+    if (matches && currentRound) {
+      const currentRoundId = matches?.bracketData?.round.filter(
         (item) => item?.id?.toString() === (currentRound - 1)?.toString()
       );
 
@@ -211,7 +237,7 @@ export const MatchesListing = () => {
 
       const currentRoundMatches = currentRoundId.flatMap((round) => {
         // Use fixture here
-        const match = fixture.bracketData.match.filter(
+        const match =matches.bracketData.match.filter(
           (match) => match?.round_id?.toString() === round?.id?.toString()
         );
 
@@ -233,7 +259,7 @@ export const MatchesListing = () => {
           }) => {
             // Use fixture here
             const participantsById = new Map(
-              fixture?.bracketData?.participant.map((p) => [p.id, p])
+              matches?.bracketData?.participant.map((p) => [p.id, p])
             );
 
             const profilePics1 =
@@ -255,7 +281,7 @@ export const MatchesListing = () => {
                 : [];
 
             // Use fixture here
-            const matchGames = fixture?.bracketData?.match_game.filter(
+            const matchGames = matches?.bracketData?.match_game.filter(
               (game) => game?.parent_id?.toString() === id?.toString()
             );
 
@@ -278,10 +304,8 @@ export const MatchesListing = () => {
                     player2_id: players[1]?.id,
                     player1: players[0]?.name || "Unknown",
                     player2: players[1]?.name || "Unknown",
-                    location: metaData.location || {},
-                    date: metaData.date || "",
-                    time: metaData.time || "",
-                    court: metaData.court || "",
+                    date: metaData?.date || "",
+                    time: metaData?.time || "",
                     matchGames,
                     profilePics1,
                     profilePics2,
@@ -302,9 +326,122 @@ export const MatchesListing = () => {
         return currentPlayers;
       });
       setUpdateFixture(null);
+    } else if (matches && currentGroup && matches?.format === "RR") {
+      const currentGroupId = matches?.bracketData?.group.filter(
+        (item) => item?.id?.toString() === (currentGroup - 1)?.toString()
+      );
+
+      setCurrentGroupData(currentGroupId);
+
+      const currentGroupMatches = currentGroupId.flatMap((group) => {
+        // Use fixture here
+        const match = matches.bracketData.match.filter(
+          (match) => match?.group_id?.toString() === group?.id?.toString()
+        );
+
+        return [...match];
+      });
+      const playerData =
+        currentGroupMatches.length > 0
+          ? currentGroupMatches.flatMap(
+              ({
+                opponent1,
+                opponent2,
+                number,
+                metaData = {},
+                id,
+                group_id,
+                round_id,
+                stage_id,
+              }) => {
+                // Use fixture here
+                const participantsById = new Map(
+                  matches?.bracketData?.participant.map((p) => [p.id, p])
+                );
+
+                const profilePics1 =
+                  opponent1?.id != null
+                    ? participantsById
+                        .get(opponent1?.id)
+                        ?.players.map((player) => ({
+                          name: player.name,
+                          profilePic: player.profilePic || dummmyProfileIcon,
+                        })) || []
+                    : [];
+
+                const profilePics2 =
+                  opponent2?.id != null
+                    ? participantsById
+                        .get(opponent2.id)
+                        ?.players.map((player) => ({
+                          name: player.name,
+                          profilePic: player.profilePic || dummmyProfileIcon,
+                        })) || []
+                    : [];
+
+                // Use fixture here
+                const matchGames = matches?.bracketData?.match_game.filter(
+                  (game) => game?.parent_id?.toString() === id?.toString()
+                );
+
+                const players = [opponent1?.id, opponent2?.id].map((id) =>
+                  participantsById.get(id)
+                );
+
+                return players.length
+                  ? [
+                      {
+                        match: number,
+                        matchId: id,
+                        group_id,
+                        round_id,
+                        stage_id,
+                        parent_id: matchGames[0]?.parent_id,
+                        opponent1,
+                        opponent2,
+                        player1_id: players[0]?.id,
+                        player2_id: players[1]?.id,
+                        player1: players[0]?.name || "Unknown",
+                        player2: players[1]?.name || "Unknown",
+                        date: metaData?.date || "",
+                        time: metaData?.time || "",
+                        matchGames,
+                        profilePics1,
+                        profilePics2,
+                      },
+                    ]
+                  : [];
+              }
+            )
+          : [];
+      setPlayerData(playerData);
+
+      setPlayers(() => {
+        const currentMatchId = currentMatchClicked?.matchId;
+        const currentPlayers = playerData?.find(
+          (player) => String(player?.matchId) === String(currentMatchId)
+        );
+
+        return currentPlayers;
+      });
+      setUpdateFixture(null);
     }
-  }, [fixture, currentRound, updateFixture, currentMatchClicked]);
-  if (isFetchingFixture && !showScoreUpdateModal) {
+  }, [matches, currentRound, currentGroup, updateFixture, currentMatchClicked]);
+  useEffect(() => {
+    dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+  }, []);
+  useEffect(() => {
+    if (fixture) {
+      dispatch(
+        getMatches({
+          tour_Id: tournamentId,
+          eventId,
+          fixtureId: fixture?._id.toString(),
+        })
+      );
+    }
+  }, [fixture]);
+  if ((isFetchingFixture || isFetchingMatches) && !showScoreUpdateModal) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spinner />
@@ -313,49 +450,87 @@ export const MatchesListing = () => {
   }
 
   //Use fixture here
-  if (!fixture) {
+  if (!fixture || !matches) {
     return (
       <EmptyBanner message="No fixture data available for this event yet." />
     );
   }
-
+  
   return (
     <div>
-      {!fixture && <NoMatchExist />}
-      {fixture && (
+      {!matches && <NoMatchExist />}
+      {matches && (
         <>
-          <div className="flex items-center justify-center gap-4 basis-sm">
-            <button
-              onClick={() => handleChangeRounds("back")}
-              className="disabled:bg-red disabled:cursor-not-allowed"
-              disabled={currentRound === 1}
-            >
-              <img
-                src={backIcon}
-                alt="back button for round"
-                className={`${currentRound === 1 && "opacity-50"}`}
-              />
-            </button>
+          {matches?.format === "RR" ? (
+            <div className="flex items-center justify-center gap-4 basis-sm">
+              <button
+                onClick={() => handleChangeGroups("back")}
+                className="disabled:bg-red disabled:cursor-not-allowed"
+                disabled={currentGroup === 1}
+              >
+                <img
+                  src={backIcon}
+                  alt="back button for round"
+                  className={`${currentGroup === 1 && "opacity-50"}`}
+                />
+              </button>
 
-            <p className="text-matchTextColor font-bold text-sm sm:text-md:text-xl lg:text-2xl">
-              Round <span>{currentRound}</span>
-              <span className="inline-flex justify-center font-semibold flex-1 w-full items-center rounded-2xl  px-2 py-1 text-xs  ring-1 ring-inset">
-                {bracketName}
-              </span>
-            </p>
+              <p className="text-matchTextColor font-bold text-sm sm:text-md:text-xl lg:text-2xl">
+                <span>
+                  {currentGroupData?.[0]?.groupName || `Group ${currentGroup}`}
+                </span>
+              </p>
 
-            <button
-              onClick={() => handleChangeRounds("forward")}
-              className="disabled:bg-red disabled:cursor-not-allowed"
-              disabled={currentRound === totalRounds}
-            >
-              <img
-                src={forwardIcon}
-                alt="forward button for round"
-                className={`${currentRound === totalRounds && "opacity-50"}`}
-              />
-            </button>
-          </div>
+              <button
+                onClick={() => handleChangeGroups("forward")}
+                className="disabled:bg-red disabled:cursor-not-allowed"
+                disabled={currentGroup === totalGroups}
+              >
+                <img
+                  src={forwardIcon}
+                  alt="forward button for round"
+                  className={`${currentGroup === totalGroups && "opacity-50"}`}
+                />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-4 basis-sm">
+              <button
+                onClick={() => handleChangeRounds("back")}
+                className="disabled:bg-red disabled:cursor-not-allowed"
+                disabled={currentRound === 1}
+              >
+                <img
+                  src={backIcon}
+                  alt="back button for round"
+                  className={`${currentRound === 1 && "opacity-50"}`}
+                />
+              </button>
+
+              <p className="text-matchTextColor font-bold text-sm sm:text-md:text-xl lg:text-2xl">
+                <span>
+                  {currentRoundData?.[0]?.roundName || `Round ${currentRound}`}
+                </span>
+                {matches?.format === "DE" && (
+                  <span className="inline-flex justify-center font-semibold flex-1 w-full items-center rounded-2xl  px-2 py-1 text-xs  ring-1 ring-inset">
+                    {bracketName}
+                  </span>
+                )}
+              </p>
+
+              <button
+                onClick={() => handleChangeRounds("forward")}
+                className="disabled:bg-red disabled:cursor-not-allowed"
+                disabled={currentRound === totalRounds}
+              >
+                <img
+                  src={forwardIcon}
+                  alt="forward button for round"
+                  className={`${currentRound === totalRounds && "opacity-50"}`}
+                />
+              </button>
+            </div>
+          )}
 
           <DataTable
             data={playerData}

@@ -7,6 +7,7 @@ import {
   updateMatch,
   getFixtureById,
   getHybridFixtures,
+  getMatches
 } from "./fixturesActions";
 
 const initialState = {
@@ -32,6 +33,9 @@ const initialState = {
   isUnPublishing: false,
   isUnPublished: false,
   unPublishError: false,
+  matches: null,
+  isFetchingMatches: false,
+  isMatchesSuccess:true,
 };
 const fixtureSlice = createSlice({
   name: "fixture",
@@ -185,6 +189,26 @@ const fixtureSlice = createSlice({
         state.unPublishError = true;
         state.ErrorMessage = payload?.data?.message;
       });
+      builder
+        .addCase(getMatches.pending, (state) => {
+          state.isFetchingMatches = true;
+          state.isMatchesSuccess = false;
+          state.isFetchingError = false;
+          state.ErrorMessage = "";
+        })
+        .addCase(getMatches.fulfilled, (state, { payload }) => {
+          state.matches = payload?.data;
+          state.isFetchingMatches = false;
+          state.isMatchesSuccess =true;
+          state.isFetchingError = false;
+          state.ErrorMessage = "";
+        })
+        .addCase(getMatches.rejected, (state, { payload }) => {
+          state.isFetchingMatches = false;
+          state.isMatchesSuccess = false;
+          state.isFetchingError = true;
+          state.ErrorMessage = payload?.data?.message;
+        });  
   },
 });
 
