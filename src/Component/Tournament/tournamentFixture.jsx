@@ -24,6 +24,7 @@ import { TbSwipe } from "react-icons/tb";
 import { PlayerSelectionModal } from "../Common/PlayerSeedingModal";
 import { showSuccess } from "../../redux/Success/successSlice";
 import { resetFixtureSuccess } from "../../redux/tournament/fixtureSlice";
+import GroupAndRoundNameModal from "./GroupAndRoundNameModal";
 
 const formatMatchData = (fixture, suffledPlayers) => {
   if (!fixture || !suffledPlayers?.length) {
@@ -71,6 +72,9 @@ export const TournamentFixture = ({ tournament }) => {
   const [matchMetaData, setMatchMetaData] = useState(null);
   const [players, setPlayers] = useState([]);
   const [suffledPlayers, setSuffledPlayers] = useState([]);
+  const [openNameModal, setOpenNameModal] = useState(false);
+  const [nameModalData, setNameModalData] = useState({ groupId: null, roundId: null, currentTitle: null, type: '' });
+  const [changedName, setChangedName] = useState('');
   const {
     fixture,
     isFixtureSuccess,
@@ -139,10 +143,10 @@ export const TournamentFixture = ({ tournament }) => {
       if (fixture) {
         window?.bracketsViewer?.render(
           {
-            stages: fixture?.bracketData?.stage,
-            matches: fixture?.bracketData?.match,
-            matchGames: fixture?.bracketData?.match_game,
-            participants: fixture?.bracketData?.participant,
+            stages: fixture?.bracketData?.stage || [],
+            matches: fixture?.bracketData?.match || [],
+            matchGames: fixture?.bracketData?.match_game || [],
+            participants: fixture?.bracketData?.participant || [],
           },
           {
             highlightParticipantOnHover: true,
@@ -219,6 +223,116 @@ export const TournamentFixture = ({ tournament }) => {
     }
   }, [isPublished, FixtureCreatedSuccess, isUnPublished]);
 
+  useEffect(() => {
+    if (!fixture?.bracketData) return;
+
+    // Delay to ensure DOM is fully rendered by bracketsViewer
+    const timeoutId = setTimeout(() => {
+      // Add Click Listener to Round Titles
+      const groupTitles = document.querySelectorAll('.brackets-viewer section.group h2');
+      groupTitles.forEach((el, index) => {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', (el) => {
+          handleGroupClick(index, el.target);
+        })
+      })
+
+      const roundTitles = document.querySelectorAll('.brackets-viewer article.round h3');
+      roundTitles.forEach((el, index) => {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', (el) => {
+          handleRoundClick(index, el.target);
+        })
+      })
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [fixture]);
+
+  const handleGroupClick = (index, el) => {
+    const formatName = fixture.format;
+    if (formatName === "RR") {
+      setNameModalData({
+        groupId: index,
+        roundId: null,
+        currentTitle: el.innerText,
+        type: "group",
+      });
+      setOpenNameModal(true);
+      const matchedGroup = fixture?.bracketData?.group?.find(group => group.id === index);
+      setChangedName(matchedGroup?.groupName);
+    } else if (formatName === "SE") {
+      setNameModalData({
+        groupId: 0,
+        roundId: null,
+        currentTitle: el.innerText,
+        type: "group",
+      });
+      setOpenNameModal(true);
+    }
+  };
+
+  const handleRoundClick = (index, el) => {
+    const formatName = fixture.format;
+    if (formatName === "RR") {
+      const sectionGroup = el.closest("section.group");
+      setNameModalData({
+        groupId: sectionGroup.getAttribute("data-group-id"),
+        roundId: index,
+        currentTitle: el.innerText,
+        type: "round",
+      });
+      setOpenNameModal(true);
+      const matchedRound = fixture?.bracketData?.round?.find(
+        round => round.id === index && round.group_id === groupId
+      );
+      setChangedName(matchedRound?.roundName || "");
+    } else if (formatName === "SE") {
+      setNameModalData({
+        groupId: 0,
+        roundId: index,
+        currentTitle: el.innerText,
+        type: "round",
+      });
+      setOpenNameModal(true);
+      const matchedGroup = fixture?.bracketData?.round?.find(round => round.id === index);
+      setChangedName(matchedGroup?.roundName);
+    } else if (formatName === "DE") {
+      if(el.innerText.includes("WB")) {
+        setNameModalData({
+          groupId: 0,
+          roundId: index,
+          currentTitle: el.innerText,
+          type: "round",
+        });
+        setOpenNameModal(true);
+        const matchedGroup = fixture?.bracketData?.round?.find(round => round.id === index && round.group_id === 0);
+        setChangedName(matchedGroup?.roundName);
+      } else if (el.innerText.includes("LB")) {
+        setNameModalData({
+          groupId: 1,
+          roundId: index -1,
+          currentTitle: el.innerText,
+          type: "round",
+        });
+        setOpenNameModal(true);
+      } else if (el.innerText.includes("Final")) {
+        setNameModalData({
+          groupId: 2,
+          roundId: el.parentElement.getAttribute("data-round-id"),
+          currentTitle: el.innerText,
+          type: "round",
+        });
+        setOpenNameModal(true);
+      }
+    }
+  };
+
+  const handleCloseNameModal = () => {
+    setOpenNameModal(false);
+  };
+
+
+
   if (isFetchingFixture) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -251,7 +365,7 @@ export const TournamentFixture = ({ tournament }) => {
             loading={isUnPublishing}
             disabled={fixture?.status !== "PUBLISHED" || !fixture}
           >
-            UnPublish
+            Unpublish
           </Button>
         ) : (
           <Button
@@ -296,6 +410,8 @@ export const TournamentFixture = ({ tournament }) => {
           fixtureId={fixture?._id}
           metaData={matchMetaData}
         />
+
+{openNameModal && <GroupAndRoundNameModal groupId={nameModalData.groupId} type={nameModalData.type} roundId={nameModalData.roundId} currentTitle={nameModalData.currentTitle} onClose={handleCloseNameModal} tournamentID={tournamentId} categoryId={eventId} fixtureId={fixture?._id} changedName={changedName}/>}
 
         <div className="flex items-center justify-center w-full h-full text-lg">
           {!fixture && <NoFixtureExist />}
