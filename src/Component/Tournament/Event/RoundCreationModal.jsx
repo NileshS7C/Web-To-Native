@@ -681,7 +681,7 @@ const GroupSize = ({ groupSizes, onChange }) => {
           Total Participants (Each Group)
         </h3>
       </div>
-      <div className="flex flex-col gap-3 max-h-[120px] overflow-y-scroll">
+      <div className="flex flex-col gap-3 max-h-[120px] md:max-h-[150px] overflow-y-scroll">
         {groupSizes?.map((group, index) => (
           <div
             key={group.id}
@@ -690,15 +690,20 @@ const GroupSize = ({ groupSizes, onChange }) => {
             <span className="text-gray-800 text-center w-[40%] max-w-[40%]">
               {group.id}
             </span>
-            <div className="flex items-center justify-center w-[60%] max-w-[60%]">
+            <div className="flex justify-center w-[60%] max-w-[60%] mx-auto w-full">
               <input
                 type="text"
                 inputMode="numeric"
-                pattern="[0-9]*" 
+                pattern="[0-9]*"
                 placeholder={`Enter Group ${index + 1} total participants...`}
                 value={group.totalParticipants}
-                onChange={(event) => onChange(index, event)}
-                className="w-full text-[15px] text-[#718EBF] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (/^\d*$/.test(value)) {
+                    onChange(index, event);
+                  }
+                }}
+                className="text-[15px] text-[#718EBF] w-10"
               />
             </div>
           </div>
