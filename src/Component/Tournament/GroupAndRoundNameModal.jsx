@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUpdateGroupName, useUpdateRoundName } from '../../Hooks/fixtureHooks';
 
 const GroupAndRoundNameModal = ({
@@ -11,10 +11,16 @@ const GroupAndRoundNameModal = ({
   categoryId,
   fixtureId,
   changedName = '',
+  // onSuccess
 }) => {
   const [newTitle, setNewTitle] = useState(changedName);
   const updateGroupNameMutation = useUpdateGroupName();
   const updateRoundNameMutation = useUpdateRoundName();
+
+  // Update the input value when changedName prop changes
+  useEffect(() => {
+    setNewTitle(changedName);
+  }, [changedName]);
 
   const handleSave = () => {
     if (!newTitle.trim()) {
@@ -32,8 +38,11 @@ const GroupAndRoundNameModal = ({
           groupName: newTitle,
         },
       }, {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          // Call a callback to refresh fixture data in parent component
+          // onSuccess();
           onClose();
+          // You might want to trigger a refetch here or in the parent component
         }
       });
     } else if (type === 'round') {
@@ -47,8 +56,11 @@ const GroupAndRoundNameModal = ({
           roundName: newTitle,
         },
       }, {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          // Call a callback to refresh fixture data in parent component
+          // onSuccess();
           onClose();
+          // You might want to trigger a refetch here or in the parent component
         }
       });
     }
@@ -76,6 +88,7 @@ const GroupAndRoundNameModal = ({
               className='w-full border border-gray-300 p-2'
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
+              placeholder={changedName ? changedName : currentTitle}
             />
           </div>
         </div>
