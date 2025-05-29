@@ -233,7 +233,6 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
 
   useEffect(() => {
     if (!fixture?.bracketData) return;
-    console.log(fixture.format,'fixture.format');
 
     // Delay to ensure DOM is fully rendered by bracketsViewer
     const timeoutId = setTimeout(() => {
@@ -259,7 +258,6 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
 
   const handleGroupClick = (index, el) => {
     const formatName = fixture.format;
-    console.log(`🚀 || TournamentHybridFixture.jsx:260 || handleGroupClick || formatName:`, formatName);
     if (formatName === "RR") {
       setNameModalData({
         groupId: index,
@@ -315,8 +313,6 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
           type: "round",
         });
         setOpenNameModal(true);
-        console.log(groupId, "groupId");
-        console.log(roundId, "roundId");
         const matchedGroup = fixture?.bracketData?.round?.find(round => round.id === index && round.group_id === 0);
         setChangedName(matchedGroup?.roundName);
       } else if (el.innerText.includes("LB")) {

@@ -12,7 +12,6 @@ const GroupAndRoundNameModal = ({
   fixtureId,
   changedName = '',
 }) => {
-  console.log(`🚀 || GroupAndRoundNameModal.jsx:15 || changedName:`, changedName);
   const [newTitle, setNewTitle] = useState(changedName);
   const updateGroupNameMutation = useUpdateGroupName();
   const updateRoundNameMutation = useUpdateRoundName();
