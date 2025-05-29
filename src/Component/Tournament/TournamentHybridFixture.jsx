@@ -258,7 +258,7 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
             loading={isUnPublishing}
             disabled={fixture?.status !== "PUBLISHED" || !fixture}
           >
-            UnPublish
+            Unpublish
           </Button>
         ) : (
           <Button

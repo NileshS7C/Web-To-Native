@@ -251,7 +251,7 @@ export const TournamentFixture = ({ tournament }) => {
             loading={isUnPublishing}
             disabled={fixture?.status !== "PUBLISHED" || !fixture}
           >
-            UnPublish
+            Unpublish
           </Button>
         ) : (
           <Button
