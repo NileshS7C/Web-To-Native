@@ -559,7 +559,7 @@ const EventFormat = () => {
               Number of group
             </label>
             <Field
-              placeholder="Enter Number Of Groups in Round Robbin"
+              placeholder="Enter Number Of Groups in Round Robin"
               id="numberOfGroups"
               name="numberOfGroups"
               className="text-[#718EBF] w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
