@@ -38,6 +38,7 @@ import {
 } from "../../../redux/tournament/fixturesActions";
 import { useDispatch, useSelector } from "react-redux";
 
+
 const RoundCreationModal = ({
   toggleModal,
   actionType,
@@ -52,8 +53,6 @@ const RoundCreationModal = ({
       .required("Round name is required")
       .min(3, "Round name should be minimum 3 characters")
       .max(50, "Round name cannot exceed more than 50 characters."),
-    groupName: yup.string().optional(),
-
     format: yup.string().required(),
 
     roundRobinMode: yup.string().optional(),
@@ -95,12 +94,12 @@ const RoundCreationModal = ({
     }
   };
   const handleGroupValueChange = (index, event) => {
-    const updatedValue = parseInt(event.target.value) || 0;
+    const updatedValue = event.target.value; 
     const updatedGroups = [...groupSizes];
     updatedGroups[index].totalParticipants = updatedValue;
     setGroupSizes(updatedGroups);
   };
-
+ 
   const {
     mutate: createHybridFixture,
     isSuccess: isCreateFixtureSuccess,
@@ -130,7 +129,6 @@ const RoundCreationModal = ({
       return {
         ...initialValues,
         name: fixture?.name || "",
-        groupName: fixture?.groupName || "",
         format: fixture?.format || "",
         participants: fixture?.bracketData?.participant || [],
         totalSets: matchesChildCount?.toString() || "",
@@ -153,7 +151,7 @@ const RoundCreationModal = ({
     }));
   }, []);
   useEffect(() => {
-    if (actionType && fixture) {
+    if (actionType === 'edit' && fixture) {
       const { groupSizes } = fixture?.bracketData?.stage[0]?.settings || {};
 
       if (groupSizes && Array.isArray(groupSizes)) {
@@ -182,9 +180,8 @@ const RoundCreationModal = ({
           message: "All groups should contain at least 2 participants",
         };
       }
-      totalParticipants += group.totalParticipants;
+      totalParticipants += Number(group.totalParticipants);
     }
-
     if (totalParticipants !== totalPlayers) {
       return {
         isValid: false,
@@ -206,7 +203,6 @@ const RoundCreationModal = ({
       grandFinalsDE,
       participants,
       consolationFinal,
-      groupName,
     } = values;
 
     const settings = {
@@ -226,13 +222,11 @@ const RoundCreationModal = ({
       fixtureData: {
         format,
         name,
-        groupName,
         settings,
         bookings,
       },
     };
   };
-
   const handleSubmit = (values, { setSubmitting }) => {
     try {
       setSubmitting(true);
@@ -240,7 +234,7 @@ const RoundCreationModal = ({
       if (values?.format === "RR" && values.numberOfGroups > 0) {
         const { isValid, message } = validateGroupParticipants(
           groupSizes,
-          values?.participants?.length
+          values.participants.length
         );
         if (!isValid) {
           dispatch(
@@ -326,7 +320,7 @@ const RoundCreationModal = ({
       );
     }
   }, [isUpdateFixtureError, isCreateFixtureError]);
-
+ 
   return (
     <>
       <Dialog
@@ -387,28 +381,8 @@ const RoundCreationModal = ({
 
                             <ErrorMessage name="name" component={TextError} />
                           </div>
-                          <div className="flex flex-col items-start gap-2.5">
-                            <label
-                              className="text-sm sm:text-base md:text-lg leading-[19.36px] text-black font-normal sm:font-medium"
-                              htmlFor="groupName"
-                            >
-                              Group Name
-                            </label>
-                            <Field
-                              placeholder="Enter Group Name"
-                              id="groupName"
-                              name="groupName"
-                              className="text-sm sm:text-base md:text-lg w-full px-[19px] text-[#718EBF] border-[2px] border-[#DFEAF2] rounded-xl h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              type="text"
-                            />
-                            <ErrorMessage
-                              name="groupName"
-                              component={TextError}
-                            />
-                          </div>
                           <EventFormat onChange={onGroupChangeHandler} />
-                          {values?.numberOfGroups &&
-                            values?.numberOfGroups > 0 && (
+                          {(values?.numberOfGroups && values?.numberOfGroups > 0) && (
                               <GroupSize
                                 groupSizes={groupSizes}
                                 onChange={handleGroupValueChange}
@@ -575,7 +549,9 @@ const EventFormat = ({ onChange }) => {
     }
   }, [values.format, setFieldValue]);
   useEffect(() => {
-    onChange(values?.numberOfGroups);
+    if(values?.numberOfGroups > 0 && values?.numberOfGroups){
+      onChange(values?.numberOfGroups);
+    }
   }, [values?.numberOfGroups]);
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
@@ -641,6 +617,7 @@ const EventFormat = ({ onChange }) => {
               name="numberOfGroups"
               className="w-full text-[15px] text-[#718EBF] placeholder-[#718EBF] leading-[18px] px-[12px] border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
               type="number"
+              min={1}
             />
 
             <ErrorMessage name="numberOfGroups" component={TextError} />
@@ -715,9 +692,11 @@ const GroupSize = ({ groupSizes, onChange }) => {
             </span>
             <div className="flex items-center justify-center w-[60%] max-w-[60%]">
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*" 
                 placeholder={`Enter Group ${index + 1} total participants...`}
-                value={group?.totalParticipants}
+                value={group.totalParticipants}
                 onChange={(event) => onChange(index, event)}
                 className="w-full text-[15px] text-[#718EBF] focus:outline-none focus:ring-2 focus:ring-blue-500"
               />

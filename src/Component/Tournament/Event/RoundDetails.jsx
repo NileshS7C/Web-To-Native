@@ -169,20 +169,6 @@ const RoundDetails = ({
                 className="cursor-pointer w-full px-2 border-2 border-[#DFEAF2] rounded-xl h-8 sm:h-11 focus:outline-none text-grey-100 text-sm sm:text-base md:text-lg font-normal md:semibold"
               />
             </div>
-            {fixture?.groupName && (
-              <div className="flex flex-col gap-1 sm:gap-2 items-start w-full">
-                <label className="text-sm sm:text-base md:text-lg font-normal md:semibold text-grey-300">
-                  Group Name
-                </label>
-                <input
-                  type="text"
-                  value={fixture?.groupName}
-                  readOnly
-                  placeholder="Enter Group Name..."
-                  className="cursor-pointer w-full px-2 border-2 border-[#DFEAF2] rounded-xl h-8 sm:h-11 focus:outline-none text-grey-100 text-sm sm:text-base md:text-lg font-normal md:semibold"
-                />
-              </div>
-            )}
             <div className="flex flex-col gap-1 sm:gap-2 items-start w-full">
               <label className="text-sm sm:text-base md:text-lg font-normal md:semibold text-grey-300">
                 Event Type

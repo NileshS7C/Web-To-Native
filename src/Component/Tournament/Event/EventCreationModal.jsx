@@ -564,6 +564,8 @@ const EventFormat = () => {
               name="numberOfGroups"
               className="text-[#718EBF] w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
               type="number"
+              min={1}
+              max={1}
             />
 
             <ErrorMessage name="numberOfGroups" component={TextError} />
