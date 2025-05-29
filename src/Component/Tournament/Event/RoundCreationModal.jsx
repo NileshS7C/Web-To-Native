@@ -37,6 +37,7 @@ import {
   getHybridFixtures,
 } from "../../../redux/tournament/fixturesActions";
 import { useDispatch, useSelector } from "react-redux";
+import { object } from "prop-types";
 
 
 const RoundCreationModal = ({
@@ -193,6 +194,7 @@ const RoundCreationModal = ({
     return { isValid: true, message: "" };
   };
   const checkChangeValue = (initialState, values) => {
+   
     const changed = {};
 
     for (const key in values) {
@@ -211,10 +213,8 @@ const RoundCreationModal = ({
           changed.participants = true;
         }
         
-      } else {
-        if (JSON.stringify(initialState[key]) !== JSON.stringify(values[key])) {
-          changed[key] = true;
-        }
+      } else if (initialState[key] != values[key]){
+        changed[key] = true;
       }
     }
    
@@ -245,12 +245,16 @@ const RoundCreationModal = ({
       participants?.map((p) => ({ bookingId: p.bookingId })) || [];
     if(actionType === "edit"){
       const changedField = checkChangeValue(initialState, values);
-      if(Object.keys(changedField).length === 1 && changedField?.name){
+     
+      if (
+        (Object.keys(changedField).length === 1 && changedField?.name) ||
+        Object.keys(changedField).length === 0
+      ) {
         return {
           tournamentId,
           categoryId,
           fixtureData: {
-            name
+            name,
           },
         };
       }
