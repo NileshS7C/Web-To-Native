@@ -375,13 +375,6 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
     dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
   };
 
-  // const handleNameUpdateSuccess = () => {
-  //   setOpenNameModal(false);
-  //   // Refetch fixture data after successful update
-  //   dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
-  // };
-
-
   if (isFetchingFixture) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -466,7 +459,6 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
             roundId={nameModalData.roundId}
             currentTitle={nameModalData.currentTitle}
             onClose={handleCloseNameModal}
-            // onSuccess={handleNameUpdateSuccess} // Add this prop
             tournamentID={tournamentId}
             categoryId={eventId}
             fixtureId={fixture?._id}

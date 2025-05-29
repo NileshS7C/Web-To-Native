@@ -11,7 +11,6 @@ const GroupAndRoundNameModal = ({
   categoryId,
   fixtureId,
   changedName = '',
-  // onSuccess
 }) => {
   const [newTitle, setNewTitle] = useState(changedName);
   const updateGroupNameMutation = useUpdateGroupName();
@@ -39,10 +38,7 @@ const GroupAndRoundNameModal = ({
         },
       }, {
         onSuccess: (data) => {
-          // Call a callback to refresh fixture data in parent component
-          // onSuccess();
           onClose();
-          // You might want to trigger a refetch here or in the parent component
         }
       });
     } else if (type === 'round') {
@@ -57,10 +53,7 @@ const GroupAndRoundNameModal = ({
         },
       }, {
         onSuccess: (data) => {
-          // Call a callback to refresh fixture data in parent component
-          // onSuccess();
           onClose();
-          // You might want to trigger a refetch here or in the parent component
         }
       });
     }
