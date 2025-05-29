@@ -244,6 +244,7 @@ export const PlayerSelectionModal = ({
               <PlayerSelectionManager
                 players={currentPlayersList}
                 handleSeededPlayer={handleSeededPlayer}
+                participants={participants}
               />
 
               <Button
@@ -285,6 +286,7 @@ const PlayerRow = ({
   handlePlayerChange,
   showDelete,
   onDelete,
+  participants,
 }) => {
   const currentRow = allSelections[rowIndex] || { player1: "", player2: "" };
   const playersWithIds = createPlayersWithIds(players);
@@ -322,7 +324,7 @@ const PlayerRow = ({
           <option value="">Select Player</option>
           {getAvailablePlayers("player1").map((player, index) => (
             <option key={`${player.name}_${index}`} value={player?.id}>
-              {player.name}
+              {player.name} - {participants?.find((p) => p.id === player.id)?.groupId}
             </option>
           ))}
         </select>
@@ -340,7 +342,7 @@ const PlayerRow = ({
         <select
           name={`player2-${rowIndex}`}
           id={`player2-${rowIndex}`}
-          className="w-full px-[19px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={currentRow.player2}
           onChange={(e) =>
             handlePlayerChange(rowIndex, "player2", e.target.value)
@@ -349,7 +351,7 @@ const PlayerRow = ({
           <option value="">Select Player</option>
           {getAvailablePlayers("player2").map((player, index) => (
             <option key={`${player.name}_${index}`} value={player.id}>
-              {player.name}
+              {player.name} - {participants?.find((p) => p.id === player.id)?.groupId}
             </option>
           ))}
         </select>
@@ -366,7 +368,7 @@ const PlayerRow = ({
   );
 };
 
-const PlayerSelectionManager = ({ players, handleSeededPlayer }) => {
+const PlayerSelectionManager = ({ players, handleSeededPlayer, participants }) => {
   const [selections, setSelections] = useState([{ player1: "", player2: "" }]);
 
   const handlePlayerChange = (rowIndex, field, value) => {
@@ -418,6 +420,7 @@ const PlayerSelectionManager = ({ players, handleSeededPlayer }) => {
           handlePlayerChange={handlePlayerChange}
           showDelete={index > 0}
           onDelete={handleDeleteRow}
+          participants={participants}
         />
       ))}
 
