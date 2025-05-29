@@ -10,8 +10,10 @@ const GroupAndRoundNameModal = ({
   tournamentID,
   categoryId,
   fixtureId,
+  changedName = '',
 }) => {
-  const [newTitle, setNewTitle] = useState('');
+  console.log(`🚀 || GroupAndRoundNameModal.jsx:15 || changedName:`, changedName);
+  const [newTitle, setNewTitle] = useState(changedName);
   const updateGroupNameMutation = useUpdateGroupName();
   const updateRoundNameMutation = useUpdateRoundName();
 

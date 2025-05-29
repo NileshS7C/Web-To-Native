@@ -75,6 +75,7 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
   const [suffledPlayers, setSuffledPlayers] = useState([]);
   const [openNameModal, setOpenNameModal] = useState(false);
   const [nameModalData, setNameModalData] = useState({ groupId: null, roundId: null, currentTitle: null, type: '' });
+  const [changedName, setChangedName] = useState('');
 
   const {
     fixture,
@@ -267,6 +268,8 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
         type: "group",
       });
       setOpenNameModal(true);
+      const matchedGroup = fixture?.bracketData?.group?.find(group => group.id === index);
+      setChangedName(matchedGroup?.groupName);
     } else if (formatName === "SE") {
       setNameModalData({
         groupId: 0,
@@ -289,6 +292,10 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
         type: "round",
       });
       setOpenNameModal(true);
+      const matchedRound = fixture?.bracketData?.round?.find(
+        round => round.id === index && round.group_id === groupId
+      );
+      setChangedName(matchedRound?.roundName || "");
     } else if (formatName === "SE") {
       setNameModalData({
         groupId: 0,
@@ -297,6 +304,8 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
         type: "round",
       });
       setOpenNameModal(true);
+      const matchedGroup = fixture?.bracketData?.round?.find(round => round.id === index);
+      setChangedName(matchedGroup?.roundName);
     } else if (formatName === "DE") {
       if(el.innerText.includes("WB")) {
         setNameModalData({
@@ -306,6 +315,10 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
           type: "round",
         });
         setOpenNameModal(true);
+        console.log(groupId, "groupId");
+        console.log(roundId, "roundId");
+        const matchedGroup = fixture?.bracketData?.round?.find(round => round.id === index && round.group_id === 0);
+        setChangedName(matchedGroup?.roundName);
       } else if (el.innerText.includes("LB")) {
         setNameModalData({
           groupId: 1,
@@ -408,7 +421,7 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
           fixtureId={fixture?._id}
           metaData={matchMetaData}
         />
-        {openNameModal && <GroupAndRoundNameModal groupId={nameModalData.groupId} type={nameModalData.type} roundId={nameModalData.roundId} currentTitle={nameModalData.currentTitle} onClose={handleCloseNameModal} tournamentID={tournamentId} categoryId={eventId} fixtureId={fixture?._id} />}
+        {openNameModal && <GroupAndRoundNameModal groupId={nameModalData.groupId} type={nameModalData.type} roundId={nameModalData.roundId} currentTitle={nameModalData.currentTitle} onClose={handleCloseNameModal} tournamentID={tournamentId} categoryId={eventId} fixtureId={fixture?._id} changedName={changedName}/>}
         <div className="flex items-center justify-center w-full h-full text-lg">
           {!fixture && <NoFixtureExist />}
         </div>
