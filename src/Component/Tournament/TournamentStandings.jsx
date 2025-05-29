@@ -49,7 +49,7 @@ const TournamentStandings = ({ tournamentId, categoryId }) => {
                     <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">W</th>
                     <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">L</th>
                     {hasPointDifference && (
-                      <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">PD.</th>
+                      <th className="border-y border-gray-300 px-3 py-2 font-medium opacity-80">PD</th>
                     )}
                   </tr>
                 </thead>
@@ -101,7 +101,7 @@ const TournamentStandings = ({ tournamentId, categoryId }) => {
                     </div>
                     {hasPointDifference && (
                       <div className="flex justify-between mb-2">
-                        <span className="font-semibold">PD.:</span>
+                        <span className="font-semibold">PD:</span>
                         <span>
                           {player.pointDifference !== undefined && player.pointDifference !== null
                             ? player.pointDifference > 0
