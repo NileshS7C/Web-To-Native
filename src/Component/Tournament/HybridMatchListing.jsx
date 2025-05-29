@@ -356,17 +356,19 @@ export const HybridMatchesListing = ({ fixtureId }) => {
             onClick={handleMatchUpdateButton}
           />
 
-          <ScoreUpdateModal
-            isOpen={showScoreUpdateModal}
-            onCancel={setShowScoreUpdateModal}
-            players={players}
-            fixtureId={fixture?._id}
-            tournamentId={tournamentId}
-            eventId={eventId}
-            currentMatchId={currentMatchClicked?.matchId}
-            handleUpdateFixture={handleUpdateFixture}
-            format="Hybrid"
-          />
+          {showScoreUpdateModal && (
+            <ScoreUpdateModal
+              isOpen={showScoreUpdateModal}
+              onCancel={setShowScoreUpdateModal}
+              players={players}
+              fixtureId={fixture?._id}
+              tournamentId={tournamentId}
+              eventId={eventId}
+              currentMatchId={currentMatchClicked?.matchId}
+              handleUpdateFixture={handleUpdateFixture}
+              format="Hybrid"
+            />
+          )}
         </>
       )}
     </div>
