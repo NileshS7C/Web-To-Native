@@ -78,6 +78,7 @@ const hiddenRoutes = [
   "/cms/tourism-page/package-section",
   "/cms/tourism-page/instagram",
   "/cms/tourism-page/media-gallery",
+  "/social-events",
   ...aboutUsPageRoutes,
   "/",
   "/admin-users",

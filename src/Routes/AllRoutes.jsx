@@ -38,6 +38,7 @@ import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
 import TournamentOrganisersPage from "../Page/TournamentOrganisers";
 import FAQS from "../Page/CMS/Homepage/FAQ";
 import ProfilePage from "../Page/Profile";
+import SocialEvents from "../Page/SocialEvents";
 
 import { UploadedImages } from "../Page/UploadedImages";
 import TopBanner from "../Component/CMS/TourismPages/TopBanner/TopBanner";
@@ -91,6 +92,7 @@ const AllRoutes = () => {
               </Route>
             </Route>
           </Route>
+          <Route path="social-events" element={<SocialEvents />} />
           <Route path="home" element={<Home />} />
           <Route path="players" element={<PlayersManager />} />
           <Route path="coupons/new" element={<CreateCoupons />} />

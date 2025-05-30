@@ -28,6 +28,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname === "/admin-users") {
       return "Admin Users";
     }
+    if (pathname === "/social-events") {
+      return "Social Events";
+    }
     if (pathname === "/cms/homepage/why-choose-picklebay") {
       return "Why Choose Picklebay";
     }

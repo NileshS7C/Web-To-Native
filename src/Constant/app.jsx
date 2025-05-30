@@ -64,6 +64,7 @@ export const ADMIN_NAVIGATION = [
     path: "tournament-organisers",
   },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
+  { name: "Social Events", icon: tournamentIcon, path: "social-events" },
   { name: "Venues", icon: venueIcon, path: "venues" },
 
   { name: "Uploaded Images", icon: uploadedImageIcon, path: "images" },
@@ -136,6 +137,7 @@ export const ADMIN_NAVIGATION = [
 export const TOURNAMENT_OWNER_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
+  { name: "Social Events", icon: tournamentIcon, path: "social-events" },
   { name: "Profile", icon: profileIcon, path: "profile" },
 ];
 
@@ -211,7 +213,8 @@ export const notHaveBackButton = [
   "Banner Section",
   "Mission & Vision",
   "Admin Users",
-  "Media Gallery"
+  "Media Gallery",
+  "Social Events",
 ];
 
 export const ROLES = [
