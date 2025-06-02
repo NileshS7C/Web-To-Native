@@ -18,17 +18,15 @@ const splitDate = (date) => {
   return [day, month, year];
 };
 
+
 const dateAndMonth = (date) => {
-  const splitDates = splitDate(date);
-  const data = { month: "", day: "" };
-  if (splitDates?.[1] && splitDates?.[0]) {
-    const monthNumber = splitDates[1];
-    const monthName = months[monthNumber];
-    return { ...data, day: splitDates[0], month: monthName };
-  } else {
-    return data;
-  }
+  const [day, month] = splitDate(date) || [];
+  if (!day || !month) return { day: "", month: "" };
+
+  const monthName = months[month - 1] || "";
+  return { day, month: monthName };
 };
+
 
 const formatURL = (params) => {
   return Object.entries(params)
