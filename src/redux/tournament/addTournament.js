@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  archiveTournament,
+  changeTournamentStatus,
   getAll_TO,
   getAllUniqueTags,
   handleTournamentDecision,
@@ -223,19 +223,19 @@ const tournamentSlice = createSlice({
       });
 
     builder
-      .addCase(archiveTournament.pending, (state) => {
+      .addCase(changeTournamentStatus.pending, (state) => {
         state.pendingArchive = true;
         state.archived = false;
         state.archivedError = false;
         state.archivedErrorMessage = "";
       })
-      .addCase(archiveTournament.fulfilled, (state) => {
+      .addCase(changeTournamentStatus.fulfilled, (state) => {
         state.pendingArchive = false;
         state.archived = true;
         state.archivedError = false;
         state.archivedErrorMessage = "";
       })
-      .addCase(archiveTournament.rejected, (state, { payload }) => {
+      .addCase(changeTournamentStatus.rejected, (state, { payload }) => {
         state.pendingArchive = false;
         state.archived = false;
         state.archivedError = true;

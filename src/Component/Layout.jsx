@@ -374,7 +374,8 @@ const TournamentActionButton = ({
                   // AND the tournament status is PENDING_VERIFICATION or PUBLISHED
                   ["PENDING_VERIFICATION", "PUBLISHED"].includes(
                     tournament?.status
-                  ))
+                  )) ||
+                tournament?.status === "COMPLETED"
               }
             >
               <span className="hidden lg:block text-xs sm:text-base md:text-md lg:text-lg">
@@ -398,8 +399,7 @@ const TournamentActionButton = ({
           ))}
         {ROLES.slice(0, 2).includes(userRole) &&
           tournament?.status &&
-          tournament?.status !== "ARCHIVED" &&
-          tournament?.status !== "REJECTED" && (
+          !["ARCHIVED","REJECTED","COMPLETED"].includes(tournament?.status) && (
             <div className="flex items-center gap-2">
               <Button
                 className={`${
