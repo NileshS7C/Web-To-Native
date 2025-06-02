@@ -800,7 +800,7 @@ const PlayerDetails = ({ players }) => {
 
 const MatchLocationDetails = ({ match, location, date, time, court }) => {
   const formattedMonth = dateAndMonth(date);
-
+  console.log(formattedMonth);
   return (
     <div className="flex flex-col items-center gap-3 ">
       <p className="text-matchTextColor text-md font-[600]">
