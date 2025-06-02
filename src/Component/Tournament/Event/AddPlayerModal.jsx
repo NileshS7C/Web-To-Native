@@ -309,7 +309,7 @@ const AddPlayerModal = ({
                         );
                         return (
                           <div
-                            key={booking._id.toString()} // Use booking ID instead of nanoid for consistency
+                            key={nanoid()}
                             className={`flex items-center py-2 md:py-3 gap-[2px] ${
                               index !== bookingsList.length - 1
                                 ? "border-b-[1.5px] border-[#DFEAF2]"
@@ -335,7 +335,7 @@ const AddPlayerModal = ({
                             <div className="flex flex-col flex-[35] text-left">
                               {extractPhones(booking).map((player) => (
                                 <span
-                                  key={`${booking._id}-${player.playerId}-phone`}
+                                  key={nanoid()}
                                   className="text-sm sm:text-base md:text-lg text-grey-500 font-medium"
                                 >
                                   {player.phone}
