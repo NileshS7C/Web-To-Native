@@ -165,7 +165,17 @@ function TournamentListing(props) {
             );
           }
           break;
-
+        case "completed":
+          dispatch(
+            getAllTournaments({
+              page: currentPage || 1,
+              limit: 10,
+              status: "COMPLETED",
+              type: userRole,
+              ownerId: singleTournamentOwner?.id,
+            })
+          );
+          break;
         case "archive":
           dispatch(
             getAllTournaments({

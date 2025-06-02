@@ -11,7 +11,7 @@ import {
   setRejectionComments,
 } from "../../redux/tournament/addTournament";
 import {
-  archiveTournament,
+  changeTournamentStatus,
   getSingleTournament,
   handleTournamentDecision,
 } from "../../redux/tournament/tournamentActions";
@@ -113,8 +113,8 @@ const TournamentCreationForm = () => {
   }, [isConfirmed, tournamentId]);
 
   useEffect(() => {
-    if (isConfirmed && tournament && type === "Archive") {
-      dispatch(archiveTournament({tournamentId:tournamentId, ownerId:tournament?.ownerUserId,type:rolesAccess?.tournament}));
+    if (isConfirmed && tournament && (type === "Archive" || type === "Completed") ) {
+      dispatch(changeTournamentStatus({tournamentId:tournamentId, ownerId:tournament?.ownerUserId,action:type}));
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed, tournamentId]);

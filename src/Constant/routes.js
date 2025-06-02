@@ -38,11 +38,11 @@ export const API_END_POINTS = {
         } else return null;
       },
 
-      archiveTournament: (tour_Id, ownerId) => {
+      changeTournamentStatus: (tour_Id, ownerId) => {
         if (checkRoles(ADMIN_ROLES)) {
-          return `/users/admin/tournaments/${tour_Id}/archive`;
-        } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
-          return `/users/tournament-owner/tournaments/${tour_Id}/owner/${ownerId}/archive`;
+          return `/users/admin/tournaments/${tour_Id}/change-status`;
+        } else if (TOURNAMENT_OWNER_ROLES.includes(type)) {
+          return `/users/tournament-owner/tournaments/${tour_Id}/owner/${ownerId}/change-status`;
         } else return null;
       },
 

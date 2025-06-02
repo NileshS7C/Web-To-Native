@@ -14,6 +14,7 @@ import { useParams } from "react-router-dom";
 import { nanoid } from "nanoid";
 import useDebounce from "../../../Hooks/useDebounce";
 import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
+
 const initialValues = {
   player: [],
 };
@@ -30,6 +31,7 @@ const SearchBookings = ({
   const [searchValue, setSearchValue] = useState("");
   const debouncedValue = useDebounce(searchValue, 500);
   const inputRef = useRef(null);
+
   const handleInputChange = (e) => {
     setSearchValue(e?.target?.value);
     setSearchInput(e?.target?.value);
@@ -55,6 +57,7 @@ const SearchBookings = ({
       inputRef.current.focus();
     }
   }, []);
+
   return (
     <div className="relative w-full mb-3">
       <input
@@ -82,7 +85,6 @@ const AddPlayerModal = ({
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const [searchInput, setSearchInput] = useState("");
-  const [selectAllPlayers, setSelectAllPlayers] = useState(false);
   const {
     bookings: bookingData,
     bookingError,
@@ -162,6 +164,19 @@ const AddPlayerModal = ({
     return phones;
   }, []);
 
+  // Memoized calculation for bookings list
+  const bookingsList = useMemo(() => {
+    return bookingData?.bookings || [];
+  }, [bookingData?.bookings]);
+
+  // Calculate if all players are selected
+  const areAllPlayersSelected = useMemo(() => {
+    if (bookingsList.length === 0) return false;
+    return bookingsList.every((booking) =>
+      selectedPlayers.has(booking._id.toString())
+    );
+  }, [bookingsList, selectedPlayers]);
+
   const handlePlayerToggle = useCallback(
     (booking) => {
       const player = formatData(booking);
@@ -184,24 +199,22 @@ const AddPlayerModal = ({
     },
     [formatData]
   );
-  const handleSelectAllPlayers = () => {
-    setSelectAllPlayers((prev) => {
-      const newValue = !prev;
-      if (newValue) {
-        const allPlayerData = bookingData?.bookings?.map((booking) =>
-          formatData(booking)
-        );
-        setUpdatedParticipants(allPlayerData);
-        setSelectedPlayers(() => {
-          return new Set(allPlayerData.map((player) => player.bookingId));
-        });
-      } else {
-        setSelectedPlayers(new Set());
-        setUpdatedParticipants([]);
-      }
-      return newValue;
-    });
-  };
+
+  const handleSelectAllPlayers = useCallback(() => {
+    if (areAllPlayersSelected) {
+      // Unselect all
+      setSelectedPlayers(new Set());
+      setUpdatedParticipants([]);
+    } else {
+      // Select all
+      const allPlayerData = bookingsList.map((booking) => formatData(booking));
+      setUpdatedParticipants(allPlayerData);
+      setSelectedPlayers(
+        new Set(allPlayerData.map((player) => player.bookingId))
+      );
+    }
+  }, [areAllPlayersSelected, bookingsList, formatData]);
+
   const handleSave = useCallback(() => {
     handleUpdateParticipant(updatedParticipants);
     toggleModal();
@@ -220,14 +233,11 @@ const AddPlayerModal = ({
         })
       );
     }
-  }, [tournamentId, eventId, dispatch,searchInput]);
+  }, [tournamentId, eventId, dispatch, searchInput]);
+
   const selectedPlayersCount = useMemo(() => {
     return selectedPlayers.size;
   }, [selectedPlayers]);
-
-  const bookingsList = useMemo(() => {
-    return bookingData?.bookings || [];
-  }, [bookingData?.bookings]);
 
   if (bookingError) {
     return (
@@ -240,7 +250,7 @@ const AddPlayerModal = ({
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
       <div className="fixed inset-0 z-10 overflow-y-auto">
         <div className="flex min-h-full items-end justify-center px-4 py-2 text-center sm:items-center sm:p-0">
-          <DialogPanel className="relative transform overflow-hidden scrollbar-hide rounded-lg bg-white px-2  text-left shadow-xl transition-all w-full max-w-[85%] sm:max-w-[65%] md:max-w-[60%] lg:max-w-[40%] min-h-[65vh] max-h-[90vh] overflow-y-auto">
+          <DialogPanel className="relative transform overflow-hidden scrollbar-hide rounded-lg bg-white px-2 text-left shadow-xl transition-all w-full max-w-[85%] sm:max-w-[65%] md:max-w-[60%] lg:max-w-[40%] min-h-[65vh] max-h-[90vh] overflow-y-auto">
             <Formik
               initialValues={initialValues}
               enableReinitialize
@@ -266,7 +276,7 @@ const AddPlayerModal = ({
                       >
                         <input
                           type="checkbox"
-                          checked={selectAllPlayers}
+                          checked={areAllPlayersSelected}
                           readOnly
                           className="w-4 sm:w-5 h-4 sm:h-5"
                         />
@@ -287,11 +297,13 @@ const AddPlayerModal = ({
                         </div>
                       )}
                     </div>
+
                     {isGettingBookings && (
                       <div className="flex items-center justify-center h-full w-full">
                         <Spinner />
                       </div>
                     )}
+
                     {/* Player list */}
                     <div className="flex-1 overflow-y-auto scrollbar-hide px-4">
                       {bookingsList.map((booking, index) => {
@@ -316,7 +328,7 @@ const AddPlayerModal = ({
                             <div className="flex flex-col flex-[35] text-left">
                               {extractNames(booking).map((player) => (
                                 <span
-                                  key={nanoid()}
+                                  key={`${booking._id}-${player.playerId}-name`}
                                   className="text-sm sm:text-base md:text-lg text-black font-medium"
                                 >
                                   {player.name}
@@ -339,9 +351,11 @@ const AddPlayerModal = ({
                     </div>
 
                     {/* Footer */}
-                    <div className="sticky bottom-0 z-20 bg-white px-4 pt-3 pb-4 ">
+                    <div className="sticky bottom-0 z-20 bg-white px-4 pt-3 pb-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-[#718EBF] font-medium text-xs sm:text-sm md:text-base lg:text-lg">{`${selectedPlayersCount} Players Selected`}</span>
+                        <span className="text-[#718EBF] font-medium text-xs sm:text-sm md:text-base lg:text-lg">
+                          {`${selectedPlayersCount} Players Selected`}
+                        </span>
                         <div className="flex gap-2 justify-end">
                           <Button
                             type="button"
