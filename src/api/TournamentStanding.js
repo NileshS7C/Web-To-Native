@@ -1,5 +1,4 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 import { API_END_POINTS } from "../Constant/routes";
 
 export const getFixtureId = async ({ tournamentId, categoryId }) => {

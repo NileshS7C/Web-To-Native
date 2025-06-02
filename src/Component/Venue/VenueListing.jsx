@@ -35,10 +35,11 @@ import {
   resetErrorState,
 } from "../../redux/Venue/deleteVenue";
 import FilterPlayer from "../Player/FilterPlayer";
-import { Cookies } from "react-cookie";
+
+
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
-const cookies = new Cookies();
+
 const SearchVenue = ({
   dispatch,
   venueName,

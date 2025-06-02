@@ -1,7 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
 import { formatURL } from "../../utils/dateUtils";
-import Cookies from "js-cookie";
 import { API_END_POINTS } from "../../Constant/routes";
 import { checkRoles } from "../../utils/roleCheck";
 import { ADMIN_ROLES, TOURNAMENT_OWNER_ROLES } from "../../Constant/Roles";

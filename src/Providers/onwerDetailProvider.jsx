@@ -1,5 +1,4 @@
 import { createContext, useContext, useMemo, useEffect, useState } from "react";
-import { useCookies } from "react-cookie";
 import Cookies from 'js-cookie'
 import { useDispatch, useSelector } from "react-redux";
 import { getAll_TO, getSingle_TO } from "../redux/tournament/tournamentActions";

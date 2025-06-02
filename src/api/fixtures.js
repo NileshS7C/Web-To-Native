@@ -1,16 +1,14 @@
 import axios from "axios";
-import { Cookies } from "react-cookie";
+import { checkRoles } from "../utils/roleCheck";
+import { ADMIN_ROLES } from "../Constant/Roles";
 
-const cookies = new Cookies();
 
 export const updateGroupName = async ({ tournamentID, categoryId, fixtureId, groupObj }) => {
   if (!tournamentID || !categoryId || !fixtureId || !groupObj) return;
 
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const userRole = cookies.get("userRole");
-
   let ENDPOINT = "";
-  if (userRole.includes("ADMIN")) {
+  if (checkRoles(ADMIN_ROLES)) {
     ENDPOINT = `${baseURl}/users/admin/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-group-name`;
   } else {
     ENDPOINT = `${baseURl}/users/tournament-owner/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-group-name`;
@@ -37,10 +35,9 @@ export const updateRoundName = async ({ tournamentID, categoryId, fixtureId, rou
   if (!tournamentID || !categoryId || !fixtureId || !roundObj) return;
 
   const baseURl = import.meta.env.VITE_BASE_URL;
-  const userRole = cookies.get("userRole");
 
   let ENDPOINT = "";
-  if (userRole.includes("ADMIN")) {
+  if (checkRoles(ADMIN_ROLES)) {
     ENDPOINT = `${baseURl}/users/admin/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-round-name`;
   } else {
     ENDPOINT = `${baseURl}/users/tournament-owner/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-round-name`;

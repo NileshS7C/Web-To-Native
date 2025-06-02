@@ -261,4 +261,4 @@ export const eventTabs = {
 };
 
 
-export const eventFullAccessRoles = ["ADMIN", "SUPER_ADMIN"];
+export const tournamentFullAccessRoles = ["ADMIN", "SUPER_ADMIN","TOURNAMENT_OWNER"];

@@ -2,7 +2,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { ADMIN_NAVIGATION, TOURNAMENT_OWNER_NAVIGATION, VENUE_OWNER_NAVIGATION } from "../../Constant/app";
 import { setNavigation } from "../../redux/NavBar/navSlice";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
+import { Cookies } from "react-cookie";
+
+const cookies = new Cookies();
 
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
@@ -11,7 +13,7 @@ import { useEffect, useState } from "react";
 export const NavBar = ({ handleOverlayClick }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [cookies] = useCookies(["userRoles"]);
+  const cookiesRoles=cookies?.get("userRoles");
   const location = useLocation();
   const { userRoles: roles } = useSelector((state) => state.auth);
   const [expandedMenus, setExpandedMenus] = useState({});
@@ -37,19 +39,21 @@ export const NavBar = ({ handleOverlayClick }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (cookies?.userRoles?.length > 0  || roles?.length > 0) {
-      const userRoles = cookies?.userRoles || roles;
-
+    if (cookiesRoles?.length > 0  || roles?.length > 0) {
+      const userRoles = cookiesRoles || roles;
       if (userRoles?.includes("SUPER_ADMIN") || userRoles?.includes("ADMIN")) {
         setNavigationBar(ADMIN_NAVIGATION);
-      } else if (userRoles?.includes("TOURNAMENT_OWNER")) {
+      } else if (
+        userRoles?.includes("TOURNAMENT_OWNER") ||
+        userRoles?.includes("TOURNAMENT_BOOKING_OWNER")
+      ) {
         setNavigationBar(TOURNAMENT_OWNER_NAVIGATION);
       } else if (userRoles?.includes("VENUE_OWNER")) {
         setNavigationBar(VENUE_OWNER_NAVIGATION);
       }
 
     }
-  }, [cookies?.userRoles, roles]);
+  }, [roles]);
 
   const toggleMenu = (menuName) => {
     setCurrentMenu(menuName);

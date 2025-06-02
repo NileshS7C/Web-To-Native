@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
-import { useCookies } from "react-cookie";
+
 import { useFormikContextFunction } from "../Providers/formikContext";
 import { handleTournamentDecision } from "../redux/tournament/tournamentActions";
 import { setApprovalBody } from "../redux/tournament/addTournament";

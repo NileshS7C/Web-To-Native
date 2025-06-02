@@ -1,17 +1,17 @@
 import { useDispatch, useSelector } from "react-redux";
 import { userProfileIcon, pickleBayLogo } from "../../Assests";
 import { userLogout } from "../../redux/Authentication/authActions";
-import { useCookies } from "react-cookie";
+
 import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Hamburger from "../Hamburg/Hamburger";
-
+import { Cookies } from "react-cookie";
+const cookies=new Cookies();
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const detailRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [cookies] = useCookies();
   const userEmail = useSelector((state) => state.user.email);
 
   const handleUserLogout = async () => {

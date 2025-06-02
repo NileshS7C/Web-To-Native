@@ -102,10 +102,11 @@ function TournamentListing(props) {
   }, [searchInput, currentPage, singleTournamentOwner?.id]);
 
   useEffect(() => {
-    if (selectedFilter || selectedTab) {
+    if ((selectedFilter || selectedTab) && searchInput !== "") {
       setSearchInput("");
     }
-  }, [selectedFilter, selectedTab]);
+  }, [selectedFilter, selectedTab, searchInput]);
+  
   useEffect(() => {
     if (singleTournamentOwner && !searchInput && selectedTab) {
       switch (selectedTab) {
@@ -171,7 +172,6 @@ function TournamentListing(props) {
               page: currentPage || 1,
               limit: 10,
               status: "COMPLETED",
-              type: userRole,
               ownerId: singleTournamentOwner?.id,
             })
           );

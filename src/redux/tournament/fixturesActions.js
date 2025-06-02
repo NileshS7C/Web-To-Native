@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
-import Cookies from 'js-cookie'
 import { API_END_POINTS } from "../../Constant/routes";
 
 export const createFixture = createAsyncThunk(
