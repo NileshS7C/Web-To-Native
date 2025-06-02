@@ -125,8 +125,8 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;
         } else return null;
       },
-      unPublishFixture: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMIN_ROLES.includes(type)) {
+      unPublishFixture: (tournamentId, categoryId, fixtureId) => {
+        if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/unpublish`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/unpublish`;
@@ -268,8 +268,8 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}`;
         } else return null;
       },
-      getMatches: (type, tournamentId, categoryId, fixtureId) => {
-        if (ADMIN_ROLES.includes(type)) {
+      getMatches: (tournamentId, categoryId, fixtureId) => {
+        if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/matches`;
         } else {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/matches`;
@@ -287,8 +287,8 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stage/${stageId}/standings`;
         } else return null;
       },
-      downloadSheetOfPlayers: (tournamentId, ownerId, userRole) => {
-        if (ADMIN_ROLES.includes(userRole)) {
+      downloadSheetOfPlayers: (tournamentId, ownerId) => {
+        if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tournamentId}/export-bookings`;
         } else if (TOURNAMENT_OWNER_ROLES.includes(userRole)) {
           return `/users/tournament-owner/tournaments/${tournamentId}/owner/${ownerId}/export-bookings`;

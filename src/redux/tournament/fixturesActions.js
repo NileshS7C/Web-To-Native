@@ -151,10 +151,9 @@ export const getMatches = createAsyncThunk(
   "fixture/getMatches",
   async ({ tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
+     
 
       const userAPIEndPoint = API_END_POINTS.tournament.GET.getMatches(
-        userRole,
         tour_Id,
         eventId,
         fixtureId
@@ -419,10 +418,7 @@ export const unPublishFixture = createAsyncThunk(
   "fixture/unPublishFixture",
   async (matchData, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.POST.unPublishFixture(
-        userRole,
         matchData.tour_Id,
         matchData.eventId,
         matchData.fixtureId
