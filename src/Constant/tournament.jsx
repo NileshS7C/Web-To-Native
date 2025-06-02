@@ -177,6 +177,13 @@ const tournamentListingTabs = [
     path: "/tournaments",
   },
   {
+    name: "Completed",
+    href: "#",
+    current: false,
+    search: "?tab=completed",
+    path: "/tournaments",
+  },
+  {
     name: "Archive",
     href: "#",
     current: false,

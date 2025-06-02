@@ -72,12 +72,12 @@ export const searchTournament = createAsyncThunk(
   }
 );
 
-export const archiveTournament = createAsyncThunk(
-  "Tournament/archiveTournament",
-  async ({ tournamentId, ownerId }, { rejectWithValue }) => {
+export const changeTournamentStatus = createAsyncThunk(
+  "Tournament/changeTournamentStatus",
+  async ({ tournamentId, ownerId ,action}, { rejectWithValue }) => {
     try {
       const userRole = cookies.get("userRole");
-      const userAPIEndPoint = API_END_POINTS.tournament.POST.archiveTournament(
+      const userAPIEndPoint = API_END_POINTS.tournament.POST.changeTournamentStatus(
         userRole,
         tournamentId,
         ownerId
@@ -93,9 +93,10 @@ export const archiveTournament = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-
+      const data={actionType : action === "Archive" ? "ARCHIVED" : "COMPLETED"} 
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
+        JSON.stringify(data),
         config
       );
 
