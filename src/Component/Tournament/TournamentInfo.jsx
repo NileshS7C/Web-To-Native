@@ -344,12 +344,11 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
         user = tournamentOwners.owners?.find(
           (owner) => owner.name === values.ownerUserId
         );
-      } else if (rolesAccess?.tournament === "TOURNAMENT_OWNER") {
+      } else if (["TOURNAMENT_OWNER","TOURNAMENT_BOOKING_OWNER"].includes(rolesAccess?.tournament)) {
         user = singleTournamentOwner
           ? { id: singleTournamentOwner.id }
           : { id: "" };
       }
-
       const updatedValues = {
         ...values,
         ownerUserId: user.id,
@@ -542,7 +541,8 @@ const TournamentBasicInfo = ({
   }, [hasError, tournamentOwners]);
 
   useEffect(() => {
-    if (userName && userRole === "TOURNAMENT_OWNER") {
+    
+    if (userName && ["TOURNAMENT_OWNER", "TOURNAMENT_BOOKING_OWNER"].includes(userRole)) {
       setFieldValue("ownerUserId", userName);
     }
   }, [userName]);
