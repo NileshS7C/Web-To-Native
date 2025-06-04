@@ -1,5 +1,5 @@
 import { checkRoles } from "../utils/roleCheck";
-import { ADMIN_ROLES,TOURNAMENT_OWNER_ROLES } from "./Roles";
+import { ADMIN_ROLES,EVENT_OWNER_ROLES,TOURNAMENT_OWNER_ROLES } from "./Roles";
 export const ROUTES = {
   HOME: "/home",
   VENUES: {
@@ -337,6 +337,33 @@ export const API_END_POINTS = {
     },
 
     PUT: {},
+  },
+  socialEvents: {
+    GET: {
+      getAllEvents: () => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return "/users/admin/events";
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return "/users/event-owner/events";
+        } else return null;
+      },
+      searchEvents: (ownerId) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/events/search`
+        } else if(checkRoles(EVENT_OWNER_ROLES)) {
+          return `/users/event-owner/events/owner/${ownerId}/search`
+        }
+      }
+    },
+    POST: {
+      createEvent: () => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return "/users/admin/events";
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return "/users/event-owner/events";
+        } else return null;
+      },  
+    }
   },
   players: {
     GET: {

@@ -215,6 +215,7 @@ export const notHaveBackButton = [
   "Admin Users",
   "Media Gallery",
   "Social Events",
+  "Add Social Events",
 ];
 
 export const ROLES = [

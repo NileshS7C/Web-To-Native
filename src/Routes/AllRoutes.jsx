@@ -53,6 +53,8 @@ import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
 import DashBoard from '../Page/DashBoard'
 import Admin from "../Page/Admin";
+import AddSocialEvents from "../Component/SocialEvents/AddSocialEvents";
+
 const AllRoutes = () => {
   return (
     <div>
@@ -93,6 +95,7 @@ const AllRoutes = () => {
             </Route>
           </Route>
           <Route path="social-events" element={<SocialEvents />} />
+          <Route path="social-events/add" element={<AddSocialEvents />} />
           <Route path="home" element={<Home />} />
           <Route path="players" element={<PlayersManager />} />
           <Route path="coupons/new" element={<CreateCoupons />} />
