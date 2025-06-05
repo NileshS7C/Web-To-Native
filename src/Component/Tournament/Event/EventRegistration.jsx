@@ -40,7 +40,6 @@ function EventRegistrations() {
   );
 
   const { fixture } = useSelector((state) => state.fixture);
-
   const currentPath = location.pathname;
 
   useEffect(() => {
@@ -79,7 +78,7 @@ function EventRegistrations() {
           onClick={() => {
             dispatch(toggleBookingModal());
           }}
-          disabled={fixture?.status === "PUBLISHED"}
+          disabled={fixture?.status === "PUBLISHED" || false}
         >
           Add Participant
         </Button>

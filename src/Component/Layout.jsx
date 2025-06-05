@@ -347,6 +347,7 @@ const TournamentActionButton = ({
   submitForm,
   isSubmitting,
 }) => {
+  console.log(ROLES);
   const {rolesAccess}=useOwnerDetailsContext()
   return (
     <div className="flex gap-2.5 items-center">
@@ -441,7 +442,7 @@ const TournamentActionButton = ({
         <ArchiveButtons tournament={tournament} dispatch={dispatch} />
       </div>
       {/* Roles are Archived and publised then only sheet will be downloaded */}
-      {ROLES.slice(0, 3).includes(rolesAccess?.tournament) &&
+      {ROLES.slice(0, 4).includes(rolesAccess?.tournament) &&
         tournament?.status &&
         ["ARCHIVED", "PUBLISHED"].includes(tournament?.status) && (
           <Button
@@ -452,7 +453,6 @@ const TournamentActionButton = ({
                 downloadSheetOfPlayers({
                   tournamentId: tournament._id.toString(),
                   ownerId: tournament?.ownerUserId?.toString(),
-                  type: rolesAccess?.tournament,
                   tournamentName:
                     tournament?.tournamentName || "Tournament-Bookings",
                 })

@@ -160,11 +160,12 @@ export const TournamentOrganiserCreation = ({
         );
 
         // Clear organiserId from URL after successful save
-        const newSearchParams = new URLSearchParams(searchParams);
-        newSearchParams.delete("organiserId");
-        navigate(`/tournament-organisers?${newSearchParams.toString()}`);
-
-        dispatch(toggleOrganiserModal());
+        // const newSearchParams = new URLSearchParams(searchParams);
+        // newSearchParams.delete("organiserId");
+        // console.log("new search params:",newSearchParams);
+        setTimeout(() => {
+          dispatch(toggleOrganiserModal());
+        }, 300);
       }
     } catch (err) {
       scrollToTop();

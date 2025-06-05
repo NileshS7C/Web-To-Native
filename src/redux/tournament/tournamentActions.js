@@ -77,6 +77,7 @@ export const changeTournamentStatus = createAsyncThunk(
         tournamentId,
         ownerId
       );
+      console.log(userAPIEndPoint);
       if (!userAPIEndPoint) {
         return rejectWithValue({
           message: "You do not have permission to access this resource",
@@ -94,9 +95,10 @@ export const changeTournamentStatus = createAsyncThunk(
         JSON.stringify(data),
         config
       );
-
+      console.log("printing resposne", response);
       return response.data;
     } catch (err) {
+      console.log(err);
       if (err.response) {
         return rejectWithValue({
           status: err.response.status,
@@ -681,7 +683,6 @@ export const createConfirmBooking = createAsyncThunk(
         JSON.stringify(data),
         config
       );
-
       return response.data;
     } catch (err) {
       if (err.response) {

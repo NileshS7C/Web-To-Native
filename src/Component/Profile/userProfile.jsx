@@ -25,9 +25,17 @@ export const UserProfile = ({ onwerDetails }) => {
               </div>
               <div className="flex items-center space-x-2">
                 <span className="font-medium text-gray-600">Role:</span>
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                  {onwerDetails?.roleNames}
-                </span>
+                <div className="flex flex-wrap">
+                  {
+                    onwerDetails?.roleNames.map((role,index)=>{
+                      return (
+                        <span className="bg-blue-100 text-blue-800 px-2 md:px-3 py-[5px] md:py-1 rounded-full text-xs md:text-sm" key={index}>
+                          {role}
+                        </span>
+                      );
+                    })
+                  }
+                </div>
               </div>
             </div>
           </div>

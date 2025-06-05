@@ -177,7 +177,6 @@ export const TournamentOrganisersListing = ({
   const [actionPending, setActionPending] = useState(false);
   const { openOrganiserModal } = useSelector((state) => state.tour_Org);
   const { location } = useSelector((state) => state.location);
-
   useEffect(() => {
     const getOrganiserDetails = async (id) => {
       try {
@@ -187,11 +186,11 @@ export const TournamentOrganisersListing = ({
         const result = await dispatch(getTournamentOrganiser(id)).unwrap();
 
         if (result?.data) {
-          const { owner:owners, ...otherData } = result.data;
+          const { owner: owners, ...otherData } = result.data;
           const ownerBrandDetails = owners?.find(
             (owner) => owner.ownerUserType === "TOURNAMENT"
           );
-          
+
           const coordinates = ownerBrandDetails?.address?.location?.coordinates
             ? ownerBrandDetails.address.location.coordinates.map(
                 (coord) => Number(coord) || 0
@@ -237,10 +236,12 @@ export const TournamentOrganisersListing = ({
 
     if (organiserId) {
       setInitialState(initialValues);
-      dispatch(toggleOrganiserModal());
+      // dispatch(toggleOrganiserModal());
       getOrganiserDetails(organiserId);
+    }else{
+      setInitialState({ ...initialValues });
     }
-  }, [organiserId, dispatch]);
+  }, [organiserId]);
 
   // Reset the form when the modal closes
   useEffect(() => {
@@ -250,16 +251,11 @@ export const TournamentOrganisersListing = ({
         updatedParams.delete("organiserId");
         return updatedParams;
       });
-
+     
       setInitialState({ ...initialValues });
     }
   }, [openOrganiserModal]);
-
-  useEffect(() => {
-    if (!organiserId) {
-      setInitialState({ ...initialValues });
-    }
-  }, [organiserId, openOrganiserModal]);
+  
 
   if (error) {
     return (
@@ -268,16 +264,18 @@ export const TournamentOrganisersListing = ({
   }
   return (
     <div className="rounded-lg">
-      <TournamentOrganiserCreation
-        key={organiserId}
-        dispatch={dispatch}
-        isOpen={openOrganiserModal}
-        initialValues={initalState}
-        location={location}
-        validationSchema={validationSchema}
-        organiserId={organiserId}
-        actionPending={actionPending}
-      />
+      {openOrganiserModal && (
+        <TournamentOrganiserCreation
+          key={organiserId}
+          dispatch={dispatch}
+          isOpen={openOrganiserModal}
+          initialValues={initalState}
+          location={location}
+          validationSchema={validationSchema}
+          organiserId={organiserId}
+          actionPending={actionPending}
+        />
+      )}
 
       {!owners?.length ? (
         <div className="h-[75vh]">

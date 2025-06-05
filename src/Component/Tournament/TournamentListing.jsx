@@ -32,6 +32,7 @@ const SearchEvents = ({
   searchInput,
   setSearchInput,
   singleTournamentOwner,
+  selectedTab,
 }) => {
   const [searchValue, setSearchValue] = useState("");
   const debouncedValue = useDebounce(searchValue, 500);
@@ -43,14 +44,85 @@ const SearchEvents = ({
 
   useEffect(() => {
     if (debouncedValue) {
-      dispatch(
-        searchTournament({
-          page: page || 1,
-          limit: limit,
-          ownerId: singleTournamentOwner?.id,
-          search: debouncedValue,
-        })
-      );
+      switch (selectedTab) {
+        case "all":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              ownerId: singleTournamentOwner?.id,
+            })
+          );
+          break;
+        case "draft":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              status: selectedTab?.toUpperCase(),
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+
+          break;
+        case "active":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              "dateRange[startDate]": formattedDate(new Date()),
+              timeline: "ACTIVE",
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+          break;
+
+        case "upcoming":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              "dateRange[endDate]": formattedDate(new Date()),
+              status: selectedFilter?.toUpperCase(),
+              timeline: "UPCOMING",
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+
+        case "archive":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              status: "ARCHIVED",
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+          break;
+        case "completed":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              status: "COMPLETED",
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+        default:
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );  
+      }
     }
   }, [debouncedValue, page]);
 
@@ -81,14 +153,15 @@ function TournamentListing(props) {
   const {
     dispatch,
     currentPage,
-    singleTournamentOwner = {},
+    singleTournamentOwner,
     searchInput,
     selectedTab,
     setSearchInput,
   } = props;
+
   const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
     useSelector((state) => state.GET_TOUR);
-   
+
   useEffect(() => {
     if (!searchInput) {
       dispatch(
@@ -102,11 +175,10 @@ function TournamentListing(props) {
   }, [searchInput, currentPage, singleTournamentOwner?.id]);
 
   useEffect(() => {
-    if ((selectedFilter || selectedTab) && searchInput !== "") {
+    if (selectedFilter || selectedTab) {
       setSearchInput("");
     }
-  }, [selectedFilter, selectedTab, searchInput]);
-  
+  }, [selectedFilter, selectedTab]);
   useEffect(() => {
     if (singleTournamentOwner && !searchInput && selectedTab) {
       switch (selectedTab) {
@@ -166,16 +238,7 @@ function TournamentListing(props) {
             );
           }
           break;
-        case "completed":
-          dispatch(
-            getAllTournaments({
-              page: currentPage || 1,
-              limit: 10,
-              status: "COMPLETED",
-              ownerId: singleTournamentOwner?.id,
-            })
-          );
-          break;
+
         case "archive":
           dispatch(
             getAllTournaments({
@@ -186,14 +249,24 @@ function TournamentListing(props) {
             })
           );
           break;
+        case "completed":
+          dispatch(
+            getAllTournaments({
+              page: currentPage || 1,
+              limit: 10,
+              status: "COMPLETED",
+              ownerId: singleTournamentOwner?.id,
+            })
+          );
+          break;
         default:
-         dispatch(
-           getAllTournaments({
-             page: currentPage || 1,
-             limit: 10,
-             ownerId: singleTournamentOwner?.id,
-           })
-         );
+          dispatch(
+            getAllTournaments({
+              page: currentPage || 1,
+              limit: 10,
+              ownerId: singleTournamentOwner?.id,
+            })
+          );
       }
     } else if (singleTournamentOwner && !searchInput && !selectedTab) {
       dispatch(
@@ -255,6 +328,7 @@ function TournamentListingWrapper() {
   const selectedTab = searchParams.get("tab");
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [searchInput, setSearchInput] = useState("");
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex w-full md:w-[40%]">
@@ -296,7 +370,7 @@ SearchEvents.propTypes = {
   setSearchInput: PropTypes.func,
   page: PropTypes.string || PropTypes.number,
   limit: PropTypes.number,
-  type: PropTypes.string,
+
   singleTournamentOwner: PropTypes.object,
 };
 

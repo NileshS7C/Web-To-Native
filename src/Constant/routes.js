@@ -41,7 +41,7 @@ export const API_END_POINTS = {
       changeTournamentStatus: (tour_Id, ownerId) => {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tour_Id}/change-status`;
-        } else if (TOURNAMENT_OWNER_ROLES.includes(type)) {
+        } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
           return `/users/tournament-owner/tournaments/${tour_Id}/owner/${ownerId}/change-status`;
         } else return null;
       },
@@ -128,7 +128,7 @@ export const API_END_POINTS = {
       unPublishFixture: (tournamentId, categoryId, fixtureId) => {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/unpublish`;
-        } else {
+        } else if (checkRoles(TOURNAMENT_OWNER_ROLES)){
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/unpublish`;
         }
       },
@@ -290,7 +290,7 @@ export const API_END_POINTS = {
       downloadSheetOfPlayers: (tournamentId, ownerId) => {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tournamentId}/export-bookings`;
-        } else if (TOURNAMENT_OWNER_ROLES.includes(userRole)) {
+        } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
           return `/users/tournament-owner/tournaments/${tournamentId}/owner/${ownerId}/export-bookings`;
         } else {
           return null;
