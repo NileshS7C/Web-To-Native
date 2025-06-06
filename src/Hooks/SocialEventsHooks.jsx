@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createEvent, getAllEvents, searchEvents } from "../api/SocialEvents"
+import { createEvent, getAllEvents, searchEvents, updateEvent } from "../api/SocialEvents"
 
 export const useGetAllEvents = (page = 1, limit = 10) => {
   return useQuery({
@@ -27,3 +27,13 @@ export const useSearchEvents = ({ownerId, searchTitle}) => {
       },
     });
   };
+
+  export const useUpdateEvent = () => {
+    return useMutation({
+      mutationFn: (payload) => updateEvent(payload),
+      onSuccess: (data) => {
+        console.log("🚀 ~ useUpdateEvent ~ data:", data);
+      },
+    });
+  };
+

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useOwnerDetailsContext } from '../../Providers/onwerDetailProvider';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import SponsorTable from './SponsorTable';
 import WhatToExpectTable from './WhatToExpectTable';
@@ -89,6 +90,7 @@ const FormSelect = ({ label, name, options, placeholder, className = "" }) => (
 
 const BasicInfo = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { mutate: createEvent, isLoading } = useCreateEvent();
   const [formData, setFormData] = useState({
     sponsors: [],
@@ -156,11 +158,30 @@ const BasicInfo = () => {
   };
 
   const handleFormSubmit = (values, { setSubmitting, setFieldError }) => {
+    console.log("🚀 ~ BasicInfo ~ Send Button Clicked - Form Submission Initiated", {
+      formValues: values,
+      step: "SEND_BUTTON_CLICKED"
+    });
+
     // Ensure coordinates are valid numbers
     const longitude = location?.lng ? parseFloat(location.lng) : 0;
     const latitude = location?.lat ? parseFloat(location.lat) : 0;
 
+    console.log("🚀 ~ BasicInfo ~ Location Validation", {
+      longitude,
+      latitude,
+      location,
+      isValidLongitude: !isNaN(longitude),
+      isValidLatitude: !isNaN(latitude),
+      step: "LOCATION_VALIDATION"
+    });
+
     if (isNaN(longitude) || isNaN(latitude)) {
+      console.log("❌ ~ BasicInfo ~ Location Validation Failed", {
+        longitude,
+        latitude,
+        step: "LOCATION_VALIDATION_FAILED"
+      });
       setFieldError('locationName', 'Invalid location coordinates. Please select a valid location.');
       setSubmitting(false);
       return;
@@ -202,8 +223,72 @@ const BasicInfo = () => {
       ...formData
     };
 
-    console.log("Form Data:", allFormData);
-    createEvent(allFormData);
+    console.log("🚀 ~ BasicInfo ~ Form Data Collected", {
+      allFormData,
+      additionalFormData: formData,
+      step: "FORM_DATA_COLLECTION_COMPLETE"
+    });
+
+    console.log("🚀 ~ BasicInfo ~ Form Submission Started", {
+      formData: allFormData,
+      step: "FORM_VALIDATION_PASSED"
+    });
+
+    createEvent(allFormData, {
+      onSuccess: (data) => {
+        console.log("🎉 ~ BasicInfo ~ Event Created Successfully", {
+          responseData: data,
+          eventId: data?.eventId,
+          eventObject: data?.event,
+          eventObjectId: data?.event?._id,
+          step: "EVENT_CREATION_SUCCESS"
+        });
+
+        // Try to get eventId from different possible locations in response
+        const eventId = data?.eventId || data?.event?._id || data?.event?.id;
+
+        console.log("🚀 ~ BasicInfo ~ Event ID Resolution", {
+          eventId,
+          fromEventId: data?.eventId,
+          fromEventObjectId: data?.event?._id,
+          fromEventObjectIdAlt: data?.event?.id,
+          step: "EVENT_ID_RESOLUTION"
+        });
+
+        // Navigate to acknowledgement page with the event ID
+        if (eventId) {
+          console.log("🚀 ~ BasicInfo ~ Navigating to Acknowledgement", {
+            eventId: eventId,
+            ownerUserId: values.organiser,
+            navigationPath: `/social-events/${eventId}/acknowledgement`,
+            step: "NAVIGATION_TO_ACKNOWLEDGEMENT"
+          });
+
+          // Store ownerUserId in localStorage for acknowledgement page
+          localStorage.setItem(`event_${eventId}_ownerUserId`, values.organiser);
+
+          navigate(`/social-events/${eventId}/acknowledgement`);
+        } else {
+          console.log("❌ ~ BasicInfo ~ No Event ID in Response", {
+            responseData: data,
+            checkedPaths: {
+              eventId: data?.eventId,
+              eventObjectId: data?.event?._id,
+              eventObjectIdAlt: data?.event?.id
+            },
+            step: "MISSING_EVENT_ID"
+          });
+        }
+      },
+      onError: (error) => {
+        console.error("❌ ~ BasicInfo ~ Event Creation Failed", {
+          error: error,
+          formData: allFormData,
+          step: "EVENT_CREATION_ERROR"
+        });
+        setSubmitting(false);
+      }
+    });
     setSubmitting(false);
   };
 

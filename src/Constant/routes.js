@@ -362,7 +362,14 @@ export const API_END_POINTS = {
         } else if (checkRoles(EVENT_OWNER_ROLES)) {
           return "/users/event-owner/events";
         } else return null;
-      },  
+      },
+      updateEvent: (eventId) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/events/${eventId}/update`;
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return `/users/admin/events/${eventId}/update`;
+        } else return null;
+      },
     }
   },
   players: {

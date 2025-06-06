@@ -63,9 +63,47 @@ export const createEvent = async (payload) => {
 
   try {
     const response = await axios.request(config);
-    return response.data?.data;
+    const responseData = response.data?.data;
+
+    console.log("🚀 ~ createEvent ~ API Response", {
+      fullResponse: response.data,
+      responseData,
+      eventObject: responseData?.event,
+      eventId: responseData?.event?._id || responseData?.event?.id
+    });
+
+    // Ensure eventId is available at the top level for easier access
+    if (responseData?.event && !responseData.eventId) {
+      responseData.eventId = responseData.event._id || responseData.event.id;
+    }
+
+    return responseData;
   } catch (error) {
     console.error("🚀 ~ createEvent ~ error:", error);
     throw error.response?.data || error;
   }
 };
+
+export const updateEvent = async (payload) => {
+  console.log("🚀 ~ updateEvent ~ payload:", payload);
+  const baseURl = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = `${baseURl}${API_END_POINTS.socialEvents.POST.updateEvent(payload.eventId)}`;
+
+  let config = {
+    method: "POST",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+    data: payload,
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data?.data;
+  } catch (error) {
+    console.error("🚀 ~ updateEvent ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
+

@@ -96,6 +96,7 @@ const AllRoutes = () => {
           </Route>
           <Route path="social-events" element={<SocialEvents />} />
           <Route path="social-events/add" element={<AddSocialEvents />} />
+          <Route path="social-events/:eventId/acknowledgement" element={<AddSocialEvents />} />
           <Route path="home" element={<Home />} />
           <Route path="players" element={<PlayersManager />} />
           <Route path="coupons/new" element={<CreateCoupons />} />
