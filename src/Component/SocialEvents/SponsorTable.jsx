@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { MdOutlineModeEditOutline } from "react-icons/md";
 import { uploadImage, deleteUploadedImage } from "../../redux/Upload/uploadActions";
 import { useDispatch } from "react-redux";
 import { imageUpload } from "../../Assests";
@@ -9,28 +8,84 @@ const SponsorTable = ({ disabled = false, onChange = () => {} }) => {
   const dispatch = useDispatch();
 
   const [sponsors, setSponsors] = useState([
-    { sponsorName: "", sponsorImage: "" },
+    { sponsorName: "", sponsorImage: "", errors: {} },
   ]);
 
-  useEffect(() => {
-    onChange(sponsors.filter((s) => s.sponsorName && s.sponsorImage)); // only send valid
-  }, [sponsors]);
+  // Validation function for individual sponsor
+  const validateSponsor = (sponsor) => {
+    const errors = {};
+    const hasName = sponsor.sponsorName.trim();
+    const hasImage = sponsor.sponsorImage;
 
-  const handleAddSponsor = () => {
-    setSponsors([...sponsors, { sponsorName: "", sponsorImage: "" }]);
+    // If either field has content, both are required
+    if (hasName || hasImage) {
+      if (!hasName) {
+        errors.sponsorName = "Sponsor name is required when image is provided";
+      }
+      if (!hasImage) {
+        errors.sponsorImage = "Sponsor image is required when name is provided";
+      }
+    }
+
+    return errors;
   };
 
-  const handleDelete = (index) => {
+  useEffect(() => {
+    // Validate all sponsors and update errors
+    const validatedSponsors = sponsors.map(sponsor => ({
+      ...sponsor,
+      errors: validateSponsor(sponsor)
+    }));
+
+    setSponsors(validatedSponsors);
+
+    // Only send sponsors that have both name and image (valid sponsors)
+    // Remove the 'errors' field before sending to parent
+    const validSponsors = validatedSponsors
+      .filter((s) =>
+        s.sponsorName.trim() && s.sponsorImage &&
+        Object.keys(s.errors).length === 0
+      )
+      .map(({ errors, ...sponsor }) => sponsor); // Remove errors field
+
+    onChange(validSponsors);
+  }, [sponsors.map(s => s.sponsorName + s.sponsorImage).join(',')]);
+
+  const handleAddSponsor = () => {
+    setSponsors([...sponsors, { sponsorName: "", sponsorImage: "", errors: {} }]);
+  };
+
+  const handleDelete = async (index) => {
     const img = sponsors[index]?.sponsorImage;
-    if (img) dispatch(deleteUploadedImage(img));
+    if (img) {
+      try {
+        await dispatch(deleteUploadedImage(img)).unwrap();
+        console.log("Image deleted successfully:", img);
+      } catch (error) {
+        console.error("Failed to delete image:", error);
+        alert("Failed to delete image. Please try again.");
+        return; // Don't proceed with deletion if image deletion failed
+      }
+    }
     const updated = sponsors.filter((_, i) => i !== index);
-    setSponsors(updated.length ? updated : [{ sponsorName: "", sponsorImage: "" }]);
+    setSponsors(updated.length ? updated : [{ sponsorName: "", sponsorImage: "", errors: {} }]);
   };
 
   const handleChange = (index, key, value) => {
-    const updated = sponsors.map((s, i) =>
-      i === index ? { ...s, [key]: value } : s
-    );
+    const updated = sponsors.map((s, i) => {
+      if (i === index) {
+        const updatedSponsor = { ...s, [key]: value };
+        // Clear errors when user starts typing/uploading
+        if (key === 'sponsorName' && value.trim()) {
+          delete updatedSponsor.errors.sponsorName;
+        }
+        if (key === 'sponsorImage' && value) {
+          delete updatedSponsor.errors.sponsorImage;
+        }
+        return updatedSponsor;
+      }
+      return s;
+    });
     setSponsors(updated);
   };
 
@@ -38,10 +93,14 @@ const SponsorTable = ({ disabled = false, onChange = () => {} }) => {
     const file = e.target.files[0];
     if (!file?.type?.startsWith("image/")) {
       alert("Invalid file type. Please upload an image.");
+      // Reset the input value to allow selecting the same file again
+      e.target.value = '';
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
       alert("File must be less than 5MB.");
+      // Reset the input value to allow selecting the same file again
+      e.target.value = '';
       return;
     }
 
@@ -51,6 +110,9 @@ const SponsorTable = ({ disabled = false, onChange = () => {} }) => {
       handleChange(index, "sponsorImage", url);
     } catch (err) {
       alert(err?.data?.message || "Upload failed.");
+    } finally {
+      // Reset the input value to allow selecting the same file again
+      e.target.value = '';
     }
   };
 
@@ -83,31 +145,45 @@ const SponsorTable = ({ disabled = false, onChange = () => {} }) => {
               <tr key={index} className="text-sm text-[#667085]">
                 <td className="p-2">{index + 1}</td>
                 <td className="p-2">
-                  <div className="relative flex items-center gap-2">
-                    <img
-                      src={sponsor.sponsorImage || imageUpload}
-                      className="w-8 h-8"
-                      alt="sponsor"
-                    />
-                    {!disabled && (
-                      <input
-                        type="file"
-                        onChange={(e) => handleFileUpload(e, index)}
-                        className="absolute w-8 h-8 opacity-0 cursor-pointer"
+                  <div className="flex flex-col gap-1">
+                    <div className="relative flex items-center gap-2">
+                      <img
+                        src={sponsor.sponsorImage || imageUpload}
+                        className="w-8 h-8"
+                        alt="sponsor"
                       />
+                      {!disabled && (
+                        <input
+                          type="file"
+                          onChange={(e) => handleFileUpload(e, index)}
+                          className="absolute w-8 h-8 opacity-0 cursor-pointer"
+                        />
+                      )}
+                    </div>
+                    {sponsor.errors?.sponsorImage && (
+                      <div className="text-sm text-[#FF3333]">
+                        {sponsor.errors.sponsorImage}
+                      </div>
                     )}
                   </div>
                 </td>
                 <td className="p-2">
-                  <input
-                    value={sponsor.sponsorName}
-                    onChange={(e) =>
-                      handleChange(index, "sponsorName", e.target.value)
-                    }
-                    className="w-[80%] px-[10px] border border-[#DFEAF2] rounded-[10px] h-[40px]"
-                    placeholder="Enter Sponsor Name"
-                    disabled={disabled}
-                  />
+                  <div className="flex flex-col gap-1">
+                    <input
+                      value={sponsor.sponsorName}
+                      onChange={(e) =>
+                        handleChange(index, "sponsorName", e.target.value)
+                      }
+                      className="w-[80%] px-[10px] border border-[#DFEAF2] rounded-[10px] h-[40px]"
+                      placeholder="Enter Sponsor Name"
+                      disabled={disabled}
+                    />
+                    {sponsor.errors?.sponsorName && (
+                      <div className="text-sm text-[#FF3333]">
+                        {sponsor.errors.sponsorName}
+                      </div>
+                    )}
+                  </div>
                 </td>
                 <td className="p-2">
                   {!disabled && (

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { useOwnerDetailsContext } from '../../Providers/onwerDetailProvider'; 
+import { useOwnerDetailsContext } from '../../Providers/onwerDetailProvider';
 import { useSelector, useDispatch } from 'react-redux';
 import DatePicker from 'react-datepicker';
-import { calenderIcon } from '../../Assests';
 import SponsorTable from './SponsorTable';
 import WhatToExpectTable from './WhatToExpectTable';
 import BannerDesktopTable from './BannerDesktopTable';
@@ -13,11 +12,84 @@ import ReactQuill from 'react-quill';
 import { useCreateEvent } from '../../Hooks/SocialEventsHooks';
 import LocationSearchInput from "../Common/LocationSearch";
 import { resetGlobalLocation } from "../../redux/Location/locationSlice";
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import TextError from "../Error/formError";
+
+// Validation Schema
+const validationSchema = Yup.object({
+  organiser: Yup.string().required('Event organiser is required'),
+  eventName: Yup.string().required('Event name is required'),
+  handle: Yup.string().required('Event handle is required'),
+  locationName: Yup.string().required('Location name is required'),
+  line1: Yup.string().required('Address line 1 is required'),
+  line2: Yup.string().required('Address line 2 is required'),
+  city: Yup.string().required('City is required'),
+  state: Yup.string().required('State is required'),
+  postalCode: Yup.string()
+    .required('Postal code is required')
+    .matches(/^\d{6}$/, 'Postal code must be exactly 6 digits'),
+  startDate: Yup.date()
+    .required('Event start date is required')
+    .nullable()
+    .typeError('Please select a valid date'),
+  bookingStartDate: Yup.date()
+    .required('Registration start date is required')
+    .nullable()
+    .typeError('Please select a valid date'),
+  bookingEndDate: Yup.date()
+    .required('Registration end date is required')
+    .nullable()
+    .typeError('Please select a valid date'),
+  startTime: Yup.string().required('Start time is required'),
+  endTime: Yup.string().required('End time is required'),
+  maxParticipants: Yup.number()
+    .required('Maximum participants is required')
+    .positive('Must be a positive number')
+    .integer('Must be a whole number'),
+  registrationFee: Yup.number()
+    .required('Registration fee is required')
+    .min(0, 'Registration fee cannot be negative'),
+  bannerDesktopImages: Yup.array().min(1, 'Desktop banner images are required'),
+  bannerMobileImages: Yup.array().min(1, 'Mobile banner images are required'),
+});
+
+const FormInput = ({ label, name, type = "text", placeholder, className = "", ...props }) => (
+  <div className='flex flex-col items-start gap-3'>
+    <p className='text-base leading-[19.36px] text-[#232323]'>{label}</p>
+    <Field
+      type={type}
+      name={name}
+      placeholder={placeholder}
+      className={`w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+      {...props}
+    />
+    <ErrorMessage name={name} component="div" className="text-red-500 text-sm" />
+  </div>
+);
+
+const FormSelect = ({ label, name, options, placeholder, className = "" }) => (
+  <div className='flex flex-col items-start gap-3'>
+    <p className='text-base leading-[19.36px] text-[#232323]'>{label}</p>
+    <Field
+      as="select"
+      name={name}
+      className={`w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+    >
+      <option value="">{placeholder}</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </Field>
+    <ErrorMessage name={name} component="div" className="text-red-500 text-sm" />
+  </div>
+);
 
 const BasicInfo = () => {
   const dispatch = useDispatch();
   const { mutate: createEvent, isLoading } = useCreateEvent();
-  const [eventHandle, setEventHandle] = useState("");
   const [formData, setFormData] = useState({
     sponsors: [],
     bannerDesktopImages: [],
@@ -27,115 +99,99 @@ const BasicInfo = () => {
     whatToExpect: []
   });
   const { tournamentOwners } = useOwnerDetailsContext();
-  const { isGettingTags, tags, isGettingALLTO, err_IN_TO } = useSelector((state) => state.Tournament);
   const { location } = useSelector((state) => state.location);
-  
-  // Add state for all date fields
-  const [dates, setDates] = useState({
+
+  // Initial form values
+  const initialValues = {
+    organiser: "",
+    eventName: "",
+    handle: "",
+    locationName: location?.name || "",
+    line1: location?.address_line1 || "",
+    line2: location?.address_line2 || "",
+    city: location?.city || "",
+    state: location?.state || "",
+    postalCode: location?.pin_code || "",
     startDate: null,
     bookingStartDate: null,
     bookingEndDate: null,
     startTime: "",
-    endTime: ""
-  });
-  
+    endTime: "",
+    maxParticipants: "",
+    registrationFee: "",
+    instagramHandle: "",
+    whatsappGroupLink: "",
+    tags: "",
+    description: "",
+    preRequisites: "",
+    bannerDesktopImages: [],
+    bannerMobileImages: []
+  };
+
   // Reset location when component unmounts
   useEffect(() => {
     return () => {
       dispatch(resetGlobalLocation());
     };
-  }, []);
+  }, [dispatch]);
 
-  // Update address fields when location changes
-  useEffect(() => {
-    if (location.city || location.state || location.lng || location.lat) {
-      document.getElementById("locationName").value = location?.name || "";
-      document.getElementById("line1").value = location?.address_line1 || "";
-      document.getElementById("line2").value = location?.address_line2 || "";
-      document.getElementById("city").value = location?.city || "";
-      document.getElementById("state").value = location?.state || "";
-      document.getElementById("postalCode").value = location?.pin_code || "";
-    }
-  }, [
-    location.lat,
-    location.lng,
-    location.city,
-    location.state,
-    location.pin_code,
-    location.address_line1,
-    location.address_line2,
-    location.name
-  ]);
-  
-  // Handle event name change to update handle
-  const handleEventNameChange = (e) => {
-    const eventName = e.target.value;
-    if (eventName) {
-      const handle = eventName
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-      setEventHandle(handle);
-      document.getElementById("handle").value = handle;
-    }
+  // Generate event handle from event name
+  const generateHandle = (eventName) => {
+    if (!eventName) return "";
+    return eventName
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   };
 
-  // Handle data changes from child components
-  const handleDataChange = (field, data) => {
+  const handleDataChange = (field, data, setFieldValue) => {
     setFormData(prev => ({
       ...prev,
       [field]: data
     }));
+    if (setFieldValue && (field === 'bannerDesktopImages' || field === 'bannerMobileImages')) {
+      setFieldValue(field, data);
+    }
   };
 
-  // Function to handle form submission and post data
-  const handleSendData = () => {
-    // Get postal code and ensure it's exactly 6 characters
-    const postalCode = document.getElementById("postalCode").value;
-    if (postalCode.length !== 6) {
-      alert("Postal code must be exactly 6 characters long");
-      return;
-    }
-
+  const handleFormSubmit = (values, { setSubmitting, setFieldError }) => {
     // Ensure coordinates are valid numbers
     const longitude = location?.lng ? parseFloat(location.lng) : 0;
     const latitude = location?.lat ? parseFloat(location.lat) : 0;
-    
+
     if (isNaN(longitude) || isNaN(latitude)) {
-      alert("Invalid location coordinates. Please select a valid location.");
+      setFieldError('locationName', 'Invalid location coordinates. Please select a valid location.');
+      setSubmitting(false);
       return;
     }
-
-    console.log("Location data:", location);
-    console.log("Coordinates being sent:", [longitude, latitude]);
 
     // Collect all form data
     const allFormData = {
       step: 1,
       eventId: "",
-      ownerUserId: document.getElementById("organiser").value,
-      eventName: document.getElementById("eventName").value,
-      handle: document.getElementById("handle").value,
-      description: document.querySelector("#description .ql-editor").textContent,
-      preRequisites: document.querySelector("#preRequisites .ql-editor").textContent,
-      startDate: dates.startDate ? formatDate(dates.startDate) : null,
-      bookingStartDate: dates.bookingStartDate ? formatDate(dates.bookingStartDate) : null,
-      bookingEndDate: dates.bookingEndDate ? formatDate(dates.bookingEndDate) : null,
-      startTime: dates.startTime,
-      endTime: dates.endTime,
-      maxParticipants: document.getElementById("maxParticipants").value,
-      registrationFee: document.getElementById("registrationFee").value,
-      instagramHandle: document.getElementById("instagramHandle").value,
-      whatsappGroupLink: document.getElementById("whatsappGroupLink").value,
+      ownerUserId: values.organiser,
+      eventName: values.eventName,
+      handle: values.handle,
+      description: values.description,
+      preRequisites: values.preRequisites,
+      startDate: values.startDate ? formatDate(values.startDate) : null,
+      bookingStartDate: values.bookingStartDate ? formatDate(values.bookingStartDate) : null,
+      bookingEndDate: values.bookingEndDate ? formatDate(values.bookingEndDate) : null,
+      startTime: values.startTime,
+      endTime: values.endTime,
+      maxParticipants: values.maxParticipants,
+      registrationFee: values.registrationFee,
+      instagramHandle: values.instagramHandle,
+      whatsappGroupLink: values.whatsappGroupLink,
       eventLocation: {
-        name: document.getElementById("locationName").value,
+        name: values.locationName,
         address: {
-          line1: document.getElementById("line1").value,
-          line2: document.getElementById("line2").value,
-          city: document.getElementById("city").value,
-          state: document.getElementById("state").value,
-          postalCode: postalCode,
+          line1: values.line1,
+          line2: values.line2,
+          city: values.city,
+          state: values.state,
+          postalCode: values.postalCode,
           location: {
             coordinates: [longitude, latitude],
             type: "Point"
@@ -145,9 +201,10 @@ const BasicInfo = () => {
       whatToExpect: formData.whatToExpect || [],
       ...formData
     };
-    
+
     console.log("Form Data:", allFormData);
-    createEvent(allFormData)
+    createEvent(allFormData);
+    setSubmitting(false);
   };
 
   // Helper function to format date as DD/MM/YYYY
@@ -160,276 +217,343 @@ const BasicInfo = () => {
   };
 
   return (
-    <div>
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-[30px] mt-4'>
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-base leading-[19.36px] text-[#232323]'>Event Organiser name</p>
-          <select name="organiser" id="organiser" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500'>
-            <option value="">Select Organiser</option>
-            {tournamentOwners?.owners?.map((owner) => (
-              <option key={owner.id} value={owner.id}>{owner.name}</option>
-            ))}
-          </select>
-        </div>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleFormSubmit}
+      enableReinitialize={true}
+    >
+      {({ values, setFieldValue, isSubmitting }) => {
+        // Update location fields when location changes
+        React.useEffect(() => {
+          if (location.city || location.state || location.lng || location.lat) {
+            setFieldValue('locationName', location?.name || '');
+            setFieldValue('line1', location?.address_line1 || '');
+            setFieldValue('line2', location?.address_line2 || '');
+            setFieldValue('city', location?.city || '');
+            setFieldValue('state', location?.state || '');
+            setFieldValue('postalCode', location?.pin_code || '');
+          }
+        }, [location, setFieldValue]);
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-base leading-[19.36px] text-[#232323]'>Event name</p>
-          <input 
-            type="text" 
-            name="eventName" 
-            id="eventName" 
-            className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' 
-            placeholder='Enter Event Name' 
-            onChange={handleEventNameChange}
-          />
-        </div>
+        return (
+          <Form>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-[30px] mt-4'>
+              <FormSelect
+                label="Event Organiser name"
+                name="organiser"
+                placeholder="Select Organiser"
+                options={tournamentOwners?.owners?.map(owner => ({
+                  value: owner.id,
+                  label: owner.name
+                })) || []}
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-base leading-[19.36px] text-[#232323]'>Event handle</p>
-          <input 
-            type="text" 
-            name="handle" 
-            id="handle" 
-            className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' 
-            placeholder='Enter Event handle'
-            defaultValue={eventHandle}
-          />
-        </div>
+              <div className='flex flex-col items-start gap-3'>
+                <p className='text-base leading-[19.36px] text-[#232323]'>Event name</p>
+                <Field
+                  type="text"
+                  name="eventName"
+                  placeholder="Enter Event Name"
+                  className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  onChange={(e) => {
+                    const eventName = e.target.value;
+                    setFieldValue('eventName', eventName);
+                    setFieldValue('handle', generateHandle(eventName));
+                  }}
+                />
+                <ErrorMessage name="eventName" component="div" className="text-red-500 text-sm" />
+              </div>
 
-        <div className='flex flex-col items-start gap-3 md:w-[48%] col-span-1 md:col-span-2'>
-          <p className='text-base leading-[19.36px] text-[#232323]'>Google Map</p>
-          <LocationSearchInput
-            id="eventLocation.address.location"
-            name="eventLocation.address.location"
-          />
-        </div>
+              <FormInput
+                label="Event handle"
+                name="handle"
+                placeholder="Enter Event handle"
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-base leading-[19.36px] text-[#232323]'>Event Address</p>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Location Name</p>
-          <input type="text" name="locationName" id="locationName" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter Location Name' />
-        </div>
+              <div className='flex flex-col items-start gap-3 md:w-[48%] col-span-1 md:col-span-2'>
+                <p className='text-base leading-[19.36px] text-[#232323]'>Google Map</p>
+                <LocationSearchInput
+                  id="eventLocation.address.location"
+                  name="eventLocation.address.location"
+                />
+              </div>
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Line 1</p>
-          <input type="text" name="line1" id="line1" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter Line 1' />
-        </div>
+              <div className='flex flex-col items-start gap-3'>
+                <p className='text-base leading-[19.36px] text-[#232323]'>Event Address</p>
+                <p className='text-sm leading-[16.36px] text-[#232323]'>Location Name</p>
+                <Field
+                  type="text"
+                  name="locationName"
+                  placeholder="Enter Location Name"
+                  className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500'
+                />
+                <ErrorMessage name="locationName" component="div" className="text-red-500 text-sm" />
+              </div>
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Line 2</p>
-          <input type="text" name="line2" id="line2" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter Line 2' />
-        </div>
+              <FormInput
+                label="Line 1"
+                name="line1"
+                placeholder="Enter Line 1"
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>City</p>
-          <input type="text" name="city" id="city" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter City' />
-        </div>
+              <FormInput
+                label="Line 2"
+                name="line2"
+                placeholder="Enter Line 2"
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>State</p>
-          <input type="text" name="state" id="state" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter State' />
-        </div>
+              <FormInput
+                label="City"
+                name="city"
+                placeholder="Enter City"
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Pincode</p>
-          <input type="text" name="postalCode" id="postalCode" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter Pincode' />
-        </div>
+              <FormInput
+                label="State"
+                name="state"
+                placeholder="Enter State"
+              />
 
-        <div className='flex flex-col items-start gap-3 relative'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Start Date</p>
-          <>
-            <DatePicker
-              id="startDate"
-              name="startDate"
-              placeholderText="Select date"
-              selected={dates.startDate}
-              onChange={(date) => setDates(prev => ({...prev, startDate: date}))}
-              toggleCalendarOnIconClick
-              className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              minDate={new Date()}
-              dateFormat="dd/MM/yy"
-            />
-          </>
-        </div>
+              <div className='flex flex-col items-start gap-3'>
+                <p className='text-base leading-[19.36px] text-[#232323]'>Pincode</p>
+                <Field
+                  type="text"
+                  name="postalCode"
+                  placeholder="Enter Pincode"
+                  className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  onKeyPress={(e) => {
+                    // Only allow numbers
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  maxLength="6"
+                />
+                <ErrorMessage name="postalCode" component="div" className="text-red-500 text-sm" />
+              </div>
 
-        <div className='flex flex-col items-start gap-3 relative'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Registration Start Date</p>
-          <>
-            <DatePicker
-              id="bookingStartDate"
-              name="bookingStartDate"
-              placeholderText="Select date"
-              selected={dates.bookingStartDate}
-              onChange={(date) => setDates(prev => ({...prev, bookingStartDate: date}))}
-              toggleCalendarOnIconClick
-              className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              minDate={new Date()}
-              dateFormat="dd/MM/yy"
-            />
-          </>
-        </div>
+              <div className='flex flex-col items-start gap-3 relative'>
+                <p className='text-sm leading-[16.36px] text-[#232323]'>Start Date</p>
+                <Field name="startDate">
+                  {({ field, form }) => (
+                    <>
+                      <DatePicker
+                        id="startDate"
+                        name="startDate"
+                        placeholderText="Select date"
+                        toggleCalendarOnIconClick
+                        selected={field.value ? new Date(field.value) : null}
+                        className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        minDate={new Date()}
+                        dateFormat="dd/MM/yy"
+                        onChange={(date) => {
+                          if (date) {
+                            form.setFieldValue("startDate", date);
+                          }
+                        }}
+                      />
+                    </>
+                  )}
+                </Field>
+                <ErrorMessage name="startDate" component={TextError} />
+              </div>
 
-        <div className='flex flex-col items-start gap-3 relative'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Registration End Date</p>
-          <>
-            <DatePicker
-              id="bookingEndDate"
-              name="bookingEndDate"
-              placeholderText="Select date"
-              selected={dates.bookingEndDate}
-              onChange={(date) => setDates(prev => ({...prev, bookingEndDate: date}))}
-              toggleCalendarOnIconClick
-              className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              minDate={new Date()}
-              dateFormat="dd/MM/yy"
-            />
-          </>
-        </div>
+              <div className='flex flex-col items-start gap-3 relative'>
+                <p className='text-sm leading-[16.36px] text-[#232323]'>Registration Start Date</p>
+                <Field name="bookingStartDate">
+                  {({ form, field }) => (
+                    <>
+                      <DatePicker
+                        id="bookingStartDate"
+                        name="bookingStartDate"
+                        placeholderText="Select date"
+                        startDate=""
+                        toggleCalendarOnIconClick
+                        className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        minDate={new Date()}
+                        dateFormat="dd/MM/yy"
+                        selected={field.value ? new Date(field.value) : null}
+                        onChange={(date) => {
+                          if (date) {
+                            form.setFieldValue("bookingStartDate", date);
+                          }
+                        }}
+                      />
+                    </>
+                  )}
+                </Field>
+                <ErrorMessage name="bookingStartDate" component={TextError} />
+              </div>
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Start Time (24 hrs)</p>
-          <input 
-            type="time" 
-            name="startTime" 
-            id="startTime" 
-            value={dates.startTime}
-            onChange={(e) => setDates(prev => ({...prev, startTime: e.target.value}))}
-            className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' 
-            placeholder='Enter Start Time' 
-          />
-        </div>
+              <div className='flex flex-col items-start gap-3 relative'>
+                <p className='text-sm leading-[16.36px] text-[#232323]'>Registration End Date</p>
+                <Field name="bookingEndDate">
+                  {({ form, field }) => (
+                    <>
+                      <DatePicker
+                        id="bookingEndDate"
+                        name="bookingEndDate"
+                        placeholderText="Select date"
+                        startDate=""
+                        toggleCalendarOnIconClick
+                        className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        minDate={new Date()}
+                        dateFormat="dd/MM/yy"
+                        selected={field.value ? new Date(field.value) : null}
+                        onChange={(date) => {
+                          if (date) {
+                            form.setFieldValue("bookingEndDate", date);
+                          }
+                        }}
+                      />
+                    </>
+                  )}
+                </Field>
+                <ErrorMessage name="bookingEndDate" component={TextError} />
+              </div>
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>End Time (24 hrs)</p>
-          <input 
-            type="time" 
-            name="endTime" 
-            id="endTime" 
-            value={dates.endTime}
-            onChange={(e) => setDates(prev => ({...prev, endTime: e.target.value}))}
-            className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' 
-            placeholder='Enter End Time' 
-          />
-        </div>
+              <FormInput
+                label="Start Time (24 hrs)"
+                name="startTime"
+                type="time"
+                placeholder="Enter Start Time"
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Maximum Participants</p>
-          <input type="number" name="maxParticipants" id="maxParticipants" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter max participants' />
-        </div>
+              <FormInput
+                label="End Time (24 hrs)"
+                name="endTime"
+                type="time"
+                placeholder="Enter End Time"
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Registration fee</p>
-          <input type="number" name="registrationFee" id="registrationFee" step="0.01" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter Registration Fee' />
-        </div>
+              <FormInput
+                label="Maximum Participants"
+                name="maxParticipants"
+                type="number"
+                placeholder="Enter max participants"
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Instagram Handle</p>
-          <input type="text" name="instagramHandle" id="instagramHandle" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter Instagram Handle' />
-        </div>
+              <FormInput
+                label="Registration fee"
+                name="registrationFee"
+                type="number"
+                step="0.01"
+                placeholder="Enter Registration Fee"
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>WhatsApp Group Link</p>
-          <input type="text" name="whatsappGroupLink" id="whatsappGroupLink" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter WhatsApp Group Link' />
-        </div>
+              <FormInput
+                label="Instagram Handle"
+                name="instagramHandle"
+                placeholder="Enter Instagram Handle"
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Tags</p>
-          <input type="text" name="tags" id="tags" className='w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500' placeholder='Enter tags separated by commas' />
-        </div>
+              <FormInput
+                label="WhatsApp Group Link"
+                name="whatsappGroupLink"
+                placeholder="Enter WhatsApp Group Link"
+              />
 
-        <div className='flex flex-col items-start gap-3'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Rejection Comments</p>
-          <textarea name="rejectionComments" id="rejectionComments" rows="3" className='w-full px-[19px] py-3 border-[1px] border-[#DFEAF2] rounded-[15px] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none' placeholder='Enter rejection comments (if any)'></textarea>
-        </div>
-      </div>
+              <FormInput
+                label="Tags"
+                name="tags"
+                placeholder="Enter tags separated by commas"
+              />
+            </div>
 
-      <div className='flex flex-col items-start gap-3 mt-3'>
-        <WhatToExpectTable
-          disabled={false}
-          onChange={(data) => handleDataChange('whatToExpect', data)}
-        />
-      </div>
+            <div className='flex flex-col items-start gap-3 mt-3'>
+              <WhatToExpectTable
+                disabled={false}
+                onChange={(data) => handleDataChange('whatToExpect', data)}
+              />
+            </div>
 
-      <div className='flex flex-col items-start gap-3 mt-3'>
-        <SponsorTable 
-          disabled={false} 
-          onChange={(data) => handleDataChange('sponsors', data)} 
-        />
-      </div>
+            <div className='flex flex-col items-start gap-3 mt-3'>
+              <SponsorTable
+                disabled={false}
+                onChange={(data) => handleDataChange('sponsors', data)}
+              />
+            </div>
 
-      <div className='flex flex-col md:flex-row items-start gap-3 mt-3'>
-        <div className='w-full md:w-1/2'>
-          <BannerDesktopTable 
-            disabled={false} 
-            onChange={(data) => handleDataChange('bannerDesktopImages', data)} 
-          />
-        </div>
+            <div className='flex flex-col md:flex-row items-start gap-3 mt-3'>
+              <div className='w-full md:w-1/2'>
+                <BannerDesktopTable
+                  disabled={false}
+                  onChange={(data) => handleDataChange('bannerDesktopImages', data, setFieldValue)}
+                />
+                <ErrorMessage name="bannerDesktopImages" component={TextError} />
+              </div>
 
-        <div className='w-full md:w-1/2'>
-          <BannerMobileTable 
-            disabled={false} 
-            onChange={(data) => handleDataChange('bannerMobileImages', data)} 
-          />
-        </div>
-      </div>
+              <div className='w-full md:w-1/2'>
+                <BannerMobileTable
+                  disabled={false}
+                  onChange={(data) => handleDataChange('bannerMobileImages', data, setFieldValue)}
+                />
+                <ErrorMessage name="bannerMobileImages" component={TextError} />
+              </div>
+            </div>
 
-      <div className='flex flex-col items-start gap-3 mt-3'>
-        <EventGalleryTable 
-          disabled={false} 
-          onChange={(data) => handleDataChange('eventGallery', data)} 
-        />
-      </div>
+            <div className='flex flex-col items-start gap-3 mt-3'>
+              <EventGalleryTable
+                disabled={false}
+                onChange={(data) => handleDataChange('eventGallery', data)}
+              />
+            </div>
 
-      <div className='flex flex-col items-start gap-3 mt-3'>
-        <PreviousEventVideosTable 
-          disabled={false} 
-          onChange={(data) => handleDataChange('previousEventVideos', data)} 
-        />
-      </div>
+            <div className='flex flex-col items-start gap-3 mt-3'>
+              <PreviousEventVideosTable
+                disabled={false}
+                onChange={(data) => handleDataChange('previousEventVideos', data)}
+              />
+            </div>
 
-      <div className="grid grid-cols-1 gap-2 mt-3">
-        <label
-          className="text-base leading-[19.36px] justify-self-start"
-          htmlFor="description"
-        >
-          Description
-        </label>
-        <ReactQuill
-          theme="snow"
-          id="description"
-          name="description"
-          placeholder="Enter Event Description"
-          className="custom-quill"
-        />
-      </div>
+            <div className="grid grid-cols-1 gap-2 mt-3">
+              <label
+                className="text-base leading-[19.36px] justify-self-start"
+                htmlFor="description"
+              >
+                Description
+              </label>
+              <ReactQuill
+                theme="snow"
+                value={values.description}
+                onChange={(content) => setFieldValue('description', content)}
+                placeholder="Enter Event Description"
+                className="custom-quill"
+              />
+              <ErrorMessage name="description" component="div" className="text-red-500 text-sm" />
+            </div>
 
-      <div className="grid grid-cols-1 gap-2 mt-3">
-        <label
-          className="text-base leading-[19.36px] justify-self-start"
-          htmlFor="preRequisites"
-        >
-          Pre-requisites
-        </label>
-        <ReactQuill
-          theme="snow"
-          id="preRequisites"
-          name="preRequisites"
-          placeholder="Enter Pre-requisites"
-          className="custom-quill"
-        />
-      </div>
+            <div className="grid grid-cols-1 gap-2 mt-3">
+              <label
+                className="text-base leading-[19.36px] justify-self-start"
+                htmlFor="preRequisites"
+              >
+                Pre-requisites
+              </label>
+              <ReactQuill
+                theme="snow"
+                value={values.preRequisites}
+                onChange={(content) => setFieldValue('preRequisites', content)}
+                placeholder="Enter Pre-requisites"
+                className="custom-quill"
+              />
+              <ErrorMessage name="preRequisites" component="div" className="text-red-500 text-sm" />
+            </div>
 
-      {/* Add Send button at the end of the form */}
-      <div className="flex justify-end mt-6">
-        <button
-          type="button"
-          onClick={handleSendData}
-          className="px-4 py-2 rounded-lg shadow-md bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700"
-        >
-          Send
-        </button>
-      </div>
-    </div>
+            <div className="flex justify-end mt-6">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-4 py-2 rounded-lg shadow-md bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Sending...' : 'Send'}
+              </button>
+            </div>
+          </Form>
+        );
+      }}
+    </Formik>
   );
 }
 

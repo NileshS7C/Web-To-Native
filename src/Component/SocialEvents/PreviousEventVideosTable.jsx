@@ -20,14 +20,18 @@ const PreviousEventVideosTable = ({ disabled, onChange }) => {
     setError("");
     const file = e.target.files[0];
     console.log("File selected:", file);
-    
+
     if (!file?.type.startsWith("video/")) {
       setError("Only video files are allowed.");
+      // Reset the input value to allow selecting the same file again
+      e.target.value = '';
       return;
     }
 
     if (videos.length >= 5) {
       setError("You can upload up to 5 videos only.");
+      // Reset the input value to allow selecting the same file again
+      e.target.value = '';
       return;
     }
 
@@ -52,6 +56,8 @@ const PreviousEventVideosTable = ({ disabled, onChange }) => {
       setVideos((prev) => prev.filter((_, i) => i !== uploadIndex));
     } finally {
       setUploadingIndex(-1);
+      // Reset the input value to allow selecting the same file again
+      e.target.value = '';
     }
   };
 
