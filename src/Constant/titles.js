@@ -94,6 +94,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname.startsWith("/cms/static-pages")) {
       return "Static Pages";
     }
+    if (pathname.startsWith("/cms/tourism-page/media-gallery")) {
+      return "Media Gallery";
+    }
     if (pathname.includes("/add-court")) {
       return "Add Court";
     }
@@ -141,7 +144,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     //for matching /tournaments/:id/event/:id
 
     if (pathname.match(/^\/tournaments\/\w+\/event\/\w+$/)) {
-      return `${venueData?.tournament?.tournamentName || ""}  > ${venueData?.category?.categoryName}`;
+      return `${venueData?.tournament?.tournamentName || ""}  > ${
+        venueData?.category?.categoryName
+      }`;
     }
 
     if (pathname.includes("profile")) {

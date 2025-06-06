@@ -347,6 +347,7 @@ const TournamentActionButton = ({
   submitForm,
   isSubmitting,
 }) => {
+
   const {rolesAccess}=useOwnerDetailsContext()
   return (
     <div className="flex gap-2.5 items-center">

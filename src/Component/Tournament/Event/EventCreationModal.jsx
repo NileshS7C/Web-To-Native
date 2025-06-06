@@ -48,7 +48,6 @@ import {
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { nanoid } from "nanoid";
 
-
 const requiredCategoryFields = (category) => {
   const {
     categoryName,
@@ -160,6 +159,7 @@ export const EventCreationModal = () => {
               .of(yup.number().required("Each coordinate must be a number."))
               .length(2, "Coordinates must contain exactly two numbers.")
               .required("Location is required."),
+            is_location_exact: yup.boolean().optional(),
           }),
         }),
       }),
@@ -272,14 +272,14 @@ export const EventCreationModal = () => {
         ? await dispatch(
             addEventCategory({
               formData: updatedValues,
-              id: tournamentId
+              id: tournamentId,
             })
           ).unwrap()
         : await dispatch(
             updateEventCategory({
               formData: updatedValues,
               id: tournamentId,
-              categoryId: categoryId
+              categoryId: categoryId,
             })
           ).unwrap();
 
@@ -289,7 +289,7 @@ export const EventCreationModal = () => {
           getAllCategories({
             currentPage: 1,
             limit: 10,
-            id: tournamentId
+            id: tournamentId,
           })
         );
       }
@@ -1145,7 +1145,7 @@ function ComboboxForVenuesList({
             currentPage: 1,
             selectedFilter,
             limit: 10,
-            name: query
+            name: query,
           })
         ).unwrap();
 
@@ -1177,7 +1177,7 @@ function ComboboxForVenuesList({
             currentPage: 1,
             selectedFilter,
             limit: 10,
-            name: query
+            name: query,
           })
         ).unwrap();
 
@@ -1210,7 +1210,7 @@ function ComboboxForVenuesList({
             currentPage: nextPage,
             selectedFilter,
             limit: 10,
-            name: query
+            name: query,
           })
         ).unwrap();
 
