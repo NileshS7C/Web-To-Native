@@ -35,8 +35,6 @@ const BasicInfo = () => {
     startDate: null,
     bookingStartDate: null,
     bookingEndDate: null,
-    startTimeDate: null,
-    endTimeDate: null,
     startTime: "",
     endTime: ""
   });
@@ -149,9 +147,7 @@ const BasicInfo = () => {
     };
     
     console.log("Form Data:", allFormData);
-    
-    // Call the API to create the event
-    createEvent(allFormData);
+    createEvent(allFormData)
   };
 
   // Helper function to format date as DD/MM/YYYY
@@ -200,7 +196,7 @@ const BasicInfo = () => {
           />
         </div>
 
-        <div className='flex flex-col items-start gap-3'>
+        <div className='flex flex-col items-start gap-3 md:w-[48%] col-span-1 md:col-span-2'>
           <p className='text-base leading-[19.36px] text-[#232323]'>Google Map</p>
           <LocationSearchInput
             id="eventLocation.address.location"
@@ -290,46 +286,6 @@ const BasicInfo = () => {
           </>
         </div>
 
-        <div className='flex flex-col items-start gap-3 relative'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>Start Time Date</p>
-          <>
-            <DatePicker
-              id="startTimeDate"
-              name="startTimeDate"
-              placeholderText="Select date & time"
-              selected={dates.startTimeDate}
-              onChange={(date) => setDates(prev => ({...prev, startTimeDate: date}))}
-              toggleCalendarOnIconClick
-              showTimeSelect
-              timeFormat="HH:mm"
-              timeIntervals={15}
-              dateFormat="dd/MM/yy HH:mm"
-              className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              minDate={new Date()}
-            />
-          </>
-        </div>
-
-        <div className='flex flex-col items-start gap-3 relative'>
-          <p className='text-sm leading-[16.36px] text-[#232323]'>End Time Date</p>
-          <>
-            <DatePicker
-              id="endTimeDate"
-              name="endTimeDate"
-              placeholderText="Select date & time"
-              selected={dates.endTimeDate}
-              onChange={(date) => setDates(prev => ({...prev, endTimeDate: date}))}
-              toggleCalendarOnIconClick
-              showTimeSelect
-              timeFormat="HH:mm"
-              timeIntervals={15}
-              dateFormat="dd/MM/yy HH:mm"
-              className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              minDate={new Date()}
-            />
-          </>
-        </div>
-
         <div className='flex flex-col items-start gap-3'>
           <p className='text-sm leading-[16.36px] text-[#232323]'>Start Time (24 hrs)</p>
           <input 
@@ -401,18 +357,20 @@ const BasicInfo = () => {
         />
       </div>
 
-      <div className='flex flex-col items-start gap-3 mt-3'>
-        <BannerDesktopTable 
-          disabled={false} 
-          onChange={(data) => handleDataChange('bannerDesktopImages', data)} 
-        />
-      </div>
+      <div className='flex flex-col md:flex-row items-start gap-3 mt-3'>
+        <div className='w-full md:w-1/2'>
+          <BannerDesktopTable 
+            disabled={false} 
+            onChange={(data) => handleDataChange('bannerDesktopImages', data)} 
+          />
+        </div>
 
-      <div className='flex flex-col items-start gap-3 mt-3'>
-        <BannerMobileTable 
-          disabled={false} 
-          onChange={(data) => handleDataChange('bannerMobileImages', data)} 
-        />
+        <div className='w-full md:w-1/2'>
+          <BannerMobileTable 
+            disabled={false} 
+            onChange={(data) => handleDataChange('bannerMobileImages', data)} 
+          />
+        </div>
       </div>
 
       <div className='flex flex-col items-start gap-3 mt-3'>
