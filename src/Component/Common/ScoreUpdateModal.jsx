@@ -154,7 +154,6 @@ export const ScoreUpdateModal = ({
     (players?.opponent2 && players.opponent2.forfeit);
 
   useEffect(() => {
-    
     const scoreUpdates = players?.matchGames?.map((game) => {
      
       if (
@@ -168,7 +167,7 @@ export const ScoreUpdateModal = ({
       }
     });
     setScoreUpdateArray(scoreUpdates || []);
-  }, [players?.match, currentMatchId]);
+  }, [players?.opponent1?.id,players?.opponent2?.id]);
   const getScoreData = (data, index, type, value) => {
     setFinalScoreData(data);
     setScoreUpdateArray((prev) => {
