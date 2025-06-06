@@ -53,7 +53,7 @@ const AddSocialEvents = () => {
 
   return (
     <div className='bg-white rounded-lg shadow-lg p-6'>
-      <div className='flex gap-4 mt-4 border-b-[1px] border-[#EDEDED]'>
+      <div className='flex gap-6 mt-4 border-b-[1px] border-[#EDEDED]'>
         <p
           className={`pb-4 cursor-pointer text-base leading-[19.36px] ${
             activeTab === 'basic info' ? 'border-b-2 border-blue-500 text-blue-600' : ''

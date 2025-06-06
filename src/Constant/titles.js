@@ -103,6 +103,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname.startsWith("/cms/tourism-page/media-gallery")) {
       return "Media Gallery";
     }
+    if (pathname.startsWith("/social-events")) {
+      return "Social Events";
+    }
     if (pathname.includes("/add-court")) {
       return "Add Court";
     }

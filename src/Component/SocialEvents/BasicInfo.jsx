@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useOwnerDetailsContext } from '../../Providers/onwerDetailProvider';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -103,17 +103,17 @@ const BasicInfo = () => {
   const { tournamentOwners } = useOwnerDetailsContext();
   const { location } = useSelector((state) => state.location);
 
-  // Initial form values
-  const initialValues = {
+  // Memoize initial form values to prevent unnecessary re-renders and form resets
+  const initialValues = useMemo(() => ({
     organiser: "",
     eventName: "",
     handle: "",
-    locationName: location?.name || "",
-    line1: location?.address_line1 || "",
-    line2: location?.address_line2 || "",
-    city: location?.city || "",
-    state: location?.state || "",
-    postalCode: location?.pin_code || "",
+    locationName: "",
+    line1: "",
+    line2: "",
+    city: "",
+    state: "",
+    postalCode: "",
     startDate: null,
     bookingStartDate: null,
     bookingEndDate: null,
@@ -128,7 +128,7 @@ const BasicInfo = () => {
     preRequisites: "",
     bannerDesktopImages: [],
     bannerMobileImages: []
-  };
+  }), []); // Empty dependency array - only initialize once
 
   // Reset location when component unmounts
   useEffect(() => {
@@ -306,20 +306,21 @@ const BasicInfo = () => {
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleFormSubmit}
-      enableReinitialize={true}
     >
       {({ values, setFieldValue, isSubmitting }) => {
-        // Update location fields when location changes
-        React.useEffect(() => {
+        // Update location fields when location changes, but only if location fields are empty
+        // This prevents overwriting user-entered data
+        useEffect(() => {
           if (location.city || location.state || location.lng || location.lat) {
-            setFieldValue('locationName', location?.name || '');
-            setFieldValue('line1', location?.address_line1 || '');
-            setFieldValue('line2', location?.address_line2 || '');
-            setFieldValue('city', location?.city || '');
-            setFieldValue('state', location?.state || '');
-            setFieldValue('postalCode', location?.pin_code || '');
+            // Only update if the field is currently empty to avoid overwriting user input
+            if (!values.locationName) setFieldValue('locationName', location?.name || '');
+            if (!values.line1) setFieldValue('line1', location?.address_line1 || '');
+            if (!values.line2) setFieldValue('line2', location?.address_line2 || '');
+            if (!values.city) setFieldValue('city', location?.city || '');
+            if (!values.state) setFieldValue('state', location?.state || '');
+            if (!values.postalCode) setFieldValue('postalCode', location?.pin_code || '');
           }
-        }, [location, setFieldValue]);
+        }, [location, setFieldValue, values.locationName, values.line1, values.line2, values.city, values.state, values.postalCode]);
 
         return (
           <Form>

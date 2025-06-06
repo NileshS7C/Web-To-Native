@@ -149,7 +149,7 @@ export const AcknowledgementText = ({ ownerUserId, disabled }) => {
   };
 
   return (
-    <div className="flex flex-col gap-[50px] pb-[50px]">
+    <div className="flex flex-col gap-[50px] pt-[50px]">
       <div className="flex items-start gap-[16px]">
         <input
           type="checkbox"
