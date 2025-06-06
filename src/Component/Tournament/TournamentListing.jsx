@@ -41,7 +41,6 @@ const SearchEvents = ({
     setSearchValue(e?.target?.value);
     setSearchInput(e?.target?.value);
   };
-
   useEffect(() => {
     if (debouncedValue) {
       switch (selectedTab) {
@@ -85,13 +84,12 @@ const SearchEvents = ({
               page: page || 1,
               limit: limit,
               "dateRange[endDate]": formattedDate(new Date()),
-              status: selectedFilter?.toUpperCase(),
               timeline: "UPCOMING",
               ownerId: singleTournamentOwner?.id,
               search: debouncedValue,
             })
           );
-
+          break;
         case "archive":
           dispatch(
             searchTournament({
@@ -113,6 +111,7 @@ const SearchEvents = ({
               search: debouncedValue,
             })
           );
+          break;
         default:
           dispatch(
             searchTournament({
@@ -121,10 +120,10 @@ const SearchEvents = ({
               ownerId: singleTournamentOwner?.id,
               search: debouncedValue,
             })
-          );  
+          );
       }
     }
-  }, [debouncedValue, page]);
+  }, [debouncedValue]);
 
   useEffect(() => {
     if (inputRef?.current) {
@@ -161,18 +160,6 @@ function TournamentListing(props) {
 
   const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
     useSelector((state) => state.GET_TOUR);
-
-  useEffect(() => {
-    if (!searchInput) {
-      dispatch(
-        getAllTournaments({
-          page: currentPage || 1,
-          limit: 10,
-          ownerId: singleTournamentOwner?.id,
-        })
-      );
-    }
-  }, [searchInput, currentPage, singleTournamentOwner?.id]);
 
   useEffect(() => {
     if (selectedFilter || selectedTab) {
@@ -284,7 +271,6 @@ function TournamentListing(props) {
     singleTournamentOwner,
     searchInput,
   ]);
-
   if (isGettingTournament) {
     return (
       <div className="flex items-center justify-center h-full w-full">
