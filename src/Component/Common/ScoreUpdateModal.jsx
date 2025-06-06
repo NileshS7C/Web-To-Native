@@ -136,7 +136,6 @@ export const ScoreUpdateModal = ({
   handleUpdateFixture,
   format,
 }) => {
-
   const dispatch = useDispatch();
   const { category } = useSelector((state) => state.event);
   const { tournament } = useSelector((state) => state.GET_TOUR);
@@ -155,16 +154,21 @@ export const ScoreUpdateModal = ({
     (players?.opponent2 && players.opponent2.forfeit);
 
   useEffect(() => {
+    
     const scoreUpdates = players?.matchGames?.map((game) => {
-      if ((game.opponent1?.score || game?.opponent1?.score === 0) &&( game.opponent2?.score || game?.opponent2?.score === 0)) {
+     
+      if (
+        (game.opponent1?.score || game.opponent1.score === 0) &&
+        (game.opponent2.score || game?.opponent2.score === 0)
+      ) {
         return {
-          set1: game?.opponent1?.score,
-          set2: game?.opponent2?.score,
+          set1: game?.opponent1.score,
+          set2: game?.opponent2.score,
         };
       }
     });
     setScoreUpdateArray(scoreUpdates || []);
-  }, [players?.match]);
+  }, [players?.match, currentMatchId]);
   const getScoreData = (data, index, type, value) => {
     setFinalScoreData(data);
     setScoreUpdateArray((prev) => {
@@ -327,6 +331,7 @@ export const ScoreUpdateModal = ({
       setIsUpdating(false);
     }
   };
+ 
   return (
     <Dialog
       open={isOpen}
@@ -680,7 +685,6 @@ const MatchScoreUpdateSet = ({
       setScoreSet([{ set1: "", set2: "" }]);
     }
   }, [scoreUpdateArray]);
-
   return (
     <div>
       <div className="flex flex-col gap-4 justify-between border-[1px] border-[#696CFF29] p-2 sm:p-6 mt-2 rounded-lg divide-y divide-[#718EBF] lg:divide-none">

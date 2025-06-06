@@ -20,10 +20,12 @@ import { Button } from "@headlessui/react";
 import AddParticipants from "./AddParticipantPage";
 import { ConfirmationModal } from "../../Common/ConfirmationModal";
 import PropTypes from "prop-types";
-
+import { tournamentFullAccessRoles } from "../../../Constant/event";
+import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 
 function EventRegistrations() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const {rolesAccess}=useOwnerDetailsContext();
   const currentPage = searchParams.get("page");
   const dispatch = useDispatch();
   const location = useLocation();
@@ -54,7 +56,11 @@ function EventRegistrations() {
       );
     }
   }, [currentPage, tournamentId, eventId]);
-
+  useEffect(() => {
+    if (tournamentFullAccessRoles.includes(rolesAccess.tournament)) {
+      dispatch(getFixture({ tour_Id: tournamentId, eventId }));
+    }
+  }, []);
   if (isGettingBookings) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -78,7 +84,10 @@ function EventRegistrations() {
           onClick={() => {
             dispatch(toggleBookingModal());
           }}
-          disabled={fixture?.status === "PUBLISHED" || false}
+          disabled={
+            tournamentFullAccessRoles.includes(rolesAccess.tournament) &&
+            fixture?.status === "PUBLISHED"
+          }
         >
           Add Participant
         </Button>

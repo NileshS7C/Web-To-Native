@@ -41,7 +41,6 @@ export const ArchiveButtons = ({ dispatch, tournament }) => {
     downloadErrorMessage,
     sheetDownload,
   } = useSelector((state) => state.Tournament);
-  console.log(archivedError,archivedErrorMessage)
   const { isConfirmed, type } = useSelector((state) => state.confirm);
 
   const isSingleEvent = !!tournamentId && !!eventId;

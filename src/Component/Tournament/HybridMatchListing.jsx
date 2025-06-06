@@ -321,6 +321,7 @@ export const HybridMatchesListing = ({ fixtureId }) => {
       });
       setUpdateFixture(null);
     } else if (fixture && currentGroup && fixture?.format === "RR") {
+      console.log("printing currentMatch Clicked:",currentMatchClicked)
       const currentGroupId = fixture?.bracketData?.group.filter(
         (item) => item?.id?.toString() === (currentGroup - 1)?.toString()
       );
