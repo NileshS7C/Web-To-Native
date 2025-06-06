@@ -199,7 +199,7 @@ export const EventCreationModal = () => {
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setHasError(false);
-      let updatedLocation={};
+      let updatedLocation = {};
       if (selectedVenueData?.address) {
         const {
           location: { is_location_exact, ...locationWithOutExact },
@@ -218,7 +218,6 @@ export const EventCreationModal = () => {
         };
       }
       let location = {};
-      console.log(updatedLocation);
       if (venueNotListed && isVenueFinal) {
         const handle = values?.categoryLocation.name
           .toLowerCase()
@@ -227,7 +226,6 @@ export const EventCreationModal = () => {
           .replace(/^-+|-+$/g, "");
         location = { ...values.categoryLocation, handle: handle };
       }
-      console.log(isVenueFinal,venueNotListed)
       const updatedValues = {
         ...values,
         categoryLocation: !isVenueFinal
@@ -238,7 +236,7 @@ export const EventCreationModal = () => {
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
-      console.log(updatedValues);
+     
       // Check if values are falsy and remove them from updatedValues
       switch (updatedValues?.format) {
         case "SE":
@@ -343,9 +341,12 @@ export const EventCreationModal = () => {
         totalSets: category?.totalSets.toString() || "",
       }));
 
-      updatedCategory?.categoryLocation
-        ? setIsVenueDecided(true)
-        : setIsVenueDecided(false);
+      if (Object.keys(updatedCategory?.categoryLocation || {}).length > 0) {
+        setIsVenueDecided(true);
+        setIsVenueFinal(true);
+      } else {
+        setIsVenueDecided(false);
+      }
     } else {
       setInitialState({});
     }
