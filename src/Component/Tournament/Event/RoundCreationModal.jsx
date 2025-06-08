@@ -39,6 +39,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { object } from "prop-types";
 
+import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
+
 
 const RoundCreationModal = ({
   toggleModal,
@@ -291,13 +293,17 @@ const RoundCreationModal = ({
       }
       const payload = createPayload(initialState,actionType,values,groupSizes);
       if (actionType === "add") {
-        createHybridFixture({ tournamentId, categoryId, payload });
+        createHybridFixture({
+          tournamentId,
+          categoryId,
+          payload
+        });
       } else {
         updateHybridFixture({
           tournamentId,
           categoryId,
           fixtureId: fixtureId,
-          payload,
+          payload
         });
       }
     } catch (error) {
@@ -321,14 +327,17 @@ const RoundCreationModal = ({
       setTimeout(() => {
         if (actionType === "add") {
           dispatch(
-            getHybridFixtures({ tour_Id: tournamentId, eventId: categoryId })
+            getHybridFixtures({
+              tour_Id: tournamentId,
+              eventId: categoryId
+            })
           );
         } else if (actionType === "edit") {
           dispatch(
             getFixtureById({
               tour_Id: tournamentId,
               eventId: categoryId,
-              fixtureId,
+              fixtureId
             })
           );
         }

@@ -8,7 +8,6 @@ import ErrorBanner from "../../Common/ErrorBanner";
 import { defaultVenueImage, locationIcon } from "../../../Assests";
 import { tournamentEvent } from "../../../Constant/tournament";
 import { MdCurrencyRupee } from "react-icons/md";
-
 function EventDescription() {
   const dispatch = useDispatch();
   const params = useParams();

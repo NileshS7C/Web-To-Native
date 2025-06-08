@@ -13,19 +13,19 @@ import { useEffect } from "react";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
 import { getAllCategories } from "../../../redux/tournament/tournamentActions";
 import { useParams } from "react-router-dom";
+
 function EventInfo({ disabled }) {
   const dispatch = useDispatch();
   const { currentStep } = useSelector((state) => state.Tournament);
   const { categories, currentPage } = useSelector((state) => state.event);
   const { tournamentId } = useParams();
-
   useEffect(() => {
     dispatch(resetAllCategories());
     dispatch(
       getAllCategories({
         currentPage,
         limit: 10,
-        id: tournamentId,
+        id: tournamentId
       })
     );
   }, [currentPage, tournamentId]);

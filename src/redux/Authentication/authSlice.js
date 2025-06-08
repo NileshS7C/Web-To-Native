@@ -15,7 +15,7 @@ const authSlice = createSlice({
     userPermissions: null,
     accessToken: null,
     refreshToken: cookies?.get("refreshToken"),
-    userRole: null,
+    userRoles: null,
     isLoggedOut: false,
     isUserAuthenticated: false,
   },
@@ -32,7 +32,7 @@ const authSlice = createSlice({
       state.accessToken = payload.data.accessToken;
       state.refreshToken = payload.data.refreshToken;
       state.userInfo = payload.data.user;
-      state.userRole = payload.data.user.roleName;
+      state.userRoles = payload.data.user.roleNames;
       state.isUserAuthenticated = true;
     });
     builder.addCase(userLogin.rejected, (state, action) => {

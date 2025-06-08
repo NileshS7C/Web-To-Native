@@ -57,7 +57,11 @@ const RoundDetails = ({
   
   useEffect(() => {
     if (isConfirmed && type === "Fixture") {
-      deleteHybridFixture({ tournamentId, categoryId: eventId, fixtureId });
+      deleteHybridFixture({
+        tournamentId,
+        categoryId: eventId,
+        fixtureId
+      });
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed]);
@@ -70,7 +74,12 @@ const RoundDetails = ({
         })
       );
       setTimeout(() => {
-        dispatch(getHybridFixtures({ tour_Id: tournamentId, eventId }));
+        dispatch(
+          getHybridFixtures({
+            tour_Id: tournamentId,
+            eventId
+          })
+        );
       }, [1000]);
     }
   }, [isDeleteFixtureSuccess]);
@@ -86,7 +95,13 @@ const RoundDetails = ({
   }, [isDeleteFixtureError]);
   useEffect(() => {
     if (fixtureId)
-      dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
+      dispatch(
+        getFixtureById({
+          tour_Id: tournamentId,
+          eventId,
+          fixtureId
+        })
+      );
   }, []);
   useEffect(()=>{
     setCurrentPage(1)

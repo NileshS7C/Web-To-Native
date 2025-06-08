@@ -11,7 +11,6 @@ import Button from "../../Common/Button";
 import { ConfirmationModalTour } from "../ConfimTournament";
 import { TournamentSuccessPopUp } from "../SuccessPopUp";
 import { ErrorModal } from "../../Common/ErrorModal";
-
 export const AcknowledgementText = ({ ownerUserId, disabled }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -48,7 +47,7 @@ export const AcknowledgementText = ({ ownerUserId, disabled }) => {
       setShowSuccessPop(false);
 
       const result = await dispatch(
-        submitFinalTournament(initialValues)
+        submitFinalTournament({ formData:initialValues})
       ).unwrap();
 
       if (!result.responseCode) {

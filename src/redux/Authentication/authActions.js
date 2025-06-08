@@ -22,8 +22,8 @@ export const userLogin = createAsyncThunk(
         { identifier: email, password },
         config
       );
-
-      cookies.set("userRole", response.data.data?.user?.roleName, {
+     const userRoles = response.data.data.user.roleNames;
+      cookies.set("userRoles",userRoles, {
         path: "/",
         maxAge: 24 * 60 * 60,
         sameSite: "strict",
@@ -86,7 +86,7 @@ export const userLogout = createAsyncThunk(
         config
       );
 
-      cookies.remove("userRole", { path: "/" });
+      cookies.remove("userRoles", { path: "/" });
 
       // Remove email from userInfo
       dispatch(resetPlayer());

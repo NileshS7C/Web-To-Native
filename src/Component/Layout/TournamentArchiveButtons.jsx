@@ -41,7 +41,6 @@ export const ArchiveButtons = ({ dispatch, tournament }) => {
     downloadErrorMessage,
     sheetDownload,
   } = useSelector((state) => state.Tournament);
-
   const { isConfirmed, type } = useSelector((state) => state.confirm);
 
   const isSingleEvent = !!tournamentId && !!eventId;
@@ -90,7 +89,6 @@ export const ArchiveButtons = ({ dispatch, tournament }) => {
       publishTournament(formData);
     }
   }, [isConfirmed, type, dispatch, tournament, singleTournamentOwner]);
-
   // Handle success/error messages
   useEffect(() => {
     if (archivedError) {

@@ -7,8 +7,6 @@ import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import DatePicker from "react-datepicker";
 import * as yup from "yup";
 import useDebounce from "../../../Hooks/useDebounce";
-import { Cookies } from "react-cookie";
-const cookies = new Cookies();
 import { toggleModal } from "../../../redux/tournament/eventSlice";
 import {
   getAllVenues,
@@ -161,12 +159,12 @@ export const EventCreationModal = () => {
               .of(yup.number().required("Each coordinate must be a number."))
               .length(2, "Coordinates must contain exactly two numbers.")
               .required("Location is required."),
+            is_location_exact: yup.boolean().optional(),
           }),
         }),
       }),
     categoryStartDate: yup.date().optional(),
   });
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showModal } = useSelector((state) => state.event);
@@ -201,7 +199,7 @@ export const EventCreationModal = () => {
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setHasError(false);
-      let updatedLocation;
+      let updatedLocation = {};
       if (selectedVenueData?.address) {
         const {
           location: { is_location_exact, ...locationWithOutExact },
@@ -238,6 +236,7 @@ export const EventCreationModal = () => {
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
+     
       // Check if values are falsy and remove them from updatedValues
       switch (updatedValues?.format) {
         case "SE":
@@ -342,9 +341,12 @@ export const EventCreationModal = () => {
         totalSets: category?.totalSets.toString() || "",
       }));
 
-      updatedCategory?.categoryLocation
-        ? setIsVenueDecided(true)
-        : setIsVenueDecided(false);
+      if (Object.keys(updatedCategory?.categoryLocation || {}).length > 0) {
+        setIsVenueDecided(true);
+        setIsVenueFinal(true);
+      } else {
+        setIsVenueDecided(false);
+      }
     } else {
       setInitialState({});
     }
@@ -1081,8 +1083,6 @@ function ComboboxForVenuesList({
   const browserLocation = useLocation();
   const searchParams = new URLSearchParams(browserLocation.search);
   const categoryId = searchParams.get("category");
-  const { userRole: role } = useSelector((state) => state.auth);
-  const userRole = cookies.get("userRole");
 
   // Query & Debounce
   const [query, setQuery] = useState("");
@@ -1150,7 +1150,6 @@ function ComboboxForVenuesList({
             selectedFilter,
             limit: 10,
             name: query,
-            userRole: userRole || role,
           })
         ).unwrap();
 
@@ -1183,7 +1182,6 @@ function ComboboxForVenuesList({
             selectedFilter,
             limit: 10,
             name: query,
-            userRole: userRole || role,
           })
         ).unwrap();
 
@@ -1217,7 +1215,6 @@ function ComboboxForVenuesList({
             selectedFilter,
             limit: 10,
             name: query,
-            userRole: userRole || role,
           })
         ).unwrap();
 

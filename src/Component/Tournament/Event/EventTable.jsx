@@ -25,7 +25,6 @@ export const EventTable = ({ isDisable, categories }) => {
   const { currentPage, totalCategories, isLoading, deleteCategoryId } =
     useSelector((state) => state.event);
   const { isConfirmed, type } = useSelector((state) => state.confirm);
-
   useEffect(() => {
     if (isConfirmed && type === "Event" && tournamentId && deleteCategoryId) {
       dispatch(
@@ -40,7 +39,7 @@ export const EventTable = ({ isDisable, categories }) => {
           getAllCategories({
             currentPage,
             limit: 10,
-            id: tournamentId,
+            id: tournamentId
           })
         );
       });
@@ -55,7 +54,7 @@ export const EventTable = ({ isDisable, categories }) => {
       getAllCategories({
         currentPage,
         limit: 10,
-        id: tournamentId,
+        id: tournamentId
       })
     );
   },[currentPage])
@@ -97,7 +96,7 @@ export const EventTable = ({ isDisable, categories }) => {
           className="border-[1px] rounded-md"
           onClick={(id) => handleDelete(id)}
           hasLink={false}
-          navigateTo="tournaments"
+          // navigateTo="tournaments"
         />
       )}
     </div>

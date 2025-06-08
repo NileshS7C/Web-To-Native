@@ -13,6 +13,7 @@ import ErrorBanner from "../../Common/ErrorBanner";
 import { useParams } from "react-router-dom";
 import { nanoid } from "nanoid";
 import useDebounce from "../../../Hooks/useDebounce";
+import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
 
 const initialValues = {
   player: [],
@@ -80,6 +81,7 @@ const AddPlayerModal = ({
   participants,
   handleUpdateParticipant,
 }) => {
+  const {rolesAccess}=useOwnerDetailsContext()
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const [searchInput, setSearchInput] = useState("");
@@ -227,6 +229,7 @@ const AddPlayerModal = ({
           tour_Id: tournamentId,
           eventId,
           status: "CONFIRMED",
+          type:rolesAccess?.tournament
         })
       );
     }

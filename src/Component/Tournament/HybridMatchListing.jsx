@@ -13,6 +13,7 @@ import { ScoreUpdateModal } from "../Common/ScoreUpdateModal";
 import { dummmyProfileIcon } from "../../Assests";
 import { useGetDEFinal } from "../../Hooks/useCatgeory";
 
+
 const MatchListingHeaders = [
   {
     key: "participant1",
@@ -320,6 +321,7 @@ export const HybridMatchesListing = ({ fixtureId }) => {
       });
       setUpdateFixture(null);
     } else if (fixture && currentGroup && fixture?.format === "RR") {
+      console.log("printing currentMatch Clicked:",currentMatchClicked)
       const currentGroupId = fixture?.bracketData?.group.filter(
         (item) => item?.id?.toString() === (currentGroup - 1)?.toString()
       );

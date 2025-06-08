@@ -26,6 +26,8 @@ import { showSuccess } from "../../redux/Success/successSlice";
 import { resetFixtureSuccess } from "../../redux/tournament/fixtureSlice";
 import { getFixtureById } from "../../redux/tournament/fixturesActions";
 import GroupAndRoundNameModal from "./GroupAndRoundNameModal";
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
+
 
 const formatMatchData = (fixture, suffledPlayers) => {
   if (!fixture || !suffledPlayers?.length) {
@@ -64,7 +66,7 @@ const playerShuffling = (participants) => {
   return array;
 };
 
-export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
+export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
   const [openMatchModal, setOpenMatchModal] = useState(false);
@@ -95,7 +97,12 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
 
 
   const handleCreateFixture = useCallback(() => {
-    dispatch(createFixture({ tour_Id: tournamentId, eventId }));
+    dispatch(
+      createFixture({
+        tour_Id: tournamentId,
+        eventId
+      })
+    );
   }, []);
 
   const handleplayerShuffling = () => {
@@ -108,7 +115,7 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
         eventId,
         fixtureId,
         formData: formattedMatchData,
-        stageId: fixture?.bracketData.stage[0].id,
+        stageId: fixture?.bracketData.stage[0].id
       })
     );
     setSuffledPlayers(result);
@@ -127,7 +134,7 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
       publishFixture({
         tour_Id: tournamentId,
         eventId,
-        fixtureId,
+        fixtureId
       })
     );
   };
