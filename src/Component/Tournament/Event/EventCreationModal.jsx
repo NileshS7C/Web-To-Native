@@ -236,7 +236,7 @@ export const EventCreationModal = () => {
         categoryStartDate:
           values?.categoryStartDate && formattedDate(values?.categoryStartDate),
       };
-     
+
       // Check if values are falsy and remove them from updatedValues
       switch (updatedValues?.format) {
         case "SE":
@@ -732,7 +732,7 @@ const VenueSelection = ({
   const [isVenueNotAvailable, setIsVenueNotAvailable] = useState(false);
   const [currentCheckBox, setCurrentCheckBox] = useState("");
   const [venueNotListed, setVenueNotListed] = useState(false);
-
+  const { setFieldValue } = useFormikContext();
   const handleCheckBox = (e) => {
     setIsVenueNotAvailable(e.target.checked);
     setVenueNotListed(e.target.checked);
@@ -742,6 +742,15 @@ const VenueSelection = ({
   useEffect(() => {
     if (venueNotListed) {
       dispatch(resetGlobalLocation());
+      setFieldValue("categoryLocation.name", "");
+      setFieldValue("categoryLocation.address.line1", "");
+      setFieldValue("categoryLocation.address.location.coordinates[0]", "");
+      setFieldValue("categoryLocation.address.location.coordinates[1]", "");
+      setFieldValue("categoryLocation.address.location.type", "Point");
+      setFieldValue("categoryLocation.address.line2", "");
+      setFieldValue("categoryLocation.address.city", "");
+      setFieldValue("categoryLocation.address.state", "");
+      setFieldValue("categoryLocation.address.postalCode", "");
     }
   }, [venueNotListed]);
 
@@ -859,7 +868,7 @@ const VenueSelection = ({
                 <div className="flex flex-col items-start gap-2.5 w-full">
                   <label
                     className=" text-[#232323] text-base leading-[19.36px]"
-                    htmlFor="location"
+                    htmlFor="categoryLocation.location"
                   >
                     Google Map
                   </label>
@@ -932,7 +941,6 @@ const EventTimings = () => {
 
 const AddVenueAddress = ({ location }) => {
   const { setFieldValue } = useFormikContext();
-
   useEffect(() => {
     if (location.city || location.state) {
       setFieldValue("categoryLocation.address.line1", location?.address_line1);
