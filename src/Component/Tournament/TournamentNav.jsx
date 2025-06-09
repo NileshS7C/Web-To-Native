@@ -34,7 +34,7 @@ import { TournamentInfo } from "./TournamentInfo";
 
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 const TournamentCreationForm = () => {
-  const {rolesAccess}=useOwnerDetailsContext()
+  const { rolesAccess } = useOwnerDetailsContext();
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
   const {
@@ -57,7 +57,7 @@ const TournamentCreationForm = () => {
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const isAddInThePath = window.location.pathname.includes("/add");
-
+  const { showModal } = useSelector((state) => state.event);
   useEffect(() => {
     const isDisable = shouldBeDisable(
       tournament?.status,
@@ -88,7 +88,7 @@ const TournamentCreationForm = () => {
       dispatch(
         getSingleTournament({
           tournamentId,
-          ownerId: singleTournamentOwner?.id
+          ownerId: singleTournamentOwner?.id,
         })
       );
     }
@@ -113,8 +113,18 @@ const TournamentCreationForm = () => {
   }, [isConfirmed, tournamentId]);
 
   useEffect(() => {
-    if (isConfirmed && tournament && (type === "Archive" || type === "Completed") ) {
-      dispatch(changeTournamentStatus({tournamentId:tournamentId, ownerId:tournament?.ownerUserId,action:type}));
+    if (
+      isConfirmed &&
+      tournament &&
+      (type === "Archive" || type === "Completed")
+    ) {
+      dispatch(
+        changeTournamentStatus({
+          tournamentId: tournamentId,
+          ownerId: tournament?.ownerUserId,
+          action: type,
+        })
+      );
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed, tournamentId]);
@@ -123,7 +133,7 @@ const TournamentCreationForm = () => {
       dispatch(
         getSingleTournament({
           tournamentId,
-          ownerId: singleTournamentOwner?.id
+          ownerId: singleTournamentOwner?.id,
         })
       );
 
@@ -149,7 +159,7 @@ const TournamentCreationForm = () => {
       dispatch(
         getSingleTournament({
           tournamentId,
-          ownerId: singleTournamentOwner?.id
+          ownerId: singleTournamentOwner?.id,
         })
       );
 
@@ -248,7 +258,7 @@ const TournamentCreationForm = () => {
             disabled={!isNotEditable}
           />
         )}
-        <EventCreationModal />
+        {showModal && <EventCreationModal />}
       </div>
     </div>
   );
