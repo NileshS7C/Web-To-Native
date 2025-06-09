@@ -1,5 +1,7 @@
 import axios from "axios";
 import { API_END_POINTS } from "../Constant/routes";
+import { checkRoles } from "../utils/roleCheck";
+import { ADMIN_ROLES, EVENT_OWNER_ROLES } from "../Constant/Roles";
 
 export const getAllEvents = async (page = 1, limit = 10) => {
   console.log(`🚀 || SocialEvents.js:8 || getAllEvents || page:`, page);
@@ -102,6 +104,54 @@ export const updateEvent = async (payload) => {
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ updateEvent ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
+// Get all event owners (Admin only)
+export const getAllEventOwners = async ({ currentPage = 1, limit = 100 }) => {
+  console.log(`🚀 || SocialEvents.js || getAllEventOwners || page: ${currentPage}, limit: ${limit}`);
+
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = `${baseURL}${API_END_POINTS.socialEvents.GET.getAllEventOwners({ currentPage, limit })}`;
+  console.log(`🚀 || SocialEvents.js || getAllEventOwners || ENDPOINT:`, ENDPOINT);
+
+  const config = {
+    method: "GET",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data?.data;
+  } catch (error) {
+    console.error("🚀 ~ getAllEventOwners ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
+// Get single event owner details (Role-based)
+export const getSingleEventOwner = async () => {
+  console.log(`🚀 || SocialEvents.js || getSingleEventOwner`);
+
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = `${baseURL}${API_END_POINTS.socialEvents.GET.getSingleEventOwner()}`;
+  console.log(`🚀 || SocialEvents.js || getSingleEventOwner || ENDPOINT:`, ENDPOINT);
+
+  const config = {
+    method: "GET",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data?.data;
+  } catch (error) {
+    console.error("🚀 ~ getSingleEventOwner ~ error:", error);
     throw error.response?.data || error;
   }
 };

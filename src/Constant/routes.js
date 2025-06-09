@@ -353,6 +353,18 @@ export const API_END_POINTS = {
         } else if(checkRoles(EVENT_OWNER_ROLES)) {
           return `/users/event-owner/events/owner/${ownerId}/search`
         }
+      },
+      getAllEventOwners: ({ currentPage, limit }) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/event-owners?page=${currentPage}&limit=${limit}`;
+        } else return null;
+      },
+      getSingleEventOwner: () => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return "/users/admin/get-details";
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return "/users/event-owner/get-details";
+        } else return null;
       }
     },
     POST: {
@@ -367,7 +379,7 @@ export const API_END_POINTS = {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/events/${eventId}/update`;
         } else if (checkRoles(EVENT_OWNER_ROLES)) {
-          return `/users/admin/events/${eventId}/update`;
+          return `/users/event-owner/events/${eventId}/update`;
         } else return null;
       },
     }

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { useOwnerDetailsContext } from '../../Providers/onwerDetailProvider';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
@@ -10,7 +9,7 @@ import BannerMobileTable from './BannerMobileTable';
 import EventGalleryTable from './EventGalleryTable';
 import PreviousEventVideosTable from './PreviousEventVideosTable';
 import ReactQuill from 'react-quill';
-import { useCreateEvent } from '../../Hooks/SocialEventsHooks';
+import { useCreateEvent, useEventOwnerData } from '../../Hooks/SocialEventsHooks';
 import LocationSearchInput from "../Common/LocationSearch";
 import { resetGlobalLocation } from "../../redux/Location/locationSlice";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -91,7 +90,7 @@ const FormSelect = ({ label, name, options, placeholder, className = "" }) => (
 const BasicInfo = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { mutate: createEvent, isLoading } = useCreateEvent();
+  const { mutate: createEvent } = useCreateEvent();
   const [formData, setFormData] = useState({
     sponsors: [],
     bannerDesktopImages: [],
@@ -100,7 +99,9 @@ const BasicInfo = () => {
     previousEventVideos: [],
     whatToExpect: []
   });
-  const { tournamentOwners } = useOwnerDetailsContext();
+
+  // Use the new event owner data hook instead of tournament owners
+  const { eventOwners, singleEventOwner, isLoading: isLoadingOwners, userRole } = useEventOwnerData();
   const { location } = useSelector((state) => state.location);
 
   // Memoize initial form values to prevent unnecessary re-renders and form resets
@@ -167,6 +168,13 @@ const BasicInfo = () => {
     const longitude = location?.lng ? parseFloat(location.lng) : 0;
     const latitude = location?.lat ? parseFloat(location.lat) : 0;
 
+    // Validate that we have a valid organiser selected
+    if (!values.organiser) {
+      setFieldError('organiser', 'Please select an event organiser');
+      setSubmitting(false);
+      return;
+    }
+
     console.log("🚀 ~ BasicInfo ~ Location Validation", {
       longitude,
       latitude,
@@ -187,24 +195,32 @@ const BasicInfo = () => {
       return;
     }
 
+    // Process tags - convert comma-separated string to array
+    // TODO: Uncomment when backend supports tags field
+    // const processedTags = values.tags
+    //   ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+    //   : [];
+
     // Collect all form data
     const allFormData = {
       step: 1,
       eventId: "",
-      ownerUserId: values.organiser,
-      eventName: values.eventName,
-      handle: values.handle,
-      description: values.description,
-      preRequisites: values.preRequisites,
+      ownerUserId: values.organiser || "",
+      eventName: values.eventName || "",
+      handle: values.handle || "",
+      description: values.description || "",
+      preRequisites: values.preRequisites || "",
       startDate: values.startDate ? formatDate(values.startDate) : null,
       bookingStartDate: values.bookingStartDate ? formatDate(values.bookingStartDate) : null,
       bookingEndDate: values.bookingEndDate ? formatDate(values.bookingEndDate) : null,
-      startTime: values.startTime,
-      endTime: values.endTime,
-      maxParticipants: values.maxParticipants,
-      registrationFee: values.registrationFee,
-      instagramHandle: values.instagramHandle,
-      whatsappGroupLink: values.whatsappGroupLink,
+      startTime: values.startTime || "",
+      endTime: values.endTime || "",
+      maxParticipants: parseInt(values.maxParticipants) || 0,
+      registrationFee: parseFloat(values.registrationFee) || 0,
+      instagramHandle: values.instagramHandle || "",
+      whatsappGroupLink: values.whatsappGroupLink || "",
+      // TODO: Uncomment when backend supports tags field
+      // tags: processedTags,
       eventLocation: {
         name: values.locationName,
         address: {
@@ -308,6 +324,13 @@ const BasicInfo = () => {
       onSubmit={handleFormSubmit}
     >
       {({ values, setFieldValue, isSubmitting }) => {
+        // Auto-populate organiser field for event owners
+        useEffect(() => {
+          if (userRole === 'EVENT_OWNER' && singleEventOwner && !values.organiser) {
+            setFieldValue('organiser', singleEventOwner.id);
+          }
+        }, [userRole, singleEventOwner, values.organiser, setFieldValue]);
+
         // Update location fields when location changes, but only if location fields are empty
         // This prevents overwriting user-entered data
         useEffect(() => {
@@ -328,11 +351,24 @@ const BasicInfo = () => {
               <FormSelect
                 label="Event Organiser name"
                 name="organiser"
-                placeholder="Select Organiser"
-                options={tournamentOwners?.owners?.map(owner => ({
-                  value: owner.id,
-                  label: owner.name
-                })) || []}
+                placeholder={isLoadingOwners ? "Loading organisers..." : "Select Organiser"}
+                options={(() => {
+                  if (userRole === 'ADMIN') {
+                    // For admin users, show all event owners
+                    return eventOwners?.map(owner => ({
+                      value: owner.id,
+                      label: owner.name
+                    })) || [];
+                  } else if (userRole === 'EVENT_OWNER' && singleEventOwner) {
+                    // For event owners, show only their own details
+                    return [{
+                      value: singleEventOwner.id,
+                      label: singleEventOwner.name
+                    }];
+                  }
+                  return [];
+                })()}
+                disabled={isLoadingOwners || (userRole === 'EVENT_OWNER')}
               />
 
               <div className='flex flex-col items-start gap-3'>
