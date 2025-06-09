@@ -128,7 +128,6 @@ const BookingActions = ({ id, index, status }) => {
   const { eventId, tournamentId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = searchParams.get("page");
-
   const [actionType, setActionType] = useState(null);
   const [actionObject, setActionObject] = useState({
     type: "",
@@ -181,7 +180,7 @@ const BookingActions = ({ id, index, status }) => {
           currentPage,
           tournamentId,
           eventId,
-          singleTournamentOwner?.id
+          tournament?.ownerUserId || singleTournamentOwner?.id
         );
 
         setActionObject({
@@ -203,7 +202,7 @@ const BookingActions = ({ id, index, status }) => {
           currentPage,
           tournamentId,
           eventId,
-          singleTournamentOwner?.id
+          tournament?.ownerUserId || singleTournamentOwner?.id
         );
 
         setActionObject({

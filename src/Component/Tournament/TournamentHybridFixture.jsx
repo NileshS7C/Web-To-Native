@@ -224,7 +224,7 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
     if (unPublishError) {
       dispatch(
         showError({
-          message: "Oops! something went wrong while unpublishing the fixture.",
+          message: ErrorMessage || "Oops! something went wrong while unpublishing the fixture.",
           onClose: "hideError",
         })
       );
