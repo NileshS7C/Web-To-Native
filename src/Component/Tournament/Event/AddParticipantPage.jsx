@@ -17,6 +17,7 @@ import { bookingLimit, NotDoublesCategory } from "../../../Constant/tournament";
 import { SearchPlayer } from "../../Common/SeachPlayerModal";
 import ToggleButton from "../../Common/ToggleButton";
 
+
 const PlayerExistenceSelector = ({ handlePlayerExist, type }) => {
   const [isPlayerExist, setIsPlayerExist] = useState({
     player: false,
@@ -275,7 +276,7 @@ const AddParticipants = () => {
             currentPage: currentPage || 1,
             limit: bookingLimit,
             tour_Id: tournamentId,
-            eventId,
+            eventId
           })
         );
       }

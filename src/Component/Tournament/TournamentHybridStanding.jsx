@@ -2,12 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useGetTournamentStanding } from "../../Hooks/tournamentStandingHooks";
 import Spinner from "../Common/Spinner";
 
+
 const TournamentHybridStandings = ({ tournamentId, categoryId, fixtureId }) => {
   const {
     data: standingData,
     isLoading: isStandingLoading,
     isError: isStandingError,
-  } = useGetTournamentStanding({ tournamentId, categoryId, fixtureId });
+  } = useGetTournamentStanding({
+    tournamentId,
+    categoryId,
+    fixtureId
+  });
   const standing = standingData;
 
   if (isStandingLoading) {

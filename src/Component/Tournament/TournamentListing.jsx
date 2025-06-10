@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useCookies } from "react-cookie";
 import {
   TournamentTableHeaders,
   tournamentListingTabs as initialTour_Tabs,
@@ -30,10 +29,10 @@ const SearchEvents = ({
   dispatch,
   page,
   limit,
-  type,
   searchInput,
   setSearchInput,
   singleTournamentOwner,
+  selectedTab,
 }) => {
   const [searchValue, setSearchValue] = useState("");
   const debouncedValue = useDebounce(searchValue, 500);
@@ -42,20 +41,89 @@ const SearchEvents = ({
     setSearchValue(e?.target?.value);
     setSearchInput(e?.target?.value);
   };
-
   useEffect(() => {
     if (debouncedValue) {
-      dispatch(
-        searchTournament({
-          page: page || 1,
-          limit: limit,
-          type: type,
-          ownerId: singleTournamentOwner?.id,
-          search: debouncedValue,
-        })
-      );
+      switch (selectedTab) {
+        case "all":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              ownerId: singleTournamentOwner?.id,
+            })
+          );
+          break;
+        case "draft":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              status: selectedTab?.toUpperCase(),
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+
+          break;
+        case "active":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              "dateRange[startDate]": formattedDate(new Date()),
+              timeline: "ACTIVE",
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+          break;
+
+        case "upcoming":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              "dateRange[endDate]": formattedDate(new Date()),
+              timeline: "UPCOMING",
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+          break;
+        case "archive":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              status: "ARCHIVED",
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+          break;
+        case "completed":
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              status: "COMPLETED",
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+          break;
+        default:
+          dispatch(
+            searchTournament({
+              page: page || 1,
+              limit: limit,
+              ownerId: singleTournamentOwner?.id,
+              search: debouncedValue,
+            })
+          );
+      }
     }
-  }, [debouncedValue, page]);
+  }, [debouncedValue]);
 
   useEffect(() => {
     if (inputRef?.current) {
@@ -85,7 +153,6 @@ function TournamentListing(props) {
     dispatch,
     currentPage,
     singleTournamentOwner,
-    cookies,
     searchInput,
     selectedTab,
     setSearchInput,
@@ -93,22 +160,6 @@ function TournamentListing(props) {
 
   const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
     useSelector((state) => state.GET_TOUR);
- 
-  const { userRole: role } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    const userRole = cookies?.userRole || role;
-    if (!searchInput) {
-      dispatch(
-        getAllTournaments({
-          page: currentPage || 1,
-          limit: 10,
-          type: userRole,
-          ownerId: singleTournamentOwner?.id,
-        })
-      );
-    }
-  }, [searchInput, currentPage, role, singleTournamentOwner?.id]);
 
   useEffect(() => {
     if (selectedFilter || selectedTab) {
@@ -116,7 +167,6 @@ function TournamentListing(props) {
     }
   }, [selectedFilter, selectedTab]);
   useEffect(() => {
-    const userRole = cookies.userRole || role;
     if (singleTournamentOwner && !searchInput && selectedTab) {
       switch (selectedTab) {
         case "all":
@@ -124,7 +174,6 @@ function TournamentListing(props) {
             getAllTournaments({
               page: currentPage || 1,
               limit: 10,
-              type: userRole,
               ownerId: singleTournamentOwner?.id,
             })
           );
@@ -135,7 +184,6 @@ function TournamentListing(props) {
               page: currentPage || 1,
               limit: 10,
               status: selectedTab?.toUpperCase(),
-              type: userRole,
               ownerId: singleTournamentOwner?.id,
             })
           );
@@ -148,7 +196,6 @@ function TournamentListing(props) {
               limit: 10,
               "dateRange[startDate]": formattedDate(new Date()),
               timeline: "ACTIVE",
-              type: userRole,
               ownerId: singleTournamentOwner?.id,
             })
           );
@@ -163,7 +210,6 @@ function TournamentListing(props) {
                 "dateRange[endDate]": formattedDate(new Date()),
                 status: selectedFilter?.toUpperCase(),
                 timeline: "UPCOMING",
-                type: userRole,
                 ownerId: singleTournamentOwner?.id,
               })
             );
@@ -174,7 +220,6 @@ function TournamentListing(props) {
                 limit: 10,
                 "dateRange[endDate]": formattedDate(new Date()),
                 timeline: "UPCOMING",
-                type: userRole,
                 ownerId: singleTournamentOwner?.id,
               })
             );
@@ -187,27 +232,34 @@ function TournamentListing(props) {
               page: currentPage || 1,
               limit: 10,
               status: "ARCHIVED",
-              type: userRole,
+              ownerId: singleTournamentOwner?.id,
+            })
+          );
+          break;
+        case "completed":
+          dispatch(
+            getAllTournaments({
+              page: currentPage || 1,
+              limit: 10,
+              status: "COMPLETED",
               ownerId: singleTournamentOwner?.id,
             })
           );
           break;
         default:
-         dispatch(
-          getAllTournaments({
-            page: currentPage || 1,
-            limit: 10,
-            type: userRole,
-            ownerId: singleTournamentOwner?.id,
-          })
-         );
+          dispatch(
+            getAllTournaments({
+              page: currentPage || 1,
+              limit: 10,
+              ownerId: singleTournamentOwner?.id,
+            })
+          );
       }
     } else if (singleTournamentOwner && !searchInput && !selectedTab) {
       dispatch(
         getAllTournaments({
           page: currentPage || 1,
           limit: 10,
-          type: userRole,
           ownerId: singleTournamentOwner?.id,
         })
       );
@@ -219,7 +271,6 @@ function TournamentListing(props) {
     singleTournamentOwner,
     searchInput,
   ]);
-
   if (isGettingTournament) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -259,12 +310,10 @@ function TournamentListing(props) {
 function TournamentListingWrapper() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [cookies] = useCookies(["name", "userRole"]);
   const currentPage = searchParams.get("page");
   const selectedTab = searchParams.get("tab");
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
   const [searchInput, setSearchInput] = useState("");
-  const { userRole: role } = useSelector((state) => state.auth);
 
   return (
     <div className="flex flex-col gap-5">
@@ -273,7 +322,6 @@ function TournamentListingWrapper() {
           dispatch={dispatch}
           page={currentPage || 1}
           limit={10}
-          type={cookies?.userRole || role}
           searchInput={searchInput}
           setSearchInput={setSearchInput}
           singleTournamentOwner={singleTournamentOwner}
@@ -285,7 +333,6 @@ function TournamentListingWrapper() {
         dispatch={dispatch}
         currentPage={currentPage}
         singleTournamentOwner={singleTournamentOwner}
-        cookies={cookies}
         searchInput={searchInput}
         selectedTab={selectedTab}
         setSearchInput={setSearchInput}
@@ -299,7 +346,6 @@ TournamentListing.propTypes = {
   searchInput: PropTypes.string,
   currentPage: PropTypes.string || PropTypes.number,
   singleTournamentOwner: PropTypes.object,
-  cookies: PropTypes.object,
   selectedTab: PropTypes.string,
   setSearchInput: PropTypes.func,
 };
@@ -310,7 +356,7 @@ SearchEvents.propTypes = {
   setSearchInput: PropTypes.func,
   page: PropTypes.string || PropTypes.number,
   limit: PropTypes.number,
-  type: PropTypes.string,
+
   singleTournamentOwner: PropTypes.object,
 };
 

@@ -9,7 +9,7 @@ import {
 
 export const useCreateHybridFixture = () => {
   return useMutation({
-    mutationFn: ({ tournamentId, categoryId, payload }) => {
+    mutationFn: ({ tournamentId, categoryId, payload}) => {
       return createHybridFixture(tournamentId, categoryId, payload);
     },
     onError: (error) => {

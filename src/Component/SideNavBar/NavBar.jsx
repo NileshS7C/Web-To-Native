@@ -2,7 +2,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { ADMIN_NAVIGATION, TOURNAMENT_OWNER_NAVIGATION, VENUE_OWNER_NAVIGATION } from "../../Constant/app";
 import { setNavigation } from "../../redux/NavBar/navSlice";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
+import { Cookies } from "react-cookie";
+
+const cookies = new Cookies();
 
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
@@ -11,9 +13,9 @@ import { useEffect, useState } from "react";
 export const NavBar = ({ handleOverlayClick }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [cookies] = useCookies(["userRole"]);
+  const cookiesRoles=cookies?.get("userRoles");
   const location = useLocation();
-  const { userRole: role } = useSelector((state) => state.auth);
+  const { userRoles: roles } = useSelector((state) => state.auth);
   const [expandedMenus, setExpandedMenus] = useState({});
   const [currentMenu, setCurrentMenu] = useState("Dashboard");
   const [navigationBar, setNavigationBar] = useState(null);
@@ -37,23 +39,21 @@ export const NavBar = ({ handleOverlayClick }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (cookies?.userRole || role) {
-      switch (cookies.userRole || role) {
-        case "SUPER_ADMIN":
-          setNavigationBar(ADMIN_NAVIGATION);
-          break;
-        case "ADMIN":
-          setNavigationBar(ADMIN_NAVIGATION);
-          break;
-        case "TOURNAMENT_OWNER":
-          setNavigationBar(TOURNAMENT_OWNER_NAVIGATION);
-          break;
-        case "VENUE_OWNER":
-          setNavigationBar(VENUE_OWNER_NAVIGATION);
-          break;
+    if (cookiesRoles?.length > 0  || roles?.length > 0) {
+      const userRoles = cookiesRoles || roles;
+      if (userRoles?.includes("SUPER_ADMIN") || userRoles?.includes("ADMIN")) {
+        setNavigationBar(ADMIN_NAVIGATION);
+      } else if (
+        userRoles?.includes("TOURNAMENT_OWNER") ||
+        userRoles?.includes("TOURNAMENT_BOOKING_OWNER")
+      ) {
+        setNavigationBar(TOURNAMENT_OWNER_NAVIGATION);
+      } else if (userRoles?.includes("VENUE_OWNER")) {
+        setNavigationBar(VENUE_OWNER_NAVIGATION);
       }
+
     }
-  }, [cookies?.userRole, role]);
+  }, [roles]);
 
   const toggleMenu = (menuName) => {
     setCurrentMenu(menuName);

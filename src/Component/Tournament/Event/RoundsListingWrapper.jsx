@@ -45,7 +45,12 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
     ErrorMessage,
   } = useSelector((state) => state.fixture);
   useEffect(() => {
-    dispatch(getHybridFixtures({ tour_Id: tournamentId, eventId }));
+    dispatch(
+      getHybridFixtures({
+        tour_Id: tournamentId,
+        eventId
+      })
+    );
   }, []);
 
   useEffect(() => {

@@ -128,7 +128,6 @@ const BookingActions = ({ id, index, status }) => {
   const { eventId, tournamentId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = searchParams.get("page");
-
   const [actionType, setActionType] = useState(null);
   const [actionObject, setActionObject] = useState({
     type: "",
@@ -140,19 +139,19 @@ const BookingActions = ({ id, index, status }) => {
   const { isConfirmed } = useSelector((state) => state.confirm);
   const { tournament } = useSelector((state) => state.GET_TOUR);
 
-  useEffect(() => {
-    if (tournament) {
-      const parsedTournamentEndDate =
-        tournament?.endDate && parseDate(tournament?.endDate);
+  // useEffect(() => {
+  //   if (tournament) {
+  //     const parsedTournamentEndDate =
+  //       tournament?.endDate && parseDate(tournament?.endDate);
 
-      const endDate = new Date(parsedTournamentEndDate).setHours(0, 0, 0, 0);
+  //     const endDate = new Date(parsedTournamentEndDate).setHours(0, 0, 0, 0);
 
-      const today = new Date().setHours(0, 0, 0, 0);
+  //     const today = new Date().setHours(0, 0, 0, 0);
 
-      const isDisable = endDate < today;
-      setIsDisable(isDisable);
-    }
-  }, []);
+  //     const isDisable = endDate > today;
+  //     setIsDisable(isDisable);
+  //   }
+  // }, []);
 
   const cancelBookingData = {
     categoryId: "",
@@ -181,7 +180,7 @@ const BookingActions = ({ id, index, status }) => {
           currentPage,
           tournamentId,
           eventId,
-          singleTournamentOwner?.id
+          tournament?.ownerUserId || singleTournamentOwner?.id
         );
 
         setActionObject({
@@ -203,7 +202,7 @@ const BookingActions = ({ id, index, status }) => {
           currentPage,
           tournamentId,
           eventId,
-          singleTournamentOwner?.id
+          tournament?.ownerUserId || singleTournamentOwner?.id
         );
 
         setActionObject({

@@ -1,10 +1,24 @@
 import React, { useEffect } from 'react'
 import { useGetFixtureId, useGetTournamentStanding } from '../../Hooks/tournamentStandingHooks'
-
 const TournamentStandings = ({ tournamentId, categoryId }) => {  
-  const { data: fixtureData, isLoading: isFixtureLoading, isError: isFixtureError } = useGetFixtureId({ tournamentId, categoryId })
+  const {
+    data: fixtureData,
+    isLoading: isFixtureLoading,
+    isError: isFixtureError,
+  } = useGetFixtureId({
+    tournamentId,
+    categoryId
+  });
   const fixtureID = fixtureData
-  const { data: standingData, isLoading: isStandingLoading, isError: isStandingError } = useGetTournamentStanding({ tournamentId, categoryId, fixtureId: fixtureID })
+  const {
+    data: standingData,
+    isLoading: isStandingLoading,
+    isError: isStandingError,
+  } = useGetTournamentStanding({
+    tournamentId,
+    categoryId,
+    fixtureId: fixtureID
+  });
 
   const standing = standingData  
   if (isFixtureLoading || isStandingLoading) {

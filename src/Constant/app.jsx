@@ -210,12 +210,14 @@ export const notHaveBackButton = [
   "Coupons",
   "Banner Section",
   "Mission & Vision",
-  "Admin Users"
+  "Admin Users",
+  "Media Gallery"
 ];
 
 export const ROLES = [
   "SUPER_ADMIN",
   "ADMIN",
   "TOURNAMENT_OWNER",
+  "TOURNAMENT_BOOKING_OWNER",
   "VENUE_OWNER",
 ];

@@ -1,17 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
-import { Cookies } from "react-cookie";
 import { API_END_POINTS } from "../../Constant/routes";
 
-const cookies = new Cookies();
 export const createFixture = createAsyncThunk(
   "fixture/createFixture",
   async ({ tour_Id, eventId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.POST.createFixture(
-        userRole,
         tour_Id,
         eventId
       );
@@ -49,11 +44,8 @@ export const getFixture = createAsyncThunk(
   "fixture/getFixture",
   async ({ tour_Id, eventId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getFixtureByTour_IdAndCategoryId(
-          userRole,
           tour_Id,
           eventId
         );
@@ -85,13 +77,10 @@ export const getFixture = createAsyncThunk(
 );
 export const getHybridFixtures = createAsyncThunk(
   "fixture/getHybridFixture",
-  async ({ tour_Id, eventId }, { rejectWithValue }) => {
+  async ({tour_Id, eventId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getFixtureByTour_IdAndCategoryId(
-          userRole,
           tour_Id,
           eventId
         );
@@ -122,17 +111,15 @@ export const getHybridFixtures = createAsyncThunk(
 );
 export const getFixtureById = createAsyncThunk(
   "fixture/getFixtureById",
-  async ({ tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
+  async ({tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getFixtureById(
-          userRole,
           tour_Id,
           eventId,
           fixtureId
         );
+        
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -163,10 +150,9 @@ export const getMatches = createAsyncThunk(
   "fixture/getMatches",
   async ({ tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
+     
 
       const userAPIEndPoint = API_END_POINTS.tournament.GET.getMatches(
-        userRole,
         tour_Id,
         eventId,
         fixtureId
@@ -198,15 +184,12 @@ export const getMatches = createAsyncThunk(
 );
 export const updateMatch = createAsyncThunk(
   "fixture/updateMatch",
-  async (matchData, { rejectWithValue }) => {
+  async ({tour_Id,eventId,fixtureId,formData}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.POST.fixtureMatchUpdate(
-        userRole,
-        matchData.tour_Id,
-        matchData.eventId,
-        matchData.fixtureId
+        tour_Id,
+        eventId,
+        fixtureId
       );
 
       const config = {
@@ -216,7 +199,7 @@ export const updateMatch = createAsyncThunk(
       };
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
-        JSON.stringify(matchData?.formData),
+        JSON.stringify(formData),
         config
       );
 
@@ -239,16 +222,13 @@ export const updateMatch = createAsyncThunk(
 
 export const updateMatchSetCount = createAsyncThunk(
   "fixture/updateMatchSetCount",
-  async (matchData, { rejectWithValue }) => {
+  async ({ tour_Id,eventId,fixtureId ,formData}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.fixtureMatchSetCount(
-          userRole,
-          matchData.tour_Id,
-          matchData.eventId,
-          matchData.fixtureId
+          tour_Id,
+          eventId,
+          fixtureId
         );
 
       const config = {
@@ -259,7 +239,7 @@ export const updateMatchSetCount = createAsyncThunk(
 
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
-        JSON.stringify(matchData?.formData),
+        JSON.stringify(formData),
         config
       );
 
@@ -282,16 +262,13 @@ export const updateMatchSetCount = createAsyncThunk(
 
 export const getStandings = createAsyncThunk(
   "fixture/getStandings",
-  async (matchData, { rejectWithValue }) => {
+  async ({ tour_Id,eventId,fixtureId,stageId}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.GET.getMatchStandings(
-        userRole,
-        matchData.tour_Id,
-        matchData.eventId,
-        matchData.fixtureId,
-        matchData.stageId
+        tour_Id,
+        eventId,
+        fixtureId,
+        stageId
       );
 
       const config = {
@@ -324,17 +301,14 @@ export const getStandings = createAsyncThunk(
 
 export const updateSeeding = createAsyncThunk(
   "fixture/updateSeeding",
-  async (matchData, { rejectWithValue }) => {
+  async ({formData,tour_Id,eventId,fixtureId,stageId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.updatePlayerSeeding(
-          userRole,
-          matchData.tour_Id,
-          matchData.eventId,
-          matchData.fixtureId,
-          matchData.stageId
+          tour_Id,
+          eventId,
+          fixtureId,
+          stageId
         );
       const config = {
         headers: {
@@ -343,7 +317,7 @@ export const updateSeeding = createAsyncThunk(
       };
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
-        JSON.stringify(matchData?.formData),
+        JSON.stringify(formData),
         config
       );
 
@@ -366,16 +340,13 @@ export const updateSeeding = createAsyncThunk(
 
 export const updateMatchSet = createAsyncThunk(
   "fixture/updateMatchSet",
-  async (matchData, { rejectWithValue }) => {
+  async ({ formData,tour_Id,eventId,fixtureId }, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.fixtureMatchSetUpdated(
-          userRole,
-          matchData.tour_Id,
-          matchData.eventId,
-          matchData.fixtureId
+          tour_Id,
+          eventId,
+          fixtureId
         );
       const config = {
         headers: {
@@ -385,10 +356,9 @@ export const updateMatchSet = createAsyncThunk(
 
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
-        JSON.stringify(matchData?.formData),
+        JSON.stringify(formData),
         config
       );
-
 
       return response.data;
     } catch (err) {
@@ -409,15 +379,12 @@ export const updateMatchSet = createAsyncThunk(
 
 export const publishFixture = createAsyncThunk(
   "fixture/publishFixture",
-  async (matchData, { rejectWithValue }) => {
+  async ({  tour_Id,eventId,fixtureId}, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.POST.publishFixture(
-        userRole,
-        matchData.tour_Id,
-        matchData.eventId,
-        matchData.fixtureId
+        tour_Id,
+        eventId,
+        fixtureId
       );
       const config = {
         headers: {
@@ -450,10 +417,7 @@ export const unPublishFixture = createAsyncThunk(
   "fixture/unPublishFixture",
   async (matchData, { rejectWithValue }) => {
     try {
-      const userRole = cookies.get("userRole");
-
       const userAPIEndPoint = API_END_POINTS.tournament.POST.unPublishFixture(
-        userRole,
         matchData.tour_Id,
         matchData.eventId,
         matchData.fixtureId
