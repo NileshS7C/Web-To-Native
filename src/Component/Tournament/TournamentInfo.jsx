@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { useCookies } from "react-cookie";
+
 
 import {
   Formik,
@@ -41,7 +41,6 @@ import {
   getAllUniqueTags,
   getSingleTournament,
 } from "../../redux/tournament/tournamentActions";
-import { userLogout } from "../../redux/Authentication/authActions";
 import { showError } from "../../redux/Error/errorSlice";
 import { showSuccess } from "../../redux/Success/successSlice";
 
@@ -160,6 +159,12 @@ const initialValues = {
 };
 
 export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
+  const {
+    singleTournamentOwner,
+    tournamentOwners,
+    tournamentOwnerUserId,
+    rolesAccess,
+  } = useOwnerDetailsContext();
   const validationSchema = yup.object({
     ownerUserId: yup.string().required("Name is required"),
     tournamentName: yup.string().required("Please provide a tournament name."),
@@ -314,29 +319,19 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
   const { setSubmitForm, setIsSubmitting } = useFormikContextFunction();
   const [initialState, setInitialState] = useState(initialValues);
   const { location } = useSelector((state) => state.location);
-  const [cookies] = useCookies(["name", "userRole"]);
   const [selectedTags, setSelectedTags] = useState([]);
   const isAddInThePath = window.location.pathname.includes("add");
-  const { isGettingALLTO, err_IN_TO, tournamentOwners, isGettingTags, tags } =
-    useSelector((state) => state.Tournament);
+  const { isGettingTags, tags, isGettingALLTO, err_IN_TO } = useSelector(
+    (state) => state.Tournament
+  );
 
-  const { singleTournamentOwner = {} } = useOwnerDetailsContext();
-
-  const { userRole: role, userInfo } = useSelector((state) => state.auth);
+  const {  userInfo } = useSelector((state) => state.auth);
+  // console.log(userInfo);
   const { deletedImages } = useSelector((state) => state.upload);
   const { isSuccess, isGettingTournament, tournamentEditMode, wasCancelled } =
     useSelector((state) => state.GET_TOUR);
-  const currentPage = 1;
-  const limit = 100;
   const formikRef = useRef();
   useEffect(() => {
-    const userRole = cookies?.userRole || role;
-    if (!userRole) {
-      dispatch(userLogout());
-    }
-    if (rolesWithTournamentOwnerAccess.includes(userRole)) {
-      dispatch(getAll_TO({ currentPage, limit }));
-    }
     dispatch(getAllUniqueTags());
   }, []);
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -345,16 +340,15 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
 
       let user;
 
-      if (rolesWithTournamentOwnerAccess.includes(cookies?.userRole || role)) {
+      if (rolesWithTournamentOwnerAccess.includes(rolesAccess?.tournament)) {
         user = tournamentOwners.owners?.find(
           (owner) => owner.name === values.ownerUserId
         );
-      } else if ((cookies?.userRole || role) === "TOURNAMENT_OWNER") {
+      } else if (["TOURNAMENT_OWNER","TOURNAMENT_BOOKING_OWNER"].includes(rolesAccess?.tournament)) {
         user = singleTournamentOwner
           ? { id: singleTournamentOwner.id }
           : { id: "" };
       }
-
       const updatedValues = {
         ...values,
         ownerUserId: user.id,
@@ -364,7 +358,7 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
         bookingEndDate: formattedDate(values.bookingEndDate),
       };
       const result = await dispatch(
-        addTournamentStepOne(updatedValues)
+        addTournamentStepOne({ formData: updatedValues })
       ).unwrap();
 
       dispatch(
@@ -409,16 +403,16 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
    
   
   useEffect(() => {
+   
     if (isSuccess && tournamentId && Object.keys(tournament).length > 0) {
       const updatedTournament = requiredTournamentFields(tournament);
       const owner = rolesWithTournamentOwnerAccess.includes(
-        cookies?.userRole || role
+        rolesAccess?.tournament
       )
         ? tournamentOwners?.owners?.find(
             (owner) => owner.id === updatedTournament.ownerUserId
           ) ?? null
         : singleTournamentOwner;
-
       if (owner) {
         const ownerName = owner.name;
         setInitialState((prevState) => ({
@@ -473,7 +467,7 @@ export const TournamentInfo = ({ tournament, status, isDisable, disabled }) => {
                 <SuccessModal />
                 <TournamentBasicInfo
                   userName={userInfo?.name || ""}
-                  userRole={cookies?.userRole || role}
+                  userRole={rolesAccess?.tournament}
                   tournamentOwners={tournamentOwners}
                   isGettingALLTO={isGettingALLTO}
                   hasError={err_IN_TO}
@@ -537,6 +531,7 @@ const TournamentBasicInfo = ({
 }) => {
   const { setFieldError, values, setFieldValue } = useFormikContext();
   const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
+  const {rolesAccess}=useOwnerDetailsContext();
   useEffect(() => {
     if (hasError) {
       setFieldError("ownerUserId", "Error in getting the owners.");
@@ -546,13 +541,14 @@ const TournamentBasicInfo = ({
   }, [hasError, tournamentOwners]);
 
   useEffect(() => {
-    if (userName && userRole === "TOURNAMENT_OWNER") {
+    
+    if (userName && ["TOURNAMENT_OWNER", "TOURNAMENT_BOOKING_OWNER"].includes(userRole)) {
       setFieldValue("ownerUserId", userName);
     }
   }, [userName]);
   return (
     <div className="grid grid-col-1 md:grid-cols-2 gap-3 md:gap-[30px]">
-      {!rolesWithTournamentOwnerAccess.includes(userRole) ? (
+      {!rolesWithTournamentOwnerAccess.includes(rolesAccess?.tournament) ? (
         <div className="flex flex-col items-start gap-2.5">
           <label className="text-base leading-[19.36px]" htmlFor="ownerUserId">
             Tournament Organizer Name

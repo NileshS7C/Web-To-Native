@@ -18,6 +18,7 @@ const splitDate = (date) => {
   return [day, month, year];
 };
 
+
 const dateAndMonth = (date) => {
   const [day, month] = splitDate(date) || [];
   if (!day || !month) return { day: "", month: "" };

@@ -34,6 +34,7 @@ const initialValues = {
       },
     },
   },
+  haveFullAccess: true,
 };
 
 const TournamentOrganisersHeaders = [
@@ -80,11 +81,17 @@ const TournamentOrganisersHeaders = [
   },
   {
     key: "tour_org_roleName",
-    header: "Role Name",
+    header: "Roles",
     render: (item) => {
       return (
         <div className="flex flex-col">
-          <p className="text-tour_List_Color">{item?.roleName}</p>
+          <div className="flex flex-col">
+            {item?.specificOwnerTypeRoles?.map((role, index) => (
+              <p key={index} className="text-tour_List_Color">
+                {role}
+              </p>
+            ))}
+          </div>
         </div>
       );
     },
@@ -128,6 +135,7 @@ export const TournamentOrganisersListing = ({
           " Password must have at least 8 characters, including uppercase, lowercase, a number, and a special character."
         )
         .required("Organiser Password is required."),
+    haveFullAccess: yup.boolean().default(true),
     ownerDetails: yup.object().shape({
       brandName: yup.string().required("Brand Name is required."),
       brandEmail: yup.string().required("Brand email is required."),
@@ -149,16 +157,16 @@ export const TournamentOrganisersListing = ({
           .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
         location: !organiserId
           ? yup.object().shape({
-            type: yup
-              .string()
-              .oneOf(["Point"], "Location type must be 'Point'.")
-              .required("Location type is required."),
-            coordinates: yup
-              .array()
-              .of(yup.number().required("Each coordinate must be a number."))
-              .length(2, "Location must be provided.")
-              .required("Location is required."),
-          })
+              type: yup
+                .string()
+                .oneOf(["Point"], "Location type must be 'Point'.")
+                .required("Location type is required."),
+              coordinates: yup
+                .array()
+                .of(yup.number().required("Each coordinate must be a number."))
+                .length(2, "Location must be provided.")
+                .required("Location is required."),
+            })
           : yup.object().optional(),
       }),
     }),
@@ -169,7 +177,6 @@ export const TournamentOrganisersListing = ({
   const [actionPending, setActionPending] = useState(false);
   const { openOrganiserModal } = useSelector((state) => state.tour_Org);
   const { location } = useSelector((state) => state.location);
-
   useEffect(() => {
     const getOrganiserDetails = async (id) => {
       try {
@@ -179,31 +186,36 @@ export const TournamentOrganisersListing = ({
         const result = await dispatch(getTournamentOrganiser(id)).unwrap();
 
         if (result?.data) {
-          const { owner, ...otherData } = result.data;
+          const { owner: owners, ...otherData } = result.data;
+          const ownerBrandDetails = owners?.find(
+            (owner) => owner.ownerUserType === "TOURNAMENT"
+          );
 
-          const { ownerUserType, ...filteredOwner } = owner;
-
-          const coordinates = owner?.address?.location?.coordinates
-            ? owner.address.location.coordinates.map(coord => Number(coord) || 0)
+          const coordinates = ownerBrandDetails?.address?.location?.coordinates
+            ? ownerBrandDetails.address.location.coordinates.map(
+                (coord) => Number(coord) || 0
+              )
             : [0, 0];
-
           // Construct new state object
+          console.log(otherData?.roleNames?.includes("TOURNAMENT_OWNER"));
           const newState = {
             name: otherData?.name || "",
             phone: otherData?.phone || "",
             email: otherData?.email || "",
             password: "",
+            haveFullAccess:
+              otherData?.roleNames?.includes("TOURNAMENT_OWNER") || false,
             ownerDetails: {
-              brandName: filteredOwner?.brandName || "",
-              brandEmail: filteredOwner?.brandEmail || "",
-              brandPhone: filteredOwner?.brandPhone || "",
-              brandLogoImage: filteredOwner?.brandLogoImage || "", // Add this line to include the image URL
+              brandName: ownerBrandDetails?.brandName || "",
+              brandEmail: ownerBrandDetails?.brandEmail || "",
+              brandPhone: ownerBrandDetails?.brandPhone || "",
+              brandLogoImage: ownerBrandDetails?.brandLogoImage || "", // Add this line to include the image URL
               address: {
-                line1: owner?.address?.line1 || "",
-                line2: owner?.address?.line2 || "",
-                city: owner?.address?.city || "",
-                state: owner?.address?.state || "",
-                postalCode: owner?.address?.postalCode || "",
+                line1: ownerBrandDetails?.address?.line1 || "",
+                line2: ownerBrandDetails?.address?.line2 || "",
+                city: ownerBrandDetails?.address?.city || "",
+                state: ownerBrandDetails?.address?.state || "",
+                postalCode: ownerBrandDetails?.address?.postalCode || "",
                 location: {
                   type: "Point",
                   coordinates: coordinates,
@@ -223,12 +235,13 @@ export const TournamentOrganisersListing = ({
     };
 
     if (organiserId) {
-
       setInitialState(initialValues);
-      dispatch(toggleOrganiserModal());
+      // dispatch(toggleOrganiserModal());
       getOrganiserDetails(organiserId);
+    }else{
+      setInitialState({ ...initialValues });
     }
-  }, [organiserId, dispatch]);
+  }, [organiserId]);
 
   // Reset the form when the modal closes
   useEffect(() => {
@@ -238,18 +251,11 @@ export const TournamentOrganisersListing = ({
         updatedParams.delete("organiserId");
         return updatedParams;
       });
-
+     
       setInitialState({ ...initialValues });
     }
   }, [openOrganiserModal]);
-
-
-
-  useEffect(() => {
-    if (!organiserId) {
-      setInitialState({ ...initialValues });
-    }
-  }, [organiserId, openOrganiserModal]);
+  
 
   if (error) {
     return (
@@ -258,38 +264,40 @@ export const TournamentOrganisersListing = ({
   }
   return (
     <div className="rounded-lg">
-      <TournamentOrganiserCreation
-        key={organiserId}
-        dispatch={dispatch}
-        isOpen={openOrganiserModal}
-        initialValues={initalState}
-        location={location}
-        validationSchema={validationSchema}
-        organiserId={organiserId}
-        actionPending={actionPending}
-      />
+      {openOrganiserModal && (
+        <TournamentOrganiserCreation
+          key={organiserId}
+          dispatch={dispatch}
+          isOpen={openOrganiserModal}
+          initialValues={initalState}
+          location={location}
+          validationSchema={validationSchema}
+          organiserId={organiserId}
+          actionPending={actionPending}
+        />
+      )}
 
-      {
-        !owners?.length ?
-          <div className="h-[75vh]">
-            <NotCreated
-              message="Currently No tournament organisers are present. Please create the tournament organisers to get started."
-              buttonText="Add Tournament Organiser"
-              type="organizers"
-            />
-          </div> :
-          <DataTable
-            data={owners}
-            columns={TournamentOrganisersHeaders}
-            alternateRowColors={true}
-            evenRowColor="[#FFFFFF]"
-            oddRowColor="blue-100"
-            totalPages={total}
-            currentPage={currentPage}
-            pathName="/tournament-organisers"
-            rowPaddingY="5"
+      {!owners?.length ? (
+        <div className="h-[75vh]">
+          <NotCreated
+            message="Currently No tournament organisers are present. Please create the tournament organisers to get started."
+            buttonText="Add Tournament Organiser"
+            type="organizers"
           />
-      }
+        </div>
+      ) : (
+        <DataTable
+          data={owners}
+          columns={TournamentOrganisersHeaders}
+          alternateRowColors={true}
+          evenRowColor="[#FFFFFF]"
+          oddRowColor="blue-100"
+          totalPages={total}
+          currentPage={currentPage}
+          pathName="/tournament-organisers"
+          rowPaddingY="5"
+        />
+      )}
     </div>
   );
 };

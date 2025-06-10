@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useCookies } from "react-cookie";
 import { resetEditMode } from "../../redux/tournament/getTournament";
 import {
   resetArchiveState,
@@ -12,7 +11,7 @@ import {
   setRejectionComments,
 } from "../../redux/tournament/addTournament";
 import {
-  archiveTournament,
+  changeTournamentStatus,
   getSingleTournament,
   handleTournamentDecision,
 } from "../../redux/tournament/tournamentActions";
@@ -35,6 +34,7 @@ import { TournamentInfo } from "./TournamentInfo";
 
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 const TournamentCreationForm = () => {
+  const { rolesAccess } = useOwnerDetailsContext();
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
   const {
@@ -56,17 +56,15 @@ const TournamentCreationForm = () => {
   const { archived } = useSelector((state) => state.Tournament);
 
   const { singleTournamentOwner = {} } = useOwnerDetailsContext();
-  const [cookies] = useCookies(["name", "userRole"]);
-  const { userRole: role } = useSelector((state) => state.auth);
   const isAddInThePath = window.location.pathname.includes("/add");
-
+  const { showModal } = useSelector((state) => state.event);
   useEffect(() => {
     const isDisable = shouldBeDisable(
       tournament?.status,
       tournamentId,
       tournamentEditMode,
       isAddInThePath,
-      cookies?.userRole || role,
+      rolesAccess.tournament,
       tournament?._id
     );
     dispatch(setIsEditable(isDisable));
@@ -81,7 +79,7 @@ const TournamentCreationForm = () => {
     tournamentId,
     tournamentEditMode,
     isAddInThePath,
-    cookies?.userRole,
+    rolesAccess?.tournament,
     tournament?._id,
   ]);
 
@@ -95,7 +93,6 @@ const TournamentCreationForm = () => {
       );
     }
   }, [tournamentId, singleTournamentOwner]);
-
   useEffect(() => {
     if (isConfirmed && tournamentId && type === "Tour") {
       const rejectionBody = {
@@ -116,8 +113,18 @@ const TournamentCreationForm = () => {
   }, [isConfirmed, tournamentId]);
 
   useEffect(() => {
-    if (isConfirmed && tournament && type === "Archive") {
-      dispatch(archiveTournament({tournamentId:tournamentId, ownerId:tournament?.ownerUserId}));
+    if (
+      isConfirmed &&
+      tournament &&
+      (type === "Archive" || type === "Completed")
+    ) {
+      dispatch(
+        changeTournamentStatus({
+          tournamentId: tournamentId,
+          ownerId: tournament?.ownerUserId,
+          action: type,
+        })
+      );
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed, tournamentId]);
@@ -251,7 +258,7 @@ const TournamentCreationForm = () => {
             disabled={!isNotEditable}
           />
         )}
-        <EventCreationModal />
+        {showModal && <EventCreationModal />}
       </div>
     </div>
   );

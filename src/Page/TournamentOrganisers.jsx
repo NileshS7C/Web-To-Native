@@ -18,7 +18,6 @@ function TournamentOrganisersPage() {
   );
 
   useEffect(() => {
-    console.log("Fetching tournament organizers");
     dispatch(
       getAll_TO({
         currentPage: currentPage || 1,

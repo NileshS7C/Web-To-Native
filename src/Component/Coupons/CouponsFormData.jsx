@@ -29,7 +29,6 @@ const CouponsFormData = ({ mode = "view", formData, setFormData }) => {
     useCreateDiscountCoupon();
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-
   // Initialize the coupon data state with the proper structure
   const [couponData, setCouponData] = useState({
     code: "",
@@ -148,8 +147,8 @@ const CouponsFormData = ({ mode = "view", formData, setFormData }) => {
         assignedTo: "CUSTOMER",
         discountType: couponData.discountType,
         value: parseInt(couponData.value, 10) || 0,
-        maxDiscount: null,
-        entityId: null,
+        maxDiscount:couponData.discountType !== "FIXED"? parseInt(couponData.value ,10) || 0 :null,
+        entityId:null,
         isPublic: eligibility !== "SPECIFIC CUSTOMERS",
         assignedCustomers,
         startDate: formattedStartDate,

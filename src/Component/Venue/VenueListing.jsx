@@ -35,9 +35,11 @@ import {
   resetErrorState,
 } from "../../redux/Venue/deleteVenue";
 import FilterPlayer from "../Player/FilterPlayer";
-import { Cookies } from "react-cookie";
 
-const cookies = new Cookies();
+
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
+
+
 const SearchVenue = ({
   dispatch,
   venueName,
@@ -50,8 +52,6 @@ const SearchVenue = ({
 }) => {
   const [searchVenue, setSearchVenue] = useState("");
   const debouncedValue = useDebounce(searchVenue, 300);
-  const userRole=cookies.get("userRole");
-  const {userRole:role}=useSelector(state=>state.auth)
   const handleSearchVenue = (e) => {
     setSearchVenue(e?.target?.value);
     setVenueName(e?.target?.value);
@@ -64,8 +64,7 @@ const SearchVenue = ({
           currentPage,
           selectedFilter,
           limit,
-          name: debouncedValue,
-          userRole:userRole || role
+          name: debouncedValue
         })
       );
     }

@@ -8,6 +8,7 @@ import Spinner from "../Common/Spinner";
 import ErrorBanner from "../Common/ErrorBanner";
 import DataTable from "../Common/DataTable";
 
+
 const standingHeaders = [
   {
     key: "serial number",
@@ -58,7 +59,7 @@ export const MatchStandings = ({ tournamentId, eventId }) => {
             tour_Id: tournamentId,
             eventId,
             fixtureId: fixture?._id,
-            stageId: fixture?.currentStage,
+            stageId: fixture?.currentStage
           })
         ).unwrap();
         if (!result.responseCode) {

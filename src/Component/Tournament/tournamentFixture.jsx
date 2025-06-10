@@ -26,6 +26,7 @@ import { PlayerSelectionModal } from "../Common/PlayerSeedingModal";
 import { showSuccess } from "../../redux/Success/successSlice";
 import { resetFixtureSuccess } from "../../redux/tournament/fixtureSlice";
 import GroupAndRoundNameModal from "./GroupAndRoundNameModal";
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 
 const formatMatchData = (fixture, suffledPlayers) => {
   if (!fixture || !suffledPlayers?.length) {
@@ -126,7 +127,7 @@ export const TournamentFixture = ({ tournament }) => {
       publishFixture({
         tour_Id: tournamentId,
         eventId,
-        fixtureId: fixture?._id,
+        fixtureId: fixture?._id
       })
     );
   };
@@ -207,12 +208,13 @@ export const TournamentFixture = ({ tournament }) => {
         })
       );
     }
+    
     if (unPublishError) { 
       dispatch(
         showError({
-          message: "Oops! something went wrong while unpublishing the fixture.",
+          message: ErrorMessage || "Oops! something went wrong while unpublishing the fixture.",
           onClose: "hideError",
-        })  
+        }) 
       );
     }
     

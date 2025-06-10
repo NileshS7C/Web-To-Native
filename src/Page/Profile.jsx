@@ -1,17 +1,17 @@
-import { useEffect } from "react";
-import { getSingle_TO } from "../redux/tournament/tournamentActions";
-import { useDispatch, useSelector } from "react-redux";
 import { UserProfile } from "../Component/Profile/userProfile";
+import { useGetProfile } from "../Hooks/useProfile";
+import { ErrorMessage } from "formik";
+import Spinner from "../Component/Common/Spinner";
 
 function ProfilePage() {
-  const dispatch = useDispatch();
-  const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
-
-  useEffect(() => {
-    dispatch(getSingle_TO("TOURNAMENT_OWNER"));
-  }, [dispatch]);
-
-  return <UserProfile onwerDetails={singleTournamentOwner} />;
+  const {data:profileData,isLoading:isProfileLoading,isError:isProfileError}=useGetProfile()  
+  if(isProfileLoading){
+    return <Spinner/>
+  }
+  if(isProfileError){
+    return <ErrorMessage messsage={isProfileError}/>
+  }
+  return <UserProfile onwerDetails={profileData} />;
 }
 
 export default ProfilePage;
