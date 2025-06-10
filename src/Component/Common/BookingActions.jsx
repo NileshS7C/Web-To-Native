@@ -148,7 +148,7 @@ const BookingActions = ({ id, index, status }) => {
 
   //     const today = new Date().setHours(0, 0, 0, 0);
 
-  //     const isDisable = endDate < today;
+  //     const isDisable = endDate > today;
   //     setIsDisable(isDisable);
   //   }
   // }, []);
