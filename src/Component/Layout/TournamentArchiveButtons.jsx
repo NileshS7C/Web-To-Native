@@ -56,20 +56,21 @@ export const ArchiveButtons = ({ dispatch, tournament }) => {
         setPendingAction(true);
         setSuccess(false);
         setError(false);
-
-        const result = await dispatch(submitFinalTournament(data)).unwrap();
+        const result = await dispatch(submitFinalTournament({formData:data})).unwrap();
         if (result.status === "success") {
           setSuccess(true);
           dispatch(resetConfirmationState());
           dispatch(
             getSingleTournament({
               tournamentId: tournament?._id,
-              ownerId: singleTournamentOwner?.id,
+              ownerId: tournament.ownerUserId,
             })
           );
         }
       } catch (err) {
+        dispatch(resetConfirmationState());
         setError(true);
+        
         setErrorMessage(
           err?.data?.message ||
             "Something went wrong while publishing the tournament."
@@ -78,17 +79,18 @@ export const ArchiveButtons = ({ dispatch, tournament }) => {
         setPendingAction(false);
       }
     };
-
+    
     if (isConfirmed && tournament && type === "UnArchive") {
       const formData = {
         step: 2,
         tournamentId: tournament?._id,
-        ownerUserId: singleTournamentOwner?.id,
+        ownerUserId: tournament.ownerUserId,
         acknowledgment: true,
       };
+      
       publishTournament(formData);
     }
-  }, [isConfirmed, type, dispatch, tournament, singleTournamentOwner]);
+  }, [isConfirmed, type, dispatch, tournament]);
   // Handle success/error messages
   useEffect(() => {
     if (archivedError) {
@@ -170,7 +172,6 @@ export const ArchiveButtons = ({ dispatch, tournament }) => {
               })
             )
           }
-          loading={pendingArchive}
           disabled={tournament?.status === "ARCHIVED"}
         >
           Unpublish
@@ -190,7 +191,6 @@ export const ArchiveButtons = ({ dispatch, tournament }) => {
               })
             )
           }
-          loading={pendingAction}
         >
           Publish Tournament
         </Button>
@@ -209,7 +209,6 @@ export const ArchiveButtons = ({ dispatch, tournament }) => {
               })
             )
           }
-          loading={pendingAction}
         >
           Completed
         </Button>

@@ -95,7 +95,6 @@ export const changeTournamentStatus = createAsyncThunk(
         JSON.stringify(data),
         config
       );
-      console.log("printing resposne", response);
       return response.data;
     } catch (err) {
       console.log(err);
@@ -118,6 +117,7 @@ export const submitFinalTournament = createAsyncThunk(
   "Tournament/submitFinalTournament",
   async ({ formData }, { rejectWithValue }) => {
     try {
+      console.log("Printing formdata",formData);
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.tournamentCreation();
       const config = {
