@@ -139,19 +139,19 @@ const BookingActions = ({ id, index, status }) => {
   const { isConfirmed } = useSelector((state) => state.confirm);
   const { tournament } = useSelector((state) => state.GET_TOUR);
 
-  useEffect(() => {
-    if (tournament) {
-      const parsedTournamentEndDate =
-        tournament?.endDate && parseDate(tournament?.endDate);
+  // useEffect(() => {
+  //   if (tournament) {
+  //     const parsedTournamentEndDate =
+  //       tournament?.endDate && parseDate(tournament?.endDate);
 
-      const endDate = new Date(parsedTournamentEndDate).setHours(0, 0, 0, 0);
+  //     const endDate = new Date(parsedTournamentEndDate).setHours(0, 0, 0, 0);
 
-      const today = new Date().setHours(0, 0, 0, 0);
+  //     const today = new Date().setHours(0, 0, 0, 0);
 
-      const isDisable = endDate < today;
-      setIsDisable(isDisable);
-    }
-  }, []);
+  //     const isDisable = endDate < today;
+  //     setIsDisable(isDisable);
+  //   }
+  // }, []);
 
   const cancelBookingData = {
     categoryId: "",
