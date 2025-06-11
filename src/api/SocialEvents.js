@@ -3,19 +3,26 @@ import { API_END_POINTS } from "../Constant/routes";
 import { checkRoles } from "../utils/roleCheck";
 import { ADMIN_ROLES, EVENT_OWNER_ROLES } from "../Constant/Roles";
 
-export const getAllEvents = async (page = 1, limit = 10, id) => {
-  console.log(`🚀 || SocialEvents.js:8 || getAllEvents || page:`, page);
+export const getAllEvents = async (page = 1, limit = 10, id, filters = {}) => {
+  console.log(`🚀 || SocialEvents.js:8 || getAllEvents || page:`, page, 'filters:', filters);
   const baseURl = import.meta.env.VITE_BASE_URL;
   const ENDPOINT = `${baseURl}${API_END_POINTS.socialEvents.GET.getAllEvents(id)}`;
   console.log(`🚀 || SocialEvents.js:8 || getAllEvents || ENDPOINT:`, ENDPOINT);
 
   let config = {
-    params: { page, limit },
+    params: { 
+      page, 
+      limit,
+      ...(filters.status && { status: filters.status }),
+      ...(filters.timeline && { timeline: filters.timeline })
+    },
     method: "GET",
     maxBodyLength: Infinity,
     url: ENDPOINT,
     withCredentials: true,
   };
+
+  console.log('Request config:', config);
 
   try {
     const response = await axios.request(config);

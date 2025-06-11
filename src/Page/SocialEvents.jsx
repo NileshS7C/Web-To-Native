@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useGetAllEvents } from '../Hooks/SocialEventsHooks';
 import SocialEventsListing from '../Component/SocialEvents/SocialEventsListing';
 import EventSearch from '../Component/SocialEvents/EventSearch';
+import EventListingFilters from '../Component/SocialEvents/EventListingFilters';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Pagination } from '../Component/Common/Pagination';
@@ -11,12 +12,17 @@ const SocialEvents = () => {
   const [events, setEvents] = useState([]);
   const [totalEvents, setTotalEvents] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
+  const [activeFilter, setActiveFilter] = useState({ id: 'all' });
   const limit = 10;
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-  console.log(user,'user');
 
-  const { data, isLoading, isError, isFetching, error } = useGetAllEvents(page, limit, user?.id);
+  const { data, isLoading, isError, isFetching, error } = useGetAllEvents(
+    page, 
+    limit, 
+    user?.id,
+    activeFilter.id !== 'all' ? activeFilter : {}
+  );
 
   useEffect(() => {
     if (data && !isFetching && !isSearching) {
@@ -46,6 +52,12 @@ const SocialEvents = () => {
     }
   };
 
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
+    setPage(1); // Reset to first page when filter changes
+    setIsSearching(false); // Reset search when filter changes
+  };
+
   return (
     <>
       <div className='flex items-center justify-between gap-2'>
@@ -64,6 +76,11 @@ const SocialEvents = () => {
         onSearchResults={handleSearchResults}
         currentPage={page}
         limit={limit}
+      />
+
+      <EventListingFilters 
+        activeFilter={activeFilter}
+        onFilterChange={handleFilterChange}
       />
 
       {isLoading && <p className='text-gray-500 mt-4'>Loading events...</p>}

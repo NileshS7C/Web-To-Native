@@ -3,13 +3,13 @@ import { createEvent, getAllEvents, searchEvents, updateEvent, getAllEventOwners
 import { checkRoles } from "../utils/roleCheck";
 import { ADMIN_ROLES, EVENT_OWNER_ROLES } from "../Constant/Roles";
 
-export const useGetAllEvents = (page = 1, limit = 10, id) => {
+export const useGetAllEvents = (page = 1, limit = 10, id, filters = {}) => {
   return useQuery({
-    queryKey: ["socialEvents", page],
-    queryFn: () => getAllEvents(page, limit, id),
+    queryKey: ["socialEvents", page, filters],
+    queryFn: () => getAllEvents(page, limit, id, filters),
     enabled: true,
-  })
-}
+  });
+};
 
 export const useSearchEvents = ({ownerId, searchTitle, page = 1, limit = 10}) => {
   return useQuery({

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import BasicInfo from './BasicInfo'
 import { AcknowledgementText as Acknowledgement } from './Acknowledgement'
-import Participants from './Participants'
 
 const AddSocialEvents = () => {
   const location = useLocation()
@@ -15,39 +14,21 @@ const AddSocialEvents = () => {
   // Get ownerUserId from localStorage if we're on acknowledgement page
   const ownerUserId = eventId ? localStorage.getItem(`event_${eventId}_ownerUserId`) : null
 
-  console.log("🚀 ~ AddSocialEvents ~ Component State", {
-    eventId,
-    isEventCreated,
-    ownerUserId,
-    currentPath: location.pathname,
-    activeTab
-  });
-
   // Set active tab based on route
   useEffect(() => {
     if (location.pathname.includes('/acknowledgement') && isEventCreated) {
-      console.log("🚀 ~ AddSocialEvents ~ Setting tab to acknowledgement (event created)");
       setActiveTab('acknowledgement')
     } else {
-      console.log("🚀 ~ AddSocialEvents ~ Setting tab to basic info");
       setActiveTab('basic info')
     }
   }, [location.pathname, isEventCreated])
 
   const handleTabClick = (tabName) => {
-    console.log("🚀 ~ AddSocialEvents ~ Tab Click Attempted", {
-      tabName,
-      isEventCreated,
-      currentActiveTab: activeTab
-    });
-
+    
     // Only allow acknowledgement tab if event is created
     if (tabName === 'acknowledgement' && !isEventCreated) {
-      console.log("❌ ~ AddSocialEvents ~ Acknowledgement tab blocked - Event not created yet");
       return;
     }
-
-    console.log("✅ ~ AddSocialEvents ~ Tab change allowed", { tabName });
     setActiveTab(tabName);
   };
 
