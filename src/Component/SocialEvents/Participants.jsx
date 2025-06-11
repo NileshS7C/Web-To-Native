@@ -106,20 +106,20 @@ const Participants = () => {
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
           <div className='flex items-center gap-2 justify-between'>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">
-            Name:
-          </h3>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">
-            {booking.playerId?.name || 'N/A'}
-          </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">
+              Name:
+            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">
+              {booking.playerId?.name || 'N/A'}
+            </h3>
           </div>
           <div className='flex items-center gap-2 justify-between'>
-          <p className="text-sm text-gray-600 mb-2">
-            Phone:
-          </p>
-          <p className="text-sm text-gray-600 mb-2">
-            {booking.playerId?.phone || 'N/A'}
-          </p>
+            <p className="text-sm text-gray-600 mb-2">
+              Phone:
+            </p>
+            <p className="text-sm text-gray-600 mb-2">
+              {booking.playerId?.phone || 'N/A'}
+            </p>
           </div>
           <div className='flex items-center gap-2 justify-between'>
             <p className="text-sm text-gray-600 mb-2">
@@ -131,17 +131,16 @@ const Participants = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
         {booking.paymentStatus === 'PAID' && !booking.refundDetails?.refundedAt && (
           <button
             onClick={() => handleRefund(booking._id)}
             disabled={isRefunding}
-            className={`px-3 py-2 text-sm font-medium rounded-md border ${
-              isRefunding 
-                ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200' 
+            className={`px-3 py-2 text-sm font-medium rounded-md border ${isRefunding
+                ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200'
                 : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300'
-            }`}
+              }`}
           >
             {booking.refundDetails?.refundedAt ? 'Refunded' : 'Refund'}
           </button>
@@ -150,11 +149,10 @@ const Participants = () => {
           <button
             onClick={() => handleCancelClick(booking._id)}
             disabled={isCancelling}
-            className={`px-3 py-2 text-sm font-medium rounded-md border ${
-              isCancelling 
-                ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200' 
+            className={`px-3 py-2 text-sm font-medium rounded-md border ${isCancelling
+                ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200'
                 : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100 hover:border-red-300'
-            }`}
+              }`}
           >
             {booking.status === 'CANCELLED' ? 'Cancelled' : 'Cancel'}
           </button>
@@ -172,16 +170,16 @@ const Participants = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                   Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                   Phone
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                   Amount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                   Actions
                 </th>
               </tr>
@@ -205,28 +203,28 @@ const Participants = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {booking.paymentStatus === 'PAID' && !booking.refundDetails?.refundedAt && (
-                      <button
-                        onClick={() => handleRefund(booking._id)}
-                        disabled={isRefunding}
-                        className={`text-green-600 hover:text-green-900 mr-4 ${
-                          isRefunding ? 'opacity-50 cursor-not-allowed' : ''
+                    {/* {booking.paymentStatus === 'PAID' && !booking.refundDetails?.refundedAt && ( */}
+                    <button
+                      onClick={() => handleRefund(booking._id)}
+                      disabled={isRefunding}
+                      className={`text-green-600 hover:text-green-900 mr-4 ${isRefunding ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
-                      >
-                        {booking.refundDetails?.refundedAt ? 'Refunded' : 'Refund'}
-                      </button>
-                    )}
-                    {booking.status !== 'CANCELLED' && (
-                      <button
-                        onClick={() => handleCancelClick(booking._id)}
-                        disabled={isCancelling}
-                        className={`text-red-600 hover:text-red-900 ${
-                          isCancelling ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                      >
-                        {booking.status === 'CANCELLED' ? 'Cancelled' : 'Cancel'}
-                      </button>
-                    )}
+                    >
+                      {booking.refundDetails?.refundedAt ? 'Refunded' : 'Refund'}
+                    </button>
+                    {/* )} */}
+                    {/* {booking.status !== 'CANCELLED' && ( */}
+                    <button
+                      onClick={() => handleCancelClick(booking._id)}
+                      disabled={isCancelling}
+                      className={`text-red-600 hover:text-red-900 ${isCancelling ? 'opacity-50 cursor-not-allowed' : ''
+                        } ${booking.refundDetails?.refundedAt ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
+                        ${booking.status === 'CANCELLED' ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
+                        `}
+                    >
+                      {booking.status === 'CANCELLED' ? 'Cancelled' : 'Cancel'}
+                    </button>
+                    {/* )} */}
                   </td>
                 </tr>
               ))}

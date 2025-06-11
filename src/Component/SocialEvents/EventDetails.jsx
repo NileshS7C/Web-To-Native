@@ -87,52 +87,57 @@ const EventDetails = () => {
 
   return (
     <>
-      <div className='flex justify-end gap-2 mb-2'>
-        {isAdmin && isPendingVerification ? (
-          <>
-            <button
-              onClick={() => handleVerifyEvent('APPROVE')}
-              className="px-4 py-2 rounded-lg shadow-md bg-green-600 text-white hover:bg-green-500 active:bg-green-700"
-            >
-              Approve Event
-            </button>
-            <button
-              onClick={() => handleVerifyEvent('REJECT')}
-              className="px-4 py-2 rounded-lg shadow-md bg-red-600 text-white hover:bg-red-500 active:bg-red-700"
-            >
-              Reject Event
-            </button>
-          </>
-        ) : (
-          <>
-            {isAdmin && !isPublished && (
+      <div className='flex items-center justify-between gap-2 mb-6'>
+        <h1 className='text-[#343C6A] font-semibold text-base md:text-[22px]'>
+          {data?.event?.eventName || 'Event Details'}
+        </h1>
+        <div className='flex justify-end gap-2'>
+          {isAdmin && isPendingVerification ? (
+            <>
               <button
-                onClick={handlePublishEvent}
+                onClick={() => handleVerifyEvent('APPROVE')}
                 className="px-4 py-2 rounded-lg shadow-md bg-green-600 text-white hover:bg-green-500 active:bg-green-700"
               >
-                Publish Event
+                Approve Event
               </button>
-            )}
-            {isPublished && (
               <button
-                onClick={handleArchiveEvent}
-                className="px-4 py-2 rounded-lg shadow-md bg-yellow-600 text-white hover:bg-yellow-500 active:bg-yellow-700"
+                onClick={() => handleVerifyEvent('REJECT')}
+                className="px-4 py-2 rounded-lg shadow-md bg-red-600 text-white hover:bg-red-500 active:bg-red-700"
               >
-                Unpublish Event
+                Reject Event
               </button>
-            )}
-            <button
-              onClick={() => setIsEdit(!isEdit)}
-              className={`px-4 py-2 rounded-lg shadow-md ${
-                isEdit
-                  ? 'bg-red-600 text-white hover:bg-red-500 active:bg-red-700'
-                  : 'bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700'
-              }`}
-            >
-              {isEdit ? 'Cancel' : 'Edit'}
-            </button>
-          </>
-        )}
+            </>
+          ) : (
+            <>
+              {isAdmin && !isPublished && (
+                <button
+                  onClick={handlePublishEvent}
+                  className="px-4 py-2 rounded-lg shadow-md bg-green-600 text-white hover:bg-green-500 active:bg-green-700"
+                >
+                  Publish Event
+                </button>
+              )}
+              {isPublished && (
+                <button
+                  onClick={handleArchiveEvent}
+                  className="px-4 py-2 rounded-lg shadow-md bg-yellow-600 text-white hover:bg-yellow-500 active:bg-yellow-700"
+                >
+                  Unpublish Event
+                </button>
+              )}
+              <button
+                onClick={() => setIsEdit(!isEdit)}
+                className={`px-4 py-2 rounded-lg shadow-md ${
+                  isEdit
+                    ? 'bg-red-600 text-white hover:bg-red-500 active:bg-red-700'
+                    : 'bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700'
+                }`}
+              >
+                {isEdit ? 'Cancel' : 'Edit'}
+              </button>
+            </>
+          )}
+        </div>
       </div>
       <div className='bg-white rounded-lg shadow-lg p-6'>
         <div className='flex justify-between items-center'>
