@@ -55,6 +55,7 @@ import DashBoard from '../Page/DashBoard'
 import Admin from "../Page/Admin";
 import AddSocialEvents from "../Component/SocialEvents/AddSocialEvents";
 import EventDetails from "../Component/SocialEvents/EventDetails";
+import EventOwners from "../Page/EventOwners";
 const AllRoutes = () => {
   return (
     <div>
@@ -94,6 +95,7 @@ const AllRoutes = () => {
               </Route>
             </Route>
           </Route>
+          <Route path="event-organisers" element={<EventOwners />} />
           <Route path="social-events" element={<SocialEvents />} />
           <Route path="social-events/add" element={<AddSocialEvents />} />
           <Route path="social-events/:eventId" element={<EventDetails />} />

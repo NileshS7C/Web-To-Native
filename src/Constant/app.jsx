@@ -64,6 +64,7 @@ export const ADMIN_NAVIGATION = [
     path: "tournament-organisers",
   },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
+  { name: "Event Organisers", icon: profileIcon, path: "event-organisers" },
   { name: "Social Events", icon: tournamentIcon, path: "social-events" },
   { name: "Venues", icon: venueIcon, path: "venues" },
 
@@ -222,6 +223,7 @@ export const notHaveBackButton = [
   "Social Events",
   "Add Social Events",
   "Social Events",
+  "Event Organisers",
 ];
 
 export const ROLES = [
