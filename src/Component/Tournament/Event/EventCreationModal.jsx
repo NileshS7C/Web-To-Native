@@ -117,16 +117,18 @@ export const EventCreationModal = () => {
       .max(50, "Category name cannot exceed more than 50 characters."),
     format: yup.string().required("Event format is required."),
     type: yup.string().required("Event category is required."),
-    roundRobinMode: yup.string().optional(),
+    roundRobinMode: yup.string().when('format', {
+      is: 'RR',
+      then: (schema) => schema.required('Round Robin mode is required for Round Robin format'),
+      otherwise: (schema) => schema.optional()
+    }),
     consolationFinal: yup.boolean().optional(),
     numberOfGroups: yup
       .string()
-      .default("1")
-      .when("format", {
-        is: "RR",
-        then: (schema) =>
-          schema.required("Number of groups is required in Round Robin format"),
-        otherwise: (schema) => schema.optional(),
+      .when('format', {
+        is: 'RR',
+        then: (schema) => schema.required('Number of groups is required in Round Robin format'),
+        otherwise: (schema) => schema.optional()
       }),
     totalSets: yup.string().optional(),
     registrationFee: yup
@@ -134,36 +136,43 @@ export const EventCreationModal = () => {
       .required("Registration fee is required.")
       .min(1, "Registration fee should be greater than 0"),
     maxPlayers: yup.number().optional(),
-    minPlayers: yup.number().required("Minimum players is required."),
-    skillLevel: yup.string().optional(),
-    categoryLocation:
-      venueNotListed &&
-      yup.object().shape({
-        address: yup.object().shape({
-          line1: yup.string().required("Line 1 is required."),
-          line2: yup.string().notRequired(),
-          city: yup.string().required("City is required."),
-          state: yup.string().required("State is required."),
-          postalCode: yup
-            .string()
-            .required("Postal Code is required.")
-            .matches(/^\d{6}$/, "Postal Code must be 6 digits."),
-
-          location: yup.object().shape({
-            type: yup
-              .string()
-              .oneOf(["Point"], "Location type must be 'Point'.")
-              .required("Location type is required."),
-            coordinates: yup
-              .array()
-              .of(yup.number().required("Each coordinate must be a number."))
-              .length(2, "Coordinates must contain exactly two numbers.")
-              .required("Location is required."),
-            is_location_exact: yup.boolean().optional(),
-          }),
-        }),
+    minPlayers: yup
+      .number()
+      .typeError('Minimum players must be a number')
+      .required("Minimum players is required")
+      .test('min-value', 'Minimum players must be at least 2', function(value) {
+        return value >= 2;
       }),
-    categoryStartDate: yup.date().optional(),
+    skillLevel: yup.string().optional(),
+    categoryLocation: yup.object().when('isVenueFinal', {
+      is: true,
+      then: (schema) => yup.object().when('venueNotListed', {
+        is: true,
+        then: (schema) => yup.object().shape({
+          name: yup.string().required('Venue name is required'),
+          address: yup.object().shape({
+            line1: yup.string().required('Line 1 is required'),
+            line2: yup.string().optional(),
+            city: yup.string().required('City is required'),
+            state: yup.string().required('State is required'),
+            postalCode: yup
+              .string()
+              .required('Postal Code is required')
+              .matches(/^\d{6}$/, 'Postal Code must be 6 digits'),
+            location: yup.object().shape({
+              type: yup.string().oneOf(['Point']).required(),
+              coordinates: yup.array().of(yup.number()).length(2).required()
+            })
+          })
+        }),
+        otherwise: (schema) => yup.object().shape({
+          handle: yup.string().required('Venue handle is required'),
+          name: yup.string().required('Venue name is required')
+        })
+      }),
+      otherwise: (schema) => yup.object().optional()
+    }),
+    categoryStartDate: yup.date().optional()
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -181,6 +190,9 @@ export const EventCreationModal = () => {
   const { tournamentId } = useParams();
   const { category, loadingSingleCategory, singleCategorySuccess } =
     useSelector((state) => state.event);
+  console.log("category sas", category);
+  console.log("loadingSingleCategory sas", loadingSingleCategory);
+  console.log("singleCategorySuccess sas", singleCategorySuccess);
   const checkVenueOption = (state) => {
     state === "not_decided" ? setIsVenueFinal(false) : setIsVenueFinal(true);
   };
@@ -197,6 +209,7 @@ export const EventCreationModal = () => {
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    console.log("valuessasas", values);
     try {
       setHasError(false);
       let updatedLocation = {};
@@ -293,12 +306,15 @@ export const EventCreationModal = () => {
             id: tournamentId,
           })
         );
+        resetForm();
+      } else {
+        setHasError(true);
+        setErrorMessage(result.message || "Failed to create event");
+        scrollToTop();
       }
-
-      resetForm();
     } catch (error) {
       setHasError(true);
-      setErrorMessage(error?.data?.message || "Something went wrong.");
+      setErrorMessage(error?.data?.message || "Something went wrong. Please try again.");
       scrollToTop();
     } finally {
       setSubmitting(false);
@@ -354,90 +370,75 @@ export const EventCreationModal = () => {
   return (
     <Dialog
       open={showModal}
-      onClose={() => {
-        setInitialState({});
-        dispatch(toggleModal());
-      }}
-      className="relative z-10 "
+      onClose={() => dispatch(toggleModal())}
+      className="relative z-50"
     >
-      <DialogBackdrop
-        transition
-        className="fixed inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
-      />
-      <div className="fixed  inset-0 z-10 overflow-y-auto">
-        <div className="flex min-h-full items-center justify-center px-4 py-2 text-center sm:items-center sm:p-0">
-          <DialogPanel
-            ref={modalContentRef}
-            transition
-            className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in  w-full max-w-[95%] sm:max-w-[85%] max-h-[90vh]  sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 overflow-y-auto"
-          >
-            <div>
-              <div
-                className="w-full bg-[#FFFFFF] px-[20px] h-full "
-                ref={modalContentRef}
-              >
-                <AddEventTitle />
-                {loadingSingleCategory && (
-                  <ImSpinner8 className="w-[40px] h-[40px] m-auto animate-spin" />
-                )}
-
-                {hasError && <ErrorBanner message={errorMessage} />}
-                {!loadingSingleCategory && (
-                  <Formik
-                    enableReinitialize
-                    initialValues={initialState}
-                    validationSchema={validationSchema}
-                    onSubmit={handleSubmit}
-                  >
-                    {({ isSubmitting }) => (
-                      <Form>
-                        <div className="flex flex-col md:grid grid-col-1 gap-[20px]">
-                          <EventName />
-                          <EventFormat />
-                          <RegistrationFee />
-                          <SelectPlayers />
-                          <SelectSkillLevel />
-                          <VenueSelection
-                            venues={venues}
-                            total={totalVenues}
-                            location={location}
-                            checkVenueOption={checkVenueOption}
-                            isVenueDecided={isVenueDecided}
-                            getLocation={getLocation}
-                            isVenueNotListed={isVenueNotListed}
-                            updatedCategory={updatedCategory}
-                            categoryLocation={
-                              initialState?.categoryLocation || null
-                            }
-                          />
-                          <EventTimings />
-                          <div className="">
-                            <div className="flex gap-2 justify-end mb-4">
-                              <Button
-                                type="button"
-                                className="py-2 px-5 rounded-[10px] shadow-md bg-white text-[14px] leading-[17px] text-[#232323]"
-                                onClick={() => dispatch(toggleModal())}
-                              >
-                                Close
-                              </Button>
-                              <Button
-                                className="py-2 px-5 rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF]"
-                                type="submit"
-                                loading={isSubmitting}
-                              >
-                                Save
-                              </Button>
-                            </div>
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <DialogPanel className="mx-auto max-w-3xl rounded bg-white p-6 w-full">
+          <div className="relative">
+            <AddEventTitle />
+            <div className="max-h-[80vh] overflow-y-auto" ref={modalContentRef}>
+              {hasError && <ErrorBanner message={errorMessage} />}
+              {!loadingSingleCategory && (
+                <Formik
+                  enableReinitialize
+                  initialValues={initialState}
+                  validationSchema={validationSchema}
+                  onSubmit={handleSubmit}
+                  validateOnChange={true}
+                  validateOnBlur={true}
+                >
+                  {({ isSubmitting, errors, touched }) => (
+                    <Form>
+                      <div className="flex flex-col md:grid grid-col-1 gap-[20px]">
+                        <EventName />
+                        <EventFormat />
+                        <RegistrationFee />
+                        <SelectPlayers />
+                        <SelectSkillLevel />
+                        <VenueSelection
+                          venues={venues}
+                          total={totalVenues}
+                          location={location}
+                          checkVenueOption={checkVenueOption}
+                          isVenueDecided={isVenueDecided}
+                          getLocation={getLocation}
+                          isVenueNotListed={isVenueNotListed}
+                          updatedCategory={updatedCategory}
+                          categoryLocation={
+                            initialState?.categoryLocation || null
+                          }
+                        />
+                        <EventTimings />
+                        <div className="">
+                          <div className="flex gap-2 justify-end mb-4">
+                            <Button
+                              type="button"
+                              className="py-2 px-5 rounded-[10px] shadow-md bg-white text-[14px] leading-[17px] text-[#232323]"
+                              onClick={() => dispatch(toggleModal())}
+                              disabled={isSubmitting}
+                            >
+                              Close
+                            </Button>
+                            <Button
+                              className="py-2 px-5 rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF]"
+                              type="submit"
+                              loading={isSubmitting}
+                              disabled={isSubmitting}
+                            >
+                              {isSubmitting ? "Saving..." : "Save"}
+                            </Button>
                           </div>
                         </div>
-                      </Form>
-                    )}
-                  </Formik>
-                )}
-              </div>
+                      </div>
+                    </Form>
+                  )}
+                </Formik>
+              )}
             </div>
-          </DialogPanel>
-        </div>
+          </div>
+        </DialogPanel>
       </div>
     </Dialog>
   );
@@ -648,6 +649,7 @@ const RegistrationFee = () => {
 };
 
 const SelectPlayers = () => {
+  const { errors, touched } = useFormikContext();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
@@ -659,10 +661,13 @@ const SelectPlayers = () => {
         </label>
         <Field
           placeholder="Min Player Count"
-          className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`w-full text-[15px] text-[#718EBF] leading-[18px] px-[12px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            errors.minPlayers && touched.minPlayers ? 'border-red-500' : ''
+          }`}
           id="minPlayers"
           name="minPlayers"
           type="number"
+          min="2"
         />
         <ErrorMessage name="minPlayers" component={TextError} />
       </div>
