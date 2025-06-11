@@ -182,6 +182,11 @@ const EventDetailsInfo = ({ isEdit, setIsEdit }) => {
       return;
     }
 
+    // Process tags - convert comma-separated string to array
+    const processedTags = values.tags
+      ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+      : [];
+
     // Collect all form data
     const allFormData = {
       step: 1,
@@ -200,6 +205,7 @@ const EventDetailsInfo = ({ isEdit, setIsEdit }) => {
       registrationFee: parseFloat(values.registrationFee) || 0,
       instagramHandle: values.instagramHandle || "",
       whatsappGroupLink: values.whatsappGroupLink || "",
+      tags: processedTags,
       eventLocation: {
         name: values.locationName,
         address: {

@@ -196,10 +196,9 @@ const BasicInfo = () => {
     }
 
     // Process tags - convert comma-separated string to array
-    // TODO: Uncomment when backend supports tags field
-    // const processedTags = values.tags
-    //   ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
-    //   : [];
+    const processedTags = values.tags
+      ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+      : [];
 
     // Collect all form data
     const allFormData = {
@@ -219,7 +218,7 @@ const BasicInfo = () => {
       registrationFee: parseFloat(values.registrationFee) || 0,
       instagramHandle: values.instagramHandle || "",
       whatsappGroupLink: values.whatsappGroupLink || "",
-      tags: values.tags || "",
+      tags: processedTags,
       eventLocation: {
         name: values.locationName,
         address: {
