@@ -81,9 +81,9 @@ const initialValues = {
   format: "",
   type: "",
   roundRobinMode: "",
-  registrationFee: 1,
-  maxPlayers: 0,
-  minPlayers: 1,
+  registrationFee: "",
+  maxPlayers: "",
+  minPlayers: "",
   skillLevel: "",
   consolationFinal: false,
   numberOfGroups: "1",
@@ -133,9 +133,18 @@ export const EventCreationModal = () => {
     totalSets: yup.string().optional(),
     registrationFee: yup
       .number()
-      .required("Registration fee is required.")
+      .typeError('Registration fee must be a number')
+      .required("Registration fee is required")
       .min(1, "Registration fee should be greater than 0"),
-    maxPlayers: yup.number().optional(),
+    maxPlayers: yup
+      .number()
+      .typeError('Maximum players must be a number')
+      .required("Maximum players is required")
+      .test('min-value', 'Maximum players must be greater than or equal to minimum players', function(value) {
+        const minPlayers = this.parent.minPlayers;
+        if (!minPlayers) return true; // Let minPlayers validation handle empty case
+        return value >= minPlayers;
+      }),
     minPlayers: yup
       .number()
       .typeError('Minimum players must be a number')
@@ -388,9 +397,10 @@ export const EventCreationModal = () => {
                   onSubmit={handleSubmit}
                   validateOnChange={true}
                   validateOnBlur={true}
+                  validateOnSubmit={true}
                 >
-                  {({ isSubmitting, errors, touched }) => (
-                    <Form>
+                  {({ isSubmitting, errors, touched, handleSubmit }) => (
+                    <Form onSubmit={handleSubmit}>
                       <div className="flex flex-col md:grid grid-col-1 gap-[20px]">
                         <EventName />
                         <EventFormat />
@@ -625,6 +635,12 @@ const EventFormat = () => {
 };
 
 const RegistrationFee = () => {
+  const { errors, touched, setFieldTouched } = useFormikContext();
+  
+  const handleBlur = (fieldName) => {
+    setFieldTouched(fieldName, true);
+  };
+
   return (
     <div className="grid grid-cols-1 gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
@@ -636,20 +652,31 @@ const RegistrationFee = () => {
         </label>
         <Field
           placeholder="Enter Registration Fees"
-          className="w-full  text-[15px] text-[#718EBF] leading-[18px] px-[12px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`w-full text-[15px] text-[#718EBF] leading-[18px] px-[12px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            errors.registrationFee && touched.registrationFee ? 'border-red-500' : ''
+          }`}
           id="registrationFee"
           name="registrationFee"
           type="number"
+          min="1"
+          onBlur={() => handleBlur('registrationFee')}
           onWheel={(e) => e.target.blur()}
         />
+        {errors.registrationFee && touched.registrationFee && (
+          <div className="text-red-500 text-sm mt-1">{errors.registrationFee}</div>
+        )}
       </div>
-      <ErrorMessage name="registrationFee" component={TextError} />
     </div>
   );
 };
 
 const SelectPlayers = () => {
-  const { errors, touched } = useFormikContext();
+  const { errors, touched, setFieldTouched } = useFormikContext();
+  
+  const handleBlur = (fieldName) => {
+    setFieldTouched(fieldName, true);
+  };
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-[30px]">
       <div className="flex flex-col items-start gap-2.5">
@@ -668,8 +695,11 @@ const SelectPlayers = () => {
           name="minPlayers"
           type="number"
           min="2"
+          onBlur={() => handleBlur('minPlayers')}
         />
-        <ErrorMessage name="minPlayers" component={TextError} />
+        {errors.minPlayers && touched.minPlayers && (
+          <div className="text-red-500 text-sm mt-1">{errors.minPlayers}</div>
+        )}
       </div>
       <div className="flex flex-col items-start gap-2.5">
         <label
@@ -680,12 +710,17 @@ const SelectPlayers = () => {
         </label>
         <Field
           placeholder="Max Players Count"
-          className="w-full text-[15px] text-[#718EBF] leading-[18px] px-[12px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`w-full text-[15px] text-[#718EBF] leading-[18px] px-[12px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            errors.maxPlayers && touched.maxPlayers ? 'border-red-500' : ''
+          }`}
           name="maxPlayers"
           id="maxPlayers"
           type="number"
+          onBlur={() => handleBlur('maxPlayers')}
         />
-        <ErrorMessage name="maxPlayers" component={TextError} />
+        {errors.maxPlayers && touched.maxPlayers && (
+          <div className="text-red-500 text-sm mt-1">{errors.maxPlayers}</div>
+        )}
       </div>
     </div>
   );
