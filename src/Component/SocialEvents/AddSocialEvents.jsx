@@ -75,21 +75,12 @@ const AddSocialEvents = () => {
         >
           Acknowledgement
         </p>
-        <p
-          className={`pb-4 cursor-pointer text-base leading-[19.36px] ${
-            activeTab === 'participants' ? 'border-b-2 border-blue-500 text-blue-600' : ''
-          }`}
-          onClick={() => handleTabClick('participants')}
-        >
-          Participants
-        </p>
       </div>
       <div>
         {activeTab === 'basic info' && <BasicInfo />}
         {activeTab === 'acknowledgement' && (
           <Acknowledgement ownerUserId={ownerUserId} disabled={false} />
         )}
-        {activeTab === 'participants' && <Participants />}
       </div>
     </div>
   )

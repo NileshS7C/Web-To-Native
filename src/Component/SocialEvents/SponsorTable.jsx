@@ -4,12 +4,22 @@ import { uploadImage, deleteUploadedImage } from "../../redux/Upload/uploadActio
 import { useDispatch } from "react-redux";
 import { imageUpload } from "../../Assests";
 
-const SponsorTable = ({ disabled = false, onChange = () => {} }) => {
+const SponsorTable = ({ disabled = false, onChange = () => {}, data = [] }) => {
   const dispatch = useDispatch();
 
   const [sponsors, setSponsors] = useState([
     { sponsorName: "", sponsorImage: "", errors: {} },
   ]);
+
+  // Initialize with data prop
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setSponsors(data.map(sponsor => ({
+        ...sponsor,
+        errors: {}
+      })));
+    }
+  }, [data]);
 
   // Validation function for individual sponsor
   const validateSponsor = (sponsor) => {

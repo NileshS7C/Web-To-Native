@@ -3,23 +3,47 @@ import { useGetAllEvents } from '../Hooks/SocialEventsHooks';
 import SocialEventsListing from '../Component/SocialEvents/SocialEventsListing';
 import EventSearch from '../Component/SocialEvents/EventSearch';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Pagination } from '../Component/Common/Pagination';
 
 const SocialEvents = () => {
   const [page, setPage] = useState(1);
   const [events, setEvents] = useState([]);
+  const [totalEvents, setTotalEvents] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
   const limit = 10;
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
+  console.log(user,'user');
 
-  const { data, isLoading, isError, isFetching, error } = useGetAllEvents(page, limit);
+  const { data, isLoading, isError, isFetching, error } = useGetAllEvents(page, limit, user?.id);
 
   useEffect(() => {
-    if (data && !isFetching) {
+    if (data && !isFetching && !isSearching) {
       setEvents(data?.events || []);
+      setTotalEvents(data?.total || 0);
     }
-  }, [data, isFetching]);
+  }, [data, isFetching, isSearching]);
 
   const handleAddEvent = () => {
     navigate("/social-events/add");
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleSearchResults = (searchResults, total) => {
+    if (searchResults !== null) {
+      setEvents(searchResults);
+      setTotalEvents(total);
+      setIsSearching(true);
+    } else {
+      // Reset to original data when search is cleared
+      setEvents(data?.events || []);
+      setTotalEvents(data?.total || 0);
+      setIsSearching(false);
+    }
   };
 
   return (
@@ -36,18 +60,26 @@ const SocialEvents = () => {
         </button>
       </div>
 
-      <EventSearch onSearchResults={(searchResults) => {
-        if (searchResults !== null) { // Explicit check for null
-          setEvents(searchResults);
-        } else {
-          // Reset to original data when search is cleared
-          setEvents(data?.events || []);
-        }
-      }} />
+      <EventSearch 
+        onSearchResults={handleSearchResults}
+        currentPage={page}
+        limit={limit}
+      />
 
       {isLoading && <p className='text-gray-500 mt-4'>Loading events...</p>}
       {isError && <p className='text-red-500 mt-4'>Error: {error?.message || 'Something went wrong!'}</p>}
       {!isLoading && !isError && <SocialEventsListing events={events} />}
+
+      {!isLoading && !isError && totalEvents > 0 && (
+        <div className="mt-8">
+          <Pagination
+            currentPage={page}
+            total={totalEvents}
+            onPageChange={handlePageChange}
+            rowsInOnePage={limit}
+          />
+        </div>
+      )}
     </>
   );
 };

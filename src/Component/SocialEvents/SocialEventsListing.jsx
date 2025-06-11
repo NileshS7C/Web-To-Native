@@ -1,8 +1,10 @@
 import React from 'react';
 import { listingIcon } from '../../Assests';
 import { GoDotFill } from 'react-icons/go';
+import { useNavigate } from 'react-router-dom';
 
 const SocialEventsListing = ({ events }) => {
+  const navigate = useNavigate();
   if (!events || events.length === 0) {
     return <p className='text-gray-400 mt-4'>No events found.</p>;
   }
@@ -44,7 +46,7 @@ const SocialEventsListing = ({ events }) => {
             </p>
           </div>
 
-          <button className='text-[#718EBF] text-sm border-[1px] border-[#718EBF] px-[30px] py-2 rounded-md capitalize mr-auto md:mr-0'>
+          <button className='text-[#718EBF] text-sm border-[1px] border-[#718EBF] px-[30px] py-2 rounded-md capitalize mr-auto md:mr-0' onClick={() => navigate(`/social-events/${event?._id}`)}>
             view Details
           </button>
         </div>

@@ -2,25 +2,39 @@
 import React, { useState, useEffect } from 'react';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 
-const WhatToExpectTable = ({ onChange = () => {}, disabled = false }) => {
+const WhatToExpectTable = ({ onChange = () => {}, disabled = false, data = [] }) => {
+  console.log("🚀 ~ WhatToExpectTable ~ data:", data)
   const [expectations, setExpectations] = useState([
     { title: '', description: '' }
   ]);
 
   useEffect(() => {
-    onChange(expectations);
+    if (data.length > 0) {
+      setExpectations((prev) => {
+        const isSame = JSON.stringify(prev) === JSON.stringify(data);
+        return isSame ? prev : data;
+      });
+    }
+  }, [data]);
+  
+
+  useEffect(() => {
+    const valid = expectations.filter(
+      (item) => item.title.trim() !== '' && item.description.trim() !== ''
+    );
+    onChange(valid);
   }, [expectations]);
+  
 
   const addExpectation = () => {
     setExpectations([...expectations, { title: '', description: '' }]);
   };
 
   const removeExpectation = (index) => {
-    if (expectations.length > 1) {
-      const updated = expectations.filter((_, i) => i !== index);
-      setExpectations(updated);
-    }
+    const updated = expectations.filter((_, i) => i !== index);
+    setExpectations(updated);
   };
+  
 
   const updateExpectation = (index, field, value) => {
     const updated = expectations.map((expectation, i) =>

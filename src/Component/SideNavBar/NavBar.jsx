@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { ADMIN_NAVIGATION, TOURNAMENT_OWNER_NAVIGATION, VENUE_OWNER_NAVIGATION } from "../../Constant/app";
+import { ADMIN_NAVIGATION, TOURNAMENT_OWNER_NAVIGATION, VENUE_OWNER_NAVIGATION, EVENT_OWNER_NAVIGATION } from "../../Constant/app";
 import { setNavigation } from "../../redux/NavBar/navSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Cookies } from "react-cookie";
@@ -50,6 +50,8 @@ export const NavBar = ({ handleOverlayClick }) => {
         setNavigationBar(TOURNAMENT_OWNER_NAVIGATION);
       } else if (userRoles?.includes("VENUE_OWNER")) {
         setNavigationBar(VENUE_OWNER_NAVIGATION);
+      } else if (userRoles?.includes("EVENT_OWNER")) {
+        setNavigationBar(EVENT_OWNER_NAVIGATION);
       }
 
     }

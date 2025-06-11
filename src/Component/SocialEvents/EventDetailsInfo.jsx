@@ -1,24 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import DatePicker from 'react-datepicker';
+import { useParams, useNavigate } from 'react-router-dom'
+import { useGetEventById, useUpdateEvent } from '../../Hooks/SocialEventsHooks';
+import ReactQuill from 'react-quill';
 import SponsorTable from './SponsorTable';
 import WhatToExpectTable from './WhatToExpectTable';
 import BannerDesktopTable from './BannerDesktopTable';
 import BannerMobileTable from './BannerMobileTable';
 import EventGalleryTable from './EventGalleryTable';
 import PreviousEventVideosTable from './PreviousEventVideosTable';
-import ReactQuill from 'react-quill';
-import { useCreateEvent, useEventOwnerData } from '../../Hooks/SocialEventsHooks';
-import LocationSearchInput from "../Common/LocationSearch";
-import { resetGlobalLocation } from "../../redux/Location/locationSlice";
+import DatePicker from 'react-datepicker';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import TextError from "../Error/formError";
+import { resetGlobalLocation } from "../../redux/Location/locationSlice";
+import LocationSearchInput from "../Common/LocationSearch";
+import { Toast } from "../Common/Toast";
 
 // Validation Schema
 const validationSchema = Yup.object({
-  organiser: Yup.string().required('Event organiser is required'),
   eventName: Yup.string().required('Event name is required'),
   handle: Yup.string().required('Event handle is required'),
   locationName: Yup.string().required('Location name is required'),
@@ -68,29 +68,15 @@ const FormInput = ({ label, name, type = "text", placeholder, className = "", ..
   </div>
 );
 
-const FormSelect = ({ label, name, options, placeholder, className = "" }) => (
-  <div className='flex flex-col items-start gap-3'>
-    <p className='text-base leading-[19.36px] text-[#232323]'>{label}</p>
-    <Field
-      as="select"
-      name={name}
-      className={`w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
-    >
-      <option value="">{placeholder}</option>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </Field>
-    <ErrorMessage name={name} component="div" className="text-red-500 text-sm" />
-  </div>
-);
-
-const BasicInfo = () => {
-  const dispatch = useDispatch();
+const EventDetailsInfo = ({ isEdit, setIsEdit }) => {
+  const { eventId } = useParams()
   const navigate = useNavigate();
-  const { mutate: createEvent } = useCreateEvent();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  const ownerId = useSelector((state) => state.user.id);
+  const { data, isLoading, isError } = useGetEventById(eventId, ownerId);
+  const { mutate: updateEvent } = useUpdateEvent();
+  const { location } = useSelector((state) => state.location);
   const [formData, setFormData] = useState({
     sponsors: [],
     bannerDesktopImages: [],
@@ -99,37 +85,37 @@ const BasicInfo = () => {
     previousEventVideos: [],
     whatToExpect: []
   });
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [isErrorToast, setIsErrorToast] = useState(false);
 
-  // Use the new event owner data hook instead of tournament owners
-  const { eventOwners, singleEventOwner, isLoading: isLoadingOwners, userRole } = useEventOwnerData();
-  const { location } = useSelector((state) => state.location);
+  const event = data?.event;
 
-  // Memoize initial form values to prevent unnecessary re-renders and form resets
+  // Convert string dates to Date objects for DatePicker
   const initialValues = useMemo(() => ({
-    organiser: "",
-    eventName: "",
-    handle: "",
-    locationName: "",
-    line1: "",
-    line2: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    startDate: null,
-    bookingStartDate: null,
-    bookingEndDate: null,
-    startTime: "",
-    endTime: "",
-    maxParticipants: "",
-    registrationFee: "",
-    instagramHandle: "",
-    whatsappGroupLink: "",
-    tags: "",
-    description: "",
-    preRequisites: "",
-    bannerDesktopImages: [],
-    bannerMobileImages: []
-  }), []); // Empty dependency array - only initialize once
+    eventName: event?.eventName || "",
+    handle: event?.handle || "",
+    locationName: event?.eventLocation?.name || "",
+    line1: event?.eventLocation?.address?.line1 || "",
+    line2: event?.eventLocation?.address?.line2 || "",
+    city: event?.eventLocation?.address?.city || "",
+    state: event?.eventLocation?.address?.state || "",
+    postalCode: event?.eventLocation?.address?.postalCode || "",
+    startDate: event?.startDate ? new Date(event.startDate.split('/').reverse().join('-')) : null,
+    bookingStartDate: event?.bookingStartDate ? new Date(event.bookingStartDate.split('/').reverse().join('-')) : null,
+    bookingEndDate: event?.bookingEndDate ? new Date(event.bookingEndDate.split('/').reverse().join('-')) : null,
+    startTime: event?.startTime || "",
+    endTime: event?.endTime || "",
+    maxParticipants: event?.maxParticipants || "",
+    registrationFee: event?.registrationFee || "",
+    instagramHandle: event?.instagramHandle || "",
+    whatsappGroupLink: event?.whatsappGroupLink || "",
+    tags: event?.tags?.join(', ') || "",
+    description: event?.description || "",
+    preRequisites: event?.preRequisites || "",
+    bannerDesktopImages: event?.bannerDesktopImages || [],
+    bannerMobileImages: event?.bannerMobileImages || []
+  }), [event]);
 
   // Reset location when component unmounts
   useEffect(() => {
@@ -137,6 +123,20 @@ const BasicInfo = () => {
       dispatch(resetGlobalLocation());
     };
   }, [dispatch]);
+
+  // Initialize formData with event data
+  useEffect(() => {
+    if (event) {
+      setFormData({
+        sponsors: event.sponsors || [],
+        bannerDesktopImages: event.bannerDesktopImages || [],
+        bannerMobileImages: event.bannerMobileImages || [],
+        eventGallery: event.eventGallery || [],
+        previousEventVideos: event.previousEventVideos || [],
+        whatToExpect: event.whatToExpect || []
+      });
+    }
+  }, [event]);
 
   // Generate event handle from event name
   const generateHandle = (eventName) => {
@@ -159,7 +159,7 @@ const BasicInfo = () => {
   };
 
   const handleFormSubmit = (values, { setSubmitting, setFieldError }) => {
-    console.log("🚀 ~ BasicInfo ~ Send Button Clicked - Form Submission Initiated", {
+    console.log("🚀 ~ EventDetailsInfo ~ Form Submission Initiated", {
       formValues: values,
       step: "SEND_BUTTON_CLICKED"
     });
@@ -168,45 +168,26 @@ const BasicInfo = () => {
     const longitude = location?.lng ? parseFloat(location.lng) : 0;
     const latitude = location?.lat ? parseFloat(location.lat) : 0;
 
-    // Validate that we have a valid organiser selected
-    if (!values.organiser) {
-      setFieldError('organiser', 'Please select an event organiser');
-      setSubmitting(false);
-      return;
-    }
-
-    console.log("🚀 ~ BasicInfo ~ Location Validation", {
-      longitude,
-      latitude,
-      location,
-      isValidLongitude: !isNaN(longitude),
-      isValidLatitude: !isNaN(latitude),
-      step: "LOCATION_VALIDATION"
-    });
-
     if (isNaN(longitude) || isNaN(latitude)) {
-      console.log("❌ ~ BasicInfo ~ Location Validation Failed", {
+      console.log("❌ ~ EventDetailsInfo ~ Location Validation Failed", {
         longitude,
         latitude,
         step: "LOCATION_VALIDATION_FAILED"
       });
       setFieldError('locationName', 'Invalid location coordinates. Please select a valid location.');
       setSubmitting(false);
+      setShowToast(true);
+      setToastMessage('Invalid location coordinates. Please select a valid location.');
+      setIsErrorToast(true);
       return;
     }
-
-    // Process tags - convert comma-separated string to array
-    // TODO: Uncomment when backend supports tags field
-    // const processedTags = values.tags
-    //   ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
-    //   : [];
 
     // Collect all form data
     const allFormData = {
       step: 1,
-      eventId: "",
-      ownerUserId: values.organiser || "",
+      eventId: eventId,
       eventName: values.eventName || "",
+      ownerUserId: ownerId,
       handle: values.handle || "",
       description: values.description || "",
       preRequisites: values.preRequisites || "",
@@ -219,7 +200,6 @@ const BasicInfo = () => {
       registrationFee: parseFloat(values.registrationFee) || 0,
       instagramHandle: values.instagramHandle || "",
       whatsappGroupLink: values.whatsappGroupLink || "",
-      tags: values.tags || "",
       eventLocation: {
         name: values.locationName,
         address: {
@@ -238,69 +218,35 @@ const BasicInfo = () => {
       ...formData
     };
 
-    console.log("🚀 ~ BasicInfo ~ Form Data Collected", {
+    console.log("🚀 ~ EventDetailsInfo ~ Form Data Collected", {
       allFormData,
       additionalFormData: formData,
       step: "FORM_DATA_COLLECTION_COMPLETE"
     });
 
-    console.log("🚀 ~ BasicInfo ~ Form Submission Started", {
-      formData: allFormData,
-      step: "FORM_VALIDATION_PASSED"
-    });
-
-    createEvent(allFormData, {
+    updateEvent(allFormData, {
       onSuccess: (data) => {
-        console.log("🎉 ~ BasicInfo ~ Event Created Successfully", {
+        console.log("🎉 ~ EventDetailsInfo ~ Event Updated Successfully", {
           responseData: data,
-          eventId: data?.eventId,
-          eventObject: data?.event,
-          eventObjectId: data?.event?._id,
-          step: "EVENT_CREATION_SUCCESS"
+          step: "EVENT_UPDATE_SUCCESS"
         });
-
-        // Try to get eventId from different possible locations in response
-        const eventId = data?.eventId || data?.event?._id || data?.event?.id;
-
-        console.log("🚀 ~ BasicInfo ~ Event ID Resolution", {
-          eventId,
-          fromEventId: data?.eventId,
-          fromEventObjectId: data?.event?._id,
-          fromEventObjectIdAlt: data?.event?.id,
-          step: "EVENT_ID_RESOLUTION"
-        });
-
-        // Navigate to acknowledgement page with the event ID
-        if (eventId) {
-          console.log("🚀 ~ BasicInfo ~ Navigating to Acknowledgement", {
-            eventId: eventId,
-            ownerUserId: values.organiser,
-            navigationPath: `/social-events/${eventId}/acknowledgement`,
-            step: "NAVIGATION_TO_ACKNOWLEDGEMENT"
-          });
-
-          // Store ownerUserId in localStorage for acknowledgement page
-          localStorage.setItem(`event_${eventId}_ownerUserId`, values.organiser);
-
-          navigate(`/social-events/${eventId}/acknowledgement`);
-        } else {
-          console.log("❌ ~ BasicInfo ~ No Event ID in Response", {
-            responseData: data,
-            checkedPaths: {
-              eventId: data?.eventId,
-              eventObjectId: data?.event?._id,
-              eventObjectIdAlt: data?.event?.id
-            },
-            step: "MISSING_EVENT_ID"
-          });
-        }
+        setShowToast(true);
+        setToastMessage('Event updated successfully!');
+        setIsErrorToast(false);
+        // Add a small delay before navigation to allow the toast to be seen
+        setTimeout(() => {
+          navigate('/social-events');
+        }, 1500);
       },
       onError: (error) => {
-        console.error("❌ ~ BasicInfo ~ Event Creation Failed", {
+        console.error("❌ ~ EventDetailsInfo ~ Event Update Failed", {
           error: error,
           formData: allFormData,
-          step: "EVENT_CREATION_ERROR"
+          step: "EVENT_UPDATE_ERROR"
         });
+        setShowToast(true);
+        setToastMessage(error?.message || 'Failed to update event. Please try again.');
+        setIsErrorToast(true);
         setSubmitting(false);
       }
     });
@@ -316,60 +262,46 @@ const BasicInfo = () => {
     return `${day}/${month}/${year}`;
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <strong className="font-bold">Error!</strong>
+        <span className="block sm:inline"> Failed to load event details. Please try again later.</span>
+      </div>
+    );
+  }
+
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleFormSubmit}
+      enableReinitialize
     >
       {({ values, setFieldValue, isSubmitting }) => {
-        // Auto-populate organiser field for event owners
-        useEffect(() => {
-          if (userRole === 'EVENT_OWNER' && singleEventOwner && !values.organiser) {
-            setFieldValue('organiser', singleEventOwner.id);
-          }
-        }, [userRole, singleEventOwner, values.organiser, setFieldValue]);
-
-        // Update location fields when location changes, but only if location fields are empty
-        // This prevents overwriting user-entered data
+        // Update location fields when location changes
         useEffect(() => {
           if (location.city || location.state || location.lng || location.lat) {
-            // Only update if the field is currently empty to avoid overwriting user input
-            if (!values.locationName) setFieldValue('locationName', location?.name || '');
-            if (!values.line1) setFieldValue('line1', location?.address_line1 || '');
-            if (!values.line2) setFieldValue('line2', location?.address_line2 || '');
-            if (!values.city) setFieldValue('city', location?.city || '');
-            if (!values.state) setFieldValue('state', location?.state || '');
-            if (!values.postalCode) setFieldValue('postalCode', location?.pin_code || '');
+            setFieldValue('locationName', location?.name || '');
+            setFieldValue('line1', location?.address_line1 || '');
+            setFieldValue('line2', location?.address_line2 || '');
+            setFieldValue('city', location?.city || '');
+            setFieldValue('state', location?.state || '');
+            setFieldValue('postalCode', location?.pin_code || '');
           }
-        }, [location, setFieldValue, values.locationName, values.line1, values.line2, values.city, values.state, values.postalCode]);
+        }, [location, setFieldValue]);
 
         return (
-          <Form>
+          <Form className={`${!isEdit ? 'pointer-events-none opacity-60' : ''}`}>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-[30px] mt-4'>
-              <FormSelect
-                label="Event Organiser name"
-                name="organiser"
-                placeholder={isLoadingOwners ? "Loading organisers..." : "Select Organiser"}
-                options={(() => {
-                  if (userRole === 'ADMIN') {
-                    // For admin users, show all event owners
-                    return eventOwners?.map(owner => ({
-                      value: owner.id,
-                      label: owner.name
-                    })) || [];
-                  } else if (userRole === 'EVENT_OWNER' && singleEventOwner) {
-                    // For event owners, show only their own details
-                    return [{
-                      value: singleEventOwner.id,
-                      label: singleEventOwner.name
-                    }];
-                  }
-                  return [];
-                })()}
-                disabled={isLoadingOwners || (userRole === 'EVENT_OWNER')}
-              />
-
               <div className='flex flex-col items-start gap-3'>
                 <p className='text-base leading-[19.36px] text-[#232323]'>Event name</p>
                 <Field
@@ -585,6 +517,7 @@ const BasicInfo = () => {
             <div className='flex flex-col items-start gap-3 mt-3'>
               <WhatToExpectTable
                 disabled={false}
+                data={formData.whatToExpect}
                 onChange={(data) => handleDataChange('whatToExpect', data)}
               />
             </div>
@@ -592,6 +525,7 @@ const BasicInfo = () => {
             <div className='flex flex-col items-start gap-3 mt-3'>
               <SponsorTable
                 disabled={false}
+                data={formData.sponsors}
                 onChange={(data) => handleDataChange('sponsors', data)}
               />
             </div>
@@ -600,6 +534,7 @@ const BasicInfo = () => {
               <div className='w-full md:w-1/2'>
                 <BannerDesktopTable
                   disabled={false}
+                  data={formData.bannerDesktopImages}
                   onChange={(data) => handleDataChange('bannerDesktopImages', data, setFieldValue)}
                 />
                 <ErrorMessage name="bannerDesktopImages" component={TextError} />
@@ -608,6 +543,7 @@ const BasicInfo = () => {
               <div className='w-full md:w-1/2'>
                 <BannerMobileTable
                   disabled={false}
+                  data={formData.bannerMobileImages}
                   onChange={(data) => handleDataChange('bannerMobileImages', data, setFieldValue)}
                 />
                 <ErrorMessage name="bannerMobileImages" component={TextError} />
@@ -617,6 +553,7 @@ const BasicInfo = () => {
             <div className='flex flex-col items-start gap-3 mt-3'>
               <EventGalleryTable
                 disabled={false}
+                data={formData.eventGallery}
                 onChange={(data) => handleDataChange('eventGallery', data)}
               />
             </div>
@@ -624,6 +561,7 @@ const BasicInfo = () => {
             <div className='flex flex-col items-start gap-3 mt-3'>
               <PreviousEventVideosTable
                 disabled={false}
+                data={formData.previousEventVideos}
                 onChange={(data) => handleDataChange('previousEventVideos', data)}
               />
             </div>
@@ -668,9 +606,17 @@ const BasicInfo = () => {
                 disabled={isSubmitting}
                 className="px-4 py-2 rounded-lg shadow-md bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Sending...' : 'Send'}
+                {isSubmitting ? 'Updating...' : 'Update Event'}
               </button>
             </div>
+
+            {showToast && (
+              <Toast
+                successMessage={!isErrorToast ? toastMessage : null}
+                error={isErrorToast ? toastMessage : null}
+                onClose={() => setShowToast(false)}
+              />
+            )}
           </Form>
         );
       }}
@@ -678,4 +624,4 @@ const BasicInfo = () => {
   );
 }
 
-export default BasicInfo
+export default EventDetailsInfo

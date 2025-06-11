@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import { checkRoles } from "../utils/roleCheck";
 import { ADMIN_ROLES,EVENT_OWNER_ROLES,TOURNAMENT_OWNER_ROLES } from "./Roles";
 export const ROUTES = {
@@ -26,6 +27,7 @@ export const backButtonRoutes = [
     id: "id",
   },
 ];
+
 
 export const API_END_POINTS = {
   tournament: {
@@ -340,11 +342,11 @@ export const API_END_POINTS = {
   },
   socialEvents: {
     GET: {
-      getAllEvents: () => {
+      getAllEvents: (id) => {
         if (checkRoles(ADMIN_ROLES)) {
           return "/users/admin/events";
         } else if (checkRoles(EVENT_OWNER_ROLES)) {
-          return "/users/event-owner/events";
+          return `/users/event-owner/events/owner/${id}`;
         } else return null;
       },
       searchEvents: (ownerId) => {
@@ -353,6 +355,13 @@ export const API_END_POINTS = {
         } else if(checkRoles(EVENT_OWNER_ROLES)) {
           return `/users/event-owner/events/owner/${ownerId}/search`
         }
+      },
+      getEventById: (eventId, ownerId) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/events/${eventId}`;
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return `/users/event-owner/events/${eventId}/owner/${ownerId}`;
+        } else return null;
       },
       getAllEventOwners: ({ currentPage, limit }) => {
         if (checkRoles(ADMIN_ROLES)) {
@@ -382,6 +391,11 @@ export const API_END_POINTS = {
           return `/users/event-owner/events/${eventId}/update`;
         } else return null;
       },
+      verifyEvent: (eventId) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/events/${eventId}/verify`;
+        } else return null;
+      }
     }
   },
   players: {

@@ -3,25 +3,26 @@ import { useSearchEvents } from '../../Hooks/SocialEventsHooks';
 import { useSelector } from 'react-redux';
 import { useSearchDebounce } from '../../Hooks/useSearchDebounce';
 
-
-const EventSearch = ({ onSearchResults }) => {
+const EventSearch = ({ onSearchResults, currentPage, limit }) => {
   const { userInfo } = useSelector((state) => state.auth);
   const ownerId = userInfo?.id;
-  console.log(`🚀 || EventSearch.jsx:10 || EventSearch || ownerId:`, ownerId);
+  // console.log(`🚀 || EventSearch.jsx:10 || EventSearch || ownerId:`, ownerId);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useSearchDebounce(searchTerm, 500);
 
   const { data, isLoading, isError, error } = useSearchEvents({
     ownerId, 
-    searchTitle: debouncedSearch // Make sure this matches the API parameter name
+    searchTitle: debouncedSearch,
+    page: currentPage,
+    limit: limit
   });
 
   useEffect(() => {
     if (debouncedSearch && data) {
-      onSearchResults(data?.events || []);
+      onSearchResults(data?.events || [], data?.total || 0);
     }
     if (!debouncedSearch) {
-      onSearchResults(null);
+      onSearchResults(null, 0);
     }
   }, [debouncedSearch, data, onSearchResults]);
 

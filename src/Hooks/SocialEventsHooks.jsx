@@ -1,22 +1,20 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { createEvent, getAllEvents, searchEvents, updateEvent, getAllEventOwners, getSingleEventOwner } from "../api/SocialEvents";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createEvent, getAllEvents, searchEvents, updateEvent, getAllEventOwners, getSingleEventOwner, getEventById, verifyEvent, archiveEvent, publishEvent, getEventBookings, addEventPlayer, searchPlayers, cancelEventBooking, refundEventBooking } from "../api/SocialEvents";
 import { checkRoles } from "../utils/roleCheck";
 import { ADMIN_ROLES, EVENT_OWNER_ROLES } from "../Constant/Roles";
 
-export const useGetAllEvents = (page = 1, limit = 10) => {
+export const useGetAllEvents = (page = 1, limit = 10, id) => {
   return useQuery({
     queryKey: ["socialEvents", page],
-    queryFn: () => getAllEvents(page, limit),
+    queryFn: () => getAllEvents(page, limit, id),
     enabled: true,
   })
 }
 
-export const useSearchEvents = ({ownerId, searchTitle}) => {
-  // console.log(`🚀 || SocialEventsHooks.jsx:13 || useSearchEvents || searchTitle:`, searchTitle);
-  // console.log(`🚀 || SocialEventsHooks.jsx:13 || useSearchEvents || ownerId:`, ownerId);
+export const useSearchEvents = ({ownerId, searchTitle, page = 1, limit = 10}) => {
   return useQuery({
-    queryKey: ["searchEvents", ownerId, searchTitle],
-    queryFn: () => searchEvents({ownerId, searchTitle}),
+    queryKey: ["searchEvents", ownerId, searchTitle, page, limit],
+    queryFn: () => searchEvents({ownerId, searchTitle, page, limit}),
     enabled: !!ownerId && !!searchTitle, // only run when both are available
   });
 };
@@ -31,10 +29,15 @@ export const useSearchEvents = ({ownerId, searchTitle}) => {
   };
 
   export const useUpdateEvent = () => {
+    const queryClient = useQueryClient();
+    
     return useMutation({
       mutationFn: (payload) => updateEvent(payload),
       onSuccess: (data) => {
         console.log("🚀 ~ useUpdateEvent ~ data:", data);
+        // Invalidate both event details and events list queries
+        queryClient.invalidateQueries(['eventDetails']);
+        queryClient.invalidateQueries(['socialEvents']);
       },
     });
   };
@@ -103,5 +106,102 @@ export const useEventOwnerData = ({ currentPage = 1, limit = 100 } = {}) => {
       userRole: null
     };
   }
+};
+
+// Hook for getting event details by ID
+export const useGetEventById = (eventId, ownerId) => {
+  return useQuery({
+    queryKey: ["eventDetails", eventId, ownerId],
+    queryFn: () => getEventById(eventId, ownerId),
+    enabled: !!eventId && (checkRoles(ADMIN_ROLES) || (checkRoles(EVENT_OWNER_ROLES) && !!ownerId)),
+    staleTime: 0, // Don't use stale data
+    cacheTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+};
+
+export const useVerifyEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ eventId, action, rejectionComments }) => 
+      verifyEvent(eventId, action, rejectionComments),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['eventDetails']);
+    },
+  });
+};
+
+export const useArchiveEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ eventId, ownerId }) => archiveEvent(eventId, ownerId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['eventDetails']);
+    },
+  });
+};
+
+export const usePublishEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ eventId, ownerId }) => publishEvent(eventId, ownerId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['eventDetails']);
+    },
+  });
+};
+
+export const useGetEventBookings = (eventId) => {
+  return useQuery({
+    queryKey: ["eventBookings", eventId],
+    queryFn: () => getEventBookings(eventId),
+    enabled: !!eventId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useAddEventPlayer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload) => addEventPlayer(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['eventBookings']);
+    },
+  });
+};
+
+export const useSearchPlayers = (searchQuery) => {
+  return useQuery({
+    queryKey: ["searchPlayers", searchQuery],
+    queryFn: () => searchPlayers(searchQuery),
+    enabled: !!searchQuery && searchQuery.length >= 3,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useCancelEventBooking = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ bookingId, ownerId, cancelReason }) => 
+      cancelEventBooking(bookingId, ownerId, cancelReason),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['eventBookings']);
+    },
+  });
+};
+
+export const useRefundEventBooking = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ bookingId, ownerId }) => refundEventBooking(bookingId, ownerId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['eventBookings']);
+    },
+  });
 };
 

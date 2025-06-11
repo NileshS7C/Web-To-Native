@@ -5,12 +5,20 @@ import { useDispatch } from "react-redux";
 import { imageUpload, uploadIcon } from "../../Assests";
 import TextError from "../Error/formError";
 
-const BannerDesktopTable = ({ disabled, onChange }) => {
+const BannerDesktopTable = ({ disabled, onChange, data = [] }) => {
   const dispatch = useDispatch();
   const [bannerImages, setBannerImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Initialize with data prop
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setBannerImages(data);
+      setPreviews(data.map(url => ({ preview: url })));
+    }
+  }, [data]);
 
   useEffect(() => {
     const previewImages = bannerImages.length

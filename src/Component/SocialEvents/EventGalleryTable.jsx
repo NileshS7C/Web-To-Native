@@ -5,12 +5,20 @@ import { useDispatch } from "react-redux";
 import { uploadIcon, venueUploadImage } from "../../Assests";
 import TextError from "../Error/formError";
 
-const EventGalleryTable = ({ disabled, onChange }) => {
+const EventGalleryTable = ({ disabled, onChange, data = [] }) => {
   const dispatch = useDispatch();
   const [galleryImages, setGalleryImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Initialize with data prop
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setGalleryImages(data);
+      setPreviews(data.map(url => ({ preview: url })));
+    }
+  }, [data]);
 
   useEffect(() => {
     const previewImages = galleryImages.length
@@ -93,30 +101,32 @@ const EventGalleryTable = ({ disabled, onChange }) => {
             </div>
           ))}
         </div>
-        <div className="relative flex flex-col items-start gap-2.5 w-full h-[133px]">
-          <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
-            <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+        {!disabled && galleryImages.length < 4 && (
+          <div className="relative flex flex-col items-start gap-2.5 w-full h-[133px]">
+            <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
+              <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
 
-            <p className="text-sm text-[#5B8DFF]">
-              Click to upload{" "}
-              <span className="text-sm text-[#353535] "> or drag and drop</span>
-            </p>
+              <p className="text-sm text-[#5B8DFF]">
+                Click to upload{" "}
+                <span className="text-sm text-[#353535] "> or drag and drop</span>
+              </p>
 
-            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-            <p className="text-xs text-[#353535] mt-1">(Image size: 600x600)</p>
+              <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
+              <p className="text-xs text-[#353535] mt-1">(Image size: 600x600)</p>
 
-            <input
-              id="eventGallery"
-              name="eventGallery"
-              onChange={handleFileUpload}
-              value=""
-              type="file"
-              className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-              disabled={disabled || galleryImages.length >= 4}
-            />
+              <input
+                id="eventGallery"
+                name="eventGallery"
+                onChange={handleFileUpload}
+                value=""
+                type="file"
+                className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                disabled={disabled || galleryImages.length >= 4}
+              />
+            </div>
+            {isError && <TextError>{errorMessage}</TextError>}
           </div>
-          {isError && <TextError>{errorMessage}</TextError>}
-        </div>
+        )}
       </div>
     </div>
   );

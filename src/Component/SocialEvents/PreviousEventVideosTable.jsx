@@ -5,32 +5,42 @@ import { uploadIcon } from "../../Assests";
 import Spinner from "../Common/Spinner";
 import { deleteImages, uploadImage } from "../../redux/Upload/uploadActions";
 
-const PreviousEventVideosTable = ({ disabled, onChange }) => {
+const PreviousEventVideosTable = ({ disabled, onChange, data = [] }) => {
   const dispatch = useDispatch();
   const [videos, setVideos] = useState([]); // { url, isUploading }
   const [uploadingIndex, setUploadingIndex] = useState(-1);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const urls = videos.filter(v => v.url).map(v => v.url);
-    onChange?.(urls);
-  }, [videos]);
+    const urls = videos.map((v) => v.url).filter(Boolean);
+    if (typeof onChange === 'function') {
+      onChange(urls);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(videos)]);
+  
+  useEffect(() => {
+    if (Array.isArray(data) && data.length > 0) {
+      const isSame = JSON.stringify(data) === JSON.stringify(videos.map(v => v.url));
+      if (!isSame) {
+        setVideos(data.map(url => ({ url, isUploading: false })));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(data)]);
+  
 
   const handleVideoUpload = async (e) => {
     setError("");
     const file = e.target.files[0];
-    console.log("File selected:", file);
-
     if (!file?.type.startsWith("video/")) {
       setError("Only video files are allowed.");
-      // Reset the input value to allow selecting the same file again
       e.target.value = '';
       return;
     }
 
     if (videos.length >= 5) {
       setError("You can upload up to 5 videos only.");
-      // Reset the input value to allow selecting the same file again
       e.target.value = '';
       return;
     }
@@ -40,9 +50,7 @@ const PreviousEventVideosTable = ({ disabled, onChange }) => {
     setVideos((prev) => [...prev, { url: null, isUploading: true }]);
 
     try {
-      console.log("Attempting to upload video...");
       const result = await dispatch(uploadImage(file)).unwrap();
-      console.log("Upload result:", result);
       const uploadedUrl = result?.data?.url;
 
       setVideos((prev) => {
@@ -51,26 +59,19 @@ const PreviousEventVideosTable = ({ disabled, onChange }) => {
         return updated;
       });
     } catch (err) {
-      console.error("Upload error:", err);
       setError(err?.data?.message || "Upload failed.");
       setVideos((prev) => prev.filter((_, i) => i !== uploadIndex));
     } finally {
       setUploadingIndex(-1);
-      // Reset the input value to allow selecting the same file again
       e.target.value = '';
     }
   };
 
   const handleDelete = (index) => {
-    // Get the video URL to delete
     const videoUrl = videos[index]?.url;
-    
-    // Call the delete API if we have a URL
     if (videoUrl) {
       dispatch(deleteImages([videoUrl]));
     }
-    
-    // Update the local state
     const updated = videos.filter((_, i) => i !== index);
     setVideos(updated);
   };
@@ -112,11 +113,12 @@ const PreviousEventVideosTable = ({ disabled, onChange }) => {
         <div className="relative flex flex-col items-start gap-2.5 w-[223px] h-[133px] mt-2">
           <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
             <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
-            <p className="text-sm text-[#5B8DFF]">Click to upload{" "}
+            <p className="text-sm text-[#5B8DFF]">
+              Click to upload{" "}
               <span className="text-sm text-[#353535]"> or drag and drop</span>
             </p>
             <p className="text-xs text-[#353535] mt-1">(Video max size: 50MB)</p>
-
+            <p className="text-xs text-[#353535] mt-1">(Supported formats: MP4, WebM)</p>
             <input
               type="file"
               accept="video/*"
@@ -133,5 +135,3 @@ const PreviousEventVideosTable = ({ disabled, onChange }) => {
 };
 
 export default PreviousEventVideosTable;
-
-

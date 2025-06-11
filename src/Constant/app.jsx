@@ -140,6 +140,11 @@ export const TOURNAMENT_OWNER_NAVIGATION = [
   { name: "Social Events", icon: tournamentIcon, path: "social-events" },
   { name: "Profile", icon: profileIcon, path: "profile" },
 ];
+export const EVENT_OWNER_NAVIGATION = [
+  { name: "Dashboard", icon: overviewIcon, path: "" },
+  { name: "Social Events", icon: tournamentIcon, path: "social-events" },
+  { name: "Profile", icon: profileIcon, path: "profile" },
+];
 
 export const VENUE_OWNER_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
@@ -216,6 +221,7 @@ export const notHaveBackButton = [
   "Media Gallery",
   "Social Events",
   "Add Social Events",
+  "Social Events",
 ];
 
 export const ROLES = [
