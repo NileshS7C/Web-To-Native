@@ -541,11 +541,10 @@ const TournamentBasicInfo = ({
   }, [hasError, tournamentOwners]);
 
   useEffect(() => {
-    
-    if (userName && ["TOURNAMENT_OWNER", "TOURNAMENT_BOOKING_OWNER"].includes(userRole)) {
-      setFieldValue("ownerUserId", userName);
+    if (singleTournamentOwner && ["TOURNAMENT_OWNER", "TOURNAMENT_BOOKING_OWNER"].includes(userRole)) {
+      setFieldValue("ownerUserId", singleTournamentOwner.name);
     }
-  }, [userName]);
+  }, []);
   return (
     <div className="grid grid-col-1 md:grid-cols-2 gap-3 md:gap-[30px]">
       {!rolesWithTournamentOwnerAccess.includes(rolesAccess?.tournament) ? (
