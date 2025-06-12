@@ -8,6 +8,9 @@ import axiosInstance from "../../../../Services/axios";
 import { packageImageSize } from "../../../../Constant/app";
 import { uploadImage } from "../../../../redux/Upload/uploadActions";
 import { useDispatch } from "react-redux";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
 const PackageAddDataModal = ({
   data,
   isOpen,
@@ -18,13 +21,53 @@ const PackageAddDataModal = ({
   const [previews, setPreviews] = useState([]);
   const [uploadingIndex, setUploadingIndex] = useState(-1);
   const [isError, setIsError] = useState(false);
-  const dispatch=useDispatch();
+  const [errorMessage, setErrorMessage] = useState("");
+  const dispatch = useDispatch();
+
   useEffect(() => {
     // Reset state when modal opens/closes
     setPreviews([]);
     setUploadingIndex(-1);
     setIsError(false);
+    setErrorMessage("");
   }, [isOpen]);
+
+  const validateFile = (file) => {
+    if (!file.type.startsWith("image/")) {
+      throw new Error("File should be a valid image type.");
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error("File size should not exceed 5MB");
+    }
+  };
+
+  const handleImageUpload = async (file, index) => {
+    try {
+      validateFile(file);
+      setUploadingIndex(index);
+      setIsError(false);
+      setErrorMessage("");
+
+      const result = await dispatch(uploadImage(file)).unwrap();
+      const { url } = result?.data;
+      
+      setPreviews((prev) => {
+        const newPreviews = [...prev];
+        newPreviews[index] = url;
+        return newPreviews;
+      });
+
+      return url;
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage(error.response?.data?.message || "Failed to upload image");
+      setPreviews((prev) => prev.filter((_, i) => i !== index));
+      throw error;
+    } finally {
+      setUploadingIndex(-1);
+    }
+  };
 
   // Validation Schema
   const validationSchema = Yup.object().shape({
@@ -40,25 +83,26 @@ const PackageAddDataModal = ({
 
   const handleSubmit = async (values, { setSubmitting }) => {
     setLoading(true);
+    setIsError(false);
+    setErrorMessage("");
     try {
-       const newPackage={
-        locationName:values?.locationName,
-        packageImages:values?.packageImages,
-        description:values?.description,
-        link:values?.link,
-        linkText:values?.linkText,
-        position:data?.packages?.length + 1 || 0
-       }
-       const updatedPackages=[
+      const newPackage = {
+        locationName: values?.locationName,
+        packageImages: values?.packageImages,
+        description: values?.description,
+        link: values?.link,
+        linkText: values?.linkText,
+        position: data?.packages?.length + 1 || 0
+      };
+      const updatedPackages = [
         ...data.packages,
         newPackage
-       ].map(({_id,...rest})=>rest);
+      ].map(({ _id, ...rest }) => rest);
 
-      // Construct your payload and make API request
       const payload = {
-        sectionTitle:data?.sectionTitle,
-        isVisible:data?.isVisible,
-        packages:updatedPackages
+        sectionTitle: data?.sectionTitle,
+        isVisible: data?.isVisible,
+        packages: updatedPackages
       };
 
       const config = {
@@ -67,28 +111,35 @@ const PackageAddDataModal = ({
         },
       };
 
-    //   // Send API request
       await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}/users/admin/tourism/packages`,
         JSON.stringify(payload),
         config
       );
 
-      fetchTourismSections()
+      fetchTourismSections();
       onClose();
     } catch (error) {
+      setIsError(true);
+      setErrorMessage(error.response?.data?.message || "Failed to save package");
       console.error("Error submitting data:", error);
     } finally {
       setLoading(false);
       setSubmitting(false);
     }
   };
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-10">
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
       <div className="fixed inset-0 z-10 w-screen">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel className="relative max-h-[90vh] transform overflow-y-auto rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+            {isError && (
+              <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{errorMessage}</span>
+              </div>
+            )}
             <Formik
               initialValues={{
                 locationName: "",
@@ -214,69 +265,32 @@ const PackageAddDataModal = ({
                                   name="packageImages"
                                   onChange={async (event) => {
                                     const file = event.target.files[0];
-
                                     if (!file) return;
-
-                                    if (!file.type.startsWith("image/")) {
-                                      setFieldError(
-                                        "packageImages",
-                                        "File should be a valid image type."
-                                      );
-                                      return;
-                                    }
-
-                                    const maxSize = packageImageSize;
-                                    if (file.size > maxSize) {
-                                      setFieldError(
-                                        "packageImages",
-                                        "File should be less than 5 MB"
-                                      );
-                                      return;
-                                    }
 
                                     try {
                                       const uploadIndex = previews.length;
-                                      setUploadingIndex(uploadIndex);
                                       setPreviews((prev) => [
                                         ...prev,
                                         URL.createObjectURL(file),
                                       ]);
 
-                                      const result = await dispatch(
-                                        uploadImage(file)
-                                      ).unwrap();
-                                      const { url } = result?.data;
-                                      setPreviews((prev) => {
-                                        const newPreviews = [...prev];
-                                        newPreviews[uploadIndex] = url;
-                                        return newPreviews;
-                                      });
-
+                                      const url = await handleImageUpload(file, uploadIndex);
                                       setFieldValue("packageImages", [
                                         ...values.packageImages,
                                         url,
                                       ]);
-                                      setUploadingIndex(-1);
-                                    } catch (err) {
-                                      console.log("issue while uploading", err);
-                                      setIsError(true);
+                                    } catch (error) {
                                       setFieldError(
                                         "packageImages",
-                                        err.response?.data?.message ||
-                                          "Upload failed"
+                                        error.message
                                       );
-                                      setPreviews((prev) =>
-                                        prev.filter(
-                                          (_, i) => i !== uploadingIndex
-                                        )
-                                      );
-                                      setUploadingIndex(-1);
                                     }
                                   }}
                                   value=""
                                   type="file"
+                                  accept="image/*"
                                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                                  disabled={uploadingIndex !== -1} // Disable during upload
+                                  disabled={uploadingIndex !== -1}
                                 />
                               )}
                             </FieldArray>
@@ -305,7 +319,7 @@ const PackageAddDataModal = ({
                                 <p className="pl-1">or drag and drop</p>
                               </div>
                               <p className="text-xs text-gray-500">
-                                (Recommended size: 500x700)
+                                (Recommended size: 500x700, Max size: 5MB)
                               </p>
                             </div>
                           </div>
@@ -320,24 +334,31 @@ const PackageAddDataModal = ({
                           <div className="flex gap-4 flex-wrap mt-4">
                             {previews.map((img, index) => (
                               <div key={index} className="relative mt-3">
-                                <img
-                                  src={img}
-                                  alt={`Preview ${index + 1}`}
-                                  className="h-20 w-20 object-cover rounded-md border"
-                                />
+                                <div className="relative">
+                                  <img
+                                    src={img}
+                                    alt={`Preview ${index + 1}`}
+                                    className="h-20 w-20 object-cover rounded-md border"
+                                  />
+                                  {uploadingIndex === index && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-md">
+                                      <Spinner />
+                                    </div>
+                                  )}
+                                </div>
                                 <button
                                   type="button"
                                   className="absolute right-[-6px] top-[-6px] z-10"
                                   onClick={() => {
-                                    const newImages =
-                                      values.packageImages.filter(
-                                        (_, i) => i !== index
-                                      );
+                                    const newImages = values.packageImages.filter(
+                                      (_, i) => i !== index
+                                    );
                                     setFieldValue("packageImages", newImages);
                                     setPreviews((prev) =>
                                       prev.filter((_, i) => i !== index)
                                     );
                                   }}
+                                  disabled={uploadingIndex === index}
                                 >
                                   <IoIosCloseCircleOutline className="w-6 h-6 text-red-800 hover:text-red-600" />
                                 </button>

@@ -9,6 +9,7 @@ import { packageImageSize } from "../../../../Constant/app";
 import { useDispatch } from "react-redux";
 import { uploadImage } from "../../../../redux/Upload/uploadActions";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
 const PackageEditModal = ({
   data,
@@ -18,71 +19,118 @@ const PackageEditModal = ({
   fetchTourismSections,
 }) => {
   const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [previews, setPreviews] = useState([]);
   const [uploadingIndex, setUploadingIndex] = useState(-1);
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (!isOpen) {
-      setPreviews(null);
+      setPreviews([]);
+      setIsError(false);
+      setErrorMessage("");
     } else if (selectedCard?.packageImages) {
       setPreviews(selectedCard.packageImages);
     } else {
-      setPreviews(null);
+      setPreviews([]);
     }
   }, [isOpen, selectedCard]);
-  const dispatch=useDispatch();
+
+  const validateFile = (file) => {
+    if (!file.type.startsWith("image/")) {
+      throw new Error("File should be a valid image type.");
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error("File size should not exceed 5MB");
+    }
+  };
+
+  const handleImageUpload = async (file, index) => {
+    try {
+      validateFile(file);
+      setUploadingIndex(index);
+      setIsError(false);
+      setErrorMessage("");
+
+      const result = await dispatch(uploadImage(file)).unwrap();
+      const { url } = result?.data;
+      
+      setPreviews((prev) => {
+        const newPreviews = [...prev];
+        newPreviews[index] = url;
+        return newPreviews;
+      });
+
+      return url;
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage(error.response?.data?.message || "Failed to upload image");
+      setPreviews((prev) => prev.filter((_, i) => i !== index));
+      throw error;
+    } finally {
+      setUploadingIndex(-1);
+    }
+  };
+
   const handleSubmit = async (values, { setSubmitting }) => {
-      setLoading(true);
-      try {
-         const newPackage={
-          locationName:values?.locationName,
-          packageImages:values?.packageImages,
-          description:values?.description,
-          link:values?.link,
-          linkText:values?.linkText,
-          position:selectedCard?.position
-         }
-          const hasChanged = Object.keys(newPackage).some(
-            (key) => newPackage[key] !== selectedCard[key]
-          );
+    setLoading(true);
+    setIsError(false);
+    setErrorMessage("");
+    try {
+      const newPackage = {
+        locationName: values?.locationName,
+        packageImages: values?.packageImages,
+        description: values?.description,
+        link: values?.link,
+        linkText: values?.linkText,
+        position: selectedCard?.position
+      };
 
-          if (!hasChanged) {
-            setLoading(false);
-            return;
-          }
-         const updatedPackages = data.packages.map((Package) =>
-           Package.position === selectedCard.position ? newPackage : Package
-         );
+      const hasChanged = Object.keys(newPackage).some(
+        (key) => newPackage[key] !== selectedCard[key]
+      );
 
-        // Construct your payload and make API request
-        const payload = {
-          sectionTitle:selectedCard?.sectionTitle,
-          isVisible:selectedCard?.isVisible,
-          packages:updatedPackages
-        };
-  
-        const config = {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        };
-  
-        // Send API request
-        await axiosInstance.post(
-          `${import.meta.env.VITE_BASE_URL}/users/admin/tourism/packages`,
-          JSON.stringify(payload),
-          config
-        );
-  
-        fetchTourismSections()
-        onClose();
-      } catch (error) {
-        console.error("Error submitting data:", error);
-      } finally {
+      if (!hasChanged) {
         setLoading(false);
-        setSubmitting(false);
+        return;
       }
-    };
+
+      const updatedPackages = data.packages.map((Package) =>
+        Package.position === selectedCard.position ? newPackage : Package
+      );
+
+      const payload = {
+        sectionTitle: selectedCard?.sectionTitle,
+        isVisible: selectedCard?.isVisible,
+        packages: updatedPackages
+      };
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}/users/admin/tourism/packages`,
+        JSON.stringify(payload),
+        config
+      );
+
+      fetchTourismSections();
+      onClose();
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage(error.response?.data?.message || "Failed to update package");
+      console.error("Error submitting data:", error);
+    } finally {
+      setLoading(false);
+      setSubmitting(false);
+    }
+  };
+
   const validationSchema = Yup.object().shape({
     locationName: Yup.string().required("Location Name is required"),
     description: Yup.string().required("Description is required"),
@@ -100,6 +148,11 @@ const PackageEditModal = ({
       <div className="fixed inset-0 z-10 w-screen">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel className="relative transform overflow-auto max-h-[90vh] rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+            {isError && (
+              <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{errorMessage}</span>
+              </div>
+            )}
             <Formik
               initialValues={{
                 locationName: selectedCard?.locationName || "",
@@ -109,9 +162,9 @@ const PackageEditModal = ({
                 linkText: selectedCard?.linkText || "",
               }}
               validationSchema={validationSchema}
-              onSubmit={ handleSubmit}
+              onSubmit={handleSubmit}
             >
-              {({ setFieldValue, values }) => (
+              {({ setFieldValue, values, setFieldError }) => (
                 <Form>
                   <div className="space-y-6">
                     <div className="border-b border-gray-900/10 pb-6">
@@ -218,64 +271,32 @@ const PackageEditModal = ({
                                   name="packageImages"
                                   onChange={async (event) => {
                                     const file = event.target.files[0];
-
                                     if (!file) return;
-
-                                    if (!file.type.startsWith("image/")) {
-                                      setFieldError(
-                                        "packageImages",
-                                        "File should be a valid image type."
-                                      );
-                                      return;
-                                    }
-
-                                    const maxSize = packageImageSize;
-                                    if (file.size > maxSize) {
-                                      setFieldError(
-                                        "packageImages",
-                                        "File should be less than 5 MB"
-                                      );
-                                      return;
-                                    }
 
                                     try {
                                       const uploadIndex = previews.length;
-                                      setUploadingIndex(uploadIndex);
                                       setPreviews((prev) => [
                                         ...prev,
                                         URL.createObjectURL(file),
                                       ]);
 
-                                      const result = await dispatch(
-                                        uploadImage(file)
-                                      ).unwrap();
-                                      const { url } = result?.data;
-                                      setPreviews((prev) => {
-                                        const newPreviews = [...prev];
-                                        newPreviews[uploadIndex] = url;
-                                        return newPreviews;
-                                      });
-
+                                      const url = await handleImageUpload(file, uploadIndex);
                                       setFieldValue("packageImages", [
                                         ...values.packageImages,
                                         url,
                                       ]);
-                                      setUploadingIndex(-1);
-                                    } catch (err) {
-                                      console.log("issue while uploading", err);
-                                      setIsError(true);
-                                      setPreviews((prev) =>
-                                        prev.filter(
-                                          (_, i) => i !== uploadingIndex
-                                        )
+                                    } catch (error) {
+                                      setFieldError(
+                                        "packageImages",
+                                        error.message
                                       );
-                                      setUploadingIndex(-1);
                                     }
                                   }}
                                   value=""
                                   type="file"
+                                  accept="image/*"
                                   className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                                  disabled={uploadingIndex !== -1} // Disable during upload
+                                  disabled={uploadingIndex !== -1}
                                 />
                               )}
                             </FieldArray>
@@ -304,7 +325,7 @@ const PackageEditModal = ({
                                 <p className="pl-1">or drag and drop</p>
                               </div>
                               <p className="text-xs text-gray-500">
-                                (Recommended size: 500x700)
+                                (Recommended size: 500x700, Max size: 5MB)
                               </p>
                             </div>
                           </div>
@@ -319,24 +340,31 @@ const PackageEditModal = ({
                           <div className="flex gap-4 flex-wrap mt-4">
                             {previews.map((img, index) => (
                               <div key={index} className="relative mt-3">
-                                <img
-                                  src={img}
-                                  alt={`Preview ${index + 1}`}
-                                  className="h-20 w-20 object-cover rounded-md border"
-                                />
+                                <div className="relative">
+                                  <img
+                                    src={img}
+                                    alt={`Preview ${index + 1}`}
+                                    className="h-20 w-20 object-cover rounded-md border"
+                                  />
+                                  {uploadingIndex === index && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-md">
+                                      <Spinner />
+                                    </div>
+                                  )}
+                                </div>
                                 <button
                                   type="button"
                                   className="absolute right-[-6px] top-[-6px] z-10"
                                   onClick={() => {
-                                    const newImages =
-                                      values.packageImages.filter(
-                                        (_, i) => i !== index
-                                      );
+                                    const newImages = values.packageImages.filter(
+                                      (_, i) => i !== index
+                                    );
                                     setFieldValue("packageImages", newImages);
                                     setPreviews((prev) =>
                                       prev.filter((_, i) => i !== index)
                                     );
                                   }}
+                                  disabled={uploadingIndex === index}
                                 >
                                   <IoIosCloseCircleOutline className="w-6 h-6 text-red-800 hover:text-red-600" />
                                 </button>
@@ -358,7 +386,8 @@ const PackageEditModal = ({
                     </button>
                     <button
                       type="submit"
-                      className="rounded-md bg-[#1570EF] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1570EF] focus:outline-none"
+                      disabled={loading || uploadingIndex !== -1}
+                      className="rounded-md bg-[#1570EF] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1570EF] focus:outline-none disabled:bg-gray-400"
                     >
                       {loading ? <Spinner /> : "Save"}
                     </button>
