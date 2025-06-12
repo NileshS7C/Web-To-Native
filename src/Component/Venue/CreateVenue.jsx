@@ -991,6 +991,20 @@ const VenueBannerImage = ({ dispatch, uploadData, isUploading, id }) => {
       return;
     }
 
+    if(isImage && uploadedFile.size > 5 * 1024 * 1024){
+      setFieldError("bannerImages", "Image size should be less than 5MB");
+      setIsError(true);
+      setErrorMessage("Image size should be less than 5MB");
+      return;
+    }
+
+    if(isVideo && uploadedFile.size > 99 * 1024 * 1024){
+      setFieldError("bannerImages", "Video size should be less than 100MB");
+      setIsError(true);
+      setErrorMessage("Video size should be less than 100MB");
+      return;
+    }
+
     try {
       const uploadIndex = previews.length;
       setUploadingIndex(uploadIndex);
@@ -1131,6 +1145,8 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
     const uploadedFile = e.target.files[0];
     if (!uploadedFile.type.startsWith("image/")) {
       setFieldError("layoutImages", "File should be a valid image type.");
+      setIsError(true);
+      setErrorMessage("File should be a valid image type.");
       return;
     }
 
@@ -1144,11 +1160,14 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
       return;
     }
 
-    const maxSize = venueImageSize;
+    const maxSize = 5 * 1024 * 1024;
     if (uploadedFile.size > maxSize) {
-      setFieldError("layoutImages", "File should be less than 5 MB");
+      setFieldError("layoutImages", "File size should be less than 5MB");
+      setIsError(true);
+      setErrorMessage("File size should be less than 5MB");
       return;
     }
+
     try {
       const uploadIndex = previews.length;
       setUploadingIndex(uploadIndex);
@@ -1167,7 +1186,6 @@ const VenueLayoutImage = ({ dispatch, uploadData, isUploading, id }) => {
       setErrorMessage(err.data?.message);
       setIsError(true);
       setFieldError("layoutImages", err.data.message);
-      0;
 
       setPreviews((prev) => prev.filter((_, i) => i !== uploadingIndex));
       setUploadingIndex(-1);
