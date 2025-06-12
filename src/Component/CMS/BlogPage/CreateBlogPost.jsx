@@ -25,6 +25,8 @@ export default function CreateBlogPost() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [handleError, setHandleError] = useState("");
   const [saveError, setSaveError] = useState("");
+  const [coverImageLoading, setCoverImageLoading] = useState(false);
+  const [writerImageLoading, setWriterImageLoading] = useState(false);
 
   const uploadImageToS3 = async (file) => {
     try {
@@ -51,7 +53,14 @@ export default function CreateBlogPost() {
   // Handle Image Upload
   const handleImageChange = async (event, setImageFunction, triggerBy) => {
     const file = event.target.files[0];
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setImageError("File size should not exceed 5MB");
+      return;
+    }
     if (file) {
+      if (triggerBy === "coverImage") setCoverImageLoading(true);
+      if (triggerBy === "writerImage") setWriterImageLoading(true);
       const imageUrl = await uploadImageToS3(file);
       if (imageUrl.success) {
         setImageFunction(imageUrl.url);
@@ -64,6 +73,8 @@ export default function CreateBlogPost() {
           setWriterImageError(imageUrl.message);
         }
       }
+      if (triggerBy === "coverImage") setCoverImageLoading(false);
+      if (triggerBy === "writerImage") setWriterImageLoading(false);
     }
   };
 
@@ -260,15 +271,13 @@ export default function CreateBlogPost() {
                 Choose Image
               </label>
             </div>
-
-            {image && (
+            {image && !coverImageLoading && (
               <div className="relative w-fit">
                 <img
                   src={image}
                   alt="Blog Cover"
                   className="w-20 h-20 object-cover rounded-md"
                 />
-
                 <button
                   onClick={() => handleRemoveImage(setImage, "coverImage")}
                   className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-gray-500 text-white text-xs rounded-full p-1 shadow-md"
@@ -277,10 +286,13 @@ export default function CreateBlogPost() {
                 </button>
               </div>
             )}
-
-<span className="text-[12px] text-left text-[#353535] mt-1">(Image size: 1200x600) </span>
-
-
+            {coverImageLoading && (
+              <div className="flex items-center mt-2">
+                <span className="loader mr-2"></span>
+                <span className="text-blue-500 text-sm">Uploading image...</span>
+              </div>
+            )}
+            <span className="text-[12px] text-left text-[#353535] mt-1">(Image size: 1200x600) </span>
             {imageError && <p className="text-red-500 text-sm">{imageError}</p>}
           </div>
 
@@ -354,8 +366,7 @@ export default function CreateBlogPost() {
                   Choose Image
                 </label>
               </div>
-
-              {writerImage && (
+              {writerImage && !writerImageLoading && (
                 <div className="relative w-fit mt-4">
                   <img
                     src={writerImage}
@@ -371,10 +382,14 @@ export default function CreateBlogPost() {
                     &times;
                   </button>
                   <span className="text-[12px] text-left text-[#353535] mt-1">(Image size: 300x300) </span>
-
                 </div>
               )}
-
+              {writerImageLoading && (
+                <div className="flex items-center mt-2">
+                  <span className="loader mr-2"></span>
+                  <span className="text-blue-500 text-sm">Uploading image...</span>
+                </div>
+              )}
               {writerImageError && (
                 <p className="text-red-500 text-sm">{writerImageError}</p>
               )}
