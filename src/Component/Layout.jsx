@@ -701,12 +701,12 @@ const UploadImageButton = ({ dispatch }) => {
         return;
       }
 
-      const maxSize = venueImageSize;
+      const maxSize = 5 * 1024 * 1024;
 
       if (uploadedFile.size > maxSize) {
         dispatch(
           showError({
-            message: `Uploaded File size is greater than ${maxSize} kB.`,
+            message: `Uploaded File size is greater than 5 MB.`,
             onClose: "hideError",
           })
         );
@@ -723,7 +723,7 @@ const UploadImageButton = ({ dispatch }) => {
         dispatch(setIsUploaded());
         dispatch(
           showSuccess({
-            message: "File uploaded SuccessFully.",
+            message: "File uploaded Successfully.",
             onClose: "hideSuccess",
           })
         );
