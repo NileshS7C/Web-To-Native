@@ -244,12 +244,12 @@ const CourtFileUpload = ({ dispatch }) => {
       return;
     }
 
-    const maxSize = courtImageSize;
+    const maxSize = 5 * 1024 * 1024;
     if (uploadedFile.size > maxSize) {
-      setFieldError("desktopBannerImages", "File should be less than 500 KB");
+      setFieldError("desktopBannerImages", "File should be less than 5MB");
       dispatch(
         showError({
-          message: "File should be less than 500 KB.",
+          message: "File should be less than 5MB.",
           onClose: "hideError",
         })
       );
@@ -373,12 +373,12 @@ const MobileBannerImage = ({ dispatch }) => {
       return;
     }
 
-    const maxSize = courtImageSize;
+    const maxSize = 5 * 1024 * 1024;
     if (uploadedFile.size > maxSize) {
-      setFieldError("mobileBannerImages", "File should be less than 500 KB");
+      setFieldError("mobileBannerImages", "File should be less than 5MB");
       dispatch(
         showError({
-          message: "File should be less than 500 KB",
+          message: "File should be less than 5MB",
           onClose: "hideError",
         })
       );
