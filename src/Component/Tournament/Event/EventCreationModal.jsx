@@ -387,7 +387,7 @@ export const EventCreationModal = () => {
         <DialogPanel className="mx-auto max-w-3xl rounded bg-white p-6 w-full">
           <div className="relative">
             <AddEventTitle />
-            <div className="max-h-[80vh] overflow-y-auto" ref={modalContentRef}>
+            <div className="max-h-[80vh] overflow-y-auto px-3" ref={modalContentRef}>
               {hasError && <ErrorBanner message={errorMessage} />}
               {!loadingSingleCategory && (
                 <Formik
