@@ -20,6 +20,7 @@ const initialState = {
   singleCategorySuccess: false,
   showConfirmBookingModal: false,
   deleteCategoryId: "",
+  errorMessage: "",
 };
 const eventSlice = createSlice({
   name: "event",
@@ -51,9 +52,21 @@ const eventSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder.addCase(addEventCategory.fulfilled, (state, { payload }) => {
-      state.categoriesId = [...state.categoriesId, payload.data.category._id];
-    });
+    builder
+      .addCase(addEventCategory.pending, (state) => {
+        state.isLoading = true;
+        state.hasError = false;
+      })
+      .addCase(addEventCategory.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        state.hasError = false;
+        state.categoriesId = [...state.categoriesId, payload.data.category._id];
+      })
+      .addCase(addEventCategory.rejected, (state, { payload }) => {
+        state.isLoading = false;
+        state.hasError = true;
+        state.errorMessage = payload?.message || "Failed to create event";
+      });
 
     builder
       .addCase(getAllCategories.pending, (state) => {

@@ -172,8 +172,22 @@ export default function ExploreEditDataModal({ data, selectedCard, isOpen, onClo
                                                         className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                                                         onChange={(event) => {
                                                             const file = event.currentTarget.files[0];
-                                                            setFieldValue("image", file);
-                                                            setImagePreview(file ? URL.createObjectURL(file) : selectedCard?.image);
+                                                            if (file) {
+                                                                // Check file size (5MB = 5 * 1024 * 1024 bytes)
+                                                                const maxSize = 5 * 1024 * 1024;
+                                                                if (file.size > maxSize) {
+                                                                    setFieldValue("image", null);
+                                                                    setImagePreview(null);
+                                                                    event.target.value = null;
+                                                                    alert("File size should not exceed 5MB");
+                                                                    return;
+                                                                }
+                                                                setFieldValue("image", file);
+                                                                setImagePreview(URL.createObjectURL(file));
+                                                            } else {
+                                                                setFieldValue("image", null);
+                                                                setImagePreview(null);
+                                                            }
                                                         }}
                                                     />
                                                     <p className="text-[12px] text-[#353535] mt-1">(Image size: 500x700)</p>

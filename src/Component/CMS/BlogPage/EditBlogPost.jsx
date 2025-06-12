@@ -28,6 +28,8 @@ export default function EditBlogPost() {
   const [blogFetchError, setBlogFetchError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [coverImageLoading, setCoverImageLoading] = useState(false);
+  const [writerImageLoading, setWriterImageLoading] = useState(false);
 
   useEffect(() => {
     // Fetch blog data based on handle
@@ -88,9 +90,18 @@ export default function EditBlogPost() {
   // Handle Image Upload
   const handleImageChange = async (event, setImageFunction, triggerBy) => {
     const file = event.target.files[0];
+    const maxSize = 5 * 1024 * 1024;
+    if (triggerBy === "coverImage") setImageError("");
+    if (triggerBy === "writerImage") setWriterImageError("");
+    if (file && file.size > maxSize) {
+      if (triggerBy === "coverImage") setImageError("File size should not exceed 5MB");
+      if (triggerBy === "writerImage") setWriterImageError("File size should not exceed 5MB");
+      return;
+    }
     if (file) {
+      if (triggerBy === "coverImage") setCoverImageLoading(true);
+      if (triggerBy === "writerImage") setWriterImageLoading(true);
       const imageUrl = await uploadImageToS3(file);
-
       if (imageUrl.success) {
         setImageFunction(imageUrl.url);
         setImageError("");
@@ -102,6 +113,8 @@ export default function EditBlogPost() {
           setWriterImageError(imageUrl.message);
         }
       }
+      if (triggerBy === "coverImage") setCoverImageLoading(false);
+      if (triggerBy === "writerImage") setWriterImageLoading(false);
     }
   };
 
@@ -294,7 +307,6 @@ export default function EditBlogPost() {
                   id="coverImageUploadEdit"
                   ref={coverFileInputRef}
                 />
-
                 <div className="text-left">
                   <label
                     htmlFor="coverImageUploadEdit"
@@ -308,8 +320,7 @@ export default function EditBlogPost() {
                     Choose Image
                   </label>
                 </div>
-
-                {image && (
+                {image && !coverImageLoading && (
                   <div className="relative w-fit">
                     <img
                       src={image}
@@ -327,7 +338,12 @@ export default function EditBlogPost() {
                       </button>
                     )}
                     <span className="text-[12px] text-left text-[#353535] mt-1">(Image size: 1200x600) </span>
-
+                  </div>
+                )}
+                {coverImageLoading && (
+                  <div className="flex items-center mt-2">
+                    <span className="loader mr-2"></span>
+                    <span className="text-blue-500 text-sm">Uploading image...</span>
                   </div>
                 )}
                 {imageError && (
@@ -397,7 +413,6 @@ export default function EditBlogPost() {
                     id="writerImageUploadEdit"
                     ref={writerFileInputRef}
                   />
-
                   <div className="text-left">
                     <label
                       htmlFor="writerImageUploadEdit"
@@ -410,8 +425,7 @@ export default function EditBlogPost() {
                       Choose Image
                     </label>
                   </div>
-
-                  {writerImage && (
+                  {writerImage && !writerImageLoading && (
                     <div className="relative w-fit mt-4">
                       <img
                         src={writerImage}
@@ -429,7 +443,12 @@ export default function EditBlogPost() {
                         </button>
                       )}
                       <span className="text-[12px] text-left text-[#353535] mt-1">(Image size: 300x300) </span>
-
+                    </div>
+                  )}
+                  {writerImageLoading && (
+                    <div className="flex items-center mt-2">
+                      <span className="loader mr-2"></span>
+                      <span className="text-blue-500 text-sm">Uploading image...</span>
                     </div>
                   )}
                   {writerImageError && (

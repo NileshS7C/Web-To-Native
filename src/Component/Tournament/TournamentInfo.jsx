@@ -541,11 +541,10 @@ const TournamentBasicInfo = ({
   }, [hasError, tournamentOwners]);
 
   useEffect(() => {
-    
-    if (userName && ["TOURNAMENT_OWNER", "TOURNAMENT_BOOKING_OWNER"].includes(userRole)) {
-      setFieldValue("ownerUserId", userName);
+    if (singleTournamentOwner && ["TOURNAMENT_OWNER", "TOURNAMENT_BOOKING_OWNER"].includes(userRole)) {
+      setFieldValue("ownerUserId", singleTournamentOwner.name);
     }
-  }, [userName]);
+  }, []);
   return (
     <div className="grid grid-col-1 md:grid-cols-2 gap-3 md:gap-[30px]">
       {!rolesWithTournamentOwnerAccess.includes(rolesAccess?.tournament) ? (
@@ -1091,7 +1090,9 @@ const DesktopBannerImageUpload = ({
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { deletedImages } = useSelector((state) => state.upload);
+
   useEffect(() => {
     const previewImages = values?.bannerDesktopImages?.length
       ? [{ preview: values.bannerDesktopImages }]
@@ -1113,6 +1114,7 @@ const DesktopBannerImageUpload = ({
   const handleFileUploadDesk = async (e) => {
     setIsError(false);
     setErrorMessage("");
+    setIsLoading(true);
     const uploadedFile = e.target.files[0];
     if (!uploadedFile.type.startsWith("image/")) {
       setFieldError(
@@ -1120,12 +1122,15 @@ const DesktopBannerImageUpload = ({
         "File should be a valid image type."
       );
       setErrorMessage("File should be a valid image type.");
+      setIsLoading(false);
       return;
     }
 
-    const maxSize = venueImageSize;
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (uploadedFile.size > maxSize) {
-      setFieldError("bannerDesktopImages", "File should be less than 5 MB");
+      setFieldError("bannerDesktopImages", "File size should be less than 5MB");
+      setErrorMessage("File size should be less than 5MB");
+      setIsLoading(false);
       return;
     }
     try {
@@ -1137,6 +1142,8 @@ const DesktopBannerImageUpload = ({
       setErrorMessage(err.data?.message);
       setIsError(true);
       setFieldError("bannerDesktopImages", err.data.message);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -1149,56 +1156,65 @@ const DesktopBannerImageUpload = ({
       </label>
 
       <div className="relative flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
-        {previews[0]?.preview && (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center">
+            <ImSpinner2 className="w-8 h-8 animate-spin text-blue-500" />
+            <p className="text-sm text-[#5B8DFF] mt-2">Uploading...</p>
+          </div>
+        ) : (
           <>
-            <img
-              src={previews[0]?.preview || ""}
-              className="absolute inset-0 object-scale-down rounded h-full w-full z-100"
-              alt="desktop banner"
-            />
             {previews[0]?.preview && (
-              <IoMdTrash
-                className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
-                onClick={() => {
-                  if (!disabled) {
-                    handleRemoveImageDesk(previews[0]?.preview);
-                  }
-                }}
-              />
-            )}
-          </>
-        )}
-
-        {!previews[0]?.preview && (
-          <>
-            <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
-
-            <p className="text-sm text-[#5B8DFF]">
-              Click to upload{" "}
-              <span className="text-sm text-[#353535] "> or drag and drop</span>
-            </p>
-
-            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-            <p className="text-xs text-[#353535] mt-1">
-              (Image Size: 1200x600)
-            </p>
-            <Field name="bannerDesktopImages">
-              {({ field }) => (
-                <input
-                  {...field}
-                  id="bannerDesktopImages"
-                  name="bannerDesktopImages"
-                  onChange={(e) => {
-                    handleFileUploadDesk(e);
-                  }}
-                  value=""
-                  type="file"
-                  className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                  multiple={false}
-                  disabled={disabled}
+              <>
+                <img
+                  src={previews[0]?.preview || ""}
+                  className="absolute inset-0 object-scale-down rounded h-full w-full z-100"
+                  alt="desktop banner"
                 />
-              )}
-            </Field>
+                {previews[0]?.preview && (
+                  <IoMdTrash
+                    className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
+                    onClick={() => {
+                      if (!disabled) {
+                        handleRemoveImageDesk(previews[0]?.preview);
+                      }
+                    }}
+                  />
+                )}
+              </>
+            )}
+
+            {!previews[0]?.preview && (
+              <>
+                <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+
+                <p className="text-sm text-[#5B8DFF]">
+                  Click to upload{" "}
+                  <span className="text-sm text-[#353535] "> or drag and drop</span>
+                </p>
+
+                <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
+                <p className="text-xs text-[#353535] mt-1">
+                  (Image Size: 1200x600)
+                </p>
+                <Field name="bannerDesktopImages">
+                  {({ field }) => (
+                    <input
+                      {...field}
+                      id="bannerDesktopImages"
+                      name="bannerDesktopImages"
+                      onChange={(e) => {
+                        handleFileUploadDesk(e);
+                      }}
+                      value=""
+                      type="file"
+                      className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                      multiple={false}
+                      disabled={disabled}
+                    />
+                  )}
+                </Field>
+              </>
+            )}
           </>
         )}
       </div>
@@ -1220,7 +1236,9 @@ const MobileBannerImageUpload = ({
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [previews, setPreviews] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { deletedImages } = useSelector((state) => state.upload);
+
   useEffect(() => {
     const previewImages = values?.bannerMobileImages?.length
       ? [{ preview: values.bannerMobileImages }]
@@ -1242,16 +1260,20 @@ const MobileBannerImageUpload = ({
   const handleFileUploadMob = async (e) => {
     setIsError(false);
     setErrorMessage("");
+    setIsLoading(true);
     const uploadedFile = e.target.files[0];
     if (!uploadedFile.type.startsWith("image/")) {
       setFieldError("bannerMobileImages", "File should be a valid image type.");
       setErrorMessage("File should be a valid image type.");
+      setIsLoading(false);
       return;
     }
 
-    const maxSize = venueImageSize;
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (uploadedFile.size > maxSize) {
-      setFieldError("bannerMobileImages", "File should be less than 5 MB");
+      setFieldError("bannerMobileImages", "File size should be less than 5MB");
+      setErrorMessage("File size should be less than 5MB");
+      setIsLoading(false);
       return;
     }
     try {
@@ -1264,6 +1286,8 @@ const MobileBannerImageUpload = ({
       setErrorMessage(err.data?.message);
       setIsError(true);
       setFieldError("bannerMobileImages", err.data.message);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -1276,53 +1300,62 @@ const MobileBannerImageUpload = ({
       </label>
 
       <div className="relative flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
-        {previews[0]?.preview && (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center">
+            <ImSpinner2 className="w-8 h-8 animate-spin text-blue-500" />
+            <p className="text-sm text-[#5B8DFF] mt-2">Uploading...</p>
+          </div>
+        ) : (
           <>
-            <img
-              src={previews[0]?.preview || ""}
-              className="absolute inset-0 object-scale-down rounded h-full w-full z-100"
-            />
             {previews[0]?.preview && (
-              <IoMdTrash
-                className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
-                onClick={() => {
-                  if (!disabled) {
-                    handleRemoveImageDesk(previews[0]?.preview);
-                  }
-                }}
-              />
-            )}
-          </>
-        )}
-
-        {!previews[0]?.preview && (
-          <>
-            <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
-
-            <p className="text-sm text-[#5B8DFF]">
-              Click to upload{" "}
-              <span className="text-sm text-[#353535] "> or drag and drop</span>
-            </p>
-
-            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-            <p className="text-xs text-[#353535] mt-1">(Image Size: 800x400)</p>
-
-            <Field name="bannerMobileImages">
-              {({ field }) => (
-                <input
-                  {...field}
-                  id="bannerMobileImages"
-                  name="bannerMobileImages"
-                  onChange={(e) => {
-                    handleFileUploadMob(e);
-                  }}
-                  value=""
-                  type="file"
-                  className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                  disabled={disabled}
+              <>
+                <img
+                  src={previews[0]?.preview || ""}
+                  className="absolute inset-0 object-scale-down rounded h-full w-full z-100"
                 />
-              )}
-            </Field>
+                {previews[0]?.preview && (
+                  <IoMdTrash
+                    className="absolute right-0 top-0 w-6 h-6 z-100 text-black  cursor-pointer shadow-lg"
+                    onClick={() => {
+                      if (!disabled) {
+                        handleRemoveImageDesk(previews[0]?.preview);
+                      }
+                    }}
+                  />
+                )}
+              </>
+            )}
+
+            {!previews[0]?.preview && (
+              <>
+                <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+
+                <p className="text-sm text-[#5B8DFF]">
+                  Click to upload{" "}
+                  <span className="text-sm text-[#353535] "> or drag and drop</span>
+                </p>
+
+                <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
+                <p className="text-xs text-[#353535] mt-1">(Image Size: 800x400)</p>
+
+                <Field name="bannerMobileImages">
+                  {({ field }) => (
+                    <input
+                      {...field}
+                      id="bannerMobileImages"
+                      name="bannerMobileImages"
+                      onChange={(e) => {
+                        handleFileUploadMob(e);
+                      }}
+                      value=""
+                      type="file"
+                      className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                      disabled={disabled}
+                    />
+                  )}
+                </Field>
+              </>
+            )}
           </>
         )}
       </div>
@@ -1339,40 +1372,52 @@ const TournamentSponserTable = ({ disabled }) => {
   const { editRowIndex } = useSelector((state) => state.Tournament);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileUpload = async (e) => {
     setIsError(false);
-
     setErrorMessage("");
+    setIsLoading(true);
     const uploadedFile = e.target.files[0];
+    
+    if (!uploadedFile) {
+      setIsLoading(false);
+      return;
+    }
+
     if (!uploadedFile.type.startsWith("image/")) {
       setFieldError("sponserImage", "File should be a valid image type.");
       setErrorMessage("File should be a valid image type.");
+      setIsError(true);
+      setIsLoading(false);
       return;
     }
 
-    const maxSize = venueImageSize;
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (uploadedFile.size > maxSize) {
-      setFieldError("sponserImage", "File should be less than 5 MB");
+      setFieldError("sponserImage", "File size should be less than 5MB");
+      setErrorMessage("File size should be less than 5MB");
+      setIsError(true);
+      setIsLoading(false);
       return;
     }
+
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
       const url = result.data.url;
       setSponsorImage(url);
-      setErrorMessage(result?.message);
+      setErrorMessage("");
+      setIsError(false);
       return url;
     } catch (err) {
-      setErrorMessage(err.data?.message);
+      setErrorMessage(err.data?.message || "Error uploading image");
       setIsError(true);
-      setFieldError("sponsors.sponserImage", err.data.message);
+      setFieldError("sponsors.sponserImage", err.data?.message || "Error uploading image");
+    } finally {
+      setIsLoading(false);
     }
   };
-  useEffect(()=>{
-    return ()=>{
-      dispatch(resetEditRow())
-    }
-  },[])
+
   return (
     <FieldArray name="sponsors">
       {({ push, remove, form }) => (
@@ -1381,160 +1426,176 @@ const TournamentSponserTable = ({ disabled }) => {
             Sponsors
           </p>
           <div className="overflow-x-auto rounded-md w-full">
-          <table className="border-[1px] border-[#EAECF0] rounded-[8px] table-auto min-w-[700px] w-full">
-            <thead>
-              <tr className="text-sm text-[#667085] bg-[#F9FAFB] font-[500] border-b-[1px] h-[44px]">
-                <th className="text-left p-2">S.No.</th>
-                <th className="text-left p-2">Sponsor Logo</th>
-                <th className="text-left p-2">Sponsor Name</th>
-                <th className="text-left p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {form.values.sponsors.length > 0 &&
-                form.values.sponsors.map((row, index) => (
-                  <tr
-                    className="text-sm text-[#667085]"
-                    key={`sponsors.${index}.sponsorImage`}
-                  >
-                    <td className="text-left p-2">{index + 1}</td>
-                    <td className="text-left p-2">
-                      <div className="flex relative">
-                        <div className="block text-center">
-                          <img
-                            src={row.sponsorImage || imageUpload}
-                            alt="sponsor logo"
-                            className="w-8 h-8"
-                          />
-                          <p className="text-[11px] text-[#353535]">
-                            (Image Size: 200x200)
-                          </p>
+            <table className="border-[1px] border-[#EAECF0] rounded-[8px] table-auto min-w-[700px] w-full">
+              <thead>
+                <tr className="text-sm text-[#667085] bg-[#F9FAFB] font-[500] border-b-[1px] h-[44px]">
+                  <th className="text-left p-2">S.No.</th>
+                  <th className="text-left p-2">Sponsor Logo</th>
+                  <th className="text-left p-2">Sponsor Name</th>
+                  <th className="text-left p-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {form.values.sponsors.length > 0 &&
+                  form.values.sponsors.map((row, index) => (
+                    <tr
+                      className="text-sm text-[#667085]"
+                      key={`sponsors.${index}.sponsorImage`}
+                    >
+                      <td className="text-left p-2">{index + 1}</td>
+                      <td className="text-left p-2">
+                        <div className="flex relative">
+                          <div className="block text-center">
+                            {isLoading && editRowIndex === index ? (
+                              <div className="flex flex-col items-center justify-center">
+                                <ImSpinner2 className="w-8 h-8 animate-spin text-blue-500" />
+                                <p className="text-xs text-[#5B8DFF] mt-1">Uploading...</p>
+                              </div>
+                            ) : (
+                              <img
+                                src={row.sponsorImage || imageUpload}
+                                alt="sponsor logo"
+                                className="w-8 h-8"
+                              />
+                            )}
+                            <p className="text-[11px] text-[#353535]">
+                              (Image Size: 200x200)
+                            </p>
+                          </div>
+                          <Field name={`sponsors.${index}.sponsorImage`}>
+                            {({ form, field }) => (
+                              <input
+                                {...field}
+                                id={`sponsors.${index}.sponsorImage`}
+                                name={`sponsors.${index}.sponsorImage`}
+                                onChange={async (e) => {
+                                  const url = await handleFileUpload(e);
+                                  form.setFieldValue(
+                                    `sponsors.${index}.sponsorImage`,
+                                    url
+                                  );
+                                }}
+                                value=""
+                                type="file"
+                                className="absolute w-8 h-8 inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
+                                multiple={false}
+                                disabled={disabled || editRowIndex !== index}
+                              />
+                            )}
+                          </Field>
                         </div>
-                        <Field name={`sponsors.${index}.sponsorImage`}>
+                      </td>
+                      <td className="text-left p-2">
+                        <Field name={`sponsors.${index}.sponsorName`}>
                           {({ form, field }) => (
                             <input
                               {...field}
-                              id={`sponsors.${index}.sponsorImage`}
-                              name={`sponsors.${index}.sponsorImage`}
-                              onChange={async (e) => {
-                                const url =await  handleFileUpload(e);
-                                form.setFieldValue(
-                                  `sponsors.${index}.sponsorImage`,
-                                  url
-                                );
-                              }}
-                              value=""
-                              type="file"
-                              className="absolute w-8 h-8 inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
-                              multiple={false}
+                              id={`sponsors.${index}.sponsorName`}
+                              name={`sponsors.${index}.sponsorName`}
+                              placeholder="Enter Sponsor Name"
+                              className="w-[80%] px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                               disabled={disabled || editRowIndex !== index}
+                              readOnly={disabled || editRowIndex !== index}
                             />
                           )}
                         </Field>
-                      </div>
-                    </td>
-                    <td className="text-left p-2">
-                      <Field name={`sponsors.${index}.sponsorName`}>
-                        {({ form, field }) => (
-                          <input
-                            {...field}
-                            id={`sponsors.${index}.sponsorName`}
-                            name={`sponsors.${index}.sponsorName`}
-                            placeholder="Enter Sponsor Name"
-                            className="w-[80%] px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            disabled={disabled || editRowIndex !== index}
-                            readOnly={disabled || editRowIndex !== index}
+                      </td>
+                      <td className="text-left p-2">
+                        {!disabled && (
+                          <div className="flex gap-4">
+                            <RiDeleteBin6Line
+                              className="w-4 h-4 cursor-pointer"
+                              onClick={() => {
+                                dispatch(
+                                  deleteUploadedImage(
+                                    form?.values?.sponsors[index]?.sponsorImage
+                                  )
+                                );
+                                remove(index);
+                              }}
+                            />
+                            <MdOutlineModeEditOutline
+                              className="w-4 h-4 cursor-pointer"
+                              onClick={() => {
+                                dispatch(editRow(index));
+                              }}
+                            />
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+
+                <tr className="text-sm text-[#667085]" key="sponsors.new">
+                  <td className="text-left p-2">
+                    {form.values.sponsors.length + 1}
+                  </td>
+                  <td className="text-left p-2">
+                    <div className="flex relative">
+                      <div className="block text-center">
+                        {isLoading ? (
+                          <div className="flex flex-col items-center justify-center">
+                            <ImSpinner2 className="w-8 h-8 animate-spin text-blue-500" />
+                            <p className="text-xs text-[#5B8DFF] mt-1">Uploading...</p>
+                          </div>
+                        ) : (
+                          <img
+                            src={sponsorImage || imageUpload}
+                            alt="sponsor logo"
+                            className="w-8 h-8"
                           />
                         )}
-                      </Field>
-                    </td>
-                    <td className="text-left p-2">
-                      {!disabled && (
-                        <div className="flex gap-4">
-                          <RiDeleteBin6Line
-                            className="w-4 h-4 cursor-pointer"
-                            onClick={() => {
-                              dispatch(
-                                deleteUploadedImage(
-                                  form?.values?.sponsors[index]?.sponsorImage
-                                )
-                              );
-                              remove(index);
-                            }}
-                          />
-                          <MdOutlineModeEditOutline
-                            className="w-4 h-4 cursor-pointer"
-                            onClick={() => {
-                              dispatch(editRow(index));
-                            }}
-                          />
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-
-              <tr className="text-sm text-[#667085]" key="sponsors.new">
-                <td className="text-left p-2">
-                  {form.values.sponsors.length + 1}
-                </td>
-                <td className="text-left p-2">
-                  <div className="flex relative">
-                    <div className="block text-center">
-                      <img
-                        src={sponsorImage || imageUpload}
-                        alt="sponsor logo"
-                        className="w-8 h-8"
+                        <p className="text-[11px] text-[#353535]">
+                          (Image Size: 200x200)
+                        </p>
+                      </div>
+                      <input
+                        id="sponsorImage"
+                        name="sponsorImage"
+                        onChange={(e) => {
+                          handleFileUpload(e);
+                        }}
+                        value=""
+                        type="file"
+                        className="absolute w-8 h-8 inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
+                        multiple={false}
+                        disabled={disabled}
                       />
-                      <p className="text-[11px] text-[#353535]">
-                        (Image Size: 200x200)
-                      </p>
                     </div>
+                  </td>
+                  <td className="text-left p-2">
                     <input
-                      id="sponsorImage"
-                      name="sponsorImage"
+                      id="sponsorName"
+                      name="sponsorName"
+                      placeholder="Enter Sponsor Name"
+                      className="w-[80%] px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                       onChange={(e) => {
-                        handleFileUpload(e);
+                        setSponsorName(e.target.value);
                       }}
-                      value=""
-                      type="file"
-                      className="absolute w-8 h-8 inset-0 opacity-0 cursor-pointer top-0 left-0 transform -translate-y-2"
-                      multiple={false}
+                      value={sponsorName}
                       disabled={disabled}
                     />
-                  </div>
-                </td>
-                <td className="text-left p-2">
-                  <input
-                    id="sponsorName"
-                    name="sponsorName"
-                    placeholder="Enter Sponsor Name"
-                    className="w-[80%] px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={(e) => {
-                      setSponsorName(e.target.value);
-                    }}
-                    value={sponsorName}
-                    disabled={disabled}
-                  />
-                </td>
-                <td className="text-left p-2">
-                  <Button
-                    className="w-[60px] h-[40px] rounded-[8px] text-white"
-                    type="button"
-                    onClick={() => {
-                      push({ sponsorImage, sponsorName });
-                      setSponsorImage("");
-                      setSponsorName("");
-                    }}
-                    disabled={disabled}
-                  >
-                    ADD
-                  </Button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                  </td>
+                  <td className="text-left p-2">
+                    <Button
+                      className="w-[60px] h-[40px] rounded-[8px] text-white"
+                      type="button"
+                      onClick={() => {
+                        push({ sponsorImage, sponsorName });
+                        setSponsorImage("");
+                        setSponsorName("");
+                      }}
+                      disabled={disabled}
+                    >
+                      ADD
+                    </Button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          {isError && <TextError>{errorMessage}</TextError>}
+          <ErrorMessage name="sponsors" component={TextError} />
         </div>
       )}
     </FieldArray>
@@ -1711,6 +1772,10 @@ const TournamentGallery = ({ dispatch, tournamentId, disabled }) => {
   const tournamentEditMode = useSelector(
     (state) => state.GET_TOUR.tournamentEditMode
   );
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const previewImages = values?.tournamentGallery?.length
       ? values.tournamentGallery.map((url) => ({
@@ -1719,8 +1784,7 @@ const TournamentGallery = ({ dispatch, tournamentId, disabled }) => {
       : [];
     setPreviews(previewImages);
   }, [values?.tournamentGallery]);
-  const [isError, setIsError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+
   const handleRemoveImage = (index) => {
     const newBannerImages = values.tournamentGallery.filter(
       (_, i) => i !== index
@@ -1733,9 +1797,19 @@ const TournamentGallery = ({ dispatch, tournamentId, disabled }) => {
   const handleFileUpload = async (e) => {
     setIsError(false);
     setErrorMessage("");
+    setIsLoading(true);
     const uploadedFile = e.target.files[0];
+    
+    if (!uploadedFile) {
+      setIsLoading(false);
+      return;
+    }
+
     if (!uploadedFile.type.startsWith("image/")) {
       setFieldError("tournamentGallery", "File should be a valid image type.");
+      setErrorMessage("File should be a valid image type.");
+      setIsError(true);
+      setIsLoading(false);
       return;
     }
 
@@ -1746,25 +1820,35 @@ const TournamentGallery = ({ dispatch, tournamentId, disabled }) => {
           onClose: "hideError",
         })
       );
+      setIsLoading(false);
       return;
     }
 
-    const maxSize = venueImageSize;
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (uploadedFile.size > maxSize) {
-      setFieldError("tournamentGallery", "File should be less than 5 MB");
+      setFieldError("tournamentGallery", "File size should be less than 5MB");
+      setErrorMessage("File size should be less than 5MB");
+      setIsError(true);
+      setIsLoading(false);
       return;
     }
+
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
       setPreviews((prev) => [...prev, { preview: result?.data?.url }]);
       const url = result?.data?.url;
       setFieldValue("tournamentGallery", [...values.tournamentGallery, url]);
+      setErrorMessage("");
+      setIsError(false);
     } catch (err) {
-      setErrorMessage(err.data?.message);
+      setErrorMessage(err.data?.message || "Error uploading image");
       setIsError(true);
-      setFieldError("tournamentGallery", err.data.message);
+      setFieldError("tournamentGallery", err.data?.message || "Error uploading image");
+    } finally {
+      setIsLoading(false);
     }
   };
+
   return (
     <div className="flex flex-col items-start gap-2.5 mb-2">
       <p className="text-base leading-[19.36px] text-[#232323]">
@@ -1798,32 +1882,41 @@ const TournamentGallery = ({ dispatch, tournamentId, disabled }) => {
         </div>
         <div className="relative flex flex-col items-start gap-2.5 w-full h-[133px]">
           <div className="flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
-            <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center">
+                <ImSpinner2 className="w-8 h-8 animate-spin text-blue-500" />
+                <p className="text-sm text-[#5B8DFF] mt-2">Uploading...</p>
+              </div>
+            ) : (
+              <>
+                <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
 
-            <p className="text-sm text-[#5B8DFF]">
-              Click to upload{" "}
-              <span className="text-sm text-[#353535] "> or drag and drop</span>
-            </p>
+                <p className="text-sm text-[#5B8DFF]">
+                  Click to upload{" "}
+                  <span className="text-sm text-[#353535] "> or drag and drop</span>
+                </p>
 
-            <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
-            <p className="text-xs text-[#353535] mt-1">(Image size: 600x600)</p>
+                <p className="text-xs text-[#353535] mt-1">(Max. File size: 5MB)</p>
+                <p className="text-xs text-[#353535] mt-1">(Image size: 600x600)</p>
 
-            <FieldArray name="tournamentGallery">
-              {({ form, field, meta }) => (
-                <input
-                  {...field}
-                  id="tournamentGallery"
-                  name="tournamentGallery"
-                  onChange={(e) => {
-                    handleFileUpload(e);
-                  }}
-                  value=""
-                  type="file"
-                  className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
-                  disabled={disabled}
-                />
-              )}
-            </FieldArray>
+                <FieldArray name="tournamentGallery">
+                  {({ form, field, meta }) => (
+                    <input
+                      {...field}
+                      id="tournamentGallery"
+                      name="tournamentGallery"
+                      onChange={(e) => {
+                        handleFileUpload(e);
+                      }}
+                      value=""
+                      type="file"
+                      className="absolute inset-0 w-full opacity-0 cursor-pointer h-[150px]"
+                      disabled={disabled}
+                    />
+                  )}
+                </FieldArray>
+              </>
+            )}
           </div>
           {isError && <TextError>{errorMessage}</TextError>}
           <ErrorMessage name="tournamentGallery" component={TextError} />
