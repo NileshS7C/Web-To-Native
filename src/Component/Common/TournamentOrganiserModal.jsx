@@ -71,6 +71,15 @@ export const TournamentOrganiserCreation = ({
     const file = event.target.files[0];
     if (file) {
       setBrandLogoImageError("");
+      
+      // Check file size (5MB = 5 * 1024 * 1024 bytes)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        setBrandLogoImageError("File size should not exceed 5MB");
+        setFieldValue("ownerDetails.brandLogoImage", "");
+        return false;
+      }
+
       const imageUrl = await uploadImageToS3(file);
       if (imageUrl.success) {
         setFieldValue("ownerDetails.brandLogoImage", imageUrl.url);
