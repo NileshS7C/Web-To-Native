@@ -21,6 +21,7 @@ export default function MediaGalleryEditModal({
 }) {
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   useEffect(() => {
     if (!isOpen) {
       setImagePreview(null);
@@ -33,7 +34,13 @@ export default function MediaGalleryEditModal({
 
   const validationSchema = Yup.object().shape({
     description: Yup.string().required("Description is required"),
-    image: Yup.mixed().required("Image is required"),
+    image: Yup.mixed()
+      .required("Image is required")
+      .test("fileSize", "File size must be less than 5MB", (value) => {
+        if (!value) return true;
+        if (typeof value === "string") return true; // For existing image URLs
+        return value.size <= 5 * 1024 * 1024; // 5MB in bytes
+      }),
   });
 
   return (
@@ -53,8 +60,10 @@ export default function MediaGalleryEditModal({
                 try {
                   let finalImageUrl = values.image;
                   if (values.image instanceof File) {
+                    setImageUploading(true);
                     let image = await uploadImage(values.image);
                     finalImageUrl = image.url;
+                    setImageUploading(false);
                   }
 
                   const newGallery = {
@@ -153,6 +162,11 @@ export default function MediaGalleryEditModal({
                             className="block w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-[#1570EF] focus:outline-none sm:text-sm"
                             onChange={(event) => {
                               const file = event.currentTarget.files[0];
+                              if (file && file.size > 5 * 1024 * 1024) {
+                                alert("File size must be less than 5MB");
+                                event.target.value = null;
+                                return;
+                              }
                               setFieldValue("image", file);
                               setImagePreview(
                                 file
@@ -162,7 +176,7 @@ export default function MediaGalleryEditModal({
                             }}
                           />
                           <p className="text-[12px] text-[#353535] mt-1">
-                            (Image size: 500x700)
+                            (Image size: 500x700, Max size: 5MB)
                           </p>
                           <ErrorMessage
                             name="image"
@@ -176,11 +190,18 @@ export default function MediaGalleryEditModal({
                               <p className="text-sm text-gray-600">
                                 Image Preview:
                               </p>
-                              <img
-                                src={imagePreview}
-                                alt="Preview"
-                                className="mt-2 h-24 w-24 object-cover rounded-md border"
-                              />
+                              <div className="relative">
+                                <img
+                                  src={imagePreview}
+                                  alt="Preview"
+                                  className="mt-2 h-24 w-24 object-cover rounded-md border"
+                                />
+                                {imageUploading && (
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-md">
+                                    <Spinner />
+                                  </div>
+                                )}
+                              </div>
                               <button
                                 type="button"
                                 onClick={() => {

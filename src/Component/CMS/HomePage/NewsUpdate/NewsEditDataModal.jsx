@@ -141,8 +141,16 @@ export default function NewsEditDataModal({ data, selectedCard, isOpen, onClose,
                                                         className="block w-full rounded-md border-2 border-gray-300 px-3 py-2 text-base"
                                                         onChange={(event) => {
                                                             const file = event.currentTarget.files[0];
+                                                            const maxSize = 5 * 1024 * 1024;
+                                                            if (file.size > maxSize) {
+                                                                setFieldValue("image", null);
+                                                                setImagePreview(null);
+                                                                event.target.value = null;
+                                                                alert("File size should not exceed 5MB");       
+                                                                return;
+                                                            }
                                                             setFieldValue("image", file);
-                                                            setImagePreview(file ? URL.createObjectURL(file) : selectedCard?.image);
+                                                            setImagePreview(URL.createObjectURL(file));
                                                         }}
                                                     />
                                                     <span className="text-[12px] text-[#353535] mt-1">(Image size: 600x400) </span>

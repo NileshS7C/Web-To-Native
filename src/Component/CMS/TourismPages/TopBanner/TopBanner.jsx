@@ -10,8 +10,42 @@ const TopBanner=()=> {
     const [sectionDetails, setSectionDetails] = useState(null);
     const [desktopImage, setDesktopImage] = useState(null);
     const [mobileImage, setMobileImage] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [isUploading, setIsUploading] = useState({
+        desktop: false,
+        mobile: false
+    });
+
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
+    const validateFileSize = (file) => {
+        if (file.size > MAX_FILE_SIZE) {
+            throw new Error(`File size should not exceed 5MB`);
+        }
+    };
+
+    const handleImageUpload = async (file, type) => {
+        try {
+            validateFileSize(file);
+            setIsUploading(prev => ({ ...prev, [type]: true }));
+            const uploadedUrl = await uploadImage(file);
+            if (uploadedUrl.success) {
+                return uploadedUrl.url;
+            } else {
+                throw new Error('Failed to upload image');
+            }
+        } catch (error) {
+            setError(error.message);
+            return null;
+        } finally {
+            setIsUploading(prev => ({ ...prev, [type]: false }));
+        }
+    };
 
     const fetchTopBannerData = async () => {
+        setIsLoading(true);
+        setError(null);
         try {
           const config = {
             headers: {
@@ -28,7 +62,10 @@ const TopBanner=()=> {
                 setSectionDetails(response.data.data[0]);
             }
         } catch (error) {
+            setError('Failed to fetch banner data');
             console.error(error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -39,21 +76,24 @@ const TopBanner=()=> {
 
     const handleSave = async () => {
         setIsEditing(false);
+        setError(null);
         try {
           let updatedDetails = { ...sectionDetails };
+          
           if (desktopImage) {
-            const uploadedDesktopUrl = await uploadImage(desktopImage);
-            if (uploadedDesktopUrl.success) {
-              updatedDetails.DesktopBannerImage = uploadedDesktopUrl.url;
+            const uploadedDesktopUrl = await handleImageUpload(desktopImage, 'desktop');
+            if (uploadedDesktopUrl) {
+              updatedDetails.DesktopBannerImage = uploadedDesktopUrl;
             }
           }
     
           if (mobileImage) {
-            const uploadedMobileUrl = await uploadImage(mobileImage);
-            if (uploadedMobileUrl.success) {
-              updatedDetails.MobileBannerImage = uploadedMobileUrl.url;
+            const uploadedMobileUrl = await handleImageUpload(mobileImage, 'mobile');
+            if (uploadedMobileUrl) {
+              updatedDetails.MobileBannerImage = uploadedMobileUrl;
             }
           }
+
           const { _id, updatedAt, sectionType, ...finalPayload } = updatedDetails;
           const config = {
             headers: {
@@ -62,7 +102,7 @@ const TopBanner=()=> {
           };
           delete finalPayload["__v"];
           delete finalPayload["createdAt"];
-          // Send updated details to API
+          
           const response = await axiosInstance.post(
             `${
               import.meta.env.VITE_BASE_URL
@@ -70,15 +110,23 @@ const TopBanner=()=> {
             JSON.stringify(finalPayload),
             config
           );
-          fetchTopBannerData(); // Refresh data after update
+          fetchTopBannerData();
         } catch (error) {
+          setError('Failed to update banner data');
           console.error("Error updating section:", error);
         }
-      };
+    };
 
-    if (!sectionDetails) return <p>Loading...</p>;
+    if (isLoading) return <div className="flex justify-center items-center h-40"><p>Loading...</p></div>;
+    if (!sectionDetails) return <p>No data available</p>;
+
     return (
       <div className="flex flex-col gap-2">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
         <div className="sm:flex-auto text-left">
           <h1 className="text-base font-semibold text-gray-900">Top Banner</h1>
         </div>
@@ -178,18 +226,25 @@ const TopBanner=()=> {
                     type="file"
                     className="hidden"
                     id="desktopUpload"
+                    accept="image/*"
                     onChange={(event) => {
                       const file = event.currentTarget.files[0];
                       if (file) {
-                        setDesktopImage(file);
+                        try {
+                          validateFileSize(file);
+                          setDesktopImage(file);
+                          setError(null);
+                        } catch (error) {
+                          setError(error.message);
+                        }
                       }
                     }}
                   />
                   <label
                     htmlFor="desktopUpload"
-                    className="bg-blue-500 text-white px-3 py-2 rounded cursor-pointer"
+                    className={`bg-blue-500 text-white px-3 py-2 rounded cursor-pointer ${isUploading.desktop ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    Upload
+                    {isUploading.desktop ? 'Uploading...' : 'Upload'}
                   </label>
                 </div>
               )}
@@ -218,18 +273,25 @@ const TopBanner=()=> {
                     type="file"
                     className="hidden"
                     id="mobileUpload"
+                    accept="image/*"
                     onChange={(event) => {
                       const file = event.currentTarget.files[0];
                       if (file) {
-                        setMobileImage(file);
+                        try {
+                          validateFileSize(file);
+                          setMobileImage(file);
+                          setError(null);
+                        } catch (error) {
+                          setError(error.message);
+                        }
                       }
                     }}
                   />
                   <label
                     htmlFor="mobileUpload"
-                    className="bg-blue-500 text-white px-3 py-2 rounded cursor-pointer"
+                    className={`bg-blue-500 text-white px-3 py-2 rounded cursor-pointer ${isUploading.mobile ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    Upload
+                    {isUploading.mobile ? 'Uploading...' : 'Upload'}
                   </label>
                 </div>
               )}
