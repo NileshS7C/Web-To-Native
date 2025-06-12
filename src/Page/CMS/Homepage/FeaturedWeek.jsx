@@ -226,6 +226,14 @@ export default function FeaturedWeek() {
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files[0];
+                    const maxSize = 5 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                      setNewImageFile(null);
+                      setImage(null);
+                      e.target.value = null;
+                      alert("File size should not exceed 5MB");
+                      return;
+                    }
                     if (file) {
                       setNewImageFile(file);
                       setImage(URL.createObjectURL(file));
