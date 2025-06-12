@@ -164,6 +164,11 @@ export default function Instagram() {
                   id="desktopUpload"
                   onChange={(event) => {
                     const file = event.currentTarget.files[0];
+                    const maxSize = 5 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                      alert("File size should not exceed 5MB");
+                      return;
+                    }
                     if (file) {
                       setDesktopImage(file);
                     }
@@ -204,6 +209,11 @@ export default function Instagram() {
                   id="mobileUpload"
                   onChange={(event) => {
                     const file = event.currentTarget.files[0];
+                    const maxSize = 5 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                      alert("File size should not exceed 5MB");
+                      return;
+                    }
                     if (file) {
                       setMobileImage(file);
                     }
