@@ -56,6 +56,7 @@ import Admin from "../Page/Admin";
 import AddSocialEvents from "../Component/SocialEvents/AddSocialEvents";
 import EventDetails from "../Component/SocialEvents/EventDetails";
 import EventOwners from "../Page/EventOwners";
+import AddEventOwner from "../Component/EventOwners/AddEventOwner";
 const AllRoutes = () => {
   return (
     <div>
@@ -96,6 +97,7 @@ const AllRoutes = () => {
             </Route>
           </Route>
           <Route path="event-organisers" element={<EventOwners />} />
+          <Route path="event-organisers/add" element={<AddEventOwner />} />
           <Route path="social-events" element={<SocialEvents />} />
           <Route path="social-events/add" element={<AddSocialEvents />} />
           <Route path="social-events/:eventId" element={<EventDetails />} />

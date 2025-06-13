@@ -92,7 +92,7 @@ const LocationSearchInput = ({ id, name, setFieldValue,isEdit ,disabled}) => {
     <div className="relative w-full " ref={searchRef}>
       <div className="relative">
         <input
-          className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-[19px] pr-[45px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
           type="text"
           value={query}
           placeholder="Search..."

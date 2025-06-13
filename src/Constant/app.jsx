@@ -224,6 +224,7 @@ export const notHaveBackButton = [
   "Add Social Events",
   "Social Events",
   "Event Organisers",
+  "Add Event Organisers",
 ];
 
 export const ROLES = [

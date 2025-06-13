@@ -34,6 +34,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname === "/event-organisers") {
       return "Event Organisers";
     }
+    if (pathname === "/event-organisers/add") {
+      return "Add Event Organisers";
+    }
     if (pathname === "/social-events/add") {
       return "Add Social Events";
     }

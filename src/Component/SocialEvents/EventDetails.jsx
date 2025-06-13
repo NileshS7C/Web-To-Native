@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom'
-import { useGetEventById, useVerifyEvent, useArchiveEvent, usePublishEvent } from '../../Hooks/SocialEventsHooks';
+import { useGetEventById, useVerifyEvent, useArchiveEvent, usePublishEvent, useChangeEventStatus, useExportEventBookings } from '../../Hooks/SocialEventsHooks';
 import EventDetailsInfo from './EventDetailsInfo';
 import { Toast } from '../Common/Toast';
 import Acknowledgement from './Acknowledgement';
@@ -21,11 +21,14 @@ const EventDetails = () => {
   const { mutate: verifyEvent } = useVerifyEvent();
   const { mutate: archiveEvent } = useArchiveEvent();
   const { mutate: publishEvent } = usePublishEvent();
+  const { mutate: changeEventStatus } = useChangeEventStatus();
+  const { mutate: exportBookings, isLoading: isExporting } = useExportEventBookings();
 
   const isAdmin = userRole?.includes('SUPER_ADMIN') || userRole?.includes('ADMIN');
   const isPendingVerification = data?.event?.status === 'PENDING_VERIFICATION';
   const isPublished = data?.event?.status === 'PUBLISHED';
   const isDraft = data?.event?.status === 'DRAFT';
+  const isCompleted = data?.event?.status === 'COMPLETED';
 
   const handleVerifyEvent = (action) => {
     verifyEvent(
@@ -85,13 +88,49 @@ const EventDetails = () => {
     );
   };
 
+  const handleCompleteEvent = () => {
+    changeEventStatus(
+      { eventId, ownerId, status: 'COMPLETED' },
+      {
+        onSuccess: () => {
+          setShowToast(true);
+          setToastMessage('Event marked as completed successfully!');
+          setIsErrorToast(false);
+        },
+        onError: (error) => {
+          setShowToast(true);
+          setToastMessage(error?.message || 'Failed to mark event as completed');
+          setIsErrorToast(true);
+        }
+      }
+    );
+  };
+
+  const handleExportBookings = () => {
+    exportBookings(
+      { eventId, ownerId },
+      {
+        onSuccess: () => {
+          setShowToast(true);
+          setToastMessage('Event bookings exported successfully!');
+          setIsErrorToast(false);
+        },
+        onError: (error) => {
+          setShowToast(true);
+          setToastMessage(error?.message || 'Failed to export event bookings');
+          setIsErrorToast(true);
+        }
+      }
+    );
+  };
+
   return (
     <>
-      <div className='flex items-center justify-between gap-2 mb-6'>
+      <div className='flex items-start justify-between gap-2 mb-6 flex-col md:flex-row md:items-center'>
         <h1 className='text-[#343C6A] font-semibold text-base md:text-[22px]'>
           {data?.event?.eventName || 'Event Details'}
         </h1>
-        <div className='flex justify-end gap-2'>
+        <div className='flex justify-start md:justify-end gap-2 flex-wrap'>
           {isAdmin && isPendingVerification ? (
             <>
               <button
@@ -125,6 +164,21 @@ const EventDetails = () => {
                   Unpublish Event
                 </button>
               )}
+              {!isCompleted && (
+                <button
+                  onClick={handleCompleteEvent}
+                  className="px-4 py-2 rounded-lg shadow-md bg-purple-600 text-white hover:bg-purple-500 active:bg-purple-700"
+                >
+                  Complete
+                </button>
+              )}
+              <button
+                onClick={handleExportBookings}
+                disabled={isExporting}
+                className="px-4 py-2 rounded-lg shadow-md bg-green-600 text-white hover:bg-green-500 active:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isExporting ? 'Exporting...' : 'Download Sheet'}
+              </button>
               <button
                 onClick={() => setIsEdit(!isEdit)}
                 className={`px-4 py-2 rounded-lg shadow-md ${

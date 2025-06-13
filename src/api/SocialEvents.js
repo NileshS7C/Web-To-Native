@@ -403,4 +403,166 @@ export const refundEventBooking = async (bookingId, ownerId) => {
   }
 };
 
+export const getEventOwners = async ({ page = 1, limit = 10 }) => {
+  console.log(`🚀 || SocialEvents.js || getEventOwners || page: ${page}, limit: ${limit}`);
+
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = `${baseURL}/users/admin/event-owners?page=${page}&limit=${limit}`;
+  console.log(`🚀 || SocialEvents.js || getEventOwners || ENDPOINT:`, ENDPOINT);
+
+  const config = {
+    method: "GET",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data?.data;
+  } catch (error) {
+    console.error("🚀 ~ getEventOwners ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const createEventOwner = async (payload) => {
+  console.log(`🚀 || SocialEvents.js || createEventOwner || payload:`, payload);
+
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = `${baseURL}/users/admin/event-owners`;
+  console.log(`🚀 || SocialEvents.js || createEventOwner || ENDPOINT:`, ENDPOINT);
+
+  const config = {
+    method: "POST",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+    data: payload
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data?.data;
+  } catch (error) {
+    console.error("🚀 ~ createEventOwner ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const getEventOwnerById = async (ownerId) => {
+  console.log(`🚀 || SocialEvents.js || getEventOwnerById || ownerId: ${ownerId}`);
+
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = `${baseURL}/users/admin/event-owners/${ownerId}`;
+  console.log(`🚀 || SocialEvents.js || getEventOwnerById || ENDPOINT:`, ENDPOINT);
+
+  const config = {
+    method: "GET",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data;
+  } catch (error) {
+    console.error("🚀 ~ getEventOwnerById ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const updateEventOwner = async (ownerId, payload) => {
+  console.log(`🚀 || SocialEvents.js || updateEventOwner || ownerId: ${ownerId}, payload:`, payload);
+
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = `${baseURL}/users/admin/event-owners/${ownerId}`;
+  console.log(`🚀 || SocialEvents.js || updateEventOwner || ENDPOINT:`, ENDPOINT);
+
+  const config = {
+    method: "POST",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+    data: payload
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data;
+  } catch (error) {
+    console.error("🚀 ~ updateEventOwner ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const changeEventStatus = async (eventId, ownerId, status) => {
+  console.log(`🚀 || SocialEvents.js || changeEventStatus || eventId: ${eventId}, ownerId: ${ownerId}, status: ${status}`);
+
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = checkRoles(ADMIN_ROLES)
+    ? `${baseURL}/users/admin/events/${eventId}/change-status`
+    : `${baseURL}/users/event-owner/events/${eventId}/owner/${ownerId}/change-status`;
+
+  console.log(`🚀 || SocialEvents.js || changeEventStatus || ENDPOINT:`, ENDPOINT);
+
+  const config = {
+    method: "POST",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+    data: { actionType: status }
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data?.data;
+  } catch (error) {
+    console.error("🚀 ~ changeEventStatus ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const exportEventBookings = async (eventId, ownerId) => {
+  console.log(`🚀 || SocialEvents.js || exportEventBookings || eventId: ${eventId}, ownerId: ${ownerId}`);
+
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = checkRoles(ADMIN_ROLES)
+    ? `${baseURL}/users/admin/events/${eventId}/export-bookings`
+    : `${baseURL}/users/event-owner/events/${eventId}/owner/${ownerId}/export-bookings`;
+
+  console.log(`🚀 || SocialEvents.js || exportEventBookings || ENDPOINT:`, ENDPOINT);
+
+  const config = {
+    method: "GET",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+    responseType: 'blob', // Important for downloading files
+  };
+
+  try {
+    const response = await axios.request(config);
+    // Create a URL for the blob
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    // Create a temporary link element
+    const link = document.createElement('a');
+    link.href = url;
+    // Get filename from content-disposition header or use default
+    const filename = response.headers['content-disposition']?.split('filename=')[1]?.replace(/"/g, '') || 'event-bookings.xlsx';
+    link.setAttribute('download', filename);
+    // Append to body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    // Clean up the URL
+    window.URL.revokeObjectURL(url);
+    return true;
+  } catch (error) {
+    console.error("🚀 ~ exportEventBookings ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
 
