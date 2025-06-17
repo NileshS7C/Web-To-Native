@@ -28,7 +28,21 @@ const SwapParticipants = ({ tournamentId, eventId }) => {
     const isDoubles = swapData?.bookingItems[0]?.isDoubles;
     let bookingData = {};
     let replace = '';
+
+    // Check if both players are TBD in doubles category
     if (isDoubles) {
+      const isPlayerTBD = swapData?.player?.name.includes('TBD');
+      const isPartnerTBD = swapData?.bookingItems[0]?.partnerDetails?.name.includes('TBD');
+      
+      if (isPlayerTBD && isPartnerTBD) {
+        // If both are TBD, require both to be updated
+        if (!swapTargets.player || !swapTargets.partner) {
+          setError('Both TBD players must be updated together.');
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const playerChanged = !!swapTargets.player;
       const partnerChanged = !!swapTargets.partner;
       if (playerChanged && partnerChanged) {

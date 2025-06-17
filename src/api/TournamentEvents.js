@@ -4,8 +4,8 @@ import { ADMIN_ROLES } from "../Constant/Roles";
 export const getAllEventBookings = async (tournamentId, eventId) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const endpoint = checkRoles(ADMIN_ROLES) 
-  ? `/users/admin/tournaments/${tournamentId}/categories/${eventId}/bookings`
-  : `/users/tournament-owner/tournaments/${tournamentId}/categories/${eventId}/bookings`;
+  ? `/users/admin/tournaments/${tournamentId}/categories/${eventId}/bookings?categoryStatus=ACTIVE`
+  : `/users/tournament-owner/tournaments/${tournamentId}/categories/${eventId}/bookings?categoryStatus=ACTIVE`;
 
   const response = await fetch(`${baseURL}${endpoint}`, {
     method: 'GET',
