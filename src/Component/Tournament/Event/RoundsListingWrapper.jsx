@@ -6,6 +6,7 @@ import { TournamentFixture } from "../tournamentFixture";
 import RoundDetails from "./RoundDetails";
 import Spinner from "../../Common/Spinner";
 import RoundCreationModal from "./RoundCreationModal";
+import RoundOptionsModal from "./RoundOptionsModal";
 import { getFixtureById, getHybridFixtures } from "../../../redux/tournament/fixturesActions";
 import { useDispatch, useSelector } from "react-redux";
 import { HybridMatchesListing } from "../HybridMatchListing";
@@ -13,6 +14,7 @@ import { ErrorModal } from "../../Common/ErrorModal";
 import { showError } from "../../../redux/Error/errorSlice";
 import { MatchesListing } from "../MatchListing";
 import { TournamentHybridFixture } from "../TournamentHybridFixture";
+import ChildRoundModal from "./ChildRoundModal";
 
 const options = () => [
   { name: "Details" },
@@ -27,16 +29,33 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
   const dispatch = useDispatch();
   const [actionType, setActionType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(""); // "options", "parent", "child"
 
   const handleTabChange = (tabName) => setActiveTab(tabName);
-  const toggleModal = () => setIsModalOpen(!isModalOpen);
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+    if (!isModalOpen) {
+      setModalType(""); // Reset modal type when closing
+    }
+  };
 
   const handleRoundAction = (type) => {
     setActionType(type);
     if (["add", "edit"].includes(type)) {
-      toggleModal();
+      setModalType("options");
+      setIsModalOpen(true);
     }
   };
+
+  const handleOptionSelect = (type) => {
+    setModalType(type); // "parent" or "child"
+  };
+
+  const handleCloseOptionsModal = () => {
+    setIsModalOpen(false);
+    setModalType("");
+  };
+
   const {
     fixtures,
     isFetchingHybridFixtures,
@@ -228,7 +247,14 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
           </div>
         </div>
       )}
-      {isModalOpen && (
+      {isModalOpen && modalType === "options" && (
+        <RoundOptionsModal 
+          onTypeSelect={handleOptionSelect} 
+          onClose={handleCloseOptionsModal}
+        />
+      )}
+
+      {isModalOpen && modalType === "parent" && (
         <RoundCreationModal
           toggleModal={toggleModal}
           actionType={actionType}
@@ -236,6 +262,15 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
           tournamentId={tournamentId}
           categoryId={eventId}
           fixtureId={fixtures[selectedRoundIndex]?._id.toString()}
+        />
+      )}
+
+      {/* Child modal will be added here later */}
+      {isModalOpen && modalType === "child" && (
+        <ChildRoundModal
+          tournamentId={tournamentId}
+          categoryId={eventId}
+          toggleModal={toggleModal}
         />
       )}
     </>
