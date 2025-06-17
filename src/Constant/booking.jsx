@@ -54,6 +54,18 @@ const bookingTableHeaders = [
     },
   },
   {
+    key: "status",
+    header: "Status",
+    render: (item) => {
+      const status = item?.bookingItems[0]?.status;
+      return status === "REPLACED" ? (
+        <p className="text-green-600 font-medium">Replaced</p>
+      ) : (
+        <p className="text-red-600 font-medium">Active</p>
+      );
+    },
+  },
+  {
     key: "playerActions",
     header: "Actions",
     render: (bookingData, index) => {

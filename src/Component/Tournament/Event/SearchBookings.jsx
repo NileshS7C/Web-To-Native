@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query';
 import { getAllEventBookings } from '../../../api/TournamentEvents';
 
@@ -11,6 +11,20 @@ const SearchBookings = ({tournamentId, eventId, isSingleCategory, onSelectBookin
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const bookings = data?.data?.bookings || [];
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const getSuggestions = () => {
     if (!bookings) return [];
@@ -55,7 +69,7 @@ const SearchBookings = ({tournamentId, eventId, isSingleCategory, onSelectBookin
 
   return (
     <>
-      <div className="relative">
+      <div className="relative" ref={searchRef}>
         <input 
           type="text" 
           placeholder={`Search ${isSingleCategory ? 'player' : 'team'} to swap`} 

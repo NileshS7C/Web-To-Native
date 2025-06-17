@@ -138,7 +138,13 @@ const SwapParticipants = ({ tournamentId, eventId }) => {
               </button>
               <button
                 className='bg-red-500 text-white px-4 py-2 rounded-md'
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  setSwapData(null);
+                  setSwapTargets({ player: null, partner: null });
+                  setError(null);
+                  setSuccess(null);
+                }}
                 disabled={isLoading}
               >
                 Cancel
