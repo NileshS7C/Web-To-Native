@@ -13,8 +13,24 @@ const GroupAndRoundNameModal = ({
   changedName = '',
 }) => {
   const [newTitle, setNewTitle] = useState(changedName);
+  const [date, setDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [childCount, setChildCount] = useState(0);
+  const [pointsEachSet, setPointsEachSet] = useState(0);
+  const [error, setError] = useState('');
+  
   const updateGroupNameMutation = useUpdateGroupName();
   const updateRoundNameMutation = useUpdateRoundName();
+
+  // Format date to DD/MM/YYYY
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   // Update the input value when changedName prop changes
   useEffect(() => {
@@ -23,9 +39,18 @@ const GroupAndRoundNameModal = ({
 
   const handleSave = () => {
     if (!newTitle.trim()) {
-      alert('Please enter a valid name');
+      setError('Please enter a valid name');
       return;
     }
+
+    setError(''); // Clear any previous errors
+
+    const metaData = {
+      date: formatDate(date),
+      startTime,
+      childCount: Number(childCount),
+      pointsEachSet: Number(pointsEachSet)
+    };
 
     if (type === 'group') {
       updateGroupNameMutation.mutate({
@@ -35,10 +60,14 @@ const GroupAndRoundNameModal = ({
         groupObj: {
           groupId,
           groupName: newTitle,
+          metaData
         },
       }, {
         onSuccess: (data) => {
           onClose();
+        },
+        onError: (error) => {
+          setError(error.response?.data?.message || 'Failed to update group name');
         }
       });
     } else if (type === 'round') {
@@ -50,10 +79,14 @@ const GroupAndRoundNameModal = ({
           groupId,
           roundId,
           roundName: newTitle,
+          metaData
         },
       }, {
         onSuccess: (data) => {
           onClose();
+        },
+        onError: (error) => {
+          setError(error.response?.data?.message || 'Failed to update round name');
         }
       });
     }
@@ -85,9 +118,63 @@ const GroupAndRoundNameModal = ({
             />
           </div>
         </div>
+
+        {/* New Fields */}
+        <div className='grid grid-cols-2 gap-4 my-4'>
+          <div className='flex flex-col gap-2'>
+            <label className='text-sm text-left'>Date:</label>
+            <input
+              type="date"
+              className='border border-gray-300 p-2'
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+          <div className='flex flex-col gap-2'>
+            <label className='text-sm text-left'>Start Time:</label>
+            <input
+              type="time"
+              className='border border-gray-300 p-2'
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+            />
+          </div>
+          <div className='flex flex-col gap-2'>
+            <label className='text-sm text-left'>Child Count:</label>
+            <input
+              type="number"
+              min="1"
+              className='border border-gray-300 p-2'
+              value={childCount}
+              onChange={(e) => setChildCount(e.target.value)}
+            />
+          </div>
+          <div className='flex flex-col gap-2'>
+            <label className='text-sm text-left'>Points per Set:</label>
+            <input
+              type="number"
+              min="1"
+              className='border border-gray-300 p-2'
+              value={pointsEachSet}
+              onChange={(e) => setPointsEachSet(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4' role='alert'>
+            <span className='block sm:inline'>{error}</span>
+          </div>
+        )}
+
         <div className='flex justify-end gap-2 mt-4'>
           <button className='bg-gray-500 text-white p-2 rounded-lg w-full mt-4' onClick={onClose}>Cancel</button>
-          <button className='bg-blue-500 text-white p-2 rounded-lg w-full mt-4' onClick={handleSave}>
+          <button 
+            className='bg-blue-500 text-white p-2 rounded-lg w-full mt-4' 
+            onClick={handleSave}
+            disabled={updateGroupNameMutation.isLoading || updateRoundNameMutation.isLoading}
+          >
             {updateGroupNameMutation.isLoading || updateRoundNameMutation.isLoading ? 'Saving...' : 'Save'}
           </button>
         </div>
