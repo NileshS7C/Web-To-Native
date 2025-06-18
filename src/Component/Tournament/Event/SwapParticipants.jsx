@@ -24,7 +24,7 @@ const SwapParticipants = ({ tournamentId, eventId }) => {
     setIsLoading(true);
     setError(null);
     setSuccess(null);
-    const bookingId = swapData._id;
+    const bookingId = swapData?._id;
     const isDoubles = swapData?.bookingItems[0]?.isDoubles;
     let bookingData = {};
     let replace = '';

@@ -384,7 +384,6 @@ const AddParticipants = () => {
   }, [removedPlayer]);
 
   const handleTbdToggle = (enabled) => {
-    console.log("🚀 ~ handleTbdToggle ~ enabled:", enabled)
     setIsTbdEnabled(enabled);
   };
 

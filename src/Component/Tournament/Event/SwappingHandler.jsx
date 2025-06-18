@@ -11,10 +11,6 @@ const SwappingHandler = ({ swapData, onSwapTargetsChange }) => {
     if (onSwapTargetsChange) onSwapTargetsChange(swapTargets);
   }, [swapTargets, onSwapTargetsChange]);
 
-  useEffect(() => {
-    // Reset swap targets if swapData changes (optional, can remove if you want to keep selections)
-    // setSwapTargets({ player: null, partner: null });
-  }, [swapData]);
 
   const isDoubles = swapData?.bookingItems[0]?.isDoubles;
 

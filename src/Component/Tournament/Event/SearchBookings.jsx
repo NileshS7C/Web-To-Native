@@ -63,9 +63,6 @@ const SearchBookings = ({tournamentId, eventId, isSingleCategory, onSelectBookin
     }
   };
 
-  useEffect(() => {
-    console.log("🚀 ~ useEffect ~ selectedBooking:", selectedBooking)
-  },[selectedBooking])
 
   return (
     <>
