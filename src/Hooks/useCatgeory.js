@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createHybridFixture,
+  deleteChildFixture,
   deleteHybridFixture,
   getDoubleEliminationFinal,
   getFixtureById,
@@ -33,6 +34,16 @@ export const useDeleteHybridFixture = () => {
   return useMutation({
     mutationFn: ({ tournamentId, categoryId, fixtureId }) =>
       deleteHybridFixture(tournamentId, categoryId, fixtureId),
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+};
+
+export const useDeleteChildFixture = () => {
+  return useMutation({
+    mutationFn: ({ tournamentId, categoryId, fixtureId }) =>
+      deleteChildFixture(tournamentId, categoryId, fixtureId),
     onError: (error) => {
       console.log(error);
     },

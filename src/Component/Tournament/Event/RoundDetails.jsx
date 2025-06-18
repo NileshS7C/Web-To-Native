@@ -10,7 +10,7 @@ import {
 } from "../../../redux/Confirmation/confirmationSlice";
 import { ConfirmationModal } from "../../Common/ConfirmationModal";
 import { useParams } from "react-router-dom";
-import { useDeleteHybridFixture,useUpdateHybridFixture } from "../../../Hooks/useCatgeory";
+import { useDeleteHybridFixture,useUpdateHybridFixture, useDeleteChildFixture } from "../../../Hooks/useCatgeory";
 import { getFixtureById, getHybridFixtures } from "../../../redux/tournament/fixturesActions";
 import { showError } from "../../../redux/Error/errorSlice";
 import { showSuccess } from "../../../redux/Success/successSlice";
@@ -28,6 +28,7 @@ const RoundDetails = ({
   };
   const dispatch = useDispatch();
   const { tournamentId, eventId } = useParams();
+
   const {
     mutate: deleteHybridFixture,
     isSuccess: isDeleteFixtureSuccess,
@@ -35,6 +36,15 @@ const RoundDetails = ({
     error: deleteFixtureError,
     isPending: isDeleteFixturePending,
   } = useDeleteHybridFixture();
+
+  const {
+    mutate: deleteChildFixture,
+    isSuccess: isDeleteChildFixtureSuccess,
+    isError: isDeleteChildFixtureError,
+    error: deleteChildFixtureError,
+    isPending: isDeleteChildFixturePending,
+  } = useDeleteChildFixture();
+
   const { fixture, isFetchingFixture } = useSelector((state) => state.fixture);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedParticipants, setPaginatedParticipants] = useState([]);
@@ -57,16 +67,24 @@ const RoundDetails = ({
   
   useEffect(() => {
     if (isConfirmed && type === "Fixture") {
-      deleteHybridFixture({
+      if(fixture?.parentId){
+        deleteChildFixture({
+          tournamentId,
+          categoryId: eventId,
+          fixtureId
+        });
+      }else{
+        deleteHybridFixture({
         tournamentId,
         categoryId: eventId,
-        fixtureId
-      });
+          fixtureId
+        });
+      }
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed]);
   useEffect(() => {
-    if (isDeleteFixtureSuccess) {
+    if (isDeleteFixtureSuccess || isDeleteChildFixtureSuccess) {
       dispatch(
         showSuccess({
           message: "Round Deleted Successfully",
@@ -82,9 +100,9 @@ const RoundDetails = ({
         );
       }, [1000]);
     }
-  }, [isDeleteFixtureSuccess]);
+  }, [isDeleteFixtureSuccess, isDeleteChildFixtureSuccess]);
   useEffect(() => {
-    if (isDeleteFixtureError) {
+    if (isDeleteFixtureError || isDeleteChildFixtureError) {
       dispatch(
         showError({
           message: deleteFixtureError?.message || "Something went wrong",
@@ -92,7 +110,7 @@ const RoundDetails = ({
         })
       );
     }
-  }, [isDeleteFixtureError]);
+  }, [isDeleteFixtureError, isDeleteChildFixtureError]);
   useEffect(() => {
     if (fixtureId)
       dispatch(

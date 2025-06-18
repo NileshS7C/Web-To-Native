@@ -11,6 +11,7 @@ const GroupAndRoundNameModal = ({
   categoryId,
   fixtureId,
   changedName = '',
+  existingMetaData = {},
 }) => {
   const [newTitle, setNewTitle] = useState(changedName);
   const [date, setDate] = useState('');
@@ -32,10 +33,52 @@ const GroupAndRoundNameModal = ({
     return `${day}/${month}/${year}`;
   };
 
-  // Update the input value when changedName prop changes
+  // Parse date from DD/MM/YYYY format to YYYY-MM-DD for input
+  const parseDateForInput = (dateString) => {
+    if (!dateString) return '';
+    
+    // Handle DD/MM/YYYY format
+    const parts = dateString.split('/');
+    if (parts.length === 3) {
+      const day = parts[0];
+      const month = parts[1];
+      const year = parts[2];
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+    
+    // Handle YYYY-MM-DD format (already in correct format)
+    if (dateString.includes('-')) {
+      return dateString;
+    }
+    
+    return '';
+  };
+
+  // Initialize form fields with existing metadata
   useEffect(() => {
     setNewTitle(changedName);
-  }, [changedName]);
+    
+    // Prefill date field
+    if (existingMetaData.date) {
+      const parsedDate = parseDateForInput(existingMetaData.date);
+      setDate(parsedDate);
+    }
+    
+    // Prefill start time field
+    if (existingMetaData.startTime) {
+      setStartTime(existingMetaData.startTime);
+    }
+    
+    // Prefill child count field
+    if (existingMetaData.childCount !== undefined && existingMetaData.childCount !== null) {
+      setChildCount(existingMetaData.childCount);
+    }
+    
+    // Prefill points per set field
+    if (existingMetaData.pointsEachSet !== undefined && existingMetaData.pointsEachSet !== null) {
+      setPointsEachSet(existingMetaData.pointsEachSet);
+    }
+  }, [changedName, existingMetaData]);
 
   const handleSave = () => {
     if (!newTitle.trim()) {
@@ -45,12 +88,31 @@ const GroupAndRoundNameModal = ({
 
     setError(''); // Clear any previous errors
 
-    const metaData = {
-      date: formatDate(date),
-      startTime,
-      childCount: Number(childCount),
-      pointsEachSet: Number(pointsEachSet)
-    };
+    // Build metadata object with only updated fields
+    const metaData = {};
+    
+    // Only include date if it's different from existing or if it's new
+    const formattedDate = formatDate(date);
+    if (formattedDate && formattedDate !== existingMetaData.date) {
+      metaData.date = formattedDate;
+    }
+    
+    // Only include startTime if it's different from existing or if it's new
+    if (startTime && startTime !== existingMetaData.startTime) {
+      metaData.startTime = startTime;
+    }
+    
+    // Only include childCount if it's different from existing or if it's new
+    const numChildCount = Number(childCount);
+    if (numChildCount > 0 && numChildCount !== existingMetaData.childCount) {
+      metaData.childCount = numChildCount;
+    }
+    
+    // Only include pointsEachSet if it's different from existing or if it's new
+    const numPointsEachSet = Number(pointsEachSet);
+    if (numPointsEachSet > 0 && numPointsEachSet !== existingMetaData.pointsEachSet) {
+      metaData.pointsEachSet = numPointsEachSet;
+    }
 
     if (type === 'group') {
       updateGroupNameMutation.mutate({
@@ -122,7 +184,7 @@ const GroupAndRoundNameModal = ({
         {/* New Fields */}
         <div className='grid grid-cols-2 gap-4 my-4'>
           <div className='flex flex-col gap-2'>
-            <label className='text-sm text-left'>Date:</label>
+            <label className='text-sm text-left capitalize'>Date:</label>
             <input
               type="date"
               className='border border-gray-300 p-2'
@@ -131,7 +193,7 @@ const GroupAndRoundNameModal = ({
             />
           </div>
           <div className='flex flex-col gap-2'>
-            <label className='text-sm text-left'>Start Time:</label>
+            <label className='text-sm text-left capitalize'>Start Time:</label>
             <input
               type="time"
               className='border border-gray-300 p-2'
@@ -140,7 +202,7 @@ const GroupAndRoundNameModal = ({
             />
           </div>
           <div className='flex flex-col gap-2'>
-            <label className='text-sm text-left'>Child Count:</label>
+            <label className='text-sm text-left capitalize'>No. of Sets:</label>
             <input
               type="number"
               min="1"
@@ -150,7 +212,7 @@ const GroupAndRoundNameModal = ({
             />
           </div>
           <div className='flex flex-col gap-2'>
-            <label className='text-sm text-left'>Points per Set:</label>
+            <label className='text-sm text-left capitalize'>Points per set:</label>
             <input
               type="number"
               min="1"

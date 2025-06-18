@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { RxCross2 } from "react-icons/rx";
 import { tournamentEvent } from '../../../Constant/tournament';
+import { checkRoles } from '../../../utils/roleCheck';
+import { ADMIN_ROLES } from '../../../Constant/Roles';
+import { useDispatch } from 'react-redux';
+import { getHybridFixtures } from '../../../redux/tournament/fixturesActions';
 
 const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [parentFixtures, setParentFixtures] = useState([]);
   const [form, setForm] = useState({
@@ -25,7 +30,9 @@ const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
       setLoading(true);
       try {
         const baseURL = import.meta.env.VITE_BASE_URL;
-        const endpoint = `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`;
+        const endpoint = checkRoles(ADMIN_ROLES) 
+          ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`
+          : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`;
         const response = await fetch(`${baseURL}${endpoint}`, {
           method: 'GET',
           credentials: 'include',
@@ -147,7 +154,9 @@ const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
     setLoading(true);
     try {
       const baseURL = import.meta.env.VITE_BASE_URL;
-      const endpoint = `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/knockout`;
+      const endpoint = checkRoles(ADMIN_ROLES)
+        ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/knockout`
+        : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/knockout`;
       const payload = buildPayload();
       const response = await fetch(`${baseURL}${endpoint}`, {
         method: 'POST',
@@ -161,6 +170,14 @@ const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
       }
       setSuccess('Child round created successfully!');
       toggleModal();
+      setTimeout(() => {
+        dispatch(
+          getHybridFixtures({
+            tour_Id: tournamentId,
+            eventId: categoryId
+          })
+        );
+      }, 1000);
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
@@ -275,7 +292,7 @@ const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
                 {groupSizes.map((group, index) => (
                   <div key={group.id} className="flex w-full border-b-2 justify-around py-2">
                     <span className="text-gray-800 text-center w-[40%] max-w-[40%]">{group.id}</span>
-                    <div className="flex justify-center w-[60%] max-w-[60%] mx-auto w-full">
+                    <div className="flex justify-center max-w-[60%] mx-auto w-full">
                       <input
                         type="text"
                         inputMode="numeric"

@@ -77,8 +77,13 @@ const RoundCreationModal = ({
     participants: yup
       .array()
       .of(yup.object())
-      .required("Participants field is required")
-      .min(2, "At least two participant is required"),
+      .when('$isChildRound', {
+        is: true,
+        then: (schema) => schema.optional(),
+        otherwise: (schema) => schema
+          .required("Participants field is required")
+          .min(2, "At least two participant is required"),
+      }),
 
     grandFinalsDE: yup.string().optional(),
   });
@@ -119,6 +124,10 @@ const RoundCreationModal = ({
     isPending: isUpdateFixturePending,
   } = useUpdateHybridFixture();
   const { fixture } = useSelector((state) => state.fixture);
+  
+  // Check if this is a child round (has parentId)
+  const isChildRound = fixture?.parentId;
+  
   const getInitialState = () => {
     if (actionType === "edit") {
       const {
@@ -201,6 +210,11 @@ const RoundCreationModal = ({
 
     for (const key in values) {
       if (key === "participants") {
+        // Skip participant changes for child rounds
+        if (isChildRound) {
+          continue;
+        }
+        
         const initialParticipants = fixture?.bracketData?.participant || [];
         
         const currentParticipants = values.participants || [];
@@ -276,7 +290,8 @@ const RoundCreationModal = ({
     try {
       setSubmitting(true);
 
-      if (values?.format === "RR" && values.numberOfGroups > 0) {
+      // Skip participant validation for child rounds
+      if (!isChildRound && values?.format === "RR" && values.numberOfGroups > 0) {
         const { isValid, message } = validateGroupParticipants(
           groupSizes,
           values.participants.length
@@ -399,6 +414,7 @@ const RoundCreationModal = ({
                     enableReinitialize
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
+                    context={{ isChildRound }}
                   >
                     {({ isSubmitting, values, setFieldValue, setValues }) => (
                       <Form>
@@ -441,25 +457,29 @@ const RoundCreationModal = ({
                               />
                             )}
 
-                          <div
-                            className="relative w-full"
-                            onClick={() => {
-                              setInitialState(values);
-                              togglePlayerModal();
-                            }}
-                          >
-                            <input
-                              readOnly
-                              placeholder="Add Players..."
-                              className="cursor-pointer w-full px-2 border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base md:text-lg"
-                            />
-                            <img
-                              src={searchIcon}
-                              alt="search Venue"
-                              className="absolute right-[20px] top-1/2 transform -translate-y-1/2"
-                            />
-                          </div>
-                          {/* Participant list */}
+                          {/* Only show player input field for parent rounds or when adding new rounds */}
+                          {(!isChildRound || actionType === "add") && (
+                            <div
+                              className="relative w-full"
+                              onClick={() => {
+                                setInitialState(values);
+                                togglePlayerModal();
+                              }}
+                            >
+                              <input
+                                readOnly
+                                placeholder="Add Players..."
+                                className="cursor-pointer w-full px-2 border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base md:text-lg"
+                              />
+                              <img
+                                src={searchIcon}
+                                alt="search Venue"
+                                className="absolute right-[20px] top-1/2 transform -translate-y-1/2"
+                              />
+                            </div>
+                          )}
+                          
+                          {/* Always show participant list, but hide delete buttons for child rounds */}
                           {values?.participants?.length > 0 && (
                             <div className="rounded-lg border-2 border-[#DFEAF2]">
                               {/* header */}
@@ -471,7 +491,10 @@ const RoundCreationModal = ({
                                 <span className="text-sm sm:text-base md:text-lg flex-[35] text-left text-grey-500 font-medium">
                                   Phone No
                                 </span>
-                                <span className="flex-[10] text-left text-grey-500 font-medium"></span>
+                                {/* Only show header for delete column if not a child round */}
+                                {(!isChildRound || actionType === "add") && (
+                                  <span className="flex-[10] text-left text-grey-500 font-medium"></span>
+                                )}
                               </div>
                               <FieldArray name="participants">
                                 {({ form }) => (
@@ -519,12 +542,15 @@ const RoundCreationModal = ({
                                                 </span>
                                               ))}
                                             </div>
-                                            <RxCross2
-                                              className="flex-[10] cursor-pointer w-4 h-4"
-                                              onClick={() => {
-                                                handleRemove(index);
-                                              }}
-                                            />
+                                            {/* Only show delete button for parent rounds or when adding new rounds */}
+                                            {(!isChildRound || actionType === "add") && (
+                                              <RxCross2
+                                                className="flex-[10] cursor-pointer w-4 h-4"
+                                                onClick={() => {
+                                                  handleRemove(index);
+                                                }}
+                                              />
+                                            )}
                                           </div>
                                         );
                                       }
@@ -542,7 +568,7 @@ const RoundCreationModal = ({
                             <div className="flex gap-2 sm:gap-4 justify-center ">
                               <Button
                                 type="button"
-                                className="py-2 px-6 sm:px-8 md:px-10 rounded-[10px] bg-white border-2 border-[#1570EF] text-[#1570EF] text-sm sm:text-base md:text-lg leading-[17px] text-[#232323]"
+                                className="py-2 px-6 sm:px-8 md:px-10 rounded-[10px] bg-white border-2 border-[#1570EF] text-sm sm:text-base md:text-lg leading-[17px] text-[#232323]"
                                 onClick={toggleModal}
                               >
                                 Close
@@ -742,7 +768,7 @@ const GroupSize = ({ groupSizes, onChange }) => {
             <span className="text-gray-800 text-center w-[40%] max-w-[40%]">
               {group.id}
             </span>
-            <div className="flex justify-center w-[60%] max-w-[60%] mx-auto w-full">
+            <div className="flex justify-center max-w-[60%] mx-auto w-full">
               <input
                 type="text"
                 inputMode="numeric"

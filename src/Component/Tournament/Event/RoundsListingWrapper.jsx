@@ -41,8 +41,11 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
 
   const handleRoundAction = (type) => {
     setActionType(type);
-    if (["add", "edit"].includes(type)) {
+    if (type === "add") {
       setModalType("options");
+      setIsModalOpen(true);
+    } else if (type === "edit") {
+      setModalType("parent");
       setIsModalOpen(true);
     }
   };
@@ -139,7 +142,7 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
           {/* Sidebar for Rounds */}
           <div className="flex md:flex-col w-full md:w-[20%] md:min-w-[200px] md:border-r md:p-4 md:space-y-2 gap-2 md:gap-0">
             {/* Mobile dropdown (only visible on small screens) */}
-            <div className="block md:hidden w-full flex flex-col sm:flex-row sm:mb-2 md:mb-0 gap-2">
+            <div className="md:hidden w-full flex flex-col sm:flex-row sm:mb-2 md:mb-0 gap-2">
               <select
                 className="w-full sm:w-[50%] py-2 pl-3 pr-8 border rounded-md text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[#1570EF]"
                 value={selectedRoundIndex}
@@ -156,7 +159,7 @@ const RoundsListingWrapper = ({ tournamentId, eventId, tournament }) => {
               </select>
 
               <button
-                className="flex items-center gap-1 text-sm font-medium text-black text-richBlue-5 hover:text-richBlue-600 mt-4 mb-2 md:mb-0"
+                className="flex items-center gap-1 text-sm font-medium text-black hover:text-richBlue-600 mt-4 mb-2 md:mb-0"
                 onClick={() => handleRoundAction("add")}
               >
                 <IoMdAdd className="text-lg" />
