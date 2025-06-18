@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "../Services/axios";
 import { API_END_POINTS } from "../Constant/routes";
 export const getProfile= async()=>{
     const baseURl = import.meta.env.VITE_BASE_URL;
@@ -9,7 +9,7 @@ export const getProfile= async()=>{
         withCredentials:true
     }
     try {       
-        const response= await axios.request(config)
+        const response= await axiosInstance.request(config)
         return response?.data?.data || {};
     } catch (error) {
         console.error("🚀 ~ getProfile ~ error:", error)

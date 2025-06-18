@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "../Services/axios";
 import { API_END_POINTS } from "../Constant/routes";
 import { checkRoles } from "../utils/roleCheck";
 import { ADMIN_ROLES, EVENT_OWNER_ROLES } from "../Constant/Roles";
@@ -25,7 +25,7 @@ export const getAllEvents = async (page = 1, limit = 10, id, filters = {}) => {
   console.log('Request config:', config);
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ getAllEvents ~ error:", error);
@@ -53,7 +53,7 @@ export const searchEvents = async ({ownerId, searchTitle, page = 1, limit = 10})
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ searchEvents ~ error:", error);
@@ -75,7 +75,7 @@ export const createEvent = async (payload) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     const responseData = response.data?.data;
 
     console.log("🚀 ~ createEvent ~ API Response", {
@@ -111,7 +111,7 @@ export const updateEvent = async (payload) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ updateEvent ~ error:", error);
@@ -135,7 +135,7 @@ export const getAllEventOwners = async ({ currentPage = 1, limit = 100 }) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ getAllEventOwners ~ error:", error);
@@ -159,7 +159,7 @@ export const getSingleEventOwner = async () => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ getSingleEventOwner ~ error:", error);
@@ -182,7 +182,7 @@ export const getEventById = async (eventId, ownerId) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ getEventById ~ error:", error);
@@ -196,7 +196,7 @@ export const verifyEvent = async (eventId, action, rejectionComments = '') => {
     const endpoint = `${baseURL}${API_END_POINTS.socialEvents.POST.verifyEvent(eventId)}`;
     console.log('Verifying event with endpoint:', endpoint);
     
-    const response = await axios.post(endpoint, {
+    const response = await axiosInstance.post(endpoint, {
       action,
       rejectionComments
     }, {
@@ -228,7 +228,7 @@ export const archiveEvent = async (eventId, ownerId) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ archiveEvent ~ error:", error);
@@ -256,7 +256,7 @@ export const publishEvent = async (eventId, ownerId) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ publishEvent ~ error:", error);
@@ -282,7 +282,7 @@ export const getEventBookings = async (eventId) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ getEventBookings ~ error:", error);
@@ -314,7 +314,7 @@ export const addEventPlayer = async (payload) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ addEventPlayer ~ error:", error);
@@ -336,7 +336,7 @@ export const searchPlayers = async (searchQuery) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ searchPlayers ~ error:", error);
@@ -366,7 +366,7 @@ export const cancelEventBooking = async (bookingId, ownerId, cancelReason) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ cancelEventBooking ~ error:", error);
@@ -395,7 +395,7 @@ export const refundEventBooking = async (bookingId, ownerId) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ refundEventBooking ~ error:", error);
@@ -418,7 +418,7 @@ export const getEventOwners = async ({ page = 1, limit = 10 }) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ getEventOwners ~ error:", error);
@@ -442,7 +442,7 @@ export const createEventOwner = async (payload) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ createEventOwner ~ error:", error);
@@ -465,7 +465,7 @@ export const getEventOwnerById = async (ownerId) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data;
   } catch (error) {
     console.error("🚀 ~ getEventOwnerById ~ error:", error);
@@ -489,7 +489,7 @@ export const updateEventOwner = async (ownerId, payload) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data;
   } catch (error) {
     console.error("🚀 ~ updateEventOwner ~ error:", error);
@@ -516,7 +516,7 @@ export const changeEventStatus = async (eventId, ownerId, status) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ changeEventStatus ~ error:", error);
@@ -543,7 +543,7 @@ export const exportEventBookings = async (eventId, ownerId) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     // Create a URL for the blob
     const url = window.URL.createObjectURL(new Blob([response.data]));
     // Create a temporary link element
