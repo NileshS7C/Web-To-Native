@@ -120,9 +120,9 @@ export const API_END_POINTS = {
       },
       deleteChildFixture: (tournamentId, categoryId, fixtureId) => {
         if (checkRoles(ADMIN_ROLES)) {
-          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/knockout/${fixtureId}/delete`;
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child/${fixtureId}/delete`;
         } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
-          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/knockout/${fixtureId}/delete`;
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child/${fixtureId}/delete`;
         } else return null;
       },
       publishFixture: (tournamentId, categoryId, fixtureId) => {

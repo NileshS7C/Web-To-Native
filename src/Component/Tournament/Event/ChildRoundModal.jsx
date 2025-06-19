@@ -155,8 +155,8 @@ const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
     try {
       const baseURL = import.meta.env.VITE_BASE_URL;
       const endpoint = checkRoles(ADMIN_ROLES)
-        ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/knockout`
-        : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/knockout`;
+        ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child`
+        : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child`;
       const payload = buildPayload();
       const response = await fetch(`${baseURL}${endpoint}`, {
         method: 'POST',
