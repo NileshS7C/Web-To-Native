@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query';
-import { getAllEventBookings } from '../../../api/TournamentEvents';
+import { getAllEventBookings, searchEventBookings } from '../../../api/TournamentEvents';
 
 const SearchBookings = ({tournamentId, eventId, isSingleCategory, onSelectBooking}) => {
   const { data, isLoading, error } = useQuery({
@@ -10,8 +10,34 @@ const SearchBookings = ({tournamentId, eventId, isSingleCategory, onSelectBookin
   const [search, setSearch] = useState('');
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
   const bookings = data?.data?.bookings || [];
   const searchRef = useRef(null);
+
+  useEffect(() => {
+    if (!search) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      setSearchError(null);
+      return;
+    }
+    const handler = setTimeout(async () => {
+      setSearchLoading(true);
+      setSearchError(null);
+      try {
+        const res = await searchEventBookings(tournamentId, eventId, search);
+        setSearchResults(res?.data?.bookings || []);
+      } catch (err) {
+        setSearchError(err.message || 'Search failed');
+        setSearchResults([]);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [search, tournamentId, eventId]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -27,9 +53,10 @@ const SearchBookings = ({tournamentId, eventId, isSingleCategory, onSelectBookin
   }, []);
 
   const getSuggestions = () => {
-    if (!bookings) return [];
+    const source = search ? searchResults : bookings;
+    if (!source) return [];
     
-    return bookings.map(booking => {
+    return source.map(booking => {
       const bookingItem = booking.bookingItems[0];
       if (bookingItem.isDoubles) {
         return {
@@ -78,7 +105,9 @@ const SearchBookings = ({tournamentId, eventId, isSingleCategory, onSelectBookin
         
         {showSuggestions && (search || selectedBooking === null) && (
           <div className="absolute w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto z-10 divide-y divide-gray-200">
-            {filteredSuggestions.map((suggestion) => (
+            {searchLoading && <div className="p-2 text-gray-500">Searching...</div>}
+            {searchError && <div className="p-2 text-red-500">{searchError}</div>}
+            {!searchLoading && !searchError && filteredSuggestions.map((suggestion) => (
               <div
                 key={suggestion._id}
                 className="p-2 hover:bg-gray-100 cursor-pointer text-left text-sm font-medium"
@@ -87,7 +116,7 @@ const SearchBookings = ({tournamentId, eventId, isSingleCategory, onSelectBookin
                 {suggestion.displayName}
               </div>
             ))}
-            {filteredSuggestions.length === 0 && (
+            {!searchLoading && !searchError && filteredSuggestions.length === 0 && (
               <div className="p-2 text-gray-500">No results found</div>
             )}
           </div>

@@ -57,12 +57,29 @@ const bookingTableHeaders = [
     key: "status",
     header: "Status",
     render: (item) => {
-      const status = item?.bookingItems[0]?.status;
-      return status === "REPLACED" ? (
-        <p className="text-green-600 font-medium">Replaced</p>
-      ) : (
-        <p className="text-red-600 font-medium">Active</p>
-      );
+      const bookingStatus = item?.bookingItems[0]?.status?.toLowerCase();
+      let colorClass = "";
+      let label = "";
+      switch (bookingStatus) {
+        case "replaced":
+          colorClass = "text-amber-500";
+          label = "Replaced";
+          break;
+        case "refunded":
+          colorClass = "text-blue-500";
+          label = "Refunded";
+          break;
+        case "cancelled":
+          colorClass = "text-red-500";
+          label = "Cancelled";
+          break;
+        case "active":
+        default:
+          colorClass = "text-green-500";
+          label = "Active";
+          break;
+      }
+      return <p className={`${colorClass} font-medium`}>{label}</p>;
     },
   },
   {

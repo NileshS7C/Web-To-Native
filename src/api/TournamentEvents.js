@@ -48,3 +48,20 @@ export const swapEventBooking = async ({ tournamentId, categoryId, bookingId, bo
   }
   return await response.json();
 };
+
+export const searchEventBookings = async (tournamentId, categoryId, search) => {
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  const endpoint = checkRoles(ADMIN_ROLES)
+    ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/bookings/search?search=${encodeURIComponent(search)}&categoryStatus=ACTIVE`
+    : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/bookings/search?search=${encodeURIComponent(search)}&categoryStatus=ACTIVE`;
+
+  const response = await fetch(`${baseURL}${endpoint}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to search bookings');
+  }
+  return await response.json();
+};
