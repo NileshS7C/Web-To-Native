@@ -16,6 +16,7 @@ import ErrorBanner from "../../Common/ErrorBanner";
 import { bookingLimit, NotDoublesCategory } from "../../../Constant/tournament";
 import { SearchPlayer } from "../../Common/SeachPlayerModal";
 import ToggleButton from "../../Common/ToggleButton";
+import AddTbdPlayer from './AddTbdPlayer';
 
 
 const PlayerExistenceSelector = ({ handlePlayerExist, type }) => {
@@ -64,7 +65,7 @@ const SearchPlayerWrapper = ({ id, setSelectedPlayer, setRemovedPlayer }) => {
 const AddUserModalTitle = ({ isPlayerExist }) => {
   const dispatch = useDispatch();
   return (
-    <div className="flex items-center justify-between mb-[30px]">
+    <div className="flex items-center justify-between mb-[15px]">
       <p className="text-[18px] leading-[21.7px] font-[600] text-[#343C6A]">
         Add User
       </p>
@@ -128,6 +129,7 @@ const AddParticipants = () => {
       },
     ],
   });
+  const [isTbdEnabled, setIsTbdEnabled] = useState(false);
 
   const handlePlayerExist = (type, newState) => {
     setIsPlayerExist((prevStates) => ({
@@ -381,12 +383,17 @@ const AddParticipants = () => {
     }
   }, [removedPlayer]);
 
+  const handleTbdToggle = (enabled) => {
+    setIsTbdEnabled(enabled);
+  };
+
   useEffect(() => {
     if (showConfirmBookingModal) {
       setInitialState((prevState) => {
         return { ...initialValues, ...prevState };
       });
       setHasError(false);
+      setIsTbdEnabled(false);
     }
   }, [showConfirmBookingModal]);
 
@@ -430,109 +437,115 @@ const AddParticipants = () => {
 
                   <Form>
                     <div className="grid grid-col-1 gap-[20px]">
-                      <PlayerDetails
-                        handlePlayerExist={handlePlayerExist}
-                        setSelectedPlayer={setSelectedPlayer}
-                        setRemovedPlayer={setRemovedPlayer}
-                        isPlayerExist={isPlayerExist}
-                      />
-
-                      {!NotDoublesCategory.includes(category?.type) && (
+                      <AddTbdPlayer onTbdToggle={handleTbdToggle} />
+                      
+                      {!isTbdEnabled && (
                         <>
-                          <div className="flex gap-2.5 items-center justify-start flex-wrap flex-1">
-                            <input
-                              type="checkbox"
-                              id="add_partner"
-                              name="add_partner"
-                              className="sm:w-3 sm:h-3 md:sm-4 md:h-4 lg:w-4 lg:h-4 border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
-                              checked={isChecked}
-                              onChange={(e) => {
-                                setIsChecked(e.target.checked);
-                              }}
-                            />
-                            <label
-                              htmlFor="add_partner"
-                              className="text-[15px] text-[#718EBF] leading-[18px]"
-                            >
-                              Add Partner
-                            </label>
-                          </div>
+                          <PlayerDetails
+                            handlePlayerExist={handlePlayerExist}
+                            setSelectedPlayer={setSelectedPlayer}
+                            setRemovedPlayer={setRemovedPlayer}
+                            isPlayerExist={isPlayerExist}
+                          />
 
-                          {isChecked && (
-                            <div className="flex flex-col gap-2.5">
-                              <PlayerExistenceSelector
-                                handlePlayerExist={(newState) =>
-                                  handlePlayerExist("partner", newState)
-                                }
-                                type="partner"
-                              />
+                          {!NotDoublesCategory.includes(category?.type) && (
+                            <>
+                              <div className="flex gap-2.5 items-center justify-start flex-wrap flex-1">
+                                <input
+                                  type="checkbox"
+                                  id="add_partner"
+                                  name="add_partner"
+                                  className="sm:w-3 sm:h-3 md:sm-4 md:h-4 lg:w-4 lg:h-4 border-[1px] rounded-[4px] border-[#D0D5DD] cursor-pointer outline-none"
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    setIsChecked(e.target.checked);
+                                  }}
+                                />
+                                <label
+                                  htmlFor="add_partner"
+                                  className="text-[15px] text-[#718EBF] leading-[18px]"
+                                >
+                                  Add Partner
+                                </label>
+                              </div>
 
-                              {isPlayerExist.partner && (
-                                <div className="flex flex-col justify-start w-full gap-2.5">
-                                  <p>Select Player</p>
-                                  <SearchPlayerWrapper
-                                    id="partner"
-                                    setSelectedPlayer={setSelectedPlayer}
-                                    setRemovedPlayer={setRemovedPlayer}
+                              {isChecked && (
+                                <div className="flex flex-col gap-2.5">
+                                  <PlayerExistenceSelector
+                                    handlePlayerExist={(newState) =>
+                                      handlePlayerExist("partner", newState)
+                                    }
+                                    type="partner"
                                   />
-                                  <ErrorMessage
-                                    id="partner"
-                                    name="partner"
-                                    component={TextError}
-                                  />
+
+                                  {isPlayerExist.partner && (
+                                    <div className="flex flex-col justify-start w-full gap-2.5">
+                                      <p>Select Player</p>
+                                      <SearchPlayerWrapper
+                                        id="partner"
+                                        setSelectedPlayer={setSelectedPlayer}
+                                        setRemovedPlayer={setRemovedPlayer}
+                                      />
+                                      <ErrorMessage
+                                        id="partner"
+                                        name="partner"
+                                        component={TextError}
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="flex flex-col items-start gap-2.5">
+                                    <label
+                                      className="text-base leading-[19.36px]"
+                                      htmlFor="bookingItems[0].partnerDetails.name"
+                                    >
+                                      Name
+                                    </label>
+                                    <Field
+                                      id="bookingItems[0].partnerDetails.name"
+                                      name="bookingItems[0].partnerDetails.name"
+                                      type="phone"
+                                      className="w-full min-w-fit max-w-full sm:max-w-full md:max-w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      placeholder="Enter your partner name"
+                                      disabled={isPlayerExist.partner}
+                                    />
+                                    <ErrorMessage
+                                      name="bookingItems[0].partnerDetails.name"
+                                      component={TextError}
+                                    />
+                                  </div>
+                                  <div className="flex flex-col items-start gap-2.5">
+                                    <label
+                                      className="text-base leading-[19.36px]"
+                                      htmlFor="bookingItems[0].partnerDetails.phone"
+                                    >
+                                      Phone Number
+                                    </label>
+                                    <Field
+                                      id="bookingItems[0].partnerDetails.phone"
+                                      name="bookingItems[0].partnerDetails.phone"
+                                      type="bookingItems[0].partnerDetails.phone"
+                                      className="w-full min-w-fit max-w-full sm:max-w-full md:max-w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      placeholder="Enter your partner phone"
+                                      disabled={isPlayerExist.partner}
+                                    />
+                                    <ErrorMessage
+                                      name="bookingItems[0].partnerDetails.phone"
+                                      component={TextError}
+                                    />
+                                  </div>
                                 </div>
                               )}
-                              <div className="flex flex-col items-start gap-2.5">
-                                <label
-                                  className="text-base leading-[19.36px]"
-                                  htmlFor="bookingItems[0].partnerDetails.name"
-                                >
-                                  Name
-                                </label>
-                                <Field
-                                  id="bookingItems[0].partnerDetails.name"
-                                  name="bookingItems[0].partnerDetails.name"
-                                  type="phone"
-                                  className="w-full min-w-fit max-w-full sm:max-w-full md:max-w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Enter your partner name"
-                                  disabled={isPlayerExist.partner}
-                                />
-                                <ErrorMessage
-                                  name="bookingItems[0].partnerDetails.name"
-                                  component={TextError}
-                                />
-                              </div>
-                              <div className="flex flex-col items-start gap-2.5">
-                                <label
-                                  className="text-base leading-[19.36px]"
-                                  htmlFor="bookingItems[0].partnerDetails.phone"
-                                >
-                                  Phone Number
-                                </label>
-                                <Field
-                                  id="bookingItems[0].partnerDetails.phone"
-                                  name="bookingItems[0].partnerDetails.phone"
-                                  type="bookingItems[0].partnerDetails.phone"
-                                  className="w-full min-w-fit max-w-full sm:max-w-full md:max-w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Enter your partner phone"
-                                  disabled={isPlayerExist.partner}
-                                />
-                                <ErrorMessage
-                                  name="bookingItems[0].partnerDetails.phone"
-                                  component={TextError}
-                                />
-                              </div>
-                            </div>
+                            </>
                           )}
+
+                          <PartnerDetails
+                            dispatch={dispatch}
+                            toggleBookingModal={toggleBookingModal}
+                            isSubmitting={isSubmitting}
+                            isPlayerExist={isPlayerExist}
+                          />
                         </>
                       )}
-
-                      <PartnerDetails
-                        dispatch={dispatch}
-                        toggleBookingModal={toggleBookingModal}
-                        isSubmitting={isSubmitting}
-                        isPlayerExist={isPlayerExist}
-                      />
                     </div>
                   </Form>
                 </div>

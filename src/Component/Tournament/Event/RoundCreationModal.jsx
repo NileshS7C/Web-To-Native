@@ -5,19 +5,18 @@ import { showError } from "../../../redux/Error/errorSlice";
 import { nanoid } from "nanoid";
 import { RxCross2 } from "react-icons/rx";
 import * as yup from "yup";
-import {
-  Formik,
-  Form,
-  Field,
-  ErrorMessage,
-  useFormikContext,
-  FieldArray,
-} from "formik";
+import { Formik, Form, Field, ErrorMessage, useFormikContext, FieldArray } from "formik";
 import TextError from "../../Error/formError";
 import { searchIcon } from "../../../Assests";
 import { tournamentEvent } from "../../../Constant/tournament";
 import AddPlayerModal from "./AddPlayerModal";
 import Button from "../../Common/Button";
+import { useUpdateHybridFixture, useCreateHybridFixture, useUpdateChildFixture } from "../../../Hooks/useCatgeory";
+import { getFixtureById, getHybridFixtures } from "../../../redux/tournament/fixturesActions";
+import { useDispatch, useSelector } from "react-redux";
+import { checkRoles } from '../../../utils/roleCheck';
+import { ADMIN_ROLES } from '../../../Constant/Roles';
+
 const initialValues = {
   name: "",
   format: "",
@@ -28,28 +27,9 @@ const initialValues = {
   totalSets: "",
   participants: [],
 };
-import {
-  useUpdateHybridFixture,
-  useCreateHybridFixture,
-} from "../../../Hooks/useCatgeory";
-import {
-  getFixtureById,
-  getHybridFixtures,
-} from "../../../redux/tournament/fixturesActions";
-import { useDispatch, useSelector } from "react-redux";
-import { object } from "prop-types";
 
-import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
+const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId, categoryId, fixtureId }) => {
 
-
-const RoundCreationModal = ({
-  toggleModal,
-  actionType,
-  roundIndex,
-  tournamentId,
-  categoryId,
-  fixtureId,
-}) => {
   const validationSchema = yup.object().shape({
     name: yup
       .string()
@@ -57,11 +37,8 @@ const RoundCreationModal = ({
       .min(3, "Round name should be minimum 3 characters")
       .max(50, "Round name cannot exceed more than 50 characters."),
     format: yup.string().required(),
-
     roundRobinMode: yup.string().optional(),
-
     consolationFinal: yup.boolean().optional(),
-
     numberOfGroups: yup
       .string()
       .default("1")
@@ -71,18 +48,24 @@ const RoundCreationModal = ({
           schema.required("Number of groups is required in Round Robin format"),
         otherwise: (schema) => schema.optional(),
       }),
-
     totalSets: yup.string().optional(),
-
     participants: yup
       .array()
       .of(yup.object())
-      .required("Participants field is required")
-      .min(2, "At least two participant is required"),
-
+      .when('$isChildRound', {
+        is: true,
+        then: (schema) => schema.optional(),
+        otherwise: (schema) => schema
+          .required("Participants field is required")
+          .min(2, "At least two participant is required"),
+      }),
     grandFinalsDE: yup.string().optional(),
   });
+
   const [groupSizes, setGroupSizes] = useState([]);
+  const [parentFixtures, setParentFixtures] = useState([]);
+  const [parentLoading, setParentLoading] = useState(false);
+
   const onGroupChangeHandler = (noOfGroups) => {
     if (noOfGroups > groupSizes?.length) {
       const newGroupsLength = noOfGroups - groupSizes.length;
@@ -96,6 +79,7 @@ const RoundCreationModal = ({
       setGroupSizes(newGroup);
     }
   };
+
   const handleGroupValueChange = (index, event) => {
     const updatedValue = event.target.value; 
     const updatedGroups = [...groupSizes];
@@ -118,7 +102,20 @@ const RoundCreationModal = ({
     error: updateFixtureError,
     isPending: isUpdateFixturePending,
   } = useUpdateHybridFixture();
+
+  const {
+    mutate: updateChildFixture,
+    isSuccess: isUpdateChildFixtureSuccess,
+    isError: isUpdateChildFixtureError,
+    error: updateChildFixtureError,
+    isPending: isUpdateChildFixturePending,
+  } = useUpdateChildFixture();
+
   const { fixture } = useSelector((state) => state.fixture);
+  
+  // Check if this is a child round
+  const isChildRound = fixture?.isChildFixture;
+  
   const getInitialState = () => {
     if (actionType === "edit") {
       const {
@@ -128,7 +125,11 @@ const RoundCreationModal = ({
         consolationFinal = false,
         grandFinalsDE = "",
       } = fixture?.bracketData?.stage[0]?.settings || {};
-
+      // For child round, set parentRound to current parent name
+      let parentRound = '';
+      if (fixture?.isChildFixture && fixture?.parentName) {
+        parentRound = fixture.parentName;
+      }
       return {
         ...initialValues,
         name: fixture?.name || "",
@@ -139,6 +140,7 @@ const RoundCreationModal = ({
         roundRobinMode: roundRobinMode || "",
         consolationFinal: consolationFinal || false,
         grandFinalsDE: grandFinalsDE || "",
+        parentRound,
       };
     }
     return initialValues;
@@ -201,6 +203,11 @@ const RoundCreationModal = ({
 
     for (const key in values) {
       if (key === "participants") {
+        // Skip participant changes for child rounds
+        if (isChildRound) {
+          continue;
+        }
+        
         const initialParticipants = fixture?.bracketData?.participant || [];
         
         const currentParticipants = values.participants || [];
@@ -234,6 +241,7 @@ const RoundCreationModal = ({
       grandFinalsDE,
       participants,
       consolationFinal,
+      parentRound,
     } = values;
    
     const settings = {
@@ -243,6 +251,24 @@ const RoundCreationModal = ({
       ...(numberOfGroups && { numberOfGroups }),
       ...(grandFinalsDE && { grandFinalsDE }),
     };
+
+    // For child round update, use parentId from selected parentRound
+    if (isChildRound && actionType === "edit") {
+      // Find the selected parent fixture by name
+      const selectedParent = parentFixtures.find(f => f.name === parentRound);
+      const parentId = selectedParent?._id || selectedParent?.id || fixture?.parentId;
+      return {
+        tournamentId,
+        categoryId,
+        fixtureData: {
+          format,
+          name,
+          settings,
+          parentId,
+          metaData: fixture?.metaData,
+        },
+      };
+    }
 
     const bookings =
       participants?.map((p) => ({ bookingId: p.bookingId })) || [];
@@ -276,7 +302,8 @@ const RoundCreationModal = ({
     try {
       setSubmitting(true);
 
-      if (values?.format === "RR" && values.numberOfGroups > 0) {
+      // Skip participant validation for child rounds
+      if (!isChildRound && values?.format === "RR" && values.numberOfGroups > 0) {
         const { isValid, message } = validateGroupParticipants(
           groupSizes,
           values.participants.length
@@ -299,12 +326,21 @@ const RoundCreationModal = ({
           payload
         });
       } else {
-        updateHybridFixture({
-          tournamentId,
-          categoryId,
-          fixtureId: fixtureId,
-          payload
-        });
+        if (isChildRound) {
+          updateChildFixture({
+            tournamentId,
+            categoryId,
+            fixtureId: fixtureId,
+            payload
+          });
+        } else {
+          updateHybridFixture({
+            tournamentId,
+            categoryId,
+            fixtureId: fixtureId,
+            payload
+          });
+        }
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -313,7 +349,7 @@ const RoundCreationModal = ({
     }
   };
   useEffect(() => {
-    if (isCreateFixtureSuccess || isUpdateFixtureSuccess) {
+    if (isCreateFixtureSuccess || isUpdateFixtureSuccess || isUpdateChildFixtureSuccess) {
       toggleModal();
       dispatch(
         showSuccess({
@@ -343,7 +379,7 @@ const RoundCreationModal = ({
         }
       }, 1000);
     }
-  }, [isCreateFixtureSuccess, isUpdateFixtureSuccess]);
+  }, [isCreateFixtureSuccess, isUpdateFixtureSuccess, isUpdateChildFixtureSuccess]);
   const togglePlayerModal = useCallback(() => {
     setIsPlayerModalOpen((prev) => !prev);
   }, []);
@@ -355,13 +391,13 @@ const RoundCreationModal = ({
     }));
   }, []);
   useEffect(() => {
-    if (isUpdateFixtureError || isCreateFixtureError) {
+    if (isUpdateFixtureError || isCreateFixtureError || isUpdateChildFixtureError) {
       dispatch(
         showError({
           message:
             actionType === "actionType"
               ? createFixtureError?.message
-              : updateFixtureError?.message ||
+              : updateFixtureError?.message || updateChildFixtureError?.message ||
                 `Oops! something went wrong ${
                   actionType === "add"
                     ? "while creating fixture."
@@ -371,7 +407,33 @@ const RoundCreationModal = ({
         })
       );
     }
-  }, [isUpdateFixtureError, isCreateFixtureError]);
+  }, [isUpdateFixtureError, isCreateFixtureError, isUpdateChildFixtureError]);
+ 
+  // Fetch parent rounds if editing a child round
+  useEffect(() => {
+    const fetchHybridFixtures = async () => {
+      setParentLoading(true);
+      try {
+        const baseURL = import.meta.env.VITE_BASE_URL;
+        const endpoint = checkRoles(ADMIN_ROLES)
+          ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`
+          : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`;
+        const response = await fetch(`${baseURL}${endpoint}`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+        const data = await response.json();
+        setParentFixtures(data?.data?.fixtures || []);
+      } catch (error) {
+        setParentFixtures([]);
+      } finally {
+        setParentLoading(false);
+      }
+    };
+    if (isChildRound && actionType === 'edit') {
+      fetchHybridFixtures();
+    }
+  }, [isChildRound, actionType, tournamentId, categoryId]);
  
   return (
     <>
@@ -399,6 +461,7 @@ const RoundCreationModal = ({
                     enableReinitialize
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
+                    context={{ isChildRound }}
                   >
                     {({ isSubmitting, values, setFieldValue, setValues }) => (
                       <Form>
@@ -430,9 +493,31 @@ const RoundCreationModal = ({
                               className="text-sm sm:text-base md:text-lg w-full px-[19px] text-[#718EBF] border-[2px] border-[#DFEAF2] rounded-xl h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
                               type="text"
                             />
-
                             <ErrorMessage name="name" component={TextError} />
                           </div>
+                          {/* Parent Round Dropdown for child rounds (just below Round Name) */}
+                          {isChildRound && actionType === 'edit' && (
+                            <div className="flex flex-col items-start gap-2.5">
+                              <label className="text-sm sm:text-base md:text-lg leading-[19.36px] text-black font-normal sm:font-medium">
+                                Parent Round
+                              </label>
+                              <Field
+                                as="select"
+                                name="parentRound"
+                                className="text-sm sm:text-base md:text-lg w-full px-[19px] text-[#718EBF] border-[2px] border-[#DFEAF2] rounded-xl h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                disabled={parentLoading}
+                              >
+                                <option value="">Select Parent Round</option>
+                                {parentFixtures
+                                  .filter(f => (f._id || f.id) !== fixtureId)
+                                  .map((f) => (
+                                    <option key={f._id || f.id || f.name} value={f.name}>
+                                      {f.name}
+                                    </option>
+                                  ))}
+                              </Field>
+                            </div>
+                          )}
                           <EventFormat onChange={onGroupChangeHandler} />
                           {(values?.numberOfGroups && values?.numberOfGroups > 0) && (
                               <GroupSize
@@ -441,25 +526,29 @@ const RoundCreationModal = ({
                               />
                             )}
 
-                          <div
-                            className="relative w-full"
-                            onClick={() => {
-                              setInitialState(values);
-                              togglePlayerModal();
-                            }}
-                          >
-                            <input
-                              readOnly
-                              placeholder="Add Players..."
-                              className="cursor-pointer w-full px-2 border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base md:text-lg"
-                            />
-                            <img
-                              src={searchIcon}
-                              alt="search Venue"
-                              className="absolute right-[20px] top-1/2 transform -translate-y-1/2"
-                            />
-                          </div>
-                          {/* Participant list */}
+                          {/* Only show player input field for parent rounds or when adding new rounds */}
+                          {(!isChildRound || actionType === "add") && (
+                            <div
+                              className="relative w-full"
+                              onClick={() => {
+                                setInitialState(values);
+                                togglePlayerModal();
+                              }}
+                            >
+                              <input
+                                readOnly
+                                placeholder="Add Players..."
+                                className="cursor-pointer w-full px-2 border-[1px] border-[#DFEAF2] rounded-[15px] h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base md:text-lg"
+                              />
+                              <img
+                                src={searchIcon}
+                                alt="search Venue"
+                                className="absolute right-[20px] top-1/2 transform -translate-y-1/2"
+                              />
+                            </div>
+                          )}
+                          
+                          {/* Always show participant list, but hide delete buttons for child rounds */}
                           {values?.participants?.length > 0 && (
                             <div className="rounded-lg border-2 border-[#DFEAF2]">
                               {/* header */}
@@ -471,7 +560,10 @@ const RoundCreationModal = ({
                                 <span className="text-sm sm:text-base md:text-lg flex-[35] text-left text-grey-500 font-medium">
                                   Phone No
                                 </span>
-                                <span className="flex-[10] text-left text-grey-500 font-medium"></span>
+                                {/* Only show header for delete column if not a child round */}
+                                {(!isChildRound || actionType === "add") && (
+                                  <span className="flex-[10] text-left text-grey-500 font-medium"></span>
+                                )}
                               </div>
                               <FieldArray name="participants">
                                 {({ form }) => (
@@ -519,12 +611,15 @@ const RoundCreationModal = ({
                                                 </span>
                                               ))}
                                             </div>
-                                            <RxCross2
-                                              className="flex-[10] cursor-pointer w-4 h-4"
-                                              onClick={() => {
-                                                handleRemove(index);
-                                              }}
-                                            />
+                                            {/* Only show delete button for parent rounds or when adding new rounds */}
+                                            {(!isChildRound || actionType === "add") && (
+                                              <RxCross2
+                                                className="flex-[10] cursor-pointer w-4 h-4"
+                                                onClick={() => {
+                                                  handleRemove(index);
+                                                }}
+                                              />
+                                            )}
                                           </div>
                                         );
                                       }
@@ -542,7 +637,7 @@ const RoundCreationModal = ({
                             <div className="flex gap-2 sm:gap-4 justify-center ">
                               <Button
                                 type="button"
-                                className="py-2 px-6 sm:px-8 md:px-10 rounded-[10px] bg-white border-2 border-[#1570EF] text-[#1570EF] text-sm sm:text-base md:text-lg leading-[17px] text-[#232323]"
+                                className="py-2 px-6 sm:px-8 md:px-10 rounded-[10px] bg-white border-2 border-[#1570EF] text-sm sm:text-base md:text-lg leading-[17px] text-[#232323]"
                                 onClick={toggleModal}
                               >
                                 Close
@@ -552,11 +647,13 @@ const RoundCreationModal = ({
                                 type="submit"
                                 loading={
                                   isCreateFixturePending ||
-                                  isUpdateFixturePending
+                                  isUpdateFixturePending ||
+                                  isUpdateChildFixturePending
                                 }
                                 disabled={
                                   isCreateFixturePending ||
-                                  isUpdateFixturePending
+                                  isUpdateFixturePending ||
+                                  isUpdateChildFixturePending
                                 }
                               >
                                 Save
@@ -742,7 +839,7 @@ const GroupSize = ({ groupSizes, onChange }) => {
             <span className="text-gray-800 text-center w-[40%] max-w-[40%]">
               {group.id}
             </span>
-            <div className="flex justify-center w-[60%] max-w-[60%] mx-auto w-full">
+            <div className="flex justify-center max-w-[60%] mx-auto w-full">
               <input
                 type="text"
                 inputMode="numeric"
