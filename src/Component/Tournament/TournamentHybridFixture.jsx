@@ -95,6 +95,8 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
     unPublishError,
   } = useSelector((state) => state.fixture);
 
+  const isChildFixture = fixture?.isChildFixture;
+
 
   const handleCreateFixture = useCallback(() => {
     dispatch(
@@ -425,7 +427,7 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
         </button>
         {fixture?.status === "PUBLISHED" ? (
           <Button
-            className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
+            className={`w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed ${isChildFixture ? "hidden" : ""}`}
             onClick={handleUnPublishFixture}
             loading={isUnPublishing}
             disabled={fixture?.status !== "PUBLISHED" || !fixture}
@@ -434,7 +436,7 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
           </Button>
         ) : (
           <Button
-            className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
+            className={`w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed ${isChildFixture ? "hidden" : ""}`}
             onClick={handlePublishFixture}
             loading={isPublishing}
             disabled={fixture?.status === "PUBLISHED" || !fixture}
