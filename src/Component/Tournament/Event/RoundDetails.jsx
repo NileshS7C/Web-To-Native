@@ -172,7 +172,7 @@ const RoundDetails = ({ fixtureId, onRoundActionClick, selectedRoundIndex }) => 
             </button>
 
             <button
-              className={`flex items-center justify-center gap-3 px-6 md:px-12 py-1  ml-auto bg-[#1570EF] shadow-lg text-white ml-auto rounded-lg transition-colors text-sm sm:text-base md:text-lg
+              className={`flex items-center justify-center gap-3 px-6 md:px-12 py-1  ml-auto bg-[#1570EF] shadow-lg text-white rounded-lg transition-colors text-sm sm:text-base md:text-lg
                       ${isDisabled
                   ? "bg-blue-400 cursor-not-allowed"
                   : "hover:bg-blue-700"
@@ -215,7 +215,7 @@ const RoundDetails = ({ fixtureId, onRoundActionClick, selectedRoundIndex }) => 
               />
             </div>
             )}
-            
+
             <div className="flex flex-col gap-1 sm:gap-2 items-start w-full">
               <label className="text-sm sm:text-base md:text-lg font-normal md:semibold text-grey-300">
                 Event Type

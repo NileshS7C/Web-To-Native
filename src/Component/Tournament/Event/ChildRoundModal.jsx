@@ -187,7 +187,7 @@ const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-      <div className='bg-white rounded-lg w-full max-w-[90%] md:max-w-lg p-6 relative'>
+      <div className='bg-white rounded-lg w-full max-w-[90%] md:max-w-lg p-6 relative max-h-[90vh] overflow-y-auto'>
         <div className="flex justify-between items-center mb-4">
           <h2 className='text-xl font-bold text-[#343C6A]'>Add Child Round</h2>
           <RxCross2 className="cursor-pointer w-6 h-6" onClick={toggleModal} />
