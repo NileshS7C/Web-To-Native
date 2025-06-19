@@ -31,6 +31,7 @@ const initialValues = {
 import {
   useUpdateHybridFixture,
   useCreateHybridFixture,
+  useUpdateChildFixture,
 } from "../../../Hooks/useCatgeory";
 import {
   getFixtureById,
@@ -123,6 +124,15 @@ const RoundCreationModal = ({
     error: updateFixtureError,
     isPending: isUpdateFixturePending,
   } = useUpdateHybridFixture();
+
+  const {
+    mutate: updateChildFixture,
+    isSuccess: isUpdateChildFixtureSuccess,
+    isError: isUpdateChildFixtureError,
+    error: updateChildFixtureError,
+    isPending: isUpdateChildFixturePending,
+  } = useUpdateChildFixture();
+
   const { fixture } = useSelector((state) => state.fixture);
   
   // Check if this is a child round (has parentId)
@@ -258,6 +268,21 @@ const RoundCreationModal = ({
       ...(grandFinalsDE && { grandFinalsDE }),
     };
 
+    // For child round update, use parentId and metaData, and do not include bookings
+    if (isChildRound && actionType === "edit") {
+      return {
+        tournamentId,
+        categoryId,
+        fixtureData: {
+          format,
+          name,
+          settings,
+          parentId: fixture?.parentId,
+          metaData: fixture?.metaData,
+        },
+      };
+    }
+
     const bookings =
       participants?.map((p) => ({ bookingId: p.bookingId })) || [];
     if(actionType === "edit"){
@@ -314,12 +339,21 @@ const RoundCreationModal = ({
           payload
         });
       } else {
-        updateHybridFixture({
-          tournamentId,
-          categoryId,
-          fixtureId: fixtureId,
-          payload
-        });
+        if (isChildRound) {
+          updateChildFixture({
+            tournamentId,
+            categoryId,
+            fixtureId: fixtureId,
+            payload
+          });
+        } else {
+          updateHybridFixture({
+            tournamentId,
+            categoryId,
+            fixtureId: fixtureId,
+            payload
+          });
+        }
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -328,7 +362,7 @@ const RoundCreationModal = ({
     }
   };
   useEffect(() => {
-    if (isCreateFixtureSuccess || isUpdateFixtureSuccess) {
+    if (isCreateFixtureSuccess || isUpdateFixtureSuccess || isUpdateChildFixtureSuccess) {
       toggleModal();
       dispatch(
         showSuccess({
@@ -358,7 +392,7 @@ const RoundCreationModal = ({
         }
       }, 1000);
     }
-  }, [isCreateFixtureSuccess, isUpdateFixtureSuccess]);
+  }, [isCreateFixtureSuccess, isUpdateFixtureSuccess, isUpdateChildFixtureSuccess]);
   const togglePlayerModal = useCallback(() => {
     setIsPlayerModalOpen((prev) => !prev);
   }, []);
@@ -370,13 +404,13 @@ const RoundCreationModal = ({
     }));
   }, []);
   useEffect(() => {
-    if (isUpdateFixtureError || isCreateFixtureError) {
+    if (isUpdateFixtureError || isCreateFixtureError || isUpdateChildFixtureError) {
       dispatch(
         showError({
           message:
             actionType === "actionType"
               ? createFixtureError?.message
-              : updateFixtureError?.message ||
+              : updateFixtureError?.message || updateChildFixtureError?.message ||
                 `Oops! something went wrong ${
                   actionType === "add"
                     ? "while creating fixture."
@@ -386,7 +420,7 @@ const RoundCreationModal = ({
         })
       );
     }
-  }, [isUpdateFixtureError, isCreateFixtureError]);
+  }, [isUpdateFixtureError, isCreateFixtureError, isUpdateChildFixtureError]);
  
   return (
     <>
@@ -578,11 +612,13 @@ const RoundCreationModal = ({
                                 type="submit"
                                 loading={
                                   isCreateFixturePending ||
-                                  isUpdateFixturePending
+                                  isUpdateFixturePending ||
+                                  isUpdateChildFixturePending
                                 }
                                 disabled={
                                   isCreateFixturePending ||
-                                  isUpdateFixturePending
+                                  isUpdateFixturePending ||
+                                  isUpdateChildFixturePending
                                 }
                               >
                                 Save

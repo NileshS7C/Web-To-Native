@@ -6,6 +6,7 @@ import {
   getDoubleEliminationFinal,
   getFixtureById,
   updateHybridFixture,
+  updateChildFixture,
 } from "../api/Category";
 
 export const useCreateHybridFixture = () => {
@@ -73,5 +74,16 @@ export const useGetDEFinal = (
       options.enabled !== false,
     retry: false,
     ...options,
+  });
+};
+
+export const useUpdateChildFixture = () => {
+  return useMutation({
+    mutationFn: ({ tournamentId, categoryId, fixtureId, payload }) => {
+      return updateChildFixture(tournamentId, categoryId, fixtureId, payload);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
   });
 };
