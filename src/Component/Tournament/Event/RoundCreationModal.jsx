@@ -14,6 +14,8 @@ import Button from "../../Common/Button";
 import { useUpdateHybridFixture, useCreateHybridFixture, useUpdateChildFixture } from "../../../Hooks/useCatgeory";
 import { getFixtureById, getHybridFixtures } from "../../../redux/tournament/fixturesActions";
 import { useDispatch, useSelector } from "react-redux";
+import { checkRoles } from '../../../utils/roleCheck';
+import { ADMIN_ROLES } from '../../../Constant/Roles';
 
 const initialValues = {
   name: "",
@@ -61,6 +63,8 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
   });
 
   const [groupSizes, setGroupSizes] = useState([]);
+  const [parentFixtures, setParentFixtures] = useState([]);
+  const [parentLoading, setParentLoading] = useState(false);
 
   const onGroupChangeHandler = (noOfGroups) => {
     if (noOfGroups > groupSizes?.length) {
@@ -121,7 +125,11 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
         consolationFinal = false,
         grandFinalsDE = "",
       } = fixture?.bracketData?.stage[0]?.settings || {};
-
+      // For child round, set parentRound to current parent name
+      let parentRound = '';
+      if (fixture?.isChildFixture && fixture?.parentName) {
+        parentRound = fixture.parentName;
+      }
       return {
         ...initialValues,
         name: fixture?.name || "",
@@ -132,6 +140,7 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
         roundRobinMode: roundRobinMode || "",
         consolationFinal: consolationFinal || false,
         grandFinalsDE: grandFinalsDE || "",
+        parentRound,
       };
     }
     return initialValues;
@@ -232,6 +241,7 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
       grandFinalsDE,
       participants,
       consolationFinal,
+      parentRound,
     } = values;
    
     const settings = {
@@ -242,8 +252,11 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
       ...(grandFinalsDE && { grandFinalsDE }),
     };
 
-    // For child round update, use parentId and metaData, and do not include bookings
+    // For child round update, use parentId from selected parentRound
     if (isChildRound && actionType === "edit") {
+      // Find the selected parent fixture by name
+      const selectedParent = parentFixtures.find(f => f.name === parentRound);
+      const parentId = selectedParent?._id || selectedParent?.id || fixture?.parentId;
       return {
         tournamentId,
         categoryId,
@@ -251,7 +264,7 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
           format,
           name,
           settings,
-          parentId: fixture?.parentId,
+          parentId,
           metaData: fixture?.metaData,
         },
       };
@@ -396,6 +409,32 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
     }
   }, [isUpdateFixtureError, isCreateFixtureError, isUpdateChildFixtureError]);
  
+  // Fetch parent rounds if editing a child round
+  useEffect(() => {
+    const fetchHybridFixtures = async () => {
+      setParentLoading(true);
+      try {
+        const baseURL = import.meta.env.VITE_BASE_URL;
+        const endpoint = checkRoles(ADMIN_ROLES)
+          ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`
+          : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`;
+        const response = await fetch(`${baseURL}${endpoint}`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+        const data = await response.json();
+        setParentFixtures(data?.data?.fixtures || []);
+      } catch (error) {
+        setParentFixtures([]);
+      } finally {
+        setParentLoading(false);
+      }
+    };
+    if (isChildRound && actionType === 'edit') {
+      fetchHybridFixtures();
+    }
+  }, [isChildRound, actionType, tournamentId, categoryId]);
+ 
   return (
     <>
       <Dialog
@@ -454,9 +493,31 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
                               className="text-sm sm:text-base md:text-lg w-full px-[19px] text-[#718EBF] border-[2px] border-[#DFEAF2] rounded-xl h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
                               type="text"
                             />
-
                             <ErrorMessage name="name" component={TextError} />
                           </div>
+                          {/* Parent Round Dropdown for child rounds (just below Round Name) */}
+                          {isChildRound && actionType === 'edit' && (
+                            <div className="flex flex-col items-start gap-2.5">
+                              <label className="text-sm sm:text-base md:text-lg leading-[19.36px] text-black font-normal sm:font-medium">
+                                Parent Round
+                              </label>
+                              <Field
+                                as="select"
+                                name="parentRound"
+                                className="text-sm sm:text-base md:text-lg w-full px-[19px] text-[#718EBF] border-[2px] border-[#DFEAF2] rounded-xl h-10 sm:h-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                disabled={parentLoading}
+                              >
+                                <option value="">Select Parent Round</option>
+                                {parentFixtures
+                                  .filter(f => (f._id || f.id) !== fixtureId)
+                                  .map((f) => (
+                                    <option key={f._id || f.id || f.name} value={f.name}>
+                                      {f.name}
+                                    </option>
+                                  ))}
+                              </Field>
+                            </div>
+                          )}
                           <EventFormat onChange={onGroupChangeHandler} />
                           {(values?.numberOfGroups && values?.numberOfGroups > 0) && (
                               <GroupSize
