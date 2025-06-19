@@ -5,19 +5,16 @@ import { showError } from "../../../redux/Error/errorSlice";
 import { nanoid } from "nanoid";
 import { RxCross2 } from "react-icons/rx";
 import * as yup from "yup";
-import {
-  Formik,
-  Form,
-  Field,
-  ErrorMessage,
-  useFormikContext,
-  FieldArray,
-} from "formik";
+import { Formik, Form, Field, ErrorMessage, useFormikContext, FieldArray } from "formik";
 import TextError from "../../Error/formError";
 import { searchIcon } from "../../../Assests";
 import { tournamentEvent } from "../../../Constant/tournament";
 import AddPlayerModal from "./AddPlayerModal";
 import Button from "../../Common/Button";
+import { useUpdateHybridFixture, useCreateHybridFixture, useUpdateChildFixture } from "../../../Hooks/useCatgeory";
+import { getFixtureById, getHybridFixtures } from "../../../redux/tournament/fixturesActions";
+import { useDispatch, useSelector } from "react-redux";
+
 const initialValues = {
   name: "",
   format: "",
@@ -28,29 +25,9 @@ const initialValues = {
   totalSets: "",
   participants: [],
 };
-import {
-  useUpdateHybridFixture,
-  useCreateHybridFixture,
-  useUpdateChildFixture,
-} from "../../../Hooks/useCatgeory";
-import {
-  getFixtureById,
-  getHybridFixtures,
-} from "../../../redux/tournament/fixturesActions";
-import { useDispatch, useSelector } from "react-redux";
-import { object } from "prop-types";
 
-import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
+const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId, categoryId, fixtureId }) => {
 
-
-const RoundCreationModal = ({
-  toggleModal,
-  actionType,
-  roundIndex,
-  tournamentId,
-  categoryId,
-  fixtureId,
-}) => {
   const validationSchema = yup.object().shape({
     name: yup
       .string()
@@ -58,11 +35,8 @@ const RoundCreationModal = ({
       .min(3, "Round name should be minimum 3 characters")
       .max(50, "Round name cannot exceed more than 50 characters."),
     format: yup.string().required(),
-
     roundRobinMode: yup.string().optional(),
-
     consolationFinal: yup.boolean().optional(),
-
     numberOfGroups: yup
       .string()
       .default("1")
@@ -72,9 +46,7 @@ const RoundCreationModal = ({
           schema.required("Number of groups is required in Round Robin format"),
         otherwise: (schema) => schema.optional(),
       }),
-
     totalSets: yup.string().optional(),
-
     participants: yup
       .array()
       .of(yup.object())
@@ -85,10 +57,11 @@ const RoundCreationModal = ({
           .required("Participants field is required")
           .min(2, "At least two participant is required"),
       }),
-
     grandFinalsDE: yup.string().optional(),
   });
+
   const [groupSizes, setGroupSizes] = useState([]);
+
   const onGroupChangeHandler = (noOfGroups) => {
     if (noOfGroups > groupSizes?.length) {
       const newGroupsLength = noOfGroups - groupSizes.length;
@@ -102,6 +75,7 @@ const RoundCreationModal = ({
       setGroupSizes(newGroup);
     }
   };
+
   const handleGroupValueChange = (index, event) => {
     const updatedValue = event.target.value; 
     const updatedGroups = [...groupSizes];
@@ -135,8 +109,8 @@ const RoundCreationModal = ({
 
   const { fixture } = useSelector((state) => state.fixture);
   
-  // Check if this is a child round (has parentId)
-  const isChildRound = fixture?.parentId;
+  // Check if this is a child round
+  const isChildRound = fixture?.isChildFixture;
   
   const getInitialState = () => {
     if (actionType === "edit") {

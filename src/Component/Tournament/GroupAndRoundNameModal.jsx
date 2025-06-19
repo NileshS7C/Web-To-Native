@@ -88,31 +88,17 @@ const GroupAndRoundNameModal = ({
 
     setError(''); // Clear any previous errors
 
-    // Build metadata object with only updated fields
+    // Always include all fields that have some data in metaData, skip empty fields
+    const formattedDate = date ? formatDate(date) : '';
     const metaData = {};
-    
-    // Only include date if it's different from existing or if it's new
-    const formattedDate = formatDate(date);
-    if (formattedDate && formattedDate !== existingMetaData.date) {
-      metaData.date = formattedDate;
-    }
-    
-    // Only include startTime if it's different from existing or if it's new
-    if (startTime && startTime !== existingMetaData.startTime) {
-      metaData.startTime = startTime;
-    }
-    
-    // Only include childCount if it's different from existing or if it's new
-    const numChildCount = Number(childCount);
-    if (numChildCount > 0 && numChildCount !== existingMetaData.childCount) {
-      metaData.childCount = numChildCount;
-    }
-    
-    // Only include pointsEachSet if it's different from existing or if it's new
-    const numPointsEachSet = Number(pointsEachSet);
-    if (numPointsEachSet > 0 && numPointsEachSet !== existingMetaData.pointsEachSet) {
-      metaData.pointsEachSet = numPointsEachSet;
-    }
+    const finalDate = formattedDate || existingMetaData.date || '';
+    if (finalDate) metaData.date = finalDate;
+    const finalStartTime = startTime || existingMetaData.startTime || '';
+    if (finalStartTime) metaData.startTime = finalStartTime;
+    const finalChildCount = childCount !== '' ? Number(childCount) : existingMetaData.childCount;
+    if (finalChildCount > 0) metaData.childCount = finalChildCount;
+    const finalPointsEachSet = pointsEachSet !== '' ? Number(pointsEachSet) : existingMetaData.pointsEachSet;
+    if (finalPointsEachSet > 0) metaData.pointsEachSet = finalPointsEachSet;
 
     if (type === 'group') {
       updateGroupNameMutation.mutate({
