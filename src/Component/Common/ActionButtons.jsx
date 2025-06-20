@@ -9,9 +9,7 @@ export const ActionButtons = ({
   isNotEditable = false,
 }) => {
   const handleAction = (actionType) => {
-    console.log("🚀 ~ handleAction ~ actionType:", actionType)
     const handler = actionHandlers[actionType];
-    console.log("🚀 ~ handleAction ~ handler:", handler)
     if (handler) {
       handler(data);
     }
