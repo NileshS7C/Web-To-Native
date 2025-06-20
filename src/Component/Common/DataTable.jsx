@@ -25,6 +25,8 @@ const DataTable = ({
 }) => {
   const navigate = useNavigate();
   const { tournamentId } = useParams();
+  // console.log("🚀 ~ columns ~ columns:", columns)
+  // console.log("🚀 ~ columns ~ data:", data)
 
   if (!Array.isArray(columns) || !Array.isArray(data)) {
     return <div>Invalid data or columns provided</div>;

@@ -9,7 +9,9 @@ export const ActionButtons = ({
   isNotEditable = false,
 }) => {
   const handleAction = (actionType) => {
+    console.log("🚀 ~ handleAction ~ actionType:", actionType)
     const handler = actionHandlers[actionType];
+    console.log("🚀 ~ handleAction ~ handler:", handler)
     if (handler) {
       handler(data);
     }
@@ -36,7 +38,7 @@ export const ActionButtons = ({
                     className="flex gap-2.5"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleAction(item.action)
+                      handleAction(item.action);
                     }} 
                   >
                     <img

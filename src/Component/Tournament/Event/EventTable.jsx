@@ -2,29 +2,21 @@ import PropTypes from "prop-types";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getAllCategories,
-  deleteSingleCategory,
-} from "../../../redux/tournament/tournamentActions";
-
+import { getAllCategories, deleteSingleCategory } from "../../../redux/tournament/tournamentActions";
 import Button from "../../Common/Button";
-import {
-  onPageChangeEvent,
-  toggleModal,
-  resetAllCategories,
-  setDeleteCategoryId,
-} from "../../../redux/tournament/eventSlice";
-
+import { onPageChangeEvent, toggleModal, resetAllCategories, setDeleteCategoryId } from "../../../redux/tournament/eventSlice";
 import DataTable from "../../Common/DataTable";
 import { eventTableHeaders } from "../../../Constant/tournament";
 import Spinner from "../../Common/Spinner";
 import { resetConfirmationState } from "../../../redux/Confirmation/confirmationSlice";
+
 export const EventTable = ({ isDisable, categories }) => {
+
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
-  const { currentPage, totalCategories, isLoading, deleteCategoryId } =
-    useSelector((state) => state.event);
+  const { currentPage, totalCategories, isLoading, deleteCategoryId } = useSelector((state) => state.event);
   const { isConfirmed, type } = useSelector((state) => state.confirm);
+
   useEffect(() => {
     if (isConfirmed && type === "Event" && tournamentId && deleteCategoryId) {
       dispatch(
@@ -49,6 +41,7 @@ export const EventTable = ({ isDisable, categories }) => {
   const handleDelete = (id) => {
     dispatch(setDeleteCategoryId(id));
   };
+
   useEffect(()=>{
     dispatch(
       getAllCategories({
@@ -58,6 +51,7 @@ export const EventTable = ({ isDisable, categories }) => {
       })
     );
   },[currentPage])
+  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -95,8 +89,8 @@ export const EventTable = ({ isDisable, categories }) => {
           onPageChange={onPageChangeEvent}
           className="border-[1px] rounded-md"
           onClick={(id) => handleDelete(id)}
-          hasLink={false}
-          navigateTo="tournaments"
+          hasLink={isDisable}
+          navigateTo={isDisable ? "tournaments" : ""}
         />
       )}
     </div>

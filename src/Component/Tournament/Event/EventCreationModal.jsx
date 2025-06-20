@@ -8,72 +8,25 @@ import DatePicker from "react-datepicker";
 import * as yup from "yup";
 import useDebounce from "../../../Hooks/useDebounce";
 import { toggleModal } from "../../../redux/tournament/eventSlice";
-import {
-  getAllVenues,
-  getSearchVenues,
-} from "../../../redux/Venue/venueActions";
+import { getAllVenues, getSearchVenues } from "../../../redux/Venue/venueActions";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
-
-import {
-  addEventCategory,
-  getAllCategories,
-  getSingleCategory,
-  updateEventCategory,
-} from "../../../redux/tournament/tournamentActions";
-
+import { addEventCategory, getAllCategories, getSingleCategory, updateEventCategory } from "../../../redux/tournament/tournamentActions";
 import { crossIcon, calenderIcon } from "../../../Assests";
 import Button from "../../Common/Button";
-
 import { tournamentEvent } from "../../../Constant/tournament";
-
 import TextError from "../../Error/formError";
-
 import { formattedDate, parseDate } from "../../../utils/dateUtils";
 import { ImSpinner8 } from "react-icons/im";
 import LocationSearchInput from "../../Common/LocationSearch";
 import ErrorBanner from "../../Common/ErrorBanner";
-
 import { RxCrossCircled } from "react-icons/rx";
-import {
-  ComboboxOptions,
-  ComboboxOption,
-  Combobox,
-  Label,
-  ComboboxInput,
-  ComboboxButton,
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-} from "@headlessui/react";
+import { ComboboxOptions, ComboboxOption, Combobox, Label, ComboboxInput, ComboboxButton, Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { nanoid } from "nanoid";
 
 const requiredCategoryFields = (category) => {
-  const {
-    categoryName,
-    format,
-    type,
-    registrationFee,
-    maxPlayers,
-    minPlayers,
-    skillLevel,
-    categoryLocation,
-    categoryStartDate,
-    totalSets,
-  } = category;
-
-  return {
-    categoryName,
-    format,
-    type,
-    registrationFee,
-    maxPlayers,
-    minPlayers,
-    skillLevel,
-    categoryLocation,
-    categoryStartDate,
-    totalSets,
-  };
+  const { categoryName, format, type, registrationFee, maxPlayers, minPlayers, skillLevel, categoryLocation, categoryStartDate, totalSets } = category;
+  return { categoryName, format, type, registrationFee, maxPlayers, minPlayers, skillLevel, categoryLocation, categoryStartDate, totalSets };
 };
 
 const initialValues = {
@@ -106,15 +59,16 @@ const initialValues = {
 };
 
 export const EventCreationModal = () => {
+
   const [isVenueFinal, setIsVenueFinal] = useState(false);
   const [venueNotListed, setVenueNotListed] = useState(false);
   const modalContentRef = useRef(null);
+
   const validationSchema = yup.object().shape({
-    categoryName: yup
-      .string()
-      .required("Category name is required")
-      .min(3, "Category name should be minimum 3 characters")
-      .max(50, "Category name cannot exceed more than 50 characters."),
+    categoryName: yup.string()
+    .required("Category name is required")
+    .min(3, "Category name should be minimum 3 characters")
+    .max(50, "Category name cannot exceed more than 50 characters."),
     format: yup.string().required("Event format is required."),
     type: yup.string().required("Event category is required."),
     roundRobinMode: yup.string().when('format', {
@@ -183,13 +137,14 @@ export const EventCreationModal = () => {
     }),
     categoryStartDate: yup.date().optional()
   });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { showModal } = useSelector((state) => state.event);
+  const { showModal, eventId } = useSelector((state) => state.event);
   const { venues, totalVenues } = useSelector((state) => state.getVenues);
   const browserLocation = useLocation();
   const searchParams = new URLSearchParams(browserLocation.search);
-  const categoryId = searchParams.get("category");
+  const categoryId = eventId;
   const { location } = useSelector((state) => state.location);
   const [initialState, setInitialState] = useState(initialValues);
   const [isVenueDecided, setIsVenueDecided] = useState(false);
@@ -197,8 +152,7 @@ export const EventCreationModal = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedVenueData, setSelectedVenueData] = useState(null);
   const { tournamentId } = useParams();
-  const { category, loadingSingleCategory, singleCategorySuccess } =
-    useSelector((state) => state.event);
+  const { category, loadingSingleCategory, singleCategorySuccess } = useSelector((state) => state.event);
   console.log("category sas", category);
   console.log("loadingSingleCategory sas", loadingSingleCategory);
   console.log("singleCategorySuccess sas", singleCategorySuccess);
