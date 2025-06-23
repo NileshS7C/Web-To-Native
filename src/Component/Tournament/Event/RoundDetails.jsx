@@ -2,25 +2,17 @@ import { useEffect, useState } from "react";
 import PlayerPagination from "./PlayerPagination";
 import { playerLimit } from "../../../Constant/tournament";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  resetConfirmationState,
-  showConfirmation,
-  onCancel,
-  onConfirm,
-} from "../../../redux/Confirmation/confirmationSlice";
+import { resetConfirmationState, showConfirmation, onCancel, onConfirm } from "../../../redux/Confirmation/confirmationSlice";
 import { ConfirmationModal } from "../../Common/ConfirmationModal";
 import { useParams } from "react-router-dom";
-import { useDeleteHybridFixture,useUpdateHybridFixture } from "../../../Hooks/useCatgeory";
+import { useDeleteHybridFixture, useUpdateHybridFixture, useDeleteChildFixture } from "../../../Hooks/useCatgeory";
 import { getFixtureById, getHybridFixtures } from "../../../redux/tournament/fixturesActions";
 import { showError } from "../../../redux/Error/errorSlice";
 import { showSuccess } from "../../../redux/Success/successSlice";
 import Spinner from "../../Common/Spinner";
 import EmptyBanner from "../../Common/EmptyStateBanner";
-const RoundDetails = ({
-  fixtureId,
-  onRoundActionClick,
-  selectedRoundIndex
-}) => {
+
+const RoundDetails = ({ fixtureId, onRoundActionClick, selectedRoundIndex }) => {
   const formatMapping = {
     SE: "Single Elimination",
     DE: "Double Elimination",
@@ -35,17 +27,27 @@ const RoundDetails = ({
     error: deleteFixtureError,
     isPending: isDeleteFixturePending,
   } = useDeleteHybridFixture();
+
+  const {
+    mutate: deleteChildFixture,
+    isSuccess: isDeleteChildFixtureSuccess,
+    isError: isDeleteChildFixtureError,
+    error: deleteChildFixtureError,
+    isPending: isDeleteChildFixturePending,
+  } = useDeleteChildFixture();
+
   const { fixture, isFetchingFixture } = useSelector((state) => state.fixture);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedParticipants, setPaginatedParticipants] = useState([]);
-  const { isOpen, message, onClose, isConfirmed, type, withComments } =
-    useSelector((state) => state.confirm);
+  const { isOpen, message, onClose, isConfirmed, type, withComments } = useSelector((state) => state.confirm);
   const total = fixture?.bracketData?.participant?.length || 0;
+  const isDisabled = fixture?.status === "PUBLISHED" ? true : false;
+  const isChildFixture = fixture?.isChildFixture;
 
   const handleCurrentPageChange = (page) => {
     setCurrentPage(page);
   };
-  const isDisabled = fixture?.status === "PUBLISHED" ? true : false;
+
   useEffect(() => {
     setPaginatedParticipants(
       fixture?.bracketData?.participant?.slice(
@@ -54,19 +56,29 @@ const RoundDetails = ({
       )
     );
   }, [currentPage, fixture]);
-  
+
   useEffect(() => {
     if (isConfirmed && type === "Fixture") {
-      deleteHybridFixture({
-        tournamentId,
-        categoryId: eventId,
-        fixtureId
-      });
+      if (fixture?.parentId) {
+        deleteChildFixture({
+          tournamentId,
+          categoryId: eventId,
+          fixtureId
+        });
+      }
+      else {
+        deleteHybridFixture({
+          tournamentId,
+          categoryId: eventId,
+          fixtureId
+        });
+      }
       dispatch(resetConfirmationState());
     }
   }, [isConfirmed]);
+
   useEffect(() => {
-    if (isDeleteFixtureSuccess) {
+    if (isDeleteFixtureSuccess || isDeleteChildFixtureSuccess) {
       dispatch(
         showSuccess({
           message: "Round Deleted Successfully",
@@ -82,9 +94,10 @@ const RoundDetails = ({
         );
       }, [1000]);
     }
-  }, [isDeleteFixtureSuccess]);
+  }, [isDeleteFixtureSuccess, isDeleteChildFixtureSuccess]);
+
   useEffect(() => {
-    if (isDeleteFixtureError) {
+    if (isDeleteFixtureError || isDeleteChildFixtureError) {
       dispatch(
         showError({
           message: deleteFixtureError?.message || "Something went wrong",
@@ -92,7 +105,8 @@ const RoundDetails = ({
         })
       );
     }
-  }, [isDeleteFixtureError]);
+  }, [isDeleteFixtureError, isDeleteChildFixtureError]);
+
   useEffect(() => {
     if (fixtureId)
       dispatch(
@@ -103,14 +117,17 @@ const RoundDetails = ({
         })
       );
   }, []);
-  useEffect(()=>{
+
+  useEffect(() => {
     setCurrentPage(1)
-  },[selectedRoundIndex])
+  }, [selectedRoundIndex])
+
   useEffect(() => {
     () => {
       dispatch(resetConfirmationState());
     };
   }, []);
+
   if (isFetchingFixture) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -118,11 +135,13 @@ const RoundDetails = ({
       </div>
     );
   }
+
   if (!fixture) {
     return (
       <EmptyBanner message="No fixture data available for this event yet." />
     );
   }
+
   return (
     <>
       <div className="flex flex-col gap-2">
@@ -133,11 +152,10 @@ const RoundDetails = ({
           <div className="flex gap-2 sm:gap-3 md:gap-4">
             <button
               className={`flex items-center justify-center gap-3 px-6 md:px-12 py-1  ml-auto rounded-lg border-2 transition-colors text-sm sm:text-base md:text-lg
-                         ${
-                           isDisabled
-                             ? "bg-white border-blue-200 text-blue-300 cursor-not-allowed"
-                             : "bg-white border-[#1570EF] text-[#1570EF] hover:bg-blue-50"
-                         }
+                         ${isDisabled
+                  ? "bg-white border-blue-200 text-blue-300 cursor-not-allowed"
+                  : "bg-white border-[#1570EF] text-[#1570EF] hover:bg-blue-50"
+                }
                        `}
               onClick={() => {
                 onRoundActionClick("delete");
@@ -154,12 +172,11 @@ const RoundDetails = ({
             </button>
 
             <button
-              className={`flex items-center justify-center gap-3 px-6 md:px-12 py-1  ml-auto bg-[#1570EF] shadow-lg text-white ml-auto rounded-lg transition-colors text-sm sm:text-base md:text-lg
-                      ${
-                        isDisabled
-                          ? "bg-blue-400 cursor-not-allowed"
-                          : "hover:bg-blue-700"
-                      }
+              className={`flex items-center justify-center gap-3 px-6 md:px-12 py-1  ml-auto bg-[#1570EF] shadow-lg text-white rounded-lg transition-colors text-sm sm:text-base md:text-lg
+                      ${isDisabled
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "hover:bg-blue-700"
+                }
                        `}
               onClick={() => {
                 onRoundActionClick("edit");
@@ -184,6 +201,21 @@ const RoundDetails = ({
                 className="cursor-pointer w-full px-2 border-2 border-[#DFEAF2] rounded-xl h-8 sm:h-11 focus:outline-none text-grey-100 text-sm sm:text-base md:text-lg font-normal md:semibold"
               />
             </div>
+
+            {isChildFixture && (
+              <div className="flex flex-col gap-1 sm:gap-2 items-start w-full">
+                <label className="text-sm sm:text-base md:text-lg font-normal md:semibold text-grey-300">
+                  Parent Fixture
+                </label>
+                <input
+                  type="text"
+                  value={fixture?.parentName}
+                  readOnly
+                  className="cursor-pointer w-full px-2 border-2 border-[#DFEAF2] rounded-xl h-8 sm:h-11 focus:outline-none text-grey-100 text-sm sm:text-base md:text-lg font-normal md:semibold"
+                />
+              </div>
+            )}
+
             <div className="flex flex-col gap-1 sm:gap-2 items-start w-full">
               <label className="text-sm sm:text-base md:text-lg font-normal md:semibold text-grey-300">
                 Event Type
@@ -219,9 +251,8 @@ const RoundDetails = ({
               return (
                 <div
                   key={participant.id || `${participant.name}-${index}`}
-                  className={`flex items-center py-1.5 ${
-                    !isLast ? "border-b-2 border-[#DFEAF2]" : ""
-                  }`}
+                  className={`flex items-center py-1.5 ${!isLast ? "border-b-2 border-[#DFEAF2]" : ""
+                    }`}
                 >
                   <span className="flex-[30] text-center text-grey-900 font-medium text-sm sm:text-base md:text-lg">
                     {((currentPage - 1) * playerLimit + index + 1)
@@ -233,8 +264,12 @@ const RoundDetails = ({
                     {participant?.players?.map((p) => p.name).join(" & ")}
                   </span>
                   <span className="flex-[35] text-left text-grey-500 font-medium text-sm sm:text-base md:text-lg">
-                    {participant?.players?.map((p) => p.phone).join(", ")}
+                    {participant?.players
+                      ?.map((p) => p.phone)
+                      .filter(Boolean)
+                      .join(", ") || "-"}
                   </span>
+
                 </div>
               );
             })}

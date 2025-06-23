@@ -1,10 +1,12 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createHybridFixture,
+  deleteChildFixture,
   deleteHybridFixture,
   getDoubleEliminationFinal,
   getFixtureById,
   updateHybridFixture,
+  updateChildFixture,
 } from "../api/Category";
 
 export const useCreateHybridFixture = () => {
@@ -39,6 +41,16 @@ export const useDeleteHybridFixture = () => {
   });
 };
 
+export const useDeleteChildFixture = () => {
+  return useMutation({
+    mutationFn: ({ tournamentId, categoryId, fixtureId }) =>
+      deleteChildFixture(tournamentId, categoryId, fixtureId),
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+};
+
 export const useGetFixtureById=({tournamentId,categoryId,fixtureId})=>{
   return useQuery({
     queryKey: ["fixtureById", tournamentId, categoryId, fixtureId],
@@ -62,5 +74,16 @@ export const useGetDEFinal = (
       options.enabled !== false,
     retry: false,
     ...options,
+  });
+};
+
+export const useUpdateChildFixture = () => {
+  return useMutation({
+    mutationFn: ({ tournamentId, categoryId, fixtureId, payload }) => {
+      return updateChildFixture(tournamentId, categoryId, fixtureId, payload);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
   });
 };

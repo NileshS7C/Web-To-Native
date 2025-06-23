@@ -36,7 +36,7 @@ export const ActionButtons = ({
                     className="flex gap-2.5"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleAction(item.action)
+                      handleAction(item.action);
                     }} 
                   >
                     <img

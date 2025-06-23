@@ -3,23 +3,22 @@ import { ActionButtons } from "./ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ActionButtonCourt } from "../../Constant/venue";
-import {
-  toggleModal,
-  setDeleteCategoryId,
-} from "../../redux/tournament/eventSlice";
+import { toggleModal, setDeleteCategoryId, setEventId } from "../../redux/tournament/eventSlice";
 import { updateQueryString } from "../../utils/urlModification";
-
 import { showConfirmation } from "../../redux/Confirmation/confirmationSlice";
 
 const EventActions = ({ id, index, eventName }) => {
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { tournamentId } = useParams();
   const { isNotEditable } = useSelector((state) => state.Tournament);
   const { isConfirmed, type } = useSelector((state) => state.confirm);
   const { currentPage } = useSelector((state) => state.event);
+
   const handlers = {
     edit: (team) => {
+      dispatch(setEventId(id));
       dispatch(toggleModal());
       const searchParams = updateQueryString({ category: id });
       navigate(`${window.location.pathname}?${searchParams.toString()}`);

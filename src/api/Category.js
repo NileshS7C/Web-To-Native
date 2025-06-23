@@ -90,6 +90,62 @@ export const deleteHybridFixture = async (
   }
 };
 
+export const deleteChildFixture = async (
+  tournamentId,
+  categoryId,
+  fixtureId,
+) => {
+  if (!tournamentId || !categoryId || !fixtureId) return null;
+  const baseURl = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = `${baseURl}${API_END_POINTS.tournament.POST.deleteChildFixture(
+    tournamentId,
+    categoryId,
+    fixtureId
+  )}`;
+
+  let config = {
+    method: "POST",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data?.data;
+  } catch (error) {
+    console.error("🚀 ~ deleteChildFixture ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const updateChildFixture = async (
+  tournamentId,
+  categoryId,
+  fixtureId,
+  payload,
+) => {
+  if (!tournamentId || !categoryId || !fixtureId) return null;
+  const baseURl = import.meta.env.VITE_BASE_URL;
+  const ENDPOINT = `${baseURl}/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child/${fixtureId}`;
+
+  let config = {
+    method: "POST",
+    maxBodyLength: Infinity,
+    url: ENDPOINT,
+    withCredentials: true,
+    data: payload,
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data?.data;
+  } catch (error) {
+    console.error("🚀 ~ updateChildFixture ~ error:", error);
+    throw error.response?.data || error;
+  }
+};
+
 export const getFixtureById = async ({ tournamentId, categoryId, fixtureId }) => {
   if (!tournamentId || !categoryId || !fixtureId) return null;
   const baseURl = import.meta.env.VITE_BASE_URL;
