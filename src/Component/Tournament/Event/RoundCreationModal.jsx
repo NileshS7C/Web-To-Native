@@ -276,6 +276,25 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
       // Find the selected parent fixture by name
       const selectedParent = parentFixtures.find(f => f.name === parentRound);
       const parentId = selectedParent?._id || selectedParent?.id || fixture?.parentId;
+      const changedField = checkChangeValue(initialState, values);
+      if (
+        (Object.keys(changedField).length === 1 && changedField?.name) ||
+        Object.keys(changedField).length === 0
+      ) {
+        return {
+          tournamentId,
+          categoryId,
+          fixtureData: {
+            name,
+            parentId,
+            metaData: {
+              ...fixture?.metaData,
+              pickParticipantOrder: pickParticipantOrder.toUpperCase(),
+              participantFromEachGroup
+            },
+          },
+        };
+      }
       return {
         tournamentId,
         categoryId,
@@ -291,13 +310,13 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
           },
         },
       };
-    }
-
-    const bookings =
+    } else {   
+      const bookings =
       participants?.map((p) => ({ bookingId: p.bookingId })) || [];
-    if (actionType === "edit") {
-      const changedField = checkChangeValue(initialState, values);
-      if (
+      if (actionType === "edit") {
+        const changedField = checkChangeValue(initialState, values);
+        console.log(changedField,'changedField');
+        if (
         (Object.keys(changedField).length === 1 && changedField?.name) ||
         Object.keys(changedField).length === 0
       ) {
@@ -320,6 +339,7 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
         bookings,
       },
     };
+  }
   };
   const handleSubmit = (values, { setSubmitting }) => {
     try {
