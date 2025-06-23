@@ -228,8 +228,7 @@ const VenueInfo = () => {
 
     amenities: yup
       .array()
-      .of(yup.string())
-      .min(1, "At least one amenity must be provided."),
+      .of(yup.string()),
     equipments: yup
       .array()
       .of(yup.string())
@@ -239,8 +238,7 @@ const VenueInfo = () => {
       .min(1, "At least one banner image must be uploaded."),
 
     layoutImages: yup
-      .array()
-      .min(1, "At least one layout image must be uploaded."),
+      .array(),
     rating: yup.array().of(yup.number().min(0).max(5)),
     comments: yup.array().of(yup.string()),
   });
