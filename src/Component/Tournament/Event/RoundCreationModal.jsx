@@ -81,12 +81,12 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
   };
 
   const handleGroupValueChange = (index, event) => {
-    const updatedValue = event.target.value; 
+    const updatedValue = event.target.value;
     const updatedGroups = [...groupSizes];
     updatedGroups[index].totalParticipants = updatedValue;
     setGroupSizes(updatedGroups);
   };
- 
+
   const {
     mutate: createHybridFixture,
     isSuccess: isCreateFixtureSuccess,
@@ -112,10 +112,9 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
   } = useUpdateChildFixture();
 
   const { fixture } = useSelector((state) => state.fixture);
-  
   // Check if this is a child round
   const isChildRound = fixture?.isChildFixture;
-  
+
   const getInitialState = () => {
     if (actionType === "edit") {
       const {
@@ -127,8 +126,16 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
       } = fixture?.bracketData?.stage[0]?.settings || {};
       // For child round, set parentRound to current parent name
       let parentRound = '';
+      let pickParticipantOrder = '';
+      let participantFromEachGroup = '';
       if (fixture?.isChildFixture && fixture?.parentName) {
         parentRound = fixture.parentName;
+      }
+      if (fixture?.isChildFixture && fixture?.metaData?.pickParticipantOrder) {
+        initialValues.pickParticipantOrder = fixture?.metaData?.pickParticipantOrder;
+      }
+      if (fixture?.isChildFixture && fixture?.metaData?.participantFromEachGroup) {
+        initialValues.participantFromEachGroup = fixture?.metaData?.participantFromEachGroup;
       }
       return {
         ...initialValues,
@@ -141,6 +148,8 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
         consolationFinal: consolationFinal || false,
         grandFinalsDE: grandFinalsDE || "",
         parentRound,
+        pickParticipantOrder: fixture?.metaData?.pickParticipantOrder || '',
+        participantFromEachGroup: fixture?.metaData?.participantFromEachGroup || ''
       };
     }
     return initialValues;
@@ -178,7 +187,7 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
           message: "Total participants in the group cannot be empty.",
         };
       }
-      
+
       if (group.totalParticipants < 2) {
         return {
           isValid: false,
@@ -198,7 +207,7 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
     return { isValid: true, message: "" };
   };
   const checkChangeValue = (initialState, values) => {
-   
+
     const changed = {};
 
     for (const key in values) {
@@ -207,11 +216,11 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
         if (isChildRound) {
           continue;
         }
-        
+
         const initialParticipants = fixture?.bracketData?.participant || [];
-        
+
         const currentParticipants = values.participants || [];
-        if(initialParticipants?.length !== currentParticipants?.length){
+        if (initialParticipants?.length !== currentParticipants?.length) {
           changed.participants = true;
         }
         const changedParticipants = currentParticipants.filter((current, i) => {
@@ -222,16 +231,25 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
         if (changedParticipants.length > 0) {
           changed.participants = true;
         }
-        
-      } else if (initialState[key] != values[key]){
+
+      } else if (initialState[key] != values[key]) {
         changed[key] = true;
       }
     }
-   
+
     return changed;
   };
-  
-  const createPayload = (initialState,actionType,values, groupSizes) => {
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(name,value,'name,value');
+    setInitialState((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const createPayload = (initialState, actionType, values, groupSizes) => {
     const {
       format,
       name,
@@ -242,8 +260,10 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
       participants,
       consolationFinal,
       parentRound,
+      pickParticipantOrder,
+      participantFromEachGroup
     } = values;
-   
+
     const settings = {
       consolationFinal,
       ...(totalSets && { totalSets }),
@@ -265,14 +285,18 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
           name,
           settings,
           parentId,
-          metaData: fixture?.metaData,
+          metaData: {
+            ...fixture?.metaData,
+            pickParticipantOrder: pickParticipantOrder.toUpperCase(),
+            participantFromEachGroup
+          },
         },
       };
     }
 
     const bookings =
       participants?.map((p) => ({ bookingId: p.bookingId })) || [];
-    if(actionType === "edit"){
+    if (actionType === "edit") {
       const changedField = checkChangeValue(initialState, values);
       if (
         (Object.keys(changedField).length === 1 && changedField?.name) ||
@@ -318,7 +342,7 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
           return;
         }
       }
-      const payload = createPayload(initialState,actionType,values,groupSizes);
+      const payload = createPayload(initialState, actionType, values, groupSizes);
       if (actionType === "add") {
         createHybridFixture({
           tournamentId,
@@ -398,17 +422,16 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
             actionType === "actionType"
               ? createFixtureError?.message
               : updateFixtureError?.message || updateChildFixtureError?.message ||
-                `Oops! something went wrong ${
-                  actionType === "add"
-                    ? "while creating fixture."
-                    : "while updating fixture"
-                }`,
+              `Oops! something went wrong ${actionType === "add"
+                ? "while creating fixture."
+                : "while updating fixture"
+              }`,
           onClose: "hideError",
         })
       );
     }
   }, [isUpdateFixtureError, isCreateFixtureError, isUpdateChildFixtureError]);
- 
+
   // Fetch parent rounds if editing a child round
   useEffect(() => {
     const fetchHybridFixtures = async () => {
@@ -434,7 +457,7 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
       fetchHybridFixtures();
     }
   }, [isChildRound, actionType, tournamentId, categoryId]);
- 
+
   return (
     <>
       <Dialog
@@ -520,11 +543,11 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
                           )}
                           <EventFormat onChange={onGroupChangeHandler} />
                           {(values?.numberOfGroups && values?.numberOfGroups > 0) && (
-                              <GroupSize
-                                groupSizes={groupSizes}
-                                onChange={handleGroupValueChange}
-                              />
-                            )}
+                            <GroupSize
+                              groupSizes={groupSizes}
+                              onChange={handleGroupValueChange}
+                            />
+                          )}
 
                           {/* Only show player input field for parent rounds or when adding new rounds */}
                           {(!isChildRound || actionType === "add") && (
@@ -547,7 +570,7 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
                               />
                             </div>
                           )}
-                          
+
                           {/* Always show participant list, but hide delete buttons for child rounds */}
                           {values?.participants?.length > 0 && (
                             <div className="rounded-lg border-2 border-[#DFEAF2]">
@@ -576,11 +599,10 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
                                         return (
                                           <div
                                             key={nanoid()}
-                                            className={`flex items-center py-1.5 ${
-                                              !isLast
+                                            className={`flex items-center py-1.5 ${!isLast
                                                 ? "border-b-2 border-[#DFEAF2]"
                                                 : ""
-                                            }`}
+                                              }`}
                                           >
                                             <span className="flex-[20] text-center text-sm sm:text-base md:text-lg font-medium">
                                               {(index + 1)
@@ -633,6 +655,34 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
                             name="participants"
                             component={TextError}
                           />
+                          {isChildRound && actionType === 'edit' && (
+                            <>
+                              <div>
+                                <label className="text-sm sm:text-base md:text-lg font-normal sm:font-medium leading-[19.36px] text-[#232323] " htmlFor="pickingOrder">Player Picking Order :</label>
+                                <div className="flex gap-4 mt-2">
+                                  <label className="flex items-center gap-1">
+                                    <input type="radio" name="pickParticipantOrder" value="top" checked={initialState.pickParticipantOrder.toUpperCase() === 'TOP'} className="accent-[#1570EF]" onChange={handleChange}/>
+                                    <span className='text-sm text-[#667085]'>Top Players</span>
+                                  </label>
+                                  <label className="flex items-center gap-1">
+                                    <input type="radio" name="pickParticipantOrder" value="bottom" checked={initialState.pickParticipantOrder.toUpperCase() === 'BOTTOM'} className="accent-[#1570EF]" onChange={handleChange}  />
+                                    <span className='text-sm text-[#667085]'>Bottom Players</span>
+                                  </label>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-sm sm:text-base md:text-lg font-normal sm:font-medium leading-[19.36px] text-[#232323] mb-1" htmlFor="participantFromEachGroup">Players From Each Group</label>
+                                <input
+                                  type="text"
+                                  name="participantFromEachGroup"
+                                  value={initialState.participantFromEachGroup}
+                                  onChange={handleChange}
+                                  placeholder="Enter Number of Players to Pick From Each Group"
+                                  className="w-full border border-[#DFEAF2] text-[#718EBF] placeholder:text-[#718EBF] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1570EF]"
+                                />
+                              </div>
+                            </>
+                          )}
                           <div className="">
                             <div className="flex gap-2 sm:gap-4 justify-center ">
                               <Button
@@ -698,7 +748,7 @@ const EventFormat = ({ onChange }) => {
     }
   }, [values.format, setFieldValue]);
   useEffect(() => {
-    if(values?.numberOfGroups > 0 && values?.numberOfGroups){
+    if (values?.numberOfGroups > 0 && values?.numberOfGroups) {
       onChange(values?.numberOfGroups);
     }
   }, [values?.numberOfGroups]);
