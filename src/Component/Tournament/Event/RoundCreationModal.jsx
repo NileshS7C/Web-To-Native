@@ -242,7 +242,6 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(name,value,'name,value');
     setInitialState((prev) => ({
       ...prev,
       [name]: value,
