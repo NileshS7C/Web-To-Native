@@ -9,9 +9,9 @@ export const updateGroupName = async ({ tournamentID, categoryId, fixtureId, gro
   const baseURl = import.meta.env.VITE_BASE_URL;
   let ENDPOINT = "";
   if (checkRoles(ADMIN_ROLES)) {
-    ENDPOINT = `${baseURl}/users/admin/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-group-name`;
+    ENDPOINT = `${baseURl}/users/admin/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-group`;
   } else {
-    ENDPOINT = `${baseURl}/users/tournament-owner/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-group-name`;
+    ENDPOINT = `${baseURl}/users/tournament-owner/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-group`;
   }
 
   const config = {
@@ -38,9 +38,9 @@ export const updateRoundName = async ({ tournamentID, categoryId, fixtureId, rou
 
   let ENDPOINT = "";
   if (checkRoles(ADMIN_ROLES)) {
-    ENDPOINT = `${baseURl}/users/admin/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-round-name`;
+    ENDPOINT = `${baseURl}/users/admin/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-round`;
   } else {
-    ENDPOINT = `${baseURl}/users/tournament-owner/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-round-name`;
+    ENDPOINT = `${baseURl}/users/tournament-owner/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/update-round`;
   }
 
   const config = {

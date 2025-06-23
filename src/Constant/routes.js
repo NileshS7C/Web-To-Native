@@ -118,6 +118,13 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/${fixtureId}/delete`;
         } else return null;
       },
+      deleteChildFixture: (tournamentId, categoryId, fixtureId) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child/${fixtureId}/delete`;
+        } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child/${fixtureId}/delete`;
+        } else return null;
+      },
       publishFixture: (tournamentId, categoryId, fixtureId) => {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/publish`;

@@ -22,6 +22,7 @@ import { ConfirmationModal } from "../../Common/ConfirmationModal";
 import PropTypes from "prop-types";
 import { tournamentFullAccessRoles } from "../../../Constant/event";
 import { useOwnerDetailsContext } from "../../../Providers/onwerDetailProvider";
+import SwapParticipants from "./SwapParticipants";
 
 function EventRegistrations() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -78,9 +79,10 @@ function EventRegistrations() {
   return (
     <div className="flex flex-col gap-5 md:bg-[#FFFFFF] justify-center p-5 rounded-lg">
       <div className="flex justify-end mt-4">
+        <SwapParticipants tournamentId={tournamentId} eventId={eventId}/>
         <Button
           type="button"
-          className="w-[148px] h-[40px] rounded-[10px] shadow-md text-sm text-white bg-blue-500 hover:bg-blue-700 focus:outline-none disabled:bg-blue-300"
+          className="w-[148px] h-[40px] rounded-[10px] shadow-md text-sm text-white bg-blue-500 hover:bg-blue-700 focus:outline-none disabled:bg-blue-300 ml-2"
           onClick={() => {
             dispatch(toggleBookingModal());
           }}

@@ -1,11 +1,7 @@
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { stepReducer } from "../../../redux/tournament/addTournament";
-import {
-  toggleModal,
-  resetAllCategories,
-  resetCurrentPage
-} from "../../../redux/tournament/eventSlice";
+import { toggleModal, resetAllCategories, resetCurrentPage } from "../../../redux/tournament/eventSlice";
 import { searchIcon } from "../../../Assests";
 import Button from "../../Common/Button";
 import { EventTable } from "./EventTable";
@@ -15,10 +11,12 @@ import { getAllCategories } from "../../../redux/tournament/tournamentActions";
 import { useParams } from "react-router-dom";
 
 function EventInfo({ disabled }) {
+
   const dispatch = useDispatch();
   const { currentStep } = useSelector((state) => state.Tournament);
   const { categories, currentPage } = useSelector((state) => state.event);
   const { tournamentId } = useParams();
+
   useEffect(() => {
     dispatch(resetAllCategories());
     dispatch(
@@ -33,11 +31,13 @@ function EventInfo({ disabled }) {
   useEffect(() => {
     dispatch(resetGlobalLocation());
   }, []);
+
   useEffect(()=>{
     return ()=>{
        dispatch(resetCurrentPage());
     }
   },[])
+
   return (
     <div className="grid grid-cols-1 gap-[50px] pb-20">
       <div className="flex items-center">
@@ -54,7 +54,6 @@ function EventInfo({ disabled }) {
         </div>
       </div>
       <EventTable isDisable={disabled} categories={categories} />
-
       <Button
         className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
         onClick={() => dispatch(stepReducer(currentStep))}
