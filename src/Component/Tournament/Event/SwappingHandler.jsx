@@ -114,6 +114,7 @@ const SwappingHandler = ({ swapData, onSwapTargetsChange }) => {
         onClose={() => setModalOpen(false)}
         onSelect={handlePlayerSelected}
         title={modalTarget === 'partner' ? 'Select Partner' : 'Select Player'}
+        existingPlayer={swapTargets[modalTarget]}
       />
     </div>
   )

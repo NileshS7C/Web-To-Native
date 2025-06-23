@@ -18,20 +18,40 @@ const validationSchema = yup.object().shape({
     .required('Phone number is required.'),
 });
 
-const SelectPlayerModal = ({ open, onClose, onSelect, title }) => {
-  const [isPlayerExist, setIsPlayerExist] = useState(false);
+const SelectPlayerModal = ({ open, onClose, onSelect, title, existingPlayer }) => {
+  const [toggleState, setToggleState] = useState({ player: false });
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [manualData, setManualData] = useState({ name: '', phone: '' });
   const [errors, setErrors] = useState({});
 
+  const isPlayerExist = toggleState.player;
+
   useEffect(() => {
-    if (!open) {
-      setIsPlayerExist(false);
+    if (open && existingPlayer) {
+      // If there's existing player data, populate the form
+      if (existingPlayer.playerId || existingPlayer._id || existingPlayer.key) {
+        // This is an existing player from the system
+        setToggleState({ player: true });
+        setSelectedPlayer(existingPlayer);
+        setManualData({ name: '', phone: '' });
+      } else {
+        // This is manually entered data
+        setToggleState({ player: false });
+        setSelectedPlayer(null);
+        setManualData({
+          name: existingPlayer.name || '',
+          phone: existingPlayer.phone || ''
+        });
+      }
+      setErrors({});
+    } else if (!open) {
+      // Reset form when modal closes
+      setToggleState({ player: false });
       setSelectedPlayer(null);
       setManualData({ name: '', phone: '' });
       setErrors({});
     }
-  }, [open]);
+  }, [open, existingPlayer]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,7 +98,7 @@ const SelectPlayerModal = ({ open, onClose, onSelect, title }) => {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex items-center gap-2.5">
               <p>Does player already exist?</p>
-              <ToggleButton enabled={isPlayerExist} setEnabled={setIsPlayerExist} type="player" />
+              <ToggleButton enabled={toggleState} setEnabled={setToggleState} type="player" />
             </div>
             {isPlayerExist ? (
               <div className="flex flex-col gap-2.5">
@@ -132,6 +152,7 @@ SelectPlayerModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSelect: PropTypes.func.isRequired,
   title: PropTypes.string,
+  existingPlayer: PropTypes.object,
 };
 
 export default SelectPlayerModal; 
