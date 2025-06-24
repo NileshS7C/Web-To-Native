@@ -89,7 +89,7 @@ export const EventTable = ({ isDisable, categories }) => {
           onPageChange={onPageChangeEvent}
           className="border-[1px] rounded-md"
           onClick={(id) => handleDelete(id)}
-          hasLink={isDisable}
+          hasLink={false}
           navigateTo={isDisable ? "tournaments" : ""}
         />
       )}
