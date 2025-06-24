@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useUpdateGroupName, useUpdateRoundName } from '../../Hooks/fixtureHooks';
+import axiosInstance from '../../Services/axios';
+import { ADMIN_ROLES } from '../../Constant/Roles';
+import { checkRoles } from '../../utils/roleCheck';
 
 const GroupAndRoundNameModal = ({
   groupId,
@@ -12,7 +15,9 @@ const GroupAndRoundNameModal = ({
   fixtureId,
   changedName = '',
   existingMetaData = {},
+  eventFormat = '',
 }) => {
+
   const [newTitle, setNewTitle] = useState(changedName);
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -22,6 +27,73 @@ const GroupAndRoundNameModal = ({
   
   const updateGroupNameMutation = useUpdateGroupName();
   const updateRoundNameMutation = useUpdateRoundName();
+
+  // Download logic
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
+
+
+  const getDownloadType = () => {
+    if ((type === 'group' || type === 'round') && eventFormat === 'RR') {
+      return 'groupWise';
+    } else if ((type === 'round' || type === 'group') && (eventFormat === 'SE' || eventFormat === 'DE')) {
+      return 'roundWise';
+    } else {
+      return 'matchWise'; 
+    }
+  };
+
+  // Determine key
+  const key = type === 'group' ? groupId : roundId;
+  console.log('key:', key);
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    setDownloadError('');
+    try {
+      const downloadType = getDownloadType();
+      console.log('Download type determined:', downloadType);
+      
+      // Get the base URL from environment
+      const baseURL = import.meta.env.VITE_BASE_URL;
+      const ENDPOINT = checkRoles(ADMIN_ROLES)
+        ? `/users/admin/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/export-matches/${downloadType}/${key}`
+        : `/users/tournament-owner/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/export-matches/${downloadType}/${key}`;
+
+      const url = `${baseURL}${ENDPOINT}`;
+      
+      console.log('Download URL:', url);
+      
+      const response = await axiosInstance.get(url, {
+        responseType: 'blob', // Important for file downloads
+        headers: {
+          'Accept': 'application/pdf',
+        },
+      });
+      
+      // Create blob from response data
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      
+      // Try to get filename from headers
+      let filename = 'exported-matches.pdf';
+      const disposition = response.headers['content-disposition'];
+      if (disposition && disposition.includes('filename=')) {
+        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+      }
+      
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Download error:', err);
+      setDownloadError(err.response?.data?.message || err.message || 'Download failed');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   // Format date to DD/MM/YYYY
   const formatDate = (dateString) => {
@@ -207,6 +279,19 @@ const GroupAndRoundNameModal = ({
               onChange={(e) => setPointsEachSet(e.target.value)}
             />
           </div>
+        </div>
+
+        {/* Download Section */}
+        <div className='flex flex-col gap-2 my-2'>
+          <label className='text-sm text-left'>Download Matches:</label>
+          <button
+            className='bg-green-600 text-white px-4 py-2 rounded disabled:bg-green-300 w-fit'
+            onClick={handleDownload}
+            disabled={downloading}
+          >
+            {downloading ? 'Downloading...' : 'Download'}
+          </button>
+          {downloadError && <div className='text-red-500 text-xs'>{downloadError}</div>}
         </div>
 
         {/* Error Message */}

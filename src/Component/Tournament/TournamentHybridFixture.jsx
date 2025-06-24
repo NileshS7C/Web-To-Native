@@ -261,6 +261,12 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
           handleRoundClick(index, el.target);
         })
       })
+
+      if (fixture?.format === 'RR') {
+        roundTitles.forEach((el) => {
+          el.style.display = 'none';
+        });
+      }
     }, 300);
     return () => clearTimeout(timeoutId);
   }, [fixture]);
@@ -490,6 +496,7 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
             fixtureId={fixture?._id}
             changedName={changedName}
             existingMetaData={nameModalData.existingMetaData}
+            eventFormat={fixture?.format}
           />
         )}
         <div className="flex items-center justify-center w-full h-full text-lg">
