@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useUpdateGroupName, useUpdateRoundName } from '../../Hooks/fixtureHooks';
 import axiosInstance from '../../Services/axios';
+import { ADMIN_ROLES } from '../../Constant/Roles';
+import { checkRoles } from '../../utils/roleCheck';
 
 const GroupAndRoundNameModal = ({
   groupId,
@@ -15,17 +17,6 @@ const GroupAndRoundNameModal = ({
   existingMetaData = {},
   eventFormat = '',
 }) => {
-
-  // console.log('groupId:', groupId);
-  // console.log('roundId:', roundId);
-  console.log('type:', type);
-  // console.log('currentTitle:', currentTitle);
-  // console.log('tournamentID:', tournamentID);
-  // console.log('categoryId:', categoryId);
-  // console.log('fixtureId:', fixtureId);
-  // console.log('changedName:', changedName);
-  // console.log('existingMetaData:', existingMetaData);
-  console.log('eventFormat:', eventFormat);
 
   const [newTitle, setNewTitle] = useState(changedName);
   const [date, setDate] = useState('');
@@ -65,7 +56,11 @@ const GroupAndRoundNameModal = ({
       
       // Get the base URL from environment
       const baseURL = import.meta.env.VITE_BASE_URL;
-      const url = `${baseURL}/users/admin/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/export-matches/${downloadType}/${key}`;
+      const ENDPOINT = checkRoles(ADMIN_ROLES)
+        ? `/users/admin/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/export-matches/${downloadType}/${key}`
+        : `/users/tournament-owner/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/export-matches/${downloadType}/${key}`;
+
+      const url = `${baseURL}${ENDPOINT}`;
       
       console.log('Download URL:', url);
       
