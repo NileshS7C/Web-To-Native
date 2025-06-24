@@ -269,8 +269,8 @@ export const getEventBookings = async (eventId) => {
 
   const baseURL = import.meta.env.VITE_BASE_URL;
   const ENDPOINT = checkRoles(ADMIN_ROLES)
-    ? `${baseURL}/users/admin/event/${eventId}/bookings`
-    : `${baseURL}/users/event-owner/event/${eventId}/bookings`;
+    ? `${baseURL}/users/admin/events/${eventId}/bookings`
+    : `${baseURL}/users/event-owner/events/${eventId}/bookings`;
 
   console.log(`🚀 || SocialEvents.js || getEventBookings || ENDPOINT:`, ENDPOINT);
 
