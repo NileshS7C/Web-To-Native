@@ -261,6 +261,12 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
           handleRoundClick(index, el.target);
         })
       })
+
+      if (fixture?.format === 'RR') {
+        roundTitles.forEach((el) => {
+          el.style.display = 'none';
+        });
+      }
     }, 300);
     return () => clearTimeout(timeoutId);
   }, [fixture]);
