@@ -9,7 +9,7 @@ export default defineConfig({
     strictPort: true,
   },
   preview: {
-    allowedHosts: ["amdindev.picklebay.com", "www.admindev.picklebay.com"], // Explicitly allow the domain
+    allowedHosts: ["admindev.picklebay.com", "www.admindev.picklebay.com"], // Explicitly allow the domain
   },
   resolve: {
     extensions: [".js", ".jsx", ".json"],
