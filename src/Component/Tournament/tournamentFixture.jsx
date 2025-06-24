@@ -470,6 +470,7 @@ export const TournamentFixture = ({ tournament }) => {
             fixtureId={fixture?._id} 
             changedName={changedName}
             existingMetaData={nameModalData.existingMetaData}
+            eventFormat={fixture?.format}
           />
         )}
 

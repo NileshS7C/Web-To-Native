@@ -490,6 +490,7 @@ export const TournamentHybridFixture = ({ tournament ,fixtureId}) => {
             fixtureId={fixture?._id}
             changedName={changedName}
             existingMetaData={nameModalData.existingMetaData}
+            eventFormat={fixture?.format}
           />
         )}
         <div className="flex items-center justify-center w-full h-full text-lg">

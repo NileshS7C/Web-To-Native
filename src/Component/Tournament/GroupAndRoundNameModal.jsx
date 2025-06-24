@@ -12,6 +12,7 @@ const GroupAndRoundNameModal = ({
   fixtureId,
   changedName = '',
   existingMetaData = {},
+  eventFormat = '',
 }) => {
   const [newTitle, setNewTitle] = useState(changedName);
   const [date, setDate] = useState('');
@@ -22,6 +23,53 @@ const GroupAndRoundNameModal = ({
   
   const updateGroupNameMutation = useUpdateGroupName();
   const updateRoundNameMutation = useUpdateRoundName();
+
+  // Download logic
+  const [downloadType, setDownloadType] = useState('matchWise');
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
+
+  // Determine available download types
+  const downloadOptions = [
+    { value: 'matchWise', label: 'Match Wise' },
+    ...(eventFormat === 'RR' && type === 'group' ? [{ value: 'groupWise', label: 'Group Wise' }] : []),
+    ...((eventFormat === 'SE' || eventFormat === 'DE') && type === 'round' ? [{ value: 'roundWise', label: 'Round Wise' }] : []),
+  ];
+
+  // Determine key
+  const key = type === 'group' ? groupId : roundId;
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    setDownloadError('');
+    try {
+      const url = `/users/admin/tournaments/${tournamentID}/categories/${categoryId}/fixtures/${fixtureId}/export-matches/${downloadType}/${key}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          // Add auth headers if needed
+        },
+      });
+      if (!response.ok) throw new Error('Failed to download file');
+      const blob = await response.blob();
+      // Try to get filename from headers
+      let filename = 'exported-matches.pdf';
+      const disposition = response.headers.get('Content-Disposition');
+      if (disposition && disposition.includes('filename=')) {
+        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+      }
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      setDownloadError(err.message || 'Download failed');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   // Format date to DD/MM/YYYY
   const formatDate = (dateString) => {
@@ -207,6 +255,31 @@ const GroupAndRoundNameModal = ({
               onChange={(e) => setPointsEachSet(e.target.value)}
             />
           </div>
+        </div>
+
+        {/* Download Section */}
+        <div className='flex flex-col gap-2 my-2'>
+          <label className='text-sm text-left'>Download Matches:</label>
+          <div className='flex gap-2 items-center'>
+            <select
+              className='border border-gray-300 p-2 rounded'
+              value={downloadType}
+              onChange={e => setDownloadType(e.target.value)}
+              disabled={downloading || downloadOptions.length === 1}
+            >
+              {downloadOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <button
+              className='bg-green-600 text-white px-4 py-2 rounded disabled:bg-green-300'
+              onClick={handleDownload}
+              disabled={downloading}
+            >
+              {downloading ? 'Downloading...' : 'Download'}
+            </button>
+          </div>
+          {downloadError && <div className='text-red-500 text-xs'>{downloadError}</div>}
         </div>
 
         {/* Error Message */}
