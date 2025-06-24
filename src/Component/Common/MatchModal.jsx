@@ -19,6 +19,9 @@ import {
 import { showSuccess } from "../../redux/Success/successSlice";
 import { showError } from "../../redux/Error/errorSlice";
 import { formattedDate, parseDate, timeInMins } from "../../utils/dateUtils";
+import { checkRoles } from "../../utils/roleCheck";
+import { ADMIN_ROLES } from "../../Constant/Roles";
+import axiosInstance from "../../Services/axios";
 
 const initialValues = {
   id: "",
@@ -51,6 +54,7 @@ export const MatchModal = ({
   eventId,
   metaData,
 }) => {
+
   const validationSchema = yup.object().shape({
     metaData: yup.object().shape({
       date: yup.date().required("Match Start Date is required."),
@@ -67,6 +71,8 @@ export const MatchModal = ({
   const { category } = useSelector((state) => state.event);
   const [roundNumber, setRoundNumber] = useState(null);
   const [initialState, setInitialState] = useState(initialValues);
+  const [downloadError, setDownloadError] = useState('');
+  const [downloading, setDownloading] = useState(false);
   const [playersData, setPlayersData] = useState({
     opponent1: "",
     opponent2: "",
@@ -162,7 +168,7 @@ export const MatchModal = ({
         );
         onCancel(false);
 
-        dispatch(getFixtureById({ tour_Id: tournamentId, eventId ,fixtureId}));
+        dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
       }
     } catch (err) {
       console.log("Error in updating the match", err);
@@ -179,6 +185,48 @@ export const MatchModal = ({
       setSubmitting(false);
     }
   };
+
+  const handleMatchSheet = async () => {
+    const key = matchDetails?.id;
+    setDownloadError('');
+    setDownloading(true);
+    try {
+      // Get the base URL from environment
+      const baseURL = import.meta.env.VITE_BASE_URL;
+      const ENDPOINT = checkRoles(ADMIN_ROLES)
+        ? `/users/admin/tournaments/${tournamentId}/categories/${eventId}/fixtures/${fixtureId}/export-matches/matchWise/${key}`
+        : `/users/tournament-owner/tournaments/${tournamentId}/categories/${eventId}/fixtures/${fixtureId}/export-matches/matchWise/${key}`;
+      const url = `${baseURL}${ENDPOINT}`;
+      const response = await axiosInstance.get(url, {
+        responseType: 'blob', // Important for file downloads
+        headers: {
+          'Accept': 'application/pdf',
+        },
+      });
+
+      // Create blob from response data
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+
+      // Try to get filename from headers
+      let filename = 'exported-matches.pdf';
+      const disposition = response.headers['content-disposition'];
+      if (disposition && disposition.includes('filename=')) {
+        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+      }
+
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Download error:', err);
+      setDownloadError(err.response?.data?.message || err.message || 'Download failed');
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   return (
     <Dialog
@@ -215,14 +263,18 @@ export const MatchModal = ({
                     <PlayersDetails playersData={playersData} />
                     <MatchDateAndTime />
                     {/* <VenueLocationAndCourt /> */}
-                    <Button
-                      className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
-                      loading={isSubmitting}
-                      disabled={!isValid}
-                      type="submit"
-                    >
-                      Save
-                    </Button>
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        className="w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto"
+                        loading={isSubmitting}
+                        disabled={!isValid}
+                        type="submit"
+                      >
+                        Save
+                      </Button>
+                      <p className="text-sm bg-green-700 text-white flex items-center justify-center px-3 rounded-md leading-0 capitalize leading-none cursor-pointer" onClick={handleMatchSheet}>{downloading ? 'Downloading...' : 'Download'}</p>
+                    </div>
+                    {downloadError && <div className='text-red-500 text-xs'>{downloadError}</div>}
                   </div>
                 </Form>
               )}
