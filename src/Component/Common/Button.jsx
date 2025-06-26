@@ -4,6 +4,7 @@ import { ImSpinner2 } from "react-icons/im";
 
 const Button = (props) => {
   const { onClick, className, loading, children, disabled, type } = props;
+  console.log("button", props);
   const buttonClasses = `
     ${className} 
     ${disabled || loading ? "opacity-50 cursor-not-allowed" : ""}

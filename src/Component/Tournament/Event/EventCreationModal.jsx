@@ -153,9 +153,6 @@ export const EventCreationModal = () => {
   const [selectedVenueData, setSelectedVenueData] = useState(null);
   const { tournamentId } = useParams();
   const { category, loadingSingleCategory, singleCategorySuccess } = useSelector((state) => state.event);
-  console.log("category sas", category);
-  console.log("loadingSingleCategory sas", loadingSingleCategory);
-  console.log("singleCategorySuccess sas", singleCategorySuccess);
   const checkVenueOption = (state) => {
     state === "not_decided" ? setIsVenueFinal(false) : setIsVenueFinal(true);
   };
