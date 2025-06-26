@@ -133,30 +133,24 @@ const Participants = () => {
       </div>
 
       <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
-        {booking.paymentStatus === 'PAID' && !booking.refundDetails?.refundedAt && (
           <button
             onClick={() => handleRefund(booking._id)}
             disabled={isRefunding}
-            className={`px-3 py-2 text-sm font-medium rounded-md border ${isRefunding
-                ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200'
-                : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300'
-              }`}
+            className={`text-black bg-gray-200 py-2 px-5 rounded-md mr-4 ${isRefunding ? 'opacity-50 cursor-not-allowed' : ''
+              } ${booking.status === 'CANCELLED' ? '' : 'opacity-50 cursor-not-allowed'}`}
           >
             {booking.refundDetails?.refundedAt ? 'Refunded' : 'Refund'}
           </button>
-        )}
-        {booking.status !== 'CANCELLED' && (
           <button
             onClick={() => handleCancelClick(booking._id)}
             disabled={isCancelling}
-            className={`px-3 py-2 text-sm font-medium rounded-md border ${isCancelling
-                ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200'
-                : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100 hover:border-red-300'
-              }`}
+            className={`text-white bg-red-500 py-2 px-5 rounded-md mr-4 hover:opacity-50 ${isCancelling ? 'opacity-50 cursor-not-allowed' : ''
+              } ${booking.refundDetails?.refundedAt ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
+            ${booking.status === 'CANCELLED' ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
+            `}
           >
             {booking.status === 'CANCELLED' ? 'Cancelled' : 'Cancel'}
           </button>
-        )}
       </div>
     </div>
   );
@@ -208,12 +202,11 @@ const Participants = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <p className={`text-sm capitalize ${booking.status === 'CANCELLED' ? 'text-red-500' : ''} ${booking.status === 'REFUNDED' ? 'text-blue-500' : ''} ${booking.status === 'CONFIRMED' ? 'text-green-500' : ''}`}>
-                      {booking.status || ''}
+                        {booking.status || ''}
                       </p>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {/* {booking.paymentStatus === 'PAID' && !booking.refundDetails?.refundedAt && ( */}
                     <button
                       onClick={() => handleRefund(booking._id)}
                       disabled={isRefunding}
@@ -222,8 +215,6 @@ const Participants = () => {
                     >
                       {booking.refundDetails?.refundedAt ? 'Refunded' : 'Refund'}
                     </button>
-                    {/* )} */}
-                    {/* {booking.status !== 'CANCELLED' && ( */}
                     <button
                       onClick={() => handleCancelClick(booking._id)}
                       disabled={isCancelling}
