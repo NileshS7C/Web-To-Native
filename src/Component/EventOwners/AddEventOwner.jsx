@@ -51,6 +51,8 @@ const FormInput = ({ label, name, type = "text", placeholder, className = "", ..
 
 const AddEventOwner = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [imageUploading, setImageUploading] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const { mutate: createEventOwner, isLoading } = useCreateEventOwner()
   const { location } = useSelector((state) => state.location)
   const dispatch = useDispatch()
@@ -72,6 +74,7 @@ const AddEventOwner = () => {
   }
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    setSubmitError('') // Reset error
     const longitude = location?.lng ? parseFloat(location.lng) : 0
     const latitude = location?.lat ? parseFloat(location.lat) : 0
 
@@ -105,11 +108,16 @@ const AddEventOwner = () => {
         resetForm()
       },
       onError: (error) => {
-        console.error('Error creating event owner:', error)
+        const msg =
+          error?.response?.data?.message ||
+          error?.data?.message ||
+          'Something went wrong. Please try again.'
+        setSubmitError(msg)
       }
     })
     setSubmitting(false)
   }
+
 
   const handleFileUpload = async (e, setFieldValue) => {
     const file = e.target.files[0]
@@ -124,6 +132,7 @@ const AddEventOwner = () => {
       return
     }
 
+    setImageUploading(true)
     try {
       const result = await dispatch(uploadImage(file)).unwrap()
       const url = result.data.url
@@ -132,8 +141,10 @@ const AddEventOwner = () => {
       alert(err?.data?.message || "Upload failed.")
     } finally {
       e.target.value = ''
+      setImageUploading(false)
     }
   }
+
 
   const handleCloseModal = (resetForm) => {
     setIsModalOpen(false)
@@ -237,30 +248,39 @@ const AddEventOwner = () => {
                         <div className="">
                           <p className="text-base leading-[19.36px] text-[#232323] mb-3 text-left">Brand Logo</p>
                           <div className="flex items-center gap-4">
-                            <img
-                              src={values.brandLogoImage || imageUpload}
-                              alt="Brand logo preview"
-                              className="h-20 w-20 object-cover rounded"
-                            />
+                            <div className="relative h-20 w-20">
+                              <img
+                                src={values.brandLogoImage || imageUpload}
+                                alt="Brand logo preview"
+                                className="h-full w-full object-cover rounded"
+                              />
+                              {imageUploading && (
+                                <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded">
+                                  <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                                </div>
+                              )}
+                            </div>
                             <div className="flex flex-col gap-2">
                               <input
                                 type="file"
                                 accept="image/*"
                                 onChange={(e) => handleFileUpload(e, setFieldValue)}
                                 className="w-full"
+                                disabled={imageUploading}
                               />
                             </div>
                           </div>
                           <ErrorMessage name="brandLogoImage" component="div" className="text-red-500 text-sm" />
                         </div>
+
                       </div>
 
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                      <div className="">
-                        <p className="text-base text-left leading-[19.36px] text-[#232323] mb-3">Location</p>
-                        <LocationSearchInput />
-                      </div>
+                        <div className="">
+                          <p className="text-base text-left leading-[19.36px] text-[#232323] mb-3">Location</p>
+                          <LocationSearchInput />
+                        </div>
                         <FormInput
                           label="Address Line 1"
                           name="line1"
@@ -287,22 +307,28 @@ const AddEventOwner = () => {
                           placeholder="Enter postal code"
                         />
                       </div>
-
-                      <div className="flex justify-end gap-4 mt-6">
-                        <button
-                          type="button"
-                          onClick={() => handleCloseModal(resetForm)}
-                          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={isLoading}
-                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
-                        >
-                          {isLoading ? 'Creating...' : 'Create Event Owner'}
-                        </button>
+                      <div className='flex flex-col gap-4'>
+                        <div className="flex justify-end gap-4 mt-6">
+                          <button
+                            type="button"
+                            onClick={() => handleCloseModal(resetForm)}
+                            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                          >
+                            {isLoading ? 'Creating...' : 'Create Event Owner'}
+                          </button>
+                        </div>
+                          <div>
+                            {submitError && (
+                              <div className="text-red-500 text-sm text-left">{submitError}</div>
+                            )}
+                          </div>
                       </div>
                     </Form>
                   </>
