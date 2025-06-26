@@ -133,24 +133,24 @@ const Participants = () => {
       </div>
 
       <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
-          <button
-            onClick={() => handleRefund(booking._id)}
-            disabled={isRefunding}
-            className={`text-black bg-gray-200 py-2 px-5 rounded-md mr-4 ${isRefunding ? 'opacity-50 cursor-not-allowed' : ''
-              } ${booking.status === 'CANCELLED' ? '' : 'opacity-50 cursor-not-allowed'}`}
-          >
-            {booking.refundDetails?.refundedAt ? 'Refunded' : 'Refund'}
-          </button>
-          <button
-            onClick={() => handleCancelClick(booking._id)}
-            disabled={isCancelling}
-            className={`text-white bg-red-500 py-2 px-5 rounded-md mr-4 hover:opacity-50 ${isCancelling ? 'opacity-50 cursor-not-allowed' : ''
-              } ${booking.refundDetails?.refundedAt ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
-            ${booking.status === 'CANCELLED' ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
-            `}
-          >
-            {booking.status === 'CANCELLED' ? 'Cancelled' : 'Cancel'}
-          </button>
+        <button
+          onClick={() => handleRefund(booking._id)}
+          disabled={isRefunding}
+          className={`text-black bg-gray-200 py-2 px-5 rounded-md mr-4 ${isRefunding ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''} 
+          ${booking.status === 'CANCELLED' ? '' : 'opacity-50 cursor-not-allowed pointer-events-none'} 
+          ${booking.status === 'REFUNDED' ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+        >
+          {booking.status === 'REFUNDED' ? 'Refunded' : 'Refund'}
+        </button>
+        <button
+          onClick={() => handleCancelClick(booking._id)}
+          disabled={isCancelling}
+          className={`text-white bg-red-500 py-2 px-5 rounded-md mr-4 hover:opacity-50 ${isCancelling ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''} 
+            ${booking.status === 'REFUNDED' ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
+            ${booking.status === 'CANCELLED' ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}`}
+        >
+          {(booking.status === 'CANCELLED' || booking.status === 'REFUNDED') ? 'Cancelled' : 'Cancel'}
+        </button>
       </div>
     </div>
   );
@@ -210,22 +210,21 @@ const Participants = () => {
                     <button
                       onClick={() => handleRefund(booking._id)}
                       disabled={isRefunding}
-                      className={`text-black bg-gray-200 py-2 px-5 rounded-md mr-4 ${isRefunding ? 'opacity-50 cursor-not-allowed' : ''
-                        } ${booking.status === 'CANCELLED' ? '' : 'opacity-50 cursor-not-allowed'}`}
+                      className={`text-black bg-gray-200 py-2 px-5 rounded-md mr-4 ${isRefunding ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+                        } ${booking.status === 'CANCELLED' ? '' : 'opacity-50 cursor-not-allowed pointer-events-none'} ${booking.status === 'REFUNDED' ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
                     >
-                      {booking.refundDetails?.refundedAt ? 'Refunded' : 'Refund'}
+                      {booking.status === 'REFUNDED' ? 'Refunded' : 'Refund'}
                     </button>
                     <button
                       onClick={() => handleCancelClick(booking._id)}
                       disabled={isCancelling}
-                      className={`text-white bg-red-500 py-2 px-5 rounded-md mr-4 hover:opacity-50 ${isCancelling ? 'opacity-50 cursor-not-allowed' : ''
-                        } ${booking.refundDetails?.refundedAt ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
+                      className={`text-white bg-red-500 py-2 px-5 rounded-md mr-4 hover:opacity-50 ${isCancelling ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+                        } ${booking.status === 'REFUNDED' ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
                         ${booking.status === 'CANCELLED' ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
                         `}
                     >
-                      {booking.status === 'CANCELLED' ? 'Cancelled' : 'Cancel'}
+                      {(booking.status === 'CANCELLED' || booking.status === 'REFUNDED') ? 'Cancelled' : 'Cancel'}
                     </button>
-                    {/* )} */}
                   </td>
                 </tr>
               ))}
