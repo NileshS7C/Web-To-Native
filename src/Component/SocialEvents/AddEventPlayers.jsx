@@ -173,7 +173,7 @@ const AddEventPlayers = () => {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            className="mt-1 block w-full rounded-md border p-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                             placeholder="Search by name or phone"
                           />
                         </div>
@@ -230,7 +230,7 @@ const AddEventPlayers = () => {
                             type="text"
                             name="name"
                             id="name"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            className="mt-1 block w-full rounded-md border p-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                             placeholder="Enter player name"
                           />
                           <ErrorMessage name="name" component={TextError} />
@@ -247,7 +247,7 @@ const AddEventPlayers = () => {
                             type="text"
                             name="phone"
                             id="phone"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            className="mt-1 block w-full rounded-md border p-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                             placeholder="Enter phone number"
                           />
                           <ErrorMessage name="phone" component={TextError} />

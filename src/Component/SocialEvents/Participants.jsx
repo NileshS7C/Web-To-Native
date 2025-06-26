@@ -164,22 +164,25 @@ const Participants = () => {
   return (
     <>
       <AddEventPlayers />
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white">
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                <th className="px-6 py-3 text-sm font-semibold text-[#667085] uppercase tracking-wider text-center">
                   Name
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                <th className="px-6 py-3 text-sm font-semibold text-[#667085] uppercase tracking-wider text-center">
                   Phone
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                <th className="px-6 py-3 text-sm font-semibold text-[#667085] uppercase tracking-wider text-center">
                   Amount
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                <th className="px-6 py-3 text-sm font-semibold text-[#667085] uppercase tracking-wider text-center">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-sm font-semibold text-[#667085] uppercase tracking-wider text-center">
                   Actions
                 </th>
               </tr>
@@ -202,13 +205,20 @@ const Participants = () => {
                       ₹{booking.finalAmount || 0}
                     </div>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <p className={`text-sm capitalize ${booking.status === 'CANCELLED' ? 'text-red-500' : ''} ${booking.status === 'REFUNDED' ? 'text-blue-500' : ''} ${booking.status === 'CONFIRMED' ? 'text-green-500' : ''}`}>
+                      {booking.status || ''}
+                      </p>
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     {/* {booking.paymentStatus === 'PAID' && !booking.refundDetails?.refundedAt && ( */}
                     <button
                       onClick={() => handleRefund(booking._id)}
                       disabled={isRefunding}
-                      className={`text-green-600 hover:text-green-900 mr-4 ${isRefunding ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
+                      className={`text-black bg-gray-200 py-2 px-5 rounded-md mr-4 ${isRefunding ? 'opacity-50 cursor-not-allowed' : ''
+                        } ${booking.status === 'CANCELLED' ? '' : 'opacity-50 cursor-not-allowed'}`}
                     >
                       {booking.refundDetails?.refundedAt ? 'Refunded' : 'Refund'}
                     </button>
@@ -217,7 +227,7 @@ const Participants = () => {
                     <button
                       onClick={() => handleCancelClick(booking._id)}
                       disabled={isCancelling}
-                      className={`text-red-600 hover:text-red-900 ${isCancelling ? 'opacity-50 cursor-not-allowed' : ''
+                      className={`text-white bg-red-500 py-2 px-5 rounded-md mr-4 hover:opacity-50 ${isCancelling ? 'opacity-50 cursor-not-allowed' : ''
                         } ${booking.refundDetails?.refundedAt ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
                         ${booking.status === 'CANCELLED' ? 'pointer-events-none opacity-50 cursor-not-allowed' : ''}
                         `}
@@ -299,7 +309,7 @@ const Participants = () => {
                     id="cancelReason"
                     value={cancelReason}
                     onChange={(e) => setCancelReason(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border border-black-600 shadow-sm sm:text-sm p-2"
                     rows={4}
                     placeholder="Enter reason for cancellation"
                   />
