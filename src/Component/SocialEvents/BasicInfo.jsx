@@ -54,9 +54,9 @@ const validationSchema = Yup.object({
   bannerMobileImages: Yup.array().min(1, 'Mobile banner images are required'),
 });
 
-const FormInput = ({ label, name, type = "text", placeholder, className = "", ...props }) => (
-  <div className='flex flex-col items-start gap-3'>
-    <p className='text-base leading-[19.36px] text-[#232323]'>{label}</p>
+const FormInput = ({ label, name, type = "text", placeholder, className = "", styles, ...props }) => (
+  <div className={`flex flex-col items-start gap-3 ${styles}`}>
+    <p className='text-base leading-[19.36px] text-[#232323] capitalize'>{label}</p>
     <Field
       type={type}
       name={name}
@@ -70,7 +70,7 @@ const FormInput = ({ label, name, type = "text", placeholder, className = "", ..
 
 const FormSelect = ({ label, name, options, placeholder, className = "" }) => (
   <div className='flex flex-col items-start gap-3'>
-    <p className='text-base leading-[19.36px] text-[#232323]'>{label}</p>
+    <p className='text-base leading-[19.36px] text-[#232323] capitalize'>{label}</p>
     <Field
       as="select"
       name={name}
@@ -91,6 +91,10 @@ const BasicInfo = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { mutate: createEvent } = useCreateEvent();
+
+  // Add state for API error handling
+  const [apiError, setApiError] = useState('');
+
   const [formData, setFormData] = useState({
     sponsors: [],
     bannerDesktopImages: [],
@@ -159,6 +163,9 @@ const BasicInfo = () => {
   };
 
   const handleFormSubmit = (values, { setSubmitting, setFieldError }) => {
+    // Clear any previous API errors
+    setApiError('');
+
     console.log("🚀 ~ BasicInfo ~ Send Button Clicked - Form Submission Initiated", {
       formValues: values,
       step: "SEND_BUTTON_CLICKED"
@@ -293,6 +300,8 @@ const BasicInfo = () => {
             step: "MISSING_EVENT_ID"
           });
         }
+
+        setSubmitting(false);
       },
       onError: (error) => {
         console.error("❌ ~ BasicInfo ~ Event Creation Failed", {
@@ -300,10 +309,23 @@ const BasicInfo = () => {
           formData: allFormData,
           step: "EVENT_CREATION_ERROR"
         });
+
+        // Extract error message from the error object
+        let errorMessage = 'An error occurred while creating the event. Please try again.';
+
+        if (error?.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        } else if (typeof error === 'string') {
+          errorMessage = error;
+        }
+
+        // Set the API error to display near the submit button
+        setApiError(errorMessage);
         setSubmitting(false);
       }
     });
-    setSubmitting(false);
   };
 
   // Helper function to format date as DD/MM/YYYY
@@ -391,6 +413,12 @@ const BasicInfo = () => {
                 placeholder="Enter Event handle"
               />
 
+              <FormInput
+                label="Tags"
+                name="tags"
+                placeholder="Enter tags separated by commas"
+              />
+
               <div className='flex flex-col items-start gap-3 md:w-[48%] col-span-1 md:col-span-2'>
                 <p className='text-base leading-[19.36px] text-[#232323]'>Google Map</p>
                 <LocationSearchInput
@@ -414,7 +442,9 @@ const BasicInfo = () => {
               <FormInput
                 label="Line 1"
                 name="line1"
+                className="capitalize"
                 placeholder="Enter Line 1"
+                styles="justify-end"
               />
 
               <FormInput
@@ -451,32 +481,6 @@ const BasicInfo = () => {
                   maxLength="6"
                 />
                 <ErrorMessage name="postalCode" component="div" className="text-red-500 text-sm" />
-              </div>
-
-              <div className='flex flex-col items-start gap-3 relative'>
-                <p className='text-sm leading-[16.36px] text-[#232323]'>Start Date</p>
-                <Field name="startDate">
-                  {({ field, form }) => (
-                    <>
-                      <DatePicker
-                        id="startDate"
-                        name="startDate"
-                        placeholderText="Select date"
-                        toggleCalendarOnIconClick
-                        selected={field.value ? new Date(field.value) : null}
-                        className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        minDate={new Date()}
-                        dateFormat="dd/MM/yy"
-                        onChange={(date) => {
-                          if (date) {
-                            form.setFieldValue("startDate", date);
-                          }
-                        }}
-                      />
-                    </>
-                  )}
-                </Field>
-                <ErrorMessage name="startDate" component={TextError} />
               </div>
 
               <div className='flex flex-col items-start gap-3 relative'>
@@ -547,6 +551,35 @@ const BasicInfo = () => {
                 placeholder="Enter End Time"
               />
 
+              <div className='flex flex-col items-start gap-3 relative'>
+                <p className='text-sm leading-[16.36px] text-[#232323]'>Start Date</p>
+                <Field name="startDate">
+                  {({ field, form }) => (
+                    <>
+                      <DatePicker
+                        id="startDate"
+                        name="startDate"
+                        placeholderText="Select date"
+                        toggleCalendarOnIconClick
+                        selected={field.value ? new Date(field.value) : null}
+                        className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        minDate={new Date()}
+                        dateFormat="dd/MM/yy"
+                        onChange={(date) => {
+                          if (date) {
+                            form.setFieldValue("startDate", date);
+                          }
+                        }}
+                      />
+                    </>
+                  )}
+                </Field>
+                <ErrorMessage name="startDate" component={TextError} />
+              </div>
+            </div>
+
+            <div className='grid grid-cols-1 gap-3 md:gap-[30px] mt-4'>
+
               <FormInput
                 label="Maximum Participants"
                 name="maxParticipants"
@@ -574,11 +607,40 @@ const BasicInfo = () => {
                 placeholder="Enter WhatsApp Group Link"
               />
 
-              <FormInput
-                label="Tags"
-                name="tags"
-                placeholder="Enter tags separated by commas"
+            </div>
+
+            <div className="grid grid-cols-1 gap-2 mt-3">
+              <label
+                className="text-base leading-[19.36px] justify-self-start"
+                htmlFor="description"
+              >
+                Description
+              </label>
+              <ReactQuill
+                theme="snow"
+                value={values.description}
+                onChange={(content) => setFieldValue('description', content)}
+                placeholder="Enter Event Description"
+                className="custom-quill"
               />
+              <ErrorMessage name="description" component="div" className="text-red-500 text-sm" />
+            </div>
+
+            <div className="grid grid-cols-1 gap-2 mt-3">
+              <label
+                className="text-base leading-[19.36px] justify-self-start"
+                htmlFor="preRequisites"
+              >
+                Pre-requisites
+              </label>
+              <ReactQuill
+                theme="snow"
+                value={values.preRequisites}
+                onChange={(content) => setFieldValue('preRequisites', content)}
+                placeholder="Enter Pre-requisites"
+                className="custom-quill"
+              />
+              <ErrorMessage name="preRequisites" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className='flex flex-col items-start gap-3 mt-3'>
@@ -627,41 +689,8 @@ const BasicInfo = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-2 mt-3">
-              <label
-                className="text-base leading-[19.36px] justify-self-start"
-                htmlFor="description"
-              >
-                Description
-              </label>
-              <ReactQuill
-                theme="snow"
-                value={values.description}
-                onChange={(content) => setFieldValue('description', content)}
-                placeholder="Enter Event Description"
-                className="custom-quill"
-              />
-              <ErrorMessage name="description" component="div" className="text-red-500 text-sm" />
-            </div>
-
-            <div className="grid grid-cols-1 gap-2 mt-3">
-              <label
-                className="text-base leading-[19.36px] justify-self-start"
-                htmlFor="preRequisites"
-              >
-                Pre-requisites
-              </label>
-              <ReactQuill
-                theme="snow"
-                value={values.preRequisites}
-                onChange={(content) => setFieldValue('preRequisites', content)}
-                placeholder="Enter Pre-requisites"
-                className="custom-quill"
-              />
-              <ErrorMessage name="preRequisites" component="div" className="text-red-500 text-sm" />
-            </div>
-
-            <div className="flex justify-end mt-6">
+            <div className="flex flex-col items-end mt-6 gap-3">
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -669,6 +698,34 @@ const BasicInfo = () => {
               >
                 {isSubmitting ? 'Sending...' : 'Send'}
               </button>
+
+              {/* Display API Error Message */}
+              {apiError && (
+                <div className="w-full bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center justify-center py-3 relative">
+                    <div className="">
+                      <p className="text-sm font-medium text-red-800">
+                        Error creating event
+                      </p>
+                      <p className="text-sm text-red-700 mt-1">
+                        {apiError}
+                      </p>
+                    </div>
+                    <div className="absolute top-0 right-0 p-2 text-sm text-red-500">
+                      <button
+                        type="button"
+                        onClick={() => setApiError('')}
+                        className="inline-flex bg-red-50 rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
+                      >
+                        <span className="sr-only">Dismiss</span>
+                        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </Form>
         );

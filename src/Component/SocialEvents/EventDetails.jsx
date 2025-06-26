@@ -151,7 +151,7 @@ const EventDetails = () => {
               {isAdmin && !isPublished && (
                 <button
                   onClick={handlePublishEvent}
-                  className="px-4 py-2 rounded-lg shadow-md bg-green-600 text-white hover:bg-green-500 active:bg-green-700"
+                  className="px-4 py-2 rounded-lg shadow-md bg-white text-black"
                 >
                   Publish Event
                 </button>
@@ -159,7 +159,7 @@ const EventDetails = () => {
               {isPublished && (
                 <button
                   onClick={handleArchiveEvent}
-                  className="px-4 py-2 rounded-lg shadow-md bg-yellow-600 text-white hover:bg-yellow-500 active:bg-yellow-700"
+                  className="px-4 py-2 rounded-lg shadow-md bg-white text-black"
                 >
                   Unpublish Event
                 </button>
@@ -167,7 +167,7 @@ const EventDetails = () => {
               {!isCompleted && (
                 <button
                   onClick={handleCompleteEvent}
-                  className="px-4 py-2 rounded-lg shadow-md bg-purple-600 text-white hover:bg-purple-500 active:bg-purple-700"
+                  className="px-4 py-2 rounded-lg shadow-md bg-white text-black"
                 >
                   Complete
                 </button>
@@ -175,7 +175,7 @@ const EventDetails = () => {
               <button
                 onClick={handleExportBookings}
                 disabled={isExporting}
-                className="px-4 py-2 rounded-lg shadow-md bg-green-600 text-white hover:bg-green-500 active:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg shadow-md bg-[#1570EF] text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isExporting ? 'Exporting...' : 'Download Sheet'}
               </button>

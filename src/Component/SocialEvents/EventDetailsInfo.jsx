@@ -54,9 +54,9 @@ const validationSchema = Yup.object({
   bannerMobileImages: Yup.array().min(1, 'Mobile banner images are required'),
 });
 
-const FormInput = ({ label, name, type = "text", placeholder, className = "", ...props }) => (
-  <div className='flex flex-col items-start gap-3'>
-    <p className='text-base leading-[19.36px] text-[#232323]'>{label}</p>
+const FormInput = ({ label, name, type = "text", placeholder, className = "", styles, ...props }) => (
+  <div className={`flex flex-col items-start gap-3 ${styles}`}>
+    <p className='text-base leading-[19.36px] text-[#232323] capitalize'>{label}</p>
     <Field
       type={type}
       name={name}
@@ -330,6 +330,12 @@ const EventDetailsInfo = ({ isEdit, setIsEdit }) => {
                 placeholder="Enter Event handle"
               />
 
+              <FormInput
+                label="Tags"
+                name="tags"
+                placeholder="Enter tags separated by commas"
+              />
+
               <div className='flex flex-col items-start gap-3 md:w-[48%] col-span-1 md:col-span-2'>
                 <p className='text-base leading-[19.36px] text-[#232323]'>Google Map</p>
                 <LocationSearchInput
@@ -354,6 +360,7 @@ const EventDetailsInfo = ({ isEdit, setIsEdit }) => {
                 label="Line 1"
                 name="line1"
                 placeholder="Enter Line 1"
+                styles={'justify-end'}
               />
 
               <FormInput
@@ -390,32 +397,6 @@ const EventDetailsInfo = ({ isEdit, setIsEdit }) => {
                   maxLength="6"
                 />
                 <ErrorMessage name="postalCode" component="div" className="text-red-500 text-sm" />
-              </div>
-
-              <div className='flex flex-col items-start gap-3 relative'>
-                <p className='text-sm leading-[16.36px] text-[#232323]'>Start Date</p>
-                <Field name="startDate">
-                  {({ field, form }) => (
-                    <>
-                      <DatePicker
-                        id="startDate"
-                        name="startDate"
-                        placeholderText="Select date"
-                        toggleCalendarOnIconClick
-                        selected={field.value ? new Date(field.value) : null}
-                        className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        minDate={new Date()}
-                        dateFormat="dd/MM/yy"
-                        onChange={(date) => {
-                          if (date) {
-                            form.setFieldValue("startDate", date);
-                          }
-                        }}
-                      />
-                    </>
-                  )}
-                </Field>
-                <ErrorMessage name="startDate" component={TextError} />
               </div>
 
               <div className='flex flex-col items-start gap-3 relative'>
@@ -486,13 +467,41 @@ const EventDetailsInfo = ({ isEdit, setIsEdit }) => {
                 placeholder="Enter End Time"
               />
 
+              <div className='flex flex-col items-start gap-3 relative'>
+                <p className='text-sm leading-[16.36px] text-[#232323]'>Start Date</p>
+                <Field name="startDate">
+                  {({ field, form }) => (
+                    <>
+                      <DatePicker
+                        id="startDate"
+                        name="startDate"
+                        placeholderText="Select date"
+                        toggleCalendarOnIconClick
+                        selected={field.value ? new Date(field.value) : null}
+                        className="w-full z-10 px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        minDate={new Date()}
+                        dateFormat="dd/MM/yy"
+                        onChange={(date) => {
+                          if (date) {
+                            form.setFieldValue("startDate", date);
+                          }
+                        }}
+                      />
+                    </>
+                  )}
+                </Field>
+                <ErrorMessage name="startDate" component={TextError} />
+              </div>
+            </div>
+
+            <div className='grid grid-cols-1 gap-3 md:gap-[30px] mt-4'>
+
               <FormInput
                 label="Maximum Participants"
                 name="maxParticipants"
                 type="number"
                 placeholder="Enter max participants"
               />
-
               <FormInput
                 label="Registration fee"
                 name="registrationFee"
@@ -512,12 +521,39 @@ const EventDetailsInfo = ({ isEdit, setIsEdit }) => {
                 name="whatsappGroupLink"
                 placeholder="Enter WhatsApp Group Link"
               />
-
-              <FormInput
-                label="Tags"
-                name="tags"
-                placeholder="Enter tags separated by commas"
+            </div>
+            <div className="grid grid-cols-1 gap-2 mt-3">
+              <label
+                className="text-base leading-[19.36px] justify-self-start"
+                htmlFor="description"
+              >
+                Description
+              </label>
+              <ReactQuill
+                theme="snow"
+                value={values.description}
+                onChange={(content) => setFieldValue('description', content)}
+                placeholder="Enter Event Description"
+                className="custom-quill"
               />
+              <ErrorMessage name="description" component="div" className="text-red-500 text-sm" />
+            </div>
+
+            <div className="grid grid-cols-1 gap-2 mt-3">
+              <label
+                className="text-base leading-[19.36px] justify-self-start"
+                htmlFor="preRequisites"
+              >
+                Pre-requisites
+              </label>
+              <ReactQuill
+                theme="snow"
+                value={values.preRequisites}
+                onChange={(content) => setFieldValue('preRequisites', content)}
+                placeholder="Enter Pre-requisites"
+                className="custom-quill"
+              />
+              <ErrorMessage name="preRequisites" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className='flex flex-col items-start gap-3 mt-3'>
@@ -570,40 +606,6 @@ const EventDetailsInfo = ({ isEdit, setIsEdit }) => {
                 data={formData.previousEventVideos}
                 onChange={(data) => handleDataChange('previousEventVideos', data)}
               />
-            </div>
-
-            <div className="grid grid-cols-1 gap-2 mt-3">
-              <label
-                className="text-base leading-[19.36px] justify-self-start"
-                htmlFor="description"
-              >
-                Description
-              </label>
-              <ReactQuill
-                theme="snow"
-                value={values.description}
-                onChange={(content) => setFieldValue('description', content)}
-                placeholder="Enter Event Description"
-                className="custom-quill"
-              />
-              <ErrorMessage name="description" component="div" className="text-red-500 text-sm" />
-            </div>
-
-            <div className="grid grid-cols-1 gap-2 mt-3">
-              <label
-                className="text-base leading-[19.36px] justify-self-start"
-                htmlFor="preRequisites"
-              >
-                Pre-requisites
-              </label>
-              <ReactQuill
-                theme="snow"
-                value={values.preRequisites}
-                onChange={(content) => setFieldValue('preRequisites', content)}
-                placeholder="Enter Pre-requisites"
-                className="custom-quill"
-              />
-              <ErrorMessage name="preRequisites" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="flex justify-end mt-6">

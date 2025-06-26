@@ -4,12 +4,14 @@ import { uploadImage, deleteUploadedImage } from "../../redux/Upload/uploadActio
 import { useDispatch } from "react-redux";
 import { imageUpload } from "../../Assests";
 
-const SponsorTable = ({ disabled = false, onChange = () => {}, data = [] }) => {
+const SponsorTable = ({ disabled = false, onChange = () => { }, data = [] }) => {
   const dispatch = useDispatch();
 
   const [sponsors, setSponsors] = useState([
     { sponsorName: "", sponsorImage: "", errors: {} },
   ]);
+  const [uploadingIndex, setUploadingIndex] = useState(null); // Track which sponsor is uploading
+  const [uploadErrors, setUploadErrors] = useState({});        // Track upload errors by index
 
   // Initialize with data prop
   useEffect(() => {
@@ -101,30 +103,39 @@ const SponsorTable = ({ disabled = false, onChange = () => {}, data = [] }) => {
 
   const handleFileUpload = async (e, index) => {
     const file = e.target.files[0];
+    const newErrors = { ...uploadErrors };
+
     if (!file?.type?.startsWith("image/")) {
-      alert("Invalid file type. Please upload an image.");
-      // Reset the input value to allow selecting the same file again
-      e.target.value = '';
+      newErrors[index] = "Only image files are allowed.";
+      setUploadErrors(newErrors);
+      e.target.value = "";
       return;
     }
+
     if (file.size > 5 * 1024 * 1024) {
-      alert("File must be less than 5MB.");
-      // Reset the input value to allow selecting the same file again
-      e.target.value = '';
+      newErrors[index] = "File must be less than 5MB.";
+      setUploadErrors(newErrors);
+      e.target.value = "";
       return;
     }
+
+    setUploadingIndex(index);
+    delete newErrors[index];
+    setUploadErrors(newErrors);
 
     try {
       const result = await dispatch(uploadImage(file)).unwrap();
       const url = result.data.url;
       handleChange(index, "sponsorImage", url);
     } catch (err) {
-      alert(err?.data?.message || "Upload failed.");
+      newErrors[index] = err?.data?.message || "Upload failed.";
+      setUploadErrors(newErrors);
     } finally {
-      // Reset the input value to allow selecting the same file again
-      e.target.value = '';
+      setUploadingIndex(null);
+      e.target.value = "";
     }
   };
+
 
   return (
     <div className="grid grid-cols-1 gap-2.5 w-full">
@@ -163,20 +174,28 @@ const SponsorTable = ({ disabled = false, onChange = () => {}, data = [] }) => {
                         alt="sponsor"
                       />
                       {!disabled && (
-                        <input
-                          type="file"
-                          onChange={(e) => handleFileUpload(e, index)}
-                          className="absolute w-8 h-8 opacity-0 cursor-pointer"
-                        />
+                        <>
+                          <input
+                            type="file"
+                            onChange={(e) => handleFileUpload(e, index)}
+                            className="absolute w-8 h-8 opacity-0 cursor-pointer"
+                          />
+                          {uploadingIndex === index && (
+                            <div className="absolute left-0 top-0 w-8 h-8 flex items-center justify-center bg-white/60 rounded">
+                              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
-                    {sponsor.errors?.sponsorImage && (
-                      <div className="text-sm text-[#FF3333]">
-                        {sponsor.errors.sponsorImage}
+                    {(sponsor.errors?.sponsorImage || uploadErrors[index]) && (
+                      <div className="text-sm text-[#FF3333] text-left mt-2">
+                        {sponsor.errors?.sponsorImage || uploadErrors[index]}
                       </div>
                     )}
                   </div>
                 </td>
+
                 <td className="p-2">
                   <div className="flex flex-col gap-1">
                     <input

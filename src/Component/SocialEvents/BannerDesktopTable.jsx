@@ -11,6 +11,10 @@ const BannerDesktopTable = ({ disabled, onChange, data = [] }) => {
   const [previews, setPreviews] = useState([]);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [localPreview, setLocalPreview] = useState(null);
+
+
 
   // Initialize with data prop
   useEffect(() => {
@@ -30,11 +34,14 @@ const BannerDesktopTable = ({ disabled, onChange, data = [] }) => {
   const handleFileUpload = async (e) => {
     setIsError(false);
     setErrorMessage("");
+    setIsUploading(true);
+
     const uploadedFile = e.target.files[0];
-    
+
     if (!uploadedFile?.type?.startsWith("image/")) {
       setErrorMessage("File should be a valid image type.");
       setIsError(true);
+      setIsUploading(false);
       return;
     }
 
@@ -42,20 +49,32 @@ const BannerDesktopTable = ({ disabled, onChange, data = [] }) => {
     if (uploadedFile.size > maxSize) {
       setErrorMessage("File should be less than 5 MB");
       setIsError(true);
+      setIsUploading(false);
       return;
     }
-    
+
+    // Set local preview immediately
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setLocalPreview(reader.result);
+    };
+    reader.readAsDataURL(uploadedFile);
+
     try {
       const result = await dispatch(uploadImage(uploadedFile)).unwrap();
       const url = result.data.url;
-      const updated = [url]; // Only keep one image for banner
+      const updated = [url];
       setBannerImages(updated);
       onChange?.(updated);
     } catch (err) {
-      setErrorMessage(err.data?.message || "Upload failed");
+      setErrorMessage(err?.data?.message || "Upload failed");
       setIsError(true);
+    } finally {
+      setIsUploading(false);
     }
   };
+
+
 
   const handleRemoveImage = () => {
     if (bannerImages[0]) {
@@ -66,8 +85,12 @@ const BannerDesktopTable = ({ disabled, onChange, data = [] }) => {
     setIsError(false);
     setErrorMessage("");
     onChange?.([]);
+    setLocalPreview(null);
   };
 
+  useEffect(() => {
+    console.log('uploading underway')
+  }, [isUploading])
   return (
     <div className="relative flex flex-col items-start gap-2.5">
       <label
@@ -78,23 +101,32 @@ const BannerDesktopTable = ({ disabled, onChange, data = [] }) => {
       </label>
 
       <div className="relative flex flex-col items-center justify-center border-[1px] border-dashed border-[#DFEAF2] rounded-[6px] h-[150px] w-full cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition duration-300">
-        {previews[0]?.preview && (
-          <>
+        {(localPreview || previews[0]?.preview) && (
+          <div className="absolute inset-0 w-full h-full rounded overflow-hidden">
             <img
-              src={previews[0]?.preview || ""}
-              className="absolute inset-0 object-scale-down rounded h-full w-full z-100"
+              src={localPreview || previews[0]?.preview}
+              className="object-scale-down w-full h-full"
               alt="desktop banner"
             />
-            {!disabled && (
+
+            {isUploading && (
+              <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-20">
+                <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+
+            {!disabled && !isUploading && (
               <IoMdTrash
-                className="absolute right-0 top-0 w-6 h-6 z-100 text-black cursor-pointer shadow-lg"
+                className="absolute right-2 top-2 w-6 h-6 z-30 text-black cursor-pointer shadow-lg"
                 onClick={handleRemoveImage}
               />
             )}
-          </>
+          </div>
         )}
 
-        {!previews[0]?.preview && (
+
+
+        {!localPreview && !previews[0]?.preview && (
           <>
             <img src={uploadIcon} alt="upload" className="w-8 h-8 mb-2" />
 
