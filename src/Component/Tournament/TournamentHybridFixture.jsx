@@ -443,7 +443,7 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         {fixture?.status !== "PUBLISHED" && (
           <NotificationBanner
             message="Fill Match Details Before Publishing"
@@ -461,7 +461,7 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
         <div className="flex gap-2">
           <Button
             className={
-              "w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
+              "py-2 px-4 rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
             }
             onClick={handleDateAndTimeModal}
           >
@@ -480,7 +480,7 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
             </Button>
           ) : (
             <Button
-              className={`w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed ${
+              className={`py-2 px-4 rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed ${
                 isChildFixture ? "hidden" : ""
               }`}
               onClick={handlePublishFixture}

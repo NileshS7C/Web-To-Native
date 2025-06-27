@@ -145,7 +145,7 @@ const DateAndTimeModal = ({
 const TimeAndDate = () => {
   return (
     <div className="flex flex-col xs:flex-row justify-between mx-[10px] gap-4">
-      <div className="flex xs:flex-col items-start gap-1 sm:gap-2.5 w-full xs:w-1/2">
+      <div className="flex flex-col items-start gap-1 sm:gap-2.5 w-full xs:w-1/2">
         <label className="text-base text-[#232323]" htmlFor="date">
           Date:
         </label>
@@ -182,7 +182,7 @@ const TimeAndDate = () => {
         </div>
       </div>
 
-      <div className="flex xs:flex-col items-start gap-2.5 w-full xs:w-1/2">
+      <div className="flex flex-col items-start gap-2.5 w-full xs:w-1/2">
         <label className="text-base text-[#232323]" htmlFor="startTime">
           Start Time:
         </label>
