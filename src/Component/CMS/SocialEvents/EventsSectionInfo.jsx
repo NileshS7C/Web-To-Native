@@ -37,7 +37,7 @@ const EventsSectionInfo = ({ sectionInfo }) => {
     }
 
     const updatedFeatures = sectionDetails.events.map((event) => ({
-      eventID: event.eventID._id,
+      eventID: event._id,  // ✅ Adjusted to new structure
       position: event.position,
     }));
 
