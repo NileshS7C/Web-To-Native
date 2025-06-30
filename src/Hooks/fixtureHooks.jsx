@@ -1,5 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import { updateGroupName, updateRoundName } from "../api/fixtures";
+import {
+  updateGroupName,
+  updateRoundName,
+  updateFixtureDateAndTime,
+} from "../api/fixtures";
 
 export const useUpdateGroupName = () => {
   return useMutation({
@@ -25,6 +29,20 @@ export const useUpdateRoundName = () => {
     },
     onError: (error) => {
       console.error("❌ Error updating group name:", error);
+    },
+  });
+};
+
+export const useUpdateDateAndTime = () => {
+  return useMutation({
+    mutationFn: ({ tournamentId, categoryId, fixtureId, data }) =>
+      updateFixtureDateAndTime({ tournamentId, categoryId, fixtureId, data }),
+
+    onSuccess: () => {
+      console.log("✅ Date and time updated successfully");
+    },
+    onError: (error) => {
+      console.error("❌ Error updating date and time:", error);
     },
   });
 };
