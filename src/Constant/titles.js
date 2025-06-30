@@ -64,6 +64,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname === "/cms/homepage/featured-tournaments") {
       return "Featured Tournaments";
     }
+    if (pathname === "/cms/social-events/featured-social-events") {
+      return "Featured Tournaments";
+    }
     if (pathname === "/cms/homepage/featured-week") {
       return "Featured This Week";
     }

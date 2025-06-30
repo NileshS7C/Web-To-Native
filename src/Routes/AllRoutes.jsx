@@ -11,6 +11,7 @@ import NotCreated from "../Component/Common/NotCreated";
 
 import Explore from "../Page/CMS/Homepage/Explore";
 import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
+import FeaturedSocialEvents from "../Page/CMS/FeaturedSocialEvents";
 import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
 import FeaturedVenues from "../Page/CMS/Homepage/FeaturedVenues";
 import FAQ from "../Page/CMS/StaticPages/FAQ";
@@ -113,6 +114,10 @@ const AllRoutes = () => {
           <Route
             path="cms/homepage/featured-tournaments"
             element={<FeaturedTournaments />}
+          />
+          <Route
+            path="cms/social-events/featured-social-events"
+            element={<FeaturedSocialEvents />}
           />
           <Route path="cms/homepage/featured-week" element={<FeaturedWeek />} />
           <Route

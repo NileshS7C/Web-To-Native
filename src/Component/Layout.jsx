@@ -82,6 +82,7 @@ const hiddenRoutes = [
   ...aboutUsPageRoutes,
   "/",
   "/admin-users",
+  "/cms/social-events/featured-social-events"
 ];
 import { BsDownload } from "react-icons/bs";
 import { useOwnerDetailsContext } from "../Providers/onwerDetailProvider";

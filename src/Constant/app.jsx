@@ -131,6 +131,10 @@ export const ADMIN_NAVIGATION = [
           { name: "Media Gallery" },
         ],
       },
+      {
+        name: "Social Events",
+        children: [{ name: "Featured Social Events" }],
+      },
     ],
   },
 ];
