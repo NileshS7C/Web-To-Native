@@ -161,7 +161,7 @@ const EventListingModal = ({ eventData, isOpen, onClose, fetchEventSections }) =
       setTotalEvent(response?.data?.data?.total || 0);
       if (eventData?.events) {
         const formattedSelected = eventData.events.map(
-          (item) => item.eventID
+          (item) => item
         );
         setAlreadySelected(formattedSelected);
         setSelectedItems(formattedSelected);
@@ -190,6 +190,7 @@ const EventListingModal = ({ eventData, isOpen, onClose, fetchEventSections }) =
       eventID: item._id,
       position: index,
     }));
+    
 
     const payload = {
       sectionTitle: eventData.sectionTitle,
@@ -239,7 +240,7 @@ const EventListingModal = ({ eventData, isOpen, onClose, fetchEventSections }) =
       setTotalEvent(response?.data?.data?.total || 0);
       if (eventData?.events) {
         const formattedSelected = eventData.events.map(
-          (item) => item.eventID
+          (item) => item
         );
         setAlreadySelected(formattedSelected);
         setSelectedItems(formattedSelected);

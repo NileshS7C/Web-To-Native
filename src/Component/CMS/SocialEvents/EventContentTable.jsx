@@ -14,10 +14,10 @@ const EventContentTable = ({ data, fetchEventSections }) => {
 
   const handleDeleteItem = async () => {
     const updatedFeatures = data.events
-      .filter(event => event.eventID.eventName !== selectedCard.eventID.eventName);
+      .filter(event => event.eventName !== selectedCard.eventName);
 
     const reindexedFeatures = updatedFeatures.map((event, index) => ({
-      eventID: event.eventID._id,
+      eventID: event._id,
       position: index + 1,
     }));
     const payload = {
@@ -69,14 +69,15 @@ const EventContentTable = ({ data, fetchEventSections }) => {
                   {index + 1}
                 </td>
                 <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
-                  {event.eventID.eventName}
+                  {event.eventName}
                 </td>
                 <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
-                  {new Date(event.eventID.startDate).toLocaleDateString()}
+                  {event.startDate}
                 </td>
                 <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
-                  {event.eventID.eventLocation.address.city}, {event.eventID.eventLocation.address.state}
+                  {event.eventLocation?.address?.city}, {event.eventLocation?.address?.state}
                 </td>
+
                 <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap w-[10%]">
                   <div className="flex items-center space-x-3">
                     <button onClick={() => handleDelete(event)} className="hover:text-red-600">
@@ -100,16 +101,16 @@ const EventContentTable = ({ data, fetchEventSections }) => {
             </div>
             <div className="flex justify-between items-center pt-3">
               <span className="block text-base font-semibold text-gray-500">event Name</span>
-              <span className="block text-base font-regular text-gray-500">{event.eventID.eventName}</span>
+              <span className="block text-base font-regular text-gray-500">{event.eventName}</span>
             </div>
             <div className="flex justify-between items-center pt-3">
               <span className="block text-base font-semibold text-gray-500">Start Date</span>
-              <span className="block text-base font-regular text-gray-500">{new Date(event.eventID.startDate).toLocaleDateString()}</span>
+              <span className="block text-base font-regular text-gray-500">{event.startDate}</span>
             </div>
             <div className="flex justify-between items-center pt-3">
               <span className="block text-base font-semibold text-gray-500">Location</span>
               <span className="block text-base font-regular text-gray-500">
-                {event.eventID.eventLocation.address.city}, {event.eventID.eventLocation.address.state}
+                {event.eventLocation.address.city}, {event.eventLocation.address.state}
               </span>
             </div>
             <div className="flex justify-between items-center pt-3">
