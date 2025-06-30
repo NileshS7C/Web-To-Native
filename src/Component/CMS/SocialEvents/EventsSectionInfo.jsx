@@ -17,12 +17,7 @@ const EventsSectionInfo = ({ sectionInfo }) => {
     }
   }, [sectionInfo]);
 
-  useEffect(() => {
-    console.log(sectionDetails,'sectionDetails')
-  }, [sectionDetails]); // Changed from sectionInfo to sectionDetails
-
   const handleToggleChange = (value) => {
-    console.log('Toggle value received:', value, 'Type:', typeof value);
     setSectionDetails((prev) => ({
       ...prev,
       isVisible: value, // Use the actual value passed by SwitchToggle
@@ -33,27 +28,13 @@ const EventsSectionInfo = ({ sectionInfo }) => {
   const handleSave = async () => {
     setIsEditing(false);
 
-    console.log('Current sectionDetails:', sectionDetails);
-    console.log('Original sectionInfo:', sectionInfo);
-
     const hasChanged =
       sectionDetails.sectionTitle !== sectionInfo.sectionTitle ||
       sectionDetails.isVisible !== sectionInfo.isVisible;
 
-    console.log('Has changed check:', {
-      titleChanged: sectionDetails.sectionTitle !== sectionInfo.sectionTitle,
-      visibilityChanged: sectionDetails.isVisible !== sectionInfo.isVisible,
-      currentVisible: sectionDetails.isVisible,
-      originalVisible: sectionInfo.isVisible,
-      hasChanged
-    });
-
     if (!hasChanged) {
-      console.log('No changes detected');
       return;
     }
-
-    console.log('Saving with isVisible:', sectionDetails.isVisible); // Debug log
 
     const updatedFeatures = sectionDetails.events.map((event) => ({
       eventID: event.eventID._id,
@@ -66,7 +47,6 @@ const EventsSectionInfo = ({ sectionInfo }) => {
       events: updatedFeatures,
     };
 
-    console.log('Updated data being sent:', updatedData); // Debug log
 
     try {
       const config = {
@@ -79,7 +59,6 @@ const EventsSectionInfo = ({ sectionInfo }) => {
         JSON.stringify(updatedData),
         config
       );
-      console.log('API response:', response.data); // Debug log
     } catch (error) {
       console.error("Error updating section:", error);
     }
