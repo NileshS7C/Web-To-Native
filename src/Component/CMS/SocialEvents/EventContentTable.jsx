@@ -13,7 +13,7 @@ const EventContentTable = ({ data, fetchEventSections }) => {
   };
 
   const handleDeleteItem = async () => {
-    const updatedFeatures = data.events
+    const updatedFeatures = data.featuredSocialEvents
       .filter(event => event.eventName !== selectedCard.eventName);
 
     const reindexedFeatures = updatedFeatures.map((event, index) => ({
@@ -23,7 +23,7 @@ const EventContentTable = ({ data, fetchEventSections }) => {
     const payload = {
       sectionTitle: data.sectionTitle,
       isVisible: data.isVisible,
-      events: reindexedFeatures,
+      featuredSocialEvents: reindexedFeatures,
     };
     const config = {
       headers: {
@@ -63,7 +63,7 @@ const EventContentTable = ({ data, fetchEventSections }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {data?.events?.map((event, index) => (
+            {data?.featuredSocialEvents?.map((event, index) => (
               <tr key={index} className="text-left">
                 <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
                   {index + 1}
@@ -93,7 +93,7 @@ const EventContentTable = ({ data, fetchEventSections }) => {
 
       {/* Cards for mobile */}
       <div className="block md:hidden space-y-4">
-        {data?.events?.map((event, index) => (
+        {data?.featuredSocialEvents?.map((event, index) => (
           <div key={index} className="bg-white rounded-lg shadow-lg border border-gray-300 p-4 flex flex-col space-y-2 divide-y-2">
             <div className="flex justify-between items-center">
               <span className="text-base font-semibold text-gray-500">Position</span>

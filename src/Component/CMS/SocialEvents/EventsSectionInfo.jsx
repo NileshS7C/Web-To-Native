@@ -12,7 +12,7 @@ const EventsSectionInfo = ({ sectionInfo }) => {
       setSectionDetails({
         sectionTitle: sectionInfo.sectionTitle,
         isVisible: Boolean(sectionInfo.isVisible), // Ensure it's a boolean
-        events: sectionInfo.events || [],
+        events: sectionInfo.featuredSocialEvents || [],
       });
     }
   }, [sectionInfo]);
@@ -44,7 +44,7 @@ const EventsSectionInfo = ({ sectionInfo }) => {
     const updatedData = {
       sectionTitle: sectionDetails.sectionTitle,
       isVisible: sectionDetails.isVisible,
-      events: updatedFeatures,
+      featuredSocialEvents: updatedFeatures,
     };
 
 
