@@ -454,21 +454,21 @@ const EventDetailsInfo = ({ isEdit, setIsEdit }) => {
               </div>
 
               <FormInput
-                label="Start Time (24 hrs)"
+                label="Event Start Time (24 hrs)"
                 name="startTime"
                 type="time"
                 placeholder="Enter Start Time"
               />
 
               <FormInput
-                label="End Time (24 hrs)"
+                label="Event End Time (24 hrs)"
                 name="endTime"
                 type="time"
                 placeholder="Enter End Time"
               />
 
               <div className='flex flex-col items-start gap-3 relative'>
-                <p className='text-sm leading-[16.36px] text-[#232323]'>Start Date</p>
+                <p className='text-sm leading-[16.36px] text-[#232323]'>Event Start Date</p>
                 <Field name="startDate">
                   {({ field, form }) => (
                     <>
