@@ -7,47 +7,51 @@ import { deleteImages, uploadImage } from "../../redux/Upload/uploadActions";
 
 const PreviousEventVideosTable = ({ disabled, onChange, data = [] }) => {
   const dispatch = useDispatch();
-  const [videos, setVideos] = useState([]); // { url, isUploading }
+  const [videos, setVideos] = useState([]); // { url, thumbnailImage, isUploading }
   const [uploadingIndex, setUploadingIndex] = useState(-1);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const urls = videos.map((v) => v.url).filter(Boolean);
-    if (typeof onChange === 'function') {
-      onChange(urls);
+    if (typeof onChange === "function") {
+      const output = videos
+        .filter(v => v.url)
+        .map(({ url, thumbnailImage }) => ({ video: url, thumbnailImage: thumbnailImage || "" }));
+      onChange(output);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(videos)]);
-  
+
   useEffect(() => {
     if (Array.isArray(data) && data.length > 0) {
-      const isSame = JSON.stringify(data) === JSON.stringify(videos.map(v => v.url));
+      const formatted = data.map(item => ({
+        url: item.video,
+        thumbnailImage: item.thumbnailImage || "",
+        isUploading: false
+      }));
+      const isSame = JSON.stringify(formatted) === JSON.stringify(videos);
       if (!isSame) {
-        setVideos(data.map(url => ({ url, isUploading: false })));
+        setVideos(formatted);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(data)]);
-  
 
   const handleVideoUpload = async (e) => {
     setError("");
     const file = e.target.files[0];
     if (!file?.type.startsWith("video/")) {
       setError("Only video files are allowed.");
-      e.target.value = '';
+      e.target.value = "";
       return;
     }
 
     if (videos.length >= 5) {
       setError("You can upload up to 5 videos only.");
-      e.target.value = '';
+      e.target.value = "";
       return;
     }
 
     const uploadIndex = videos.length;
     setUploadingIndex(uploadIndex);
-    setVideos((prev) => [...prev, { url: null, isUploading: true }]);
+    setVideos((prev) => [...prev, { url: null, thumbnailImage: "", isUploading: true }]);
 
     try {
       const result = await dispatch(uploadImage(file)).unwrap();
@@ -55,53 +59,97 @@ const PreviousEventVideosTable = ({ disabled, onChange, data = [] }) => {
 
       setVideos((prev) => {
         const updated = [...prev];
-        updated[uploadIndex] = { url: uploadedUrl, isUploading: false };
+        updated[uploadIndex] = { url: uploadedUrl, thumbnailImage: "", isUploading: false };
         return updated;
       });
     } catch (err) {
-      setError(err?.data?.message || "Upload failed.");
+      setError(err?.data?.message || "Video upload failed.");
       setVideos((prev) => prev.filter((_, i) => i !== uploadIndex));
     } finally {
       setUploadingIndex(-1);
-      e.target.value = '';
+      e.target.value = "";
+    }
+  };
+
+  const handlethumbnailImageUpload = async (e, index) => {
+    setError("");
+    const file = e.target.files[0];
+    if (!file?.type.startsWith("image/")) {
+      setError("Only image files are allowed.");
+      e.target.value = "";
+      return;
+    }
+
+    try {
+      const result = await dispatch(uploadImage(file)).unwrap();
+      const uploadedthumbnailImage = result?.data?.url;
+
+      setVideos((prev) => {
+        const updated = [...prev];
+        updated[index].thumbnailImage = uploadedthumbnailImage;
+        return updated;
+      });
+    } catch (err) {
+      setError(err?.data?.message || "thumbnailImage upload failed.");
+    } finally {
+      e.target.value = "";
     }
   };
 
   const handleDelete = (index) => {
     const videoUrl = videos[index]?.url;
-    if (videoUrl) {
-      dispatch(deleteImages([videoUrl]));
-    }
+    const thumbUrl = videos[index]?.thumbnailImage;
+    if (videoUrl) dispatch(deleteImages([videoUrl]));
+    if (thumbUrl) dispatch(deleteImages([thumbUrl]));
+
     const updated = videos.filter((_, i) => i !== index);
     setVideos(updated);
   };
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-base leading-[19.36px] text-[#232323]">Previous Event Videos</p>
+      <p className="text-base leading-[19.36px] text-[#232323] text-left ">Previous Event Videos (Size: 210 * 372)</p>
 
       <div className="flex flex-wrap gap-2.5 min-h-[133px] overflow-hidden">
         {Array.from({ length: 5 }).map((_, index) => (
-          <div className="relative flex h-[133px]" key={index}>
-            {videos[index]?.isUploading ? (
-              <div className="flex items-center justify-center h-full w-[223px] bg-gray-100 rounded">
+          <div className="relative flex flex-col gap-1 w-[223px]" key={index}>
+            <div className="h-[133px] w-full bg-gray-100 rounded flex items-center justify-center">
+              {videos[index]?.isUploading ? (
                 <Spinner className="w-8 h-8" />
-              </div>
-            ) : videos[index]?.url ? (
-              <video
-                controls
-                src={videos[index]?.url}
-                className="object-scale-down rounded h-full w-[223px]"
-              />
-            ) : (
-              <div className="h-[133px] w-[223px] bg-gray-100 rounded flex items-center justify-center text-sm text-gray-400">
-                No video
-              </div>
+              ) : videos[index]?.url ? (
+                <video controls src={videos[index].url} className="object-scale-down rounded h-full w-full" />
+              ) : (
+                <div className="text-sm text-gray-400">No video</div>
+              )}
+            </div>
+
+            {videos[index]?.url && !disabled && (
+              <>
+                {videos[index]?.thumbnailImage ? (
+                  <img
+                    src={videos[index].thumbnailImage}
+                    alt="thumbnailImage"
+                    className="h-[60px] w-full object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-full border border-dashed border-gray-300 rounded p-2 text-xs text-gray-500 text-center">
+                    No thumbnailImage
+                  </div>
+                )}
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handlethumbnailImageUpload(e, index)}
+                  className="text-xs"
+                  disabled={disabled}
+                />
+              </>
             )}
 
             {videos[index]?.url && !disabled && (
               <IoIosCloseCircleOutline
-                className="absolute right-0 w-6 h-6 z-100 text-black cursor-pointer"
+                className="absolute top-1 right-1 w-5 h-5 text-black cursor-pointer"
                 onClick={() => handleDelete(index)}
               />
             )}
