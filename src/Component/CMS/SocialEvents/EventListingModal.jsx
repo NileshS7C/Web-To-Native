@@ -156,7 +156,6 @@ const EventListingModal = ({ eventData, isOpen, onClose, fetchEventSections }) =
         `${import.meta.env.VITE_BASE_URL}/users/admin/events?status=PUBLISHED&page=${page}&limit=10`,
         config
       );
-      console.log(response,'responseresponse')
       setEventsData(response.data.data.events);
       setTotalEvent(response?.data?.data?.total || 0);
       if (eventData?.featuredSocialEvents) {
