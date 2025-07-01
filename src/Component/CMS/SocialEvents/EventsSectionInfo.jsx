@@ -55,7 +55,7 @@ const EventsSectionInfo = ({ sectionInfo }) => {
         },
       };
       const response = await axiosInstance.post(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/community-sections/events`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/social-events/featuredSocialEvents`,
         JSON.stringify(updatedData),
         config
       );

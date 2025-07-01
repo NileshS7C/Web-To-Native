@@ -30,7 +30,7 @@ const EventContentTable = ({ data, fetchEventSections }) => {
         "Content-Type": "application/json",
       },
     };
-    await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/community-sections/events`, JSON.stringify(payload), config);
+    await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/social-events/featuredSocialEvents`, JSON.stringify(payload), config);
     fetchEventSections();
   };
 

@@ -15,7 +15,7 @@ const FeaturedSocialEvents = () => {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/community-sections?section=events`, config);
+      const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/social-events?section=featuredSocialEvents`, config);
       seteventData(response.data.data[0])
     } catch (error) {
       console.error(error);
