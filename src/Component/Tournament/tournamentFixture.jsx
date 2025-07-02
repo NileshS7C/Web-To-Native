@@ -28,6 +28,7 @@ import { resetFixtureSuccess } from "../../redux/tournament/fixtureSlice";
 import GroupAndRoundNameModal from "./GroupAndRoundNameModal";
 import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 import DateAndTimeModal from "./DateAndTimeModal";
+import DownloadFixtureSheet from "./DownloadFixtureSheet";
 const formatMatchData = (fixture, suffledPlayers) => {
   if (!fixture || !suffledPlayers?.length) {
     return;
@@ -446,6 +447,7 @@ export const TournamentFixture = ({ tournament }) => {
           <TbSwipe className="w-[20px] h-[20px]" />
         </button>
         <div className="flex gap-2">
+
           <Button
             className={
               "py-2 px-4 rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
@@ -454,6 +456,7 @@ export const TournamentFixture = ({ tournament }) => {
           >
             Update Time
           </Button>
+
           {fixture?.status === "PUBLISHED" ? (
             <Button
               className={"w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed "}
@@ -473,6 +476,9 @@ export const TournamentFixture = ({ tournament }) => {
               Publish
             </Button>
           )}
+
+          <DownloadFixtureSheet isHybrid={false} tournamentId={tournamentId} categoryId={eventId} fixture={fixture}/>
+          
         </div>
       </div>
 

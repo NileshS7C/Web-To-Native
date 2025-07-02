@@ -11,6 +11,7 @@ import { showError } from "../../../redux/Error/errorSlice";
 import { showSuccess } from "../../../redux/Success/successSlice";
 import Spinner from "../../Common/Spinner";
 import EmptyBanner from "../../Common/EmptyStateBanner";
+import DownloadFixtureSheet from "../DownloadFixtureSheet";
 
 const RoundDetails = ({ fixtureId, onRoundActionClick, selectedRoundIndex }) => {
   const formatMapping = {
@@ -185,6 +186,8 @@ const RoundDetails = ({ fixtureId, onRoundActionClick, selectedRoundIndex }) => 
             >
               Edit
             </button>
+
+            <DownloadFixtureSheet isHybrid={true} tournamentId={tournamentId} categoryId={eventId} fixture={fixture}/> 
           </div>
         </div>
 
