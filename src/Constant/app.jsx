@@ -57,7 +57,7 @@ export const menus = [
 
 export const ADMIN_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
-  // { name: "Admin Users", icon: profileIcon, path: "admin-users" }, 
+  { name: "Admin Users", icon: profileIcon, path: "admin-users" }, 
   {
     name: "Tournament Organisers",
     icon: tournamentIcon,
@@ -142,7 +142,6 @@ export const ADMIN_NAVIGATION = [
 export const TOURNAMENT_OWNER_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
-  { name: "Social Events", icon: tournamentIcon, path: "social-events" },
   { name: "Profile", icon: profileIcon, path: "profile" },
 ];
 export const EVENT_OWNER_NAVIGATION = [

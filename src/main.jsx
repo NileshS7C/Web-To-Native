@@ -10,7 +10,6 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import store, { persistor } from "./redux/store";
-import { ToastContainer } from "react-toastify";
 
 const queryClient = new QueryClient();
 
