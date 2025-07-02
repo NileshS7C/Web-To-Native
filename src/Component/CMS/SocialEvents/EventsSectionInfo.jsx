@@ -12,7 +12,7 @@ const EventsSectionInfo = ({ sectionInfo }) => {
       setSectionDetails({
         sectionTitle: sectionInfo.sectionTitle,
         isVisible: Boolean(sectionInfo.isVisible), // Ensure it's a boolean
-        events: sectionInfo.events || [],
+        events: sectionInfo.featuredSocialEvents || [],
       });
     }
   }, [sectionInfo]);
@@ -44,7 +44,7 @@ const EventsSectionInfo = ({ sectionInfo }) => {
     const updatedData = {
       sectionTitle: sectionDetails.sectionTitle,
       isVisible: sectionDetails.isVisible,
-      events: updatedFeatures,
+      featuredSocialEvents: updatedFeatures,
     };
 
 
@@ -55,7 +55,7 @@ const EventsSectionInfo = ({ sectionInfo }) => {
         },
       };
       const response = await axiosInstance.post(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/community-sections/events`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/social-events/featuredSocialEvents`,
         JSON.stringify(updatedData),
         config
       );

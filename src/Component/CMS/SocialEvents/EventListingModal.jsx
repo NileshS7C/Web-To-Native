@@ -156,11 +156,10 @@ const EventListingModal = ({ eventData, isOpen, onClose, fetchEventSections }) =
         `${import.meta.env.VITE_BASE_URL}/users/admin/events?status=PUBLISHED&page=${page}&limit=10`,
         config
       );
-
       setEventsData(response.data.data.events);
       setTotalEvent(response?.data?.data?.total || 0);
-      if (eventData?.events) {
-        const formattedSelected = eventData.events.map(
+      if (eventData?.featuredSocialEvents) {
+        const formattedSelected = eventData.featuredSocialEvents.map(
           (item) => item
         );
         setAlreadySelected(formattedSelected);
@@ -195,7 +194,7 @@ const EventListingModal = ({ eventData, isOpen, onClose, fetchEventSections }) =
     const payload = {
       sectionTitle: eventData.sectionTitle,
       isVisible: eventData.isVisible,
-      events: formattedData,
+      featuredSocialEvents: formattedData,
     };
 
     try {
@@ -205,13 +204,13 @@ const EventListingModal = ({ eventData, isOpen, onClose, fetchEventSections }) =
         },
       };
       const response = await axiosInstance.post(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/community-sections/events`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/social-events/featuredSocialEvents`,
         JSON.stringify(payload),
         config
       );
       if (response.data?.data?.length) {
         const allEvents = response.data.data.flatMap(
-          (section) => section.events
+          (section) => section.featuredSocialEvents
         );
         setEventsData(allEvents);
       }
@@ -236,10 +235,10 @@ const EventListingModal = ({ eventData, isOpen, onClose, fetchEventSections }) =
         config
       );
 
-      setEventsData(response.data.data.events);
+      setEventsData(response.data.data.featuredSocialEvents);
       setTotalEvent(response?.data?.data?.total || 0);
-      if (eventData?.events) {
-        const formattedSelected = eventData.events.map(
+      if (eventData?.featuredSocialEvents) {
+        const formattedSelected = eventData.featuredSocialEvents.map(
           (item) => item
         );
         setAlreadySelected(formattedSelected);
