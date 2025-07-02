@@ -96,7 +96,7 @@ export const EventTable = ({ isDisable, categories }) => {
     </div>
   );
 };
-
+ 
 const NoEventCreated = ({ disabled }) => {
   const dispatch = useDispatch();
   return (

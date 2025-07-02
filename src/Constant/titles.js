@@ -28,6 +28,21 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname === "/admin-users") {
       return "Admin Users";
     }
+    if (pathname === "/social-events") {
+      return "Social Events";
+    }
+    if (pathname === "/event-organisers") {
+      return "Event Organisers";
+    }
+    if (pathname === "/event-organisers/add") {
+      return "Add Event Organisers";
+    }
+    if (pathname === "/social-events/add") {
+      return "Add Social Events";
+    }
+    if (pathname === "/social-events/:eventId") {
+      return "Social Events";
+    }
     if (pathname === "/cms/homepage/why-choose-picklebay") {
       return "Why Choose Picklebay";
     }
@@ -47,6 +62,9 @@ export const getPageTitle = (pathname, params, venueData) => {
       return "Build Courts";
     }
     if (pathname === "/cms/homepage/featured-tournaments") {
+      return "Featured Tournaments";
+    }
+    if (pathname === "/cms/social-events/featured-social-events") {
       return "Featured Tournaments";
     }
     if (pathname === "/cms/homepage/featured-week") {
@@ -96,6 +114,9 @@ export const getPageTitle = (pathname, params, venueData) => {
     }
     if (pathname.startsWith("/cms/tourism-page/media-gallery")) {
       return "Media Gallery";
+    }
+    if (pathname.startsWith("/social-events")) {
+      return "Social Events";
     }
     if (pathname.includes("/add-court")) {
       return "Add Court";
