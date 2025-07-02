@@ -139,6 +139,13 @@ export const ADMIN_NAVIGATION = [
   },
 ];
 
+export const TOURNAMENT_AND_EVENT_OWNER_NAVIGATION = [
+  { name: "Dashboard", icon: overviewIcon, path: "" },
+  { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
+  { name: "Social Events", icon: tournamentIcon, path: "social-events" },
+  { name: "Profile", icon: profileIcon, path: "profile" },
+];
+
 export const TOURNAMENT_OWNER_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
