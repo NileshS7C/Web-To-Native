@@ -78,12 +78,15 @@ const hiddenRoutes = [
   "/cms/tourism-page/package-section",
   "/cms/tourism-page/instagram",
   "/cms/tourism-page/media-gallery",
+  "/social-events",
   ...aboutUsPageRoutes,
   "/",
   "/admin-users",
+  "/cms/social-events/featured-social-events"
 ];
 import { BsDownload } from "react-icons/bs";
 import { useOwnerDetailsContext } from "../Providers/onwerDetailProvider";
+import { ToastContainer } from "react-toastify";
 const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();

@@ -1,5 +1,6 @@
+import { useSelector } from "react-redux";
 import { checkRoles } from "../utils/roleCheck";
-import { ADMIN_ROLES,TOURNAMENT_OWNER_ROLES } from "./Roles";
+import { ADMIN_ROLES,EVENT_OWNER_ROLES,TOURNAMENT_OWNER_ROLES } from "./Roles";
 export const ROUTES = {
   HOME: "/home",
   VENUES: {
@@ -26,6 +27,7 @@ export const backButtonRoutes = [
     id: "id",
   },
 ];
+
 
 export const API_END_POINTS = {
   tournament: {
@@ -337,6 +339,64 @@ export const API_END_POINTS = {
     },
 
     PUT: {},
+  },
+  socialEvents: {
+    GET: {
+      getAllEvents: (id) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return "/users/admin/events";
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return `/users/event-owner/events/owner/${id}`;
+        } else return null;
+      },
+      searchEvents: (ownerId) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/events/search`
+        } else if(checkRoles(EVENT_OWNER_ROLES)) {
+          return `/users/event-owner/events/owner/${ownerId}/search`
+        }
+      },
+      getEventById: (eventId, ownerId) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/events/${eventId}`;
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return `/users/event-owner/events/${eventId}/owner/${ownerId}`;
+        } else return null;
+      },
+      getAllEventOwners: ({ currentPage, limit }) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/event-owners?page=${currentPage}&limit=${limit}`;
+        } else return null;
+      },
+      getSingleEventOwner: () => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return "/users/admin/get-details";
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return "/users/event-owner/get-details";
+        } else return null;
+      }
+    },
+    POST: {
+      createEvent: () => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return "/users/admin/events";
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return "/users/event-owner/events";
+        } else return null;
+      },
+      updateEvent: (eventId) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/events/${eventId}/update`;
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return `/users/event-owner/events/${eventId}/update`;
+        } else return null;
+      },
+      verifyEvent: (eventId) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/events/${eventId}/verify`;
+        } else return null;
+      }
+    }
   },
   players: {
     GET: {

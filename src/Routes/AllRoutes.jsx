@@ -11,6 +11,7 @@ import NotCreated from "../Component/Common/NotCreated";
 
 import Explore from "../Page/CMS/Homepage/Explore";
 import FeaturedTournaments from "../Page/CMS/Homepage/FeaturedTournaments";
+import FeaturedSocialEvents from "../Page/CMS/FeaturedSocialEvents";
 import FeaturedWeek from "../Page/CMS/Homepage/FeaturedWeek";
 import FeaturedVenues from "../Page/CMS/Homepage/FeaturedVenues";
 import FAQ from "../Page/CMS/StaticPages/FAQ";
@@ -38,6 +39,7 @@ import Guidelines from "../Page/CMS/StaticPages/PickleBayGuidelines";
 import TournamentOrganisersPage from "../Page/TournamentOrganisers";
 import FAQS from "../Page/CMS/Homepage/FAQ";
 import ProfilePage from "../Page/Profile";
+import SocialEvents from "../Page/SocialEvents";
 
 import { UploadedImages } from "../Page/UploadedImages";
 import TopBanner from "../Component/CMS/TourismPages/TopBanner/TopBanner";
@@ -52,6 +54,10 @@ import Coupons from "../Page/Coupons";
 import { aboutUsNav } from "../Constant/Cms/aboutUsPage";
 import DashBoard from '../Page/DashBoard'
 import Admin from "../Page/Admin";
+import AddSocialEvents from "../Component/SocialEvents/AddSocialEvents";
+import EventDetails from "../Component/SocialEvents/EventDetails";
+import EventOwners from "../Page/EventOwners";
+import AddEventOwner from "../Component/EventOwners/AddEventOwner";
 const AllRoutes = () => {
   return (
     <div>
@@ -91,6 +97,12 @@ const AllRoutes = () => {
               </Route>
             </Route>
           </Route>
+          <Route path="event-organisers" element={<EventOwners />} />
+          <Route path="event-organisers/add" element={<AddEventOwner />} />
+          <Route path="social-events" element={<SocialEvents />} />
+          <Route path="social-events/add" element={<AddSocialEvents />} />
+          <Route path="social-events/:eventId" element={<EventDetails />} />
+          <Route path="social-events/:eventId/acknowledgement" element={<AddSocialEvents />} />
           <Route path="home" element={<Home />} />
           <Route path="players" element={<PlayersManager />} />
           <Route path="coupons/new" element={<CreateCoupons />} />
@@ -102,6 +114,10 @@ const AllRoutes = () => {
           <Route
             path="cms/homepage/featured-tournaments"
             element={<FeaturedTournaments />}
+          />
+          <Route
+            path="cms/social-events/featured-social-events"
+            element={<FeaturedSocialEvents />}
           />
           <Route path="cms/homepage/featured-week" element={<FeaturedWeek />} />
           <Route

@@ -57,13 +57,15 @@ export const menus = [
 
 export const ADMIN_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
-  // { name: "Admin Users", icon: profileIcon, path: "admin-users" }, 
+  { name: "Admin Users", icon: profileIcon, path: "admin-users" }, 
   {
     name: "Tournament Organisers",
     icon: tournamentIcon,
     path: "tournament-organisers",
   },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
+  { name: "Event Organisers", icon: profileIcon, path: "event-organisers" },
+  { name: "Social Events", icon: tournamentIcon, path: "social-events" },
   { name: "Venues", icon: venueIcon, path: "venues" },
 
   { name: "Uploaded Images", icon: uploadedImageIcon, path: "images" },
@@ -129,13 +131,29 @@ export const ADMIN_NAVIGATION = [
           { name: "Media Gallery" },
         ],
       },
+      {
+        name: "Social Events",
+        children: [{ name: "Featured Social Events" }],
+      },
     ],
   },
+];
+
+export const TOURNAMENT_AND_EVENT_OWNER_NAVIGATION = [
+  { name: "Dashboard", icon: overviewIcon, path: "" },
+  { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
+  { name: "Social Events", icon: tournamentIcon, path: "social-events" },
+  { name: "Profile", icon: profileIcon, path: "profile" },
 ];
 
 export const TOURNAMENT_OWNER_NAVIGATION = [
   { name: "Dashboard", icon: overviewIcon, path: "" },
   { name: "Tournaments", icon: tournamentIcon, path: "tournaments" },
+  { name: "Profile", icon: profileIcon, path: "profile" },
+];
+export const EVENT_OWNER_NAVIGATION = [
+  { name: "Dashboard", icon: overviewIcon, path: "" },
+  { name: "Social Events", icon: tournamentIcon, path: "social-events" },
   { name: "Profile", icon: profileIcon, path: "profile" },
 ];
 
@@ -211,7 +229,12 @@ export const notHaveBackButton = [
   "Banner Section",
   "Mission & Vision",
   "Admin Users",
-  "Media Gallery"
+  "Media Gallery",
+  "Social Events",
+  "Add Social Events",
+  "Social Events",
+  "Event Organisers",
+  "Add Event Organisers",
 ];
 
 export const ROLES = [
