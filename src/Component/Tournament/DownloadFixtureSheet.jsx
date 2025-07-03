@@ -4,7 +4,7 @@ import { ADMIN_ROLES } from '../../Constant/Roles';
 import axiosInstance from '../../Services/axios';
 
 const DownloadFixtureSheet = ({ isHybrid = false, tournamentId, categoryId, fixture }) => {
-  const name = isHybrid ? 'Download Hybrid Fixture Sheet' : 'Download Fixture Sheet';
+  const name = isHybrid ? 'Download Hybrid Fixture' : 'Download Fixture';
   const stageId = fixture?.bracketData?.stage?.[0]?.id;
   const fixtureId = fixture?._id;
 
@@ -109,7 +109,7 @@ const DownloadFixtureSheet = ({ isHybrid = false, tournamentId, categoryId, fixt
             onClick={() => setShowModal(true)}
             disabled={downloading}
           >
-            {downloading ? 'Downloading...' : 'Download Fixture Sheet'}
+            {downloading ? 'Downloading...' : 'Download Fixture'}
           </button>
 
           {/* Modal */}
@@ -150,7 +150,7 @@ const DownloadFixtureSheet = ({ isHybrid = false, tournamentId, categoryId, fixt
             onClick={handleSingleSheetDownload}
             disabled={downloading}
           >
-            {downloading ? 'Downloading...' : 'Download Fixture Sheet'}
+            {downloading ? 'Downloading...' : 'Download Fixture'}
           </button>
         </div>
       )}
