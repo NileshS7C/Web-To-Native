@@ -72,10 +72,10 @@ export default function TournamentContentTable({ data, fetchHomepageSections }) 
                                     {tournament.tournamentID.tournamentName}
                                 </td>
                                 <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
-                                    {new Date(tournament.tournamentID.startDate).toLocaleDateString()}
+                                    {tournament.tournamentID.startDate}
                                 </td>
                                 <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
-                                    {new Date(tournament.tournamentID.endDate).toLocaleDateString()}
+                                    {tournament.tournamentID.endDate}
                                 </td>
                                 <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
                                     {tournament.tournamentID.tournamentLocation.address.city}, {tournament.tournamentID.tournamentLocation.address.state}
@@ -107,11 +107,11 @@ export default function TournamentContentTable({ data, fetchHomepageSections }) 
                         </div>
                         <div className="flex justify-between items-center pt-3">
                             <span className="block text-base font-semibold text-gray-500">Start Date</span>
-                            <span className="block text-base font-regular text-gray-500">{new Date(tournament.tournamentID.startDate).toLocaleDateString()}</span>
+                            <span className="block text-base font-regular text-gray-500">{tournament.tournamentID.startDate}</span>
                         </div>
                         <div className="flex justify-between items-center pt-3">
                             <span className="block text-base font-semibold text-gray-500">End Date</span>
-                            <span className="block text-base font-regular text-gray-500">{new Date(tournament.tournamentID.endDate).toLocaleDateString()}</span>
+                            <span className="block text-base font-regular text-gray-500">{tournament.tournamentID.endDate}</span>
                         </div>
                         <div className="flex justify-between items-center pt-3">
                             <span className="block text-base font-semibold text-gray-500">Location</span>
