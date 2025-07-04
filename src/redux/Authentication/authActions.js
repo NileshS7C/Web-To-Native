@@ -25,7 +25,7 @@ export const userLogin = createAsyncThunk(
      const userRoles = response.data.data.user.roleNames;
       cookies.set("userRoles",userRoles, {
         path: "/",
-        maxAge: 24 * 60 * 60,
+        maxAge: 15 * 24 * 60 * 60, // 15 days in seconds
         sameSite: "strict",
         secure: true,
       });
