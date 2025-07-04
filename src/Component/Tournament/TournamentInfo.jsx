@@ -532,6 +532,19 @@ const TournamentBasicInfo = ({
   const { setFieldError, values, setFieldValue } = useFormikContext();
   const { singleTournamentOwner } = useSelector((state) => state.GET_TOUR);
   const {rolesAccess}=useOwnerDetailsContext();
+  
+  // Function to generate handle from tournament name
+  const generateHandleFromName = (tournamentName) => {
+    if (tournamentName) {
+      const handle = tournamentName
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      setFieldValue("handle", handle);
+    }
+  };
+
   useEffect(() => {
     if (hasError) {
       setFieldError("ownerUserId", "Error in getting the owners.");
@@ -545,6 +558,7 @@ const TournamentBasicInfo = ({
       setFieldValue("ownerUserId", singleTournamentOwner.name);
     }
   }, []);
+
   return (
     <div className="grid grid-col-1 md:grid-cols-2 gap-3 md:gap-[30px]">
       {!rolesWithTournamentOwnerAccess.includes(rolesAccess?.tournament) ? (
@@ -605,6 +619,11 @@ const TournamentBasicInfo = ({
           id="tournamentName"
           name="tournamentName"
           className="w-full px-[19px] border-[1px] border-[#DFEAF2] rounded-[15px] h-[50px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            const newName = e.target.value;
+            setFieldValue("tournamentName", newName);
+            generateHandleFromName(newName);
+          }}
         />
         <ErrorMessage name="tournamentName" component={TextError} />
       </div>
@@ -621,18 +640,6 @@ const TournamentMetaData = ({
 }) => {
   const [tournamentHandle, setTournamentVenueHandle] = useState("");
   const { values, setFieldValue } = useFormikContext();
-  useEffect(() => {
-    const { tournamentName = "" } = values;
-    if (values.tournamentName) {
-      const handle = tournamentName
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-      setTournamentVenueHandle(handle);
-      setFieldValue("handle", handle);
-    }
-  }, [values.tournamentName]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-[30px] w-full">

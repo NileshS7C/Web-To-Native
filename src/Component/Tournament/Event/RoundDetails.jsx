@@ -11,6 +11,7 @@ import { showError } from "../../../redux/Error/errorSlice";
 import { showSuccess } from "../../../redux/Success/successSlice";
 import Spinner from "../../Common/Spinner";
 import EmptyBanner from "../../Common/EmptyStateBanner";
+import DownloadFixtureSheet from "../DownloadFixtureSheet";
 
 const RoundDetails = ({ fixtureId, onRoundActionClick, selectedRoundIndex }) => {
   const formatMapping = {
@@ -145,13 +146,13 @@ const RoundDetails = ({ fixtureId, onRoundActionClick, selectedRoundIndex }) => 
   return (
     <>
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-start md:items-center flex-col md:flex-row gap-2">
           <span className="text-sm sm:text-base md:text-lg font-normal md:font-semibold text-grey-600 tracking-wide opacity-[90%]">
             Round Details
           </span>
-          <div className="flex gap-2 sm:gap-3 md:gap-4">
+          <div className="flex gap-2 sm:gap-3 md:gap-4 flex-wrap">
             <button
-              className={`flex items-center justify-center gap-3 px-6 md:px-12 py-1  ml-auto rounded-lg border-2 transition-colors text-sm sm:text-base md:text-lg
+              className={`flex items-center justify-center gap-3 px-6 md:px-12 py-1  md:ml-auto rounded-lg border-2 transition-colors text-sm sm:text-base md:text-lg
                          ${isDisabled
                   ? "bg-white border-blue-200 text-blue-300 cursor-not-allowed"
                   : "bg-white border-[#1570EF] text-[#1570EF] hover:bg-blue-50"
@@ -172,7 +173,7 @@ const RoundDetails = ({ fixtureId, onRoundActionClick, selectedRoundIndex }) => 
             </button>
 
             <button
-              className={`flex items-center justify-center gap-3 px-6 md:px-12 py-1  ml-auto bg-[#1570EF] shadow-lg text-white rounded-lg transition-colors text-sm sm:text-base md:text-lg
+              className={`flex items-center justify-center gap-3 px-6 md:px-12 py-1  md:ml-auto bg-[#1570EF] shadow-lg text-white rounded-lg transition-colors text-sm sm:text-base md:text-lg
                       ${isDisabled
                   ? "bg-blue-400 cursor-not-allowed"
                   : "hover:bg-blue-700"
@@ -185,6 +186,8 @@ const RoundDetails = ({ fixtureId, onRoundActionClick, selectedRoundIndex }) => 
             >
               Edit
             </button>
+
+            <DownloadFixtureSheet isHybrid={true} tournamentId={tournamentId} categoryId={eventId} fixture={fixture}/> 
           </div>
         </div>
 
