@@ -11,10 +11,10 @@ export default function TournamentSectionInfo({ sectionInfo }) {
     setSectionDetails({
       sectionTitle: sectionInfo.sectionTitle,
       isVisible: sectionInfo.isVisible,
-      tournaments: sectionInfo.tournaments || [],
+      events: sectionInfo.events || [],
     });
   }, [sectionInfo]);
-
+  
   const handleSave = async () => {
     setIsEditing(false);
 
@@ -26,15 +26,24 @@ export default function TournamentSectionInfo({ sectionInfo }) {
       return;
     }
 
-    const updatedFeatures = sectionDetails.tournaments.map((tournament) => ({
-      tournamentID: tournament.tournamentID._id,
-      position: tournament.position,
-    }));
+    const updatedFeatures = sectionDetails.events.map((event) => {
+      if(event?.event?.eventType === 'tournament'){
+        return {
+          tournamentID: event?._id,
+          position: event?.position,
+        }
+      } else if (event?.event?.eventType === 'socialEvents'){
+        return {
+          eventID: event?._id,
+          position: event?.position,
+        }
+      }
+    });
 
     const updatedData = {
       sectionTitle: sectionDetails.sectionTitle,
       isVisible: sectionDetails.isVisible,
-      tournaments: updatedFeatures,
+      events: updatedFeatures,
     };
 
     try {
@@ -44,7 +53,7 @@ export default function TournamentSectionInfo({ sectionInfo }) {
         },
       };
       const response = await axiosInstance.post(
-        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/tournament`,
+        `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/event`,
         JSON.stringify(updatedData),
         config
       );

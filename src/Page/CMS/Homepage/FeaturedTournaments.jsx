@@ -15,7 +15,7 @@ export default function FeaturedTournaments() {
                   "Content-Type": "application/json",
                 },
               };
-            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=tournament`, config);
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=event`, config);
             setTournamentData(response.data.data[0])
         } catch (error) {
             console.error(error);
@@ -36,7 +36,7 @@ export default function FeaturedTournaments() {
                             className="block rounded-md bg-[#1570EF] px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-[#1570EF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1570EF]"
                             onClick={() => setIsModalOpen(true)}
                         >
-                            Add Tournaments
+                            Add Events
                         </button>
                     </div>
                 </div>
