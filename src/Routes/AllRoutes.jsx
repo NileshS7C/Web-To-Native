@@ -112,7 +112,7 @@ const AllRoutes = () => {
           {/* CMS Routes */}
           <Route path="cms/homepage/explore" element={<Explore />} />
           <Route
-            path="cms/homepage/featured-tournaments"
+            path="cms/homepage/featured-events"
             element={<FeaturedTournaments />}
           />
           <Route
