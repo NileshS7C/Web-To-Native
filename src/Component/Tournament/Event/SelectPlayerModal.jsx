@@ -98,7 +98,7 @@ const SelectPlayerModal = ({ open, onClose, onSelect, title, existingPlayer }) =
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex items-center gap-2.5">
               <p>Does player already exist?</p>
-              <ToggleButton enabled={toggleState} setEnabled={setToggleState} type="player" />
+              <ToggleButton enabled={toggleState.player} setEnabled={setToggleState} type="player" />
             </div>
             {isPlayerExist ? (
               <div className="flex flex-col gap-2.5">
