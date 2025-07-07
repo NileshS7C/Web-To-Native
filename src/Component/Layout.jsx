@@ -57,7 +57,7 @@ import {
 } from "../redux/tournament/getTournament";
 
 const hiddenRoutes = [
-  "/cms/homepage/featured-tournaments",
+  "/cms/homepage/featured-events",
   "/cms/homepage/featured-venues",
   "/cms/homepage/explore",
   "/cms/static-pages/help-&-faqs",

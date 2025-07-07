@@ -45,7 +45,7 @@ export default function TournamentContentTable({ data, fetchHomepageSections }) 
 
     const headers = [
         "Position",
-        "Tournament Name",
+        "Event Name",
         "Start Date",
         "Location",
         "Actions"
@@ -61,7 +61,7 @@ export default function TournamentContentTable({ data, fetchHomepageSections }) 
                             {headers.map((header, index) => (
                                 <th key={index} className={`px-3 py-2 text-left text-sm font-semibold text-gray-900 ${header === "Position" || header === "Actions"
                                     ? "w-[10%]"
-                                    : header === "Tournament Name"
+                                    : header === "Event Name"
                                         ? "w-[50%]"
                                         : "w-[10%]"
                                     }`}>

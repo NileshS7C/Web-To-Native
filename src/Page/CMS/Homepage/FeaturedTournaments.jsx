@@ -26,7 +26,7 @@ export default function FeaturedTournaments() {
         <div className="">
             <div className="sm:flex sm:flex-col gap-4">
                 <div className="sm:flex-auto text-left">
-                    <h1 className="text-base font-semibold text-gray-900">Featured Tournaments</h1>
+                    <h1 className="text-base font-semibold text-gray-900">Featured Events</h1>
                 </div>
                 <div className="flex items-start md:items-center justify-between w-full flex-col md:flex-row gap-4 mt-2">
                     <TournamentSectionInfo sectionInfo={tournamentData} />

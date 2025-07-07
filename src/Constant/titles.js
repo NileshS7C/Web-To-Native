@@ -61,8 +61,8 @@ export const getPageTitle = (pathname, params, venueData) => {
     if (pathname === "/cms/homepage/build-courts") {
       return "Build Courts";
     }
-    if (pathname === "/cms/homepage/featured-tournaments") {
-      return "Featured Tournaments";
+    if (pathname === "/cms/homepage/featured-events") {
+      return "Featured Events";
     }
     if (pathname === "/cms/social-events/featured-social-events") {
       return "Featured Tournaments";
