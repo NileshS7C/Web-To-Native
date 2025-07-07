@@ -82,7 +82,7 @@ export const ADMIN_NAVIGATION = [
         name: "Homepage",
         children: [
           { name: "Explore" },
-          { name: "Featured Tournaments" },
+          { name: "Featured Events" },
           { name: "Featured Week" },
           { name: "Featured Venues" },
           { name: "Why Choose Picklebay" },
@@ -206,7 +206,7 @@ export const notHaveBackButton = [
   "Founder Section",
   "Instagram",
   "Key Section",
-  "Featured Tournaments",
+  "Featured Events",
   "Picklebay In India",
   "Picklebay In News",
   "Bottom Section",

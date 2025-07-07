@@ -15,7 +15,7 @@ export default function FeaturedTournaments() {
                   "Content-Type": "application/json",
                 },
               };
-            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=tournament`, config);
+            const response = await axiosInstance.get(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections?section=event`, config);
             setTournamentData(response.data.data[0])
         } catch (error) {
             console.error(error);
@@ -26,7 +26,7 @@ export default function FeaturedTournaments() {
         <div className="">
             <div className="sm:flex sm:flex-col gap-4">
                 <div className="sm:flex-auto text-left">
-                    <h1 className="text-base font-semibold text-gray-900">Featured Tournaments</h1>
+                    <h1 className="text-base font-semibold text-gray-900">Featured Events</h1>
                 </div>
                 <div className="flex items-start md:items-center justify-between w-full flex-col md:flex-row gap-4 mt-2">
                     <TournamentSectionInfo sectionInfo={tournamentData} />
@@ -36,7 +36,7 @@ export default function FeaturedTournaments() {
                             className="block rounded-md bg-[#1570EF] px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-[#1570EF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1570EF]"
                             onClick={() => setIsModalOpen(true)}
                         >
-                            Add Tournaments
+                            Add Events
                         </button>
                     </div>
                 </div>
