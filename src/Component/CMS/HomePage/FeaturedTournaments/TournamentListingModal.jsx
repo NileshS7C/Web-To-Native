@@ -43,11 +43,10 @@ const Pagination = ({ currentPage, total, onPageChange, rowsInOnePage }) => {
             onPageChange(Number(currentPage) - 1);
           }}
           disabled={currentPage === 1}
-          className={`inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium ${
-            currentPage === 1
+          className={`inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium ${currentPage === 1
               ? "text-gray-300 cursor-not-allowed"
               : "text-gray-500 hover:border-gray-300 hover:text-gray-700"
-          }`}
+            }`}
         >
           <ArrowLongLeftIcon aria-hidden="true" className="mr-3 size-5" />
           Previous
@@ -63,11 +62,10 @@ const Pagination = ({ currentPage, total, onPageChange, rowsInOnePage }) => {
                   onPageChange(page);
                 }
               }}
-              className={`inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium ${
-                page === currentPage
+              className={`inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium ${page === currentPage
                   ? "border-indigo-500 text-indigo-600"
                   : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-              }`}
+                }`}
             >
               {page}
             </button>
@@ -79,11 +77,10 @@ const Pagination = ({ currentPage, total, onPageChange, rowsInOnePage }) => {
         <button
           onClick={() => onPageChange(Number(currentPage) + 1)}
           disabled={currentPage === totalPages}
-          className={`inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium ${
-            currentPage === totalPages
+          className={`inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium ${currentPage === totalPages
               ? "text-gray-300 cursor-not-allowed"
               : "text-gray-500 hover:border-gray-300 hover:text-gray-700"
-          }`}
+            }`}
         >
           Next
           <ArrowLongRightIcon aria-hidden="true" className="ml-3 size-5" />
@@ -184,23 +181,24 @@ export default function TournamentListingModal({
       };
       setIsLoading(true);
       const response = await axiosInstance.get(
-        `${
-          import.meta.env.VITE_BASE_URL
+        `${import.meta.env.VITE_BASE_URL
         }/public/tournaments?page=${currentPage}&limit=${tournamentLimit}`,
         config
       );
 
       setItemsData(response.data.data.tournaments);
       setTotalItems(response?.data?.data?.total || 0);
-      
+
       // Set already selected tournaments
       if (tournamentData?.events) {
-        const formattedSelected = tournamentData.events
-          .filter(item => item.event?.eventType === "tournament")
-          .map(item => item.event);
+        const formattedSelected = tournamentData.events.map(item => ({
+          ...item.event,
+          eventType: item.event?.eventType,
+        }));
         setAlreadySelected(formattedSelected);
         setSelectedItems(formattedSelected);
       }
+
     } catch (error) {
       console.error("Error fetching tournaments:", error);
     } finally {
@@ -222,15 +220,17 @@ export default function TournamentListingModal({
       );
       setItemsData(response.data.data.events);
       setTotalItems(response?.data?.data?.total || 0);
-      
+
       // Set already selected events
       if (tournamentData?.events) {
-        const formattedSelected = tournamentData.events
-          .filter(item => item.event?.eventType === "socialEvents")
-          .map(item => item.event);
+        const formattedSelected = tournamentData.events.map(item => ({
+          ...item.event,
+          eventType: item.event?.eventType,
+        }));
         setAlreadySelected(formattedSelected);
         setSelectedItems(formattedSelected);
       }
+
     } catch (error) {
       console.error("Error fetching events:", error);
     } finally {
@@ -247,8 +247,7 @@ export default function TournamentListingModal({
       };
       setIsLoading(true);
       const response = await axiosInstance.get(
-        `${
-          import.meta.env.VITE_BASE_URL
+        `${import.meta.env.VITE_BASE_URL
         }/public/tournaments/search?search=${searchTerm}&page=${currentPage}&limit=${tournamentLimit}`,
         config
       );
@@ -271,8 +270,7 @@ export default function TournamentListingModal({
       };
       setIsLoading(true);
       const response = await axiosInstance.get(
-        `${
-          import.meta.env.VITE_BASE_URL
+        `${import.meta.env.VITE_BASE_URL
         }/users/admin/events/search?search=${searchTerm}&page=${currentPage}&limit=10`,
         config
       );
@@ -287,45 +285,32 @@ export default function TournamentListingModal({
   };
 
   const handleSelectItem = (item) => {
+    const eventType = selectedTab === "tournaments" ? "tournament" : "socialEvents";
+    const enrichedItem = { ...item, eventType };
+
     setSelectedItems((prevSelected) => {
-      if (prevSelected.some((selectedItem) => selectedItem._id === item._id)) {
-        return prevSelected.filter(
-          (selectedItem) => selectedItem._id !== item._id
-        );
+      const exists = prevSelected.find((i) => i._id === item._id);
+      if (exists) {
+        return prevSelected.filter((i) => i._id !== item._id);
       } else {
-        return [...prevSelected, item];
+        return [...prevSelected, enrichedItem];
       }
     });
   };
 
+
   const handleSave = async () => {
-    // Combine existing items from other tab with new selections
-    const existingOtherTabItems = tournamentData?.events?.filter(item => 
-      selectedTab === "tournaments" 
-        ? item.event?.eventType === "socialEvents"
-        : item.event?.eventType === "tournament"
-    ) || [];
-
-    const newSelectedItems = selectedItems.map((item, index) => ({
-      ...(selectedTab === "tournaments" 
-        ? { tournamentID: item._id } 
+    const eventsPayload = selectedItems.map((item, index) => ({
+      ...(item.eventType === "tournament"
+        ? { tournamentID: item._id }
         : { eventID: item._id }),
-      position: existingOtherTabItems.length + index,
-    }));
-
-    const existingOtherTabFormatted = existingOtherTabItems.map((item, index) => ({
-      ...(item.event?.eventType === "tournament"
-        ? { tournamentID: item.event._id }
-        : { eventID: item.event._id }),
       position: index,
     }));
-
-    const allEvents = [...existingOtherTabFormatted, ...newSelectedItems];
 
     const payload = {
       sectionTitle: tournamentData.sectionTitle,
       isVisible: tournamentData.isVisible,
-      events: allEvents,
+      events: eventsPayload,
     };
 
     try {
@@ -334,18 +319,18 @@ export default function TournamentListingModal({
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosInstance.post(
+      await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/event`,
         JSON.stringify(payload),
         config
       );
+      fetchHomepageSections();
+      onClose();
     } catch (error) {
       console.error("Error updating events:", error);
     }
-
-    fetchHomepageSections();
-    onClose();
   };
+
 
   const onPageChange = (page) => {
     setCurrentPage(page);
@@ -422,9 +407,8 @@ export default function TournamentListingModal({
       return (
         <div
           key={item._id}
-          className={`flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border ${
-            isSelected ? "border-[#1570EF] bg-blue-50" : "border-gray-200"
-          }`}
+          className={`flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border ${isSelected ? "border-[#1570EF] bg-blue-50" : "border-gray-200"
+            }`}
           onClick={() => handleSelectItem(item)}
         >
           <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
@@ -440,18 +424,18 @@ export default function TournamentListingModal({
               </h4>
             </div>
           </div>
-          
+
           <div className="flex flex-col divide-y divide-gray-100">
             <div className="flex justify-between items-center gap-3 px-4 py-3">
               <span className="font-medium text-black">Handle:</span>
               <span className="text-gray-600 text-right truncate max-w-[70%]">{item.handle}</span>
             </div>
-            
+
             <div className="flex justify-between items-center gap-3 px-4 py-3">
               <span className="font-medium text-black">Start Date:</span>
               <span className="text-gray-600">{item.startDate}</span>
             </div>
-            
+
             <div className="flex justify-between items-center gap-3 px-4 py-3">
               <span className="font-medium text-black">End Date:</span>
               <span className="text-gray-600">{item.endDate}</span>
@@ -463,9 +447,8 @@ export default function TournamentListingModal({
       return (
         <div
           key={item._id}
-          className={`flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border ${
-            isSelected ? "border-[#1570EF] bg-blue-50" : "border-gray-200"
-          }`}
+          className={`flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border ${isSelected ? "border-[#1570EF] bg-blue-50" : "border-gray-200"
+            }`}
           onClick={() => handleSelectItem(item)}
         >
           <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
@@ -481,18 +464,18 @@ export default function TournamentListingModal({
               </h4>
             </div>
           </div>
-          
+
           <div className="flex flex-col divide-y divide-gray-100">
             <div className="flex justify-between items-center gap-3 px-4 py-3">
               <span className="font-medium text-black">Handle:</span>
               <span className="text-gray-600 text-right truncate max-w-[70%]">{item.handle}</span>
             </div>
-            
+
             <div className="flex justify-between items-center gap-3 px-4 py-3">
               <span className="font-medium text-black">Start Date:</span>
               <span className="text-gray-600">{item.startDate}</span>
             </div>
-            
+
             <div className="flex justify-between items-center gap-3 px-4 py-3">
               <span className="font-medium text-black">Time:</span>
               <span className="text-gray-600">{item.startTime} - {item.endTime}</span>
@@ -509,26 +492,24 @@ export default function TournamentListingModal({
       <div className="fixed inset-0 z-10 w-screen">
         <div className="flex min-h-full items-center justify-start p-4 text-center sm:items-center sm:p-0 overflow-x-auto">
           <DialogPanel className="modal-content w-full md:w-[90%] mx-auto p-4 bg-white rounded-lg md:min-w-[950px]">
-            
+
             {/* Tab Selection */}
             <div className="mb-6 flex space-x-1 bg-gray-100 p-1 rounded-lg">
               <button
                 onClick={() => setSelectedTab("tournaments")}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  selectedTab === "tournaments"
+                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${selectedTab === "tournaments"
                     ? "bg-white text-blue-600 shadow-sm"
                     : "text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
               >
                 Add Tournaments
               </button>
               <button
                 onClick={() => setSelectedTab("events")}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  selectedTab === "events"
+                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${selectedTab === "events"
                     ? "bg-white text-blue-600 shadow-sm"
                     : "text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
               >
                 Add Social Events
               </button>
@@ -556,7 +537,7 @@ export default function TournamentListingModal({
                     <div className="hidden md:flex md:flex-col md:gap-2">
                       {itemsData.map((item) => renderItemCard(item))}
                     </div>
-                    
+
                     {/* Mobile View */}
                     <div className="md:hidden flex flex-col gap-3">
                       {itemsData.map((item) => renderMobileCard(item))}
@@ -569,7 +550,7 @@ export default function TournamentListingModal({
                 )}
               </div>
             )}
-            
+
             {/* Footer */}
             <div className="modal-footer flex flex-col gap-2">
               {totalItems > (selectedTab === "tournaments" ? tournamentLimit : 10) && (
