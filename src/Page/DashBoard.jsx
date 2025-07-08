@@ -1,8 +1,14 @@
 import { dashboardIcon } from "../Assests";
 import { dashboardBg } from "../Assests";
 import { useNavigate } from "react-router-dom";
+import { checkRoles } from "../utils/roleCheck";
+import { EVENT_OWNER_ROLES } from "../Constant/Roles";
+
 const  DashBoard=()=>{
     const navigate = useNavigate();
+    
+    const CheckRole = checkRoles(EVENT_OWNER_ROLES)
+
     return (
       <div className="w-[100%] h-[100%] relative">
         <div className="flex flex-col items-center justify-center gap-y-2 lg:gap-y-3 xl:gap-y-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -mt-6">
@@ -17,10 +23,14 @@ const  DashBoard=()=>{
           <button
             className="text-white bg-richBlue-5 text-sm md:text-md 2xl:text-xl font-medium px-6 py-2 2xl:px-8 2xl:py-3 rounded-md z-10"
             onClick={() => {
-              navigate("/tournaments");
+              if (CheckRole) {
+                navigate("/social-events");
+              } else {
+                navigate("/tournaments");
+              }
             }}
           >
-            Manage Tournaments
+            {CheckRole ? "Manage Social Events" : "Manage Tournaments"}
           </button>
         </div>
         {/* Added image at the bottom of outer div */}
