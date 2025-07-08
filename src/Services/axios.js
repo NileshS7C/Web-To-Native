@@ -12,7 +12,7 @@ const axiosInstance = axios.create({
 
 const refreshTokenAPI = async () => {                         // Refresh token api (to gain new access token)
   try {
-    const response = await axios.put(
+    const response = await axios.post(
       `${baseURL}/users/auth/update-refresh-access`,
       {},
       { withCredentials: true }
