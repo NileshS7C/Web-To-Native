@@ -263,6 +263,7 @@ export const EventCreationModal = () => {
           getAllCategories({
             currentPage: 1,
             limit: 10,
+            sort:"position",
             id: tournamentId,
           })
         );

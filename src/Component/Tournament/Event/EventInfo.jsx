@@ -23,7 +23,8 @@ function EventInfo({ disabled }) {
       getAllCategories({
         currentPage,
         limit: 10,
-        id: tournamentId
+        sort: "position",
+        id: tournamentId,
       })
     );
   }, [currentPage, tournamentId]);

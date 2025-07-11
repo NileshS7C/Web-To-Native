@@ -396,7 +396,7 @@ export const updateEventCategory = createAsyncThunk(
 
 export const getAllCategories = createAsyncThunk(
   "Tournament/getAllCategories",
-  async ({ currentPage, limit, id }, { rejectWithValue }) => {
+  async ({ currentPage, limit,sort, id }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getAllCategoriesByTournament(
@@ -410,7 +410,7 @@ export const getAllCategories = createAsyncThunk(
       const response = await axiosInstance.get(
         `${
           import.meta.env.VITE_BASE_URL
-        }${userAPIEndPoint}?page=${currentPage}&limit=${limit}`,
+        }${userAPIEndPoint}?page=${currentPage}&sort=${sort}&limit=${limit}`,
         config
       );
 
