@@ -60,7 +60,7 @@ function EventInfo({ disabled }) {
   return (
     <div className="grid grid-cols-1 gap-[50px] pb-20">
       <div className="flex items-center">
-        <div className="flex ml-auto gap-[10px]">
+        <div className="flex ml-auto gap-[10px] flex-wrap">
           {categories.length > 0 && (
             <Button
               className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"

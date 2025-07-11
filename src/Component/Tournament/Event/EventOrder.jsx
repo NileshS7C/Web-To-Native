@@ -74,8 +74,11 @@ const EventOrder = ({ tournamentId, isOpen, onClose, onRefresh }) => {
 
       if (!url) return;
 
-      const res = await axiosInstance.get(url);
-      console.log("🚀 ~ getAllCategoriesByTournament ~ res:", res)
+      const res = await axiosInstance.get(url, {
+        params: { sort: "position" }
+      });
+
+      console.log("🚀 ~ getAllCategoriesByTournament ~ res:", res);
       setItems(res.data.data.categories);
     } catch (err) {
       console.error("Failed to fetch categories:", err);
@@ -83,6 +86,7 @@ const EventOrder = ({ tournamentId, isOpen, onClose, onRefresh }) => {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     if (isOpen && tournamentId) {
