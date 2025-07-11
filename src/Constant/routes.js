@@ -1,6 +1,11 @@
 import { useSelector } from "react-redux";
 import { checkRoles } from "../utils/roleCheck";
-import { ADMIN_ROLES,EVENT_OWNER_ROLES,TOURNAMENT_OWNER_ROLES } from "./Roles";
+import {
+  ADMIN_ROLES,
+  EVENT_OWNER_ROLES,
+  TOURNAMENT_OWNER_ROLES,
+} from "./Roles";
+import { refreshChildFixtureData } from "../redux/tournament/fixturesActions";
 export const ROUTES = {
   HOME: "/home",
   VENUES: {
@@ -27,7 +32,6 @@ export const backButtonRoutes = [
     id: "id",
   },
 ];
-
 
 export const API_END_POINTS = {
   tournament: {
@@ -59,7 +63,7 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/bookings/owner/${ownerId}`;
         } else return null;
       },
-      cancelAndRefundBooking: ( ownerId, bookingId) => {
+      cancelAndRefundBooking: (ownerId, bookingId) => {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/bookings/${bookingId}/owner/${ownerId}`;
         } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
@@ -137,16 +141,11 @@ export const API_END_POINTS = {
       unPublishFixture: (tournamentId, categoryId, fixtureId) => {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/unpublish`;
-        } else if (checkRoles(TOURNAMENT_OWNER_ROLES)){
+        } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/unpublish`;
         }
       },
-      updatePlayerSeeding: (
-        tournamentId,
-        categoryId,
-        fixtureId,
-        stageId
-      ) => {
+      updatePlayerSeeding: (tournamentId, categoryId, fixtureId, stageId) => {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stages/${stageId}/seeding`;
         } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
@@ -175,6 +174,13 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/set-match-count`;
         } else return null;
       },
+      refreshChildFixtureData: (tournamentId, categoryId, fixtureId) => {
+        if (checkRoles(ADMIN_ROLES)) {
+          return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child/${fixtureId}/update-players`;
+        } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
+          return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child/${fixtureId}/update-players`;
+        } else return null;
+      },
     },
 
     GET: {
@@ -191,7 +197,6 @@ export const API_END_POINTS = {
         } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
           return `/users/tournament-owner/tournaments/owner/${ownerId}`;
         } else return null;
-
       },
 
       searchTournaments: (ownerId) => {
@@ -284,12 +289,7 @@ export const API_END_POINTS = {
           return `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/matches`;
         }
       },
-      getMatchStandings: (
-        tournamentId,
-        categoryId,
-        fixtureId,
-        stageId
-      ) => {
+      getMatchStandings: (tournamentId, categoryId, fixtureId, stageId) => {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/stage/${stageId}/standings`;
         } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
@@ -315,11 +315,7 @@ export const API_END_POINTS = {
     },
 
     PATCH: {
-      fixtureMatchSetCountUpdate: (
-        tournamentId,
-        categoryId,
-        fixtureId
-      ) => {
+      fixtureMatchSetCountUpdate: (tournamentId, categoryId, fixtureId) => {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/${fixtureId}/set-match-count`;
         } else if (checkRoles(TOURNAMENT_OWNER_ROLES)) {
@@ -351,9 +347,9 @@ export const API_END_POINTS = {
       },
       searchEvents: (ownerId) => {
         if (checkRoles(ADMIN_ROLES)) {
-          return `/users/admin/events/search`
-        } else if(checkRoles(EVENT_OWNER_ROLES)) {
-          return `/users/event-owner/events/owner/${ownerId}/search`
+          return `/users/admin/events/search`;
+        } else if (checkRoles(EVENT_OWNER_ROLES)) {
+          return `/users/event-owner/events/owner/${ownerId}/search`;
         }
       },
       getEventById: (eventId, ownerId) => {
@@ -374,7 +370,7 @@ export const API_END_POINTS = {
         } else if (checkRoles(EVENT_OWNER_ROLES)) {
           return "/users/event-owner/get-details";
         } else return null;
-      }
+      },
     },
     POST: {
       createEvent: () => {
@@ -395,8 +391,8 @@ export const API_END_POINTS = {
         if (checkRoles(ADMIN_ROLES)) {
           return `/users/admin/events/${eventId}/verify`;
         } else return null;
-      }
-    }
+      },
+    },
   },
   players: {
     GET: {

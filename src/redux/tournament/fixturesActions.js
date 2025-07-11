@@ -77,7 +77,7 @@ export const getFixture = createAsyncThunk(
 );
 export const getHybridFixtures = createAsyncThunk(
   "fixture/getHybridFixture",
-  async ({tour_Id, eventId }, { rejectWithValue }) => {
+  async ({ tour_Id, eventId }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getFixtureByTour_IdAndCategoryId(
@@ -111,15 +111,14 @@ export const getHybridFixtures = createAsyncThunk(
 );
 export const getFixtureById = createAsyncThunk(
   "fixture/getFixtureById",
-  async ({tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
+  async ({ tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
     try {
-      const userAPIEndPoint =
-        API_END_POINTS.tournament.GET.getFixtureById(
-          tour_Id,
-          eventId,
-          fixtureId
-        );
-        
+      const userAPIEndPoint = API_END_POINTS.tournament.GET.getFixtureById(
+        tour_Id,
+        eventId,
+        fixtureId
+      );
+
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -150,8 +149,6 @@ export const getMatches = createAsyncThunk(
   "fixture/getMatches",
   async ({ tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
     try {
-     
-
       const userAPIEndPoint = API_END_POINTS.tournament.GET.getMatches(
         tour_Id,
         eventId,
@@ -184,7 +181,7 @@ export const getMatches = createAsyncThunk(
 );
 export const updateMatch = createAsyncThunk(
   "fixture/updateMatch",
-  async ({tour_Id,eventId,fixtureId,formData}, { rejectWithValue }) => {
+  async ({ tour_Id, eventId, fixtureId, formData }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint = API_END_POINTS.tournament.POST.fixtureMatchUpdate(
         tour_Id,
@@ -222,7 +219,7 @@ export const updateMatch = createAsyncThunk(
 
 export const updateMatchSetCount = createAsyncThunk(
   "fixture/updateMatchSetCount",
-  async ({ tour_Id,eventId,fixtureId ,formData}, { rejectWithValue }) => {
+  async ({ tour_Id, eventId, fixtureId, formData }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.fixtureMatchSetCount(
@@ -262,7 +259,7 @@ export const updateMatchSetCount = createAsyncThunk(
 
 export const getStandings = createAsyncThunk(
   "fixture/getStandings",
-  async ({ tour_Id,eventId,fixtureId,stageId}, { rejectWithValue }) => {
+  async ({ tour_Id, eventId, fixtureId, stageId }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint = API_END_POINTS.tournament.GET.getMatchStandings(
         tour_Id,
@@ -301,7 +298,10 @@ export const getStandings = createAsyncThunk(
 
 export const updateSeeding = createAsyncThunk(
   "fixture/updateSeeding",
-  async ({formData,tour_Id,eventId,fixtureId,stageId }, { rejectWithValue }) => {
+  async (
+    { formData, tour_Id, eventId, fixtureId, stageId },
+    { rejectWithValue }
+  ) => {
     try {
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.updatePlayerSeeding(
@@ -340,7 +340,7 @@ export const updateSeeding = createAsyncThunk(
 
 export const updateMatchSet = createAsyncThunk(
   "fixture/updateMatchSet",
-  async ({ formData,tour_Id,eventId,fixtureId }, { rejectWithValue }) => {
+  async ({ formData, tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.fixtureMatchSetUpdated(
@@ -379,7 +379,7 @@ export const updateMatchSet = createAsyncThunk(
 
 export const publishFixture = createAsyncThunk(
   "fixture/publishFixture",
-  async ({  tour_Id,eventId,fixtureId}, { rejectWithValue }) => {
+  async ({ tour_Id, eventId, fixtureId }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint = API_END_POINTS.tournament.POST.publishFixture(
         tour_Id,
@@ -422,6 +422,43 @@ export const unPublishFixture = createAsyncThunk(
         matchData.eventId,
         matchData.fixtureId
       );
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
+        config
+      );
+
+      return response.data;
+    } catch (err) {
+      if (err?.response) {
+        return rejectWithValue({
+          status: err.response.status,
+          data: err.response.data,
+          message: err.message,
+        });
+      } else {
+        return rejectWithValue({
+          message: err.message || "An unknown error occurred",
+        });
+      }
+    }
+  }
+);
+
+export const refreshChildFixtureData = createAsyncThunk(
+  "fixture/refreshChildFixtureData",
+  async (matchData, { rejectWithValue }) => {
+    try {
+      const userAPIEndPoint =
+        API_END_POINTS.tournament.POST.refreshChildFixtureData(
+          matchData.tour_Id,
+          matchData.eventId,
+          matchData.fixtureId
+        );
       const config = {
         headers: {
           "Content-Type": "application/json",
