@@ -7,7 +7,8 @@ import {
   updateMatch,
   getFixtureById,
   getHybridFixtures,
-  getMatches
+  getMatches,
+  refreshChildFixtureData,
 } from "./fixturesActions";
 
 const initialState = {
@@ -35,7 +36,10 @@ const initialState = {
   unPublishError: false,
   matches: null,
   isFetchingMatches: false,
-  isMatchesSuccess:true,
+  isMatchesSuccess: true,
+  isRefreshingData: false,
+  isRefreshedData: false,
+  isRefreshError: false,
 };
 const fixtureSlice = createSlice({
   name: "fixture",
@@ -189,26 +193,45 @@ const fixtureSlice = createSlice({
         state.unPublishError = true;
         state.ErrorMessage = payload?.data?.message;
       });
-      builder
-        .addCase(getMatches.pending, (state) => {
-          state.isFetchingMatches = true;
-          state.isMatchesSuccess = false;
-          state.isFetchingError = false;
-          state.ErrorMessage = "";
-        })
-        .addCase(getMatches.fulfilled, (state, { payload }) => {
-          state.matches = payload?.data;
-          state.isFetchingMatches = false;
-          state.isMatchesSuccess =true;
-          state.isFetchingError = false;
-          state.ErrorMessage = "";
-        })
-        .addCase(getMatches.rejected, (state, { payload }) => {
-          state.isFetchingMatches = false;
-          state.isMatchesSuccess = false;
-          state.isFetchingError = true;
-          state.ErrorMessage = payload?.data?.message;
-        });  
+    builder
+      .addCase(getMatches.pending, (state) => {
+        state.isFetchingMatches = true;
+        state.isMatchesSuccess = false;
+        state.isFetchingError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(getMatches.fulfilled, (state, { payload }) => {
+        state.matches = payload?.data;
+        state.isFetchingMatches = false;
+        state.isMatchesSuccess = true;
+        state.isFetchingError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(getMatches.rejected, (state, { payload }) => {
+        state.isFetchingMatches = false;
+        state.isMatchesSuccess = false;
+        state.isFetchingError = true;
+        state.ErrorMessage = payload?.data?.message;
+      });
+    builder
+      .addCase(refreshChildFixtureData.pending, (state) => {
+        state.isRefreshingData = true;
+        state.isRefreshedData = false;
+        state.isRefreshError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(refreshChildFixtureData.fulfilled, (state) => {
+        state.isRefreshingData = false;
+        state.isRefreshedData = true;
+        state.isRefreshError = false;
+        state.ErrorMessage = "";
+      })
+      .addCase(refreshChildFixtureData.rejected, (state, { payload }) => {
+        state.isRefreshingData = false;
+        state.isRefreshedData = false;
+        state.isRefreshError = true;
+        state.ErrorMessage = payload?.data?.message;
+      });
   },
 });
 
