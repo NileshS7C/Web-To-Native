@@ -20,9 +20,7 @@ export default function WhyChooseContentTable({ data, fetchHomepageSections }) {
     };
 
     const handleDeleteItem = async () => {
-        // Since there's no unique ID, we'll filter based on position and content matching
         const updatedFeatures = data.steps.filter(item => {
-            // Create a unique identifier based on position and content
             const itemKey = `${item.position}-${item.heading}-${item.subHeading}`;
             const selectedKey = `${selectedCard.position}-${selectedCard.heading}-${selectedCard.subHeading}`;
             
