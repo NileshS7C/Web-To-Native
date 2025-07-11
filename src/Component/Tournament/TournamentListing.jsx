@@ -1,29 +1,18 @@
 import { useDispatch, useSelector } from "react-redux";
-import {
-  TournamentTableHeaders,
-  tournamentListingTabs as initialTour_Tabs,
-  tournamentStatusFilters,
-} from "../../Constant/tournament";
-
 import Tabs from "../Common/Tabs";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  getAllTournaments,
-  searchTournament,
-} from "../../redux/tournament/tournamentActions";
-import Spinner from "../Common/Spinner";
 import PropTypes from "prop-types";
-import { useSearchParams } from "react-router-dom";
-import { CreateTournamentTable } from "./tournamentTable";
+import Spinner from "../Common/Spinner";
 import { searchIcon } from "../../Assests";
 import FilterGroup from "../Common/FilterGroup";
-import {
-  onTour_FilterChange,
-  resetEditMode,
-} from "../../redux/tournament/getTournament";
-import { formattedDate } from "../../utils/dateUtils";
-import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
 import useDebounce from "../../Hooks/useDebounce";
+import { useSearchParams } from "react-router-dom";
+import { formattedDate } from "../../utils/dateUtils";
+import { CreateTournamentTable } from "./tournamentTable";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useOwnerDetailsContext } from "../../Providers/onwerDetailProvider";
+import { onTour_FilterChange, resetEditMode } from "../../redux/tournament/getTournament";
+import { getAllTournaments, searchTournament } from "../../redux/tournament/tournamentActions";
+import { TournamentTableHeaders, tournamentListingTabs as initialTour_Tabs, tournamentStatusFilters } from "../../Constant/tournament";
 
 const SearchEvents = ({
   dispatch,
@@ -158,16 +147,16 @@ function TournamentListing(props) {
     setSearchInput,
   } = props;
 
-  const { tournaments, totalTournaments, isGettingTournament, selectedFilter } =
-    useSelector((state) => state.GET_TOUR);
+  const { tournaments, totalTournaments, isGettingTournament, selectedFilter } = useSelector((state) => state.GET_TOUR);
 
   useEffect(() => {
     if (selectedFilter || selectedTab) {
       setSearchInput("");
     }
   }, [selectedFilter, selectedTab]);
+
   useEffect(() => {
-    if (singleTournamentOwner && !searchInput && selectedTab) {
+    if (singleTournamentOwner && selectedTab) {
       switch (selectedTab) {
         case "all":
           dispatch(
@@ -264,13 +253,8 @@ function TournamentListing(props) {
         })
       );
     }
-  }, [
-    selectedTab,
-    currentPage,
-    selectedFilter,
-    singleTournamentOwner,
-    searchInput,
-  ]);
+  }, [ selectedTab, currentPage, selectedFilter, singleTournamentOwner, searchInput ]);
+
   if (isGettingTournament) {
     return (
       <div className="flex items-center justify-center h-full w-full">
