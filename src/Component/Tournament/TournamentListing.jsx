@@ -156,8 +156,6 @@ function TournamentListing(props) {
   }, [selectedFilter, selectedTab]);
 
   useEffect(() => {
-    console.log(currentPage,'currentPage')
-    console.log(selectedTab,'selectedTab')
     if (singleTournamentOwner && selectedTab) {
       switch (selectedTab) {
         case "all":
