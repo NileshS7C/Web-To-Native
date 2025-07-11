@@ -256,6 +256,8 @@ export const getAllUniqueTags = createAsyncThunk(
 export const getSingleTournament = createAsyncThunk(
   "Tournament/getSingleTournament",
   async ({ tournamentId, ownerId }, { rejectWithValue }) => {
+    console.log("singletournamentId", tournamentId);
+    console.log("singleownerId", ownerId);
     try {
       const userAPIEndPoint = API_END_POINTS.tournament.GET.tournamentById(
         tournamentId,

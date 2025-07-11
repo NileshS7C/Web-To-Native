@@ -1,7 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Services/axios";
 import { Cookies } from "react-cookie";
-import axios from "axios";
 import { setUser, resetPlayer } from "./userInfoSlice";
 
 const cookies = new Cookies();
@@ -17,7 +16,7 @@ export const userLogin = createAsyncThunk(
         withCredentials: true,
       };
 
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}/users/auth/login`,
         { identifier: email, password },
         config

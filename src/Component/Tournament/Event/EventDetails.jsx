@@ -50,6 +50,8 @@ function EventDetailPage() {
 
   useEffect(() => {
     if (tournamentId && singleTournamentOwner) {
+      console.log("singletournamentId", tournamentId);
+      console.log("singleTournamentOwner", singleTournamentOwner?.id);
       dispatch(
         getSingleTournament({
           tournamentId,

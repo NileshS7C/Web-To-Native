@@ -111,7 +111,7 @@ export const deleteChildFixture = async (
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ deleteChildFixture ~ error:", error);
@@ -138,7 +138,7 @@ export const updateChildFixture = async (
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ updateChildFixture ~ error:", error);

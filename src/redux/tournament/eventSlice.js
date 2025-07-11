@@ -28,6 +28,14 @@ const eventSlice = createSlice({
   reducers: {
     toggleModal(state, { payload }) {
       state.showModal = !state.showModal;
+      // Reset event data when modal is closed
+      if (!state.showModal) {
+        state.eventId = "";
+        state.category = {};
+        state.loadingSingleCategory = false;
+        state.singleCategorySuccess = false;
+        state.singleCategoryError = false;
+      }
     },
 
     toggleBookingModal(state) {
