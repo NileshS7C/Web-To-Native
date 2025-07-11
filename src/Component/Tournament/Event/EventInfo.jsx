@@ -45,6 +45,18 @@ function EventInfo({ disabled }) {
     setIsOpen(!isOpen);
   }
 
+  const refetchCategories = () => {
+    dispatch(
+      getAllCategories({
+        currentPage,
+        limit: 10,
+        sort: "position",
+        id: tournamentId,
+      })
+    );
+  };
+
+
   return (
     <div className="grid grid-cols-1 gap-[50px] pb-20">
       <div className="flex items-center">
@@ -69,7 +81,9 @@ function EventInfo({ disabled }) {
           )}
         </div>
       </div>
+
       <EventTable isDisable={disabled} categories={categories} />
+
       <Button
         className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
         onClick={() => dispatch(stepReducer(currentStep))}
@@ -77,15 +91,15 @@ function EventInfo({ disabled }) {
       >
         Save & Continue
       </Button>
+
       {isOpen && (
         <EventOrder
           tournamentId={tournamentId}
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
-          categories={categories}
+          onRefresh={refetchCategories}
         />
       )}
-
     </div>
   );
 }

@@ -51,7 +51,7 @@ const SortableItem = ({ id, name }) => {
   );
 };
 
-const EventOrder = ({ tournamentId, isOpen, onClose }) => {
+const EventOrder = ({ tournamentId, isOpen, onClose, onRefresh }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,7 +76,7 @@ const EventOrder = ({ tournamentId, isOpen, onClose }) => {
 
       const res = await axiosInstance.get(url);
       console.log("🚀 ~ getAllCategoriesByTournament ~ res:", res)
-      setItems(res.data.data.categories); // assuming your API returns { data: [...] }
+      setItems(res.data.data.categories);
     } catch (err) {
       console.error("Failed to fetch categories:", err);
     } finally {
@@ -120,12 +120,15 @@ const EventOrder = ({ tournamentId, isOpen, onClose }) => {
 
       const res = await axiosInstance.post(url, payload);
       console.log("✅ Order updated successfully:", res.data);
+
+      if (onRefresh) onRefresh(); // ✅ refresh the parent
       onClose();
     } catch (err) {
       console.error("❌ Failed to update order:", err);
       alert("Something went wrong while saving the new order.");
     }
   };
+
 
 
   return (
