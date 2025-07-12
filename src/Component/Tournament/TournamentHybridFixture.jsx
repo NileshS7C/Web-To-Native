@@ -275,7 +275,7 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
     ) {
       dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
     }
-  }, [isPublished, FixtureCreatedSuccess, isUnPublished]);
+  }, [isPublished, FixtureCreatedSuccess, isUnPublished, isRefreshedData]);
 
   useEffect(() => {
     if (!fixture?.bracketData) return;
