@@ -57,22 +57,26 @@ const SearchBookings = ({tournamentId, eventId, isSingleCategory, onSelectBookin
     if (!source) return [];
     
     return source.map(booking => {
-      const bookingItem = booking.bookingItems[0];
+      const bookingItem = booking.bookingItems?.[0];
+      if (!bookingItem) return null;
+      
       if (bookingItem.isDoubles) {
+        const playerName = booking.player?.name || 'Unknown Player';
+        const partnerName = bookingItem.partnerDetails?.name || 'Unknown Partner';
         return {
           ...booking,
-          displayName: `${booking.player.name} & ${bookingItem.partnerDetails.name}`
+          displayName: `${playerName} & ${partnerName}`
         };
       }
       return {
         ...booking,
-        displayName: booking.player.name
+        displayName: booking.player?.name || 'Unknown Player'
       };
-    });
+    }).filter(Boolean); 
   };
 
   const filteredSuggestions = getSuggestions().filter(suggestion => 
-    suggestion.displayName.toLowerCase().includes(search.toLowerCase())
+    suggestion?.displayName?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleFocus = () => {
@@ -109,11 +113,11 @@ const SearchBookings = ({tournamentId, eventId, isSingleCategory, onSelectBookin
             {searchError && <div className="p-2 text-red-500">{searchError}</div>}
             {!searchLoading && !searchError && filteredSuggestions.map((suggestion) => (
               <div
-                key={suggestion._id}
+                key={suggestion?._id || Math.random()}
                 className="p-2 hover:bg-gray-100 cursor-pointer text-left text-sm font-medium"
                 onClick={() => handleSuggestionClick(suggestion)}
               >
-                {suggestion.displayName}
+                {suggestion?.displayName || 'Unknown'}
               </div>
             ))}
             {!searchLoading && !searchError && filteredSuggestions.length === 0 && (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Dialog,
     DialogBackdrop,
@@ -11,6 +11,15 @@ import axiosInstance from "../../../../Services/axios";
 
 export default function WhyChooseAddDataModal({ data, isOpen, onClose, fetchHomepageSections }) {
     const [imagePreview, setImagePreview] = useState(null);
+    const [imageFileName, setImageFileName] = useState("");
+
+    // Reset state when modal opens/closes
+    useEffect(() => {
+        if (isOpen) {
+            setImagePreview(null);
+            setImageFileName("");
+        }
+    }, [isOpen]);
 
     // Validation Schema
     const validationSchema = Yup.object().shape({
@@ -109,32 +118,40 @@ export default function WhyChooseAddDataModal({ data, isOpen, onClose, fetchHome
                                                             if (file.size > maxSize) {
                                                                 setFieldValue("image", null);
                                                                 setImagePreview(null);
+                                                                setImageFileName("");
                                                                 event.target.value = null;
                                                                 alert("File size should not exceed 5MB");   
                                                                 return;
                                                             }
                                                             setFieldValue("image", file);
                                                             setImagePreview(URL.createObjectURL(file));
+                                                            setImageFileName(file ? file.name : "");
                                                         }}
                                                     />
                                                     <span className="text-[12px] text-[#353535] mt-1">(Image size: 600x600) </span>
-                                                 <span className="text-[12px] text-[#353535] mt-1">(Image Type: PNG) </span>
+                                                    <span className="text-[12px] text-[#353535] mt-1">(Image Type: PNG) </span>
 
                                                     <ErrorMessage name="image" component="p" className="mt-1 text-sm text-red-600" />
 
                                                     {imagePreview && (
                                                         <div className="mt-3 flex items-center gap-4">
                                                             <img src={imagePreview} alt="Preview" className="h-24 w-24 object-cover rounded-md border" />
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    setFieldValue("image", null);
-                                                                    setImagePreview(null);
-                                                                }}
-                                                                className="rounded-md bg-red-500 px-3 py-2 text-sm text-white shadow-sm hover:bg-red-400"
-                                                            >
-                                                                Remove Image
-                                                            </button>
+                                                            <div className="flex flex-col gap-2">
+                                                                {imageFileName && (
+                                                                    <span className="text-sm text-gray-600">{imageFileName}</span>
+                                                                )}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setFieldValue("image", null);
+                                                                        setImagePreview(null);
+                                                                        setImageFileName("");
+                                                                    }}
+                                                                    className="rounded-md bg-red-500 px-3 py-2 text-sm text-white shadow-sm hover:bg-red-400"
+                                                                >
+                                                                    Remove Image
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>

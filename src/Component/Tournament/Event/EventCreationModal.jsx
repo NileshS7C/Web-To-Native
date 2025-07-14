@@ -286,6 +286,12 @@ export const EventCreationModal = () => {
     if (!showModal) {
       dispatch(resetGlobalLocation());
       setHasError(false);
+      // Reset form state when modal is closed
+      setInitialState(initialValues);
+      setIsVenueDecided(false);
+      setIsVenueFinal(false);
+      setVenueNotListed(false);
+      setSelectedVenueData(null);
     }
     if (categoryId && !showModal) {
       searchParams.delete("category");
