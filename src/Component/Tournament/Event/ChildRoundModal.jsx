@@ -168,12 +168,13 @@ const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
         headers: { 'Content-Type': 'application/json' }
       });
       
-      if (response.status !== 200) {
+      if (response.status !== 200 && response.status !== 201) {
         throw new Error(response.data?.message || 'Failed to create child round');
       }
       setSuccess('Child round created successfully!');
       toggleModal();
       setTimeout(() => {
+        console.log('setTimeOUt')
         dispatch(
           getHybridFixtures({
             tour_Id: tournamentId,
