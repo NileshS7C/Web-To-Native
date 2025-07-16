@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../Services/axios";
+import { useSearchDebounce } from "./useSearchDebounce";
 
 function usePlayerSearch(value) {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [players, setPlayers] = useState([]);
+  const debouncedValue = useSearchDebounce(value, 500);
 
   useEffect(() => {
     const getPlayers = async (player) => {
@@ -12,7 +14,7 @@ function usePlayerSearch(value) {
         setLoading(true);
         setError("");
         const response = await axiosInstance.get(
-          `${import.meta.env.VITE_BASE_URL}/search-players?search=${value}`
+          `${import.meta.env.VITE_BASE_URL}/search-players?search=${player}`
         );
 
         setPlayers(response?.data?.data?.players || []);
@@ -23,10 +25,10 @@ function usePlayerSearch(value) {
         setLoading(false);
       }
     };
-    if (value) {
-      getPlayers(value);
+    if (debouncedValue) {
+      getPlayers(debouncedValue);
     }
-  }, [value]);
+  }, [debouncedValue]);
 
   return { loading, error, players };
 }

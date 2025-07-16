@@ -283,7 +283,7 @@ export const OrganiserModalTitle = ({ onCancel }) => {
   return (
     <div className="flex justify-between items-center w-full">
       <div className="flex gap-3">
-        <p className="text-lg text-[#343C6A] font-semibold pb-6">
+        <p className="text-md md:text-lg text-[#343C6A] font-semibold">
           {TournamentOragniserModalTitle}
         </p>
       </div>
@@ -297,7 +297,7 @@ export const OrganiserModalTitle = ({ onCancel }) => {
 
 const OrganiserBasicDetails = () => {
   return (
-    <div className="grid grid-cols-2 gap-[30px] w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5 w-full">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -341,7 +341,7 @@ const OrganiserPhoneAndPassword = () => {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-[30px] w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -425,7 +425,7 @@ const BrandEmailAndPhone = ({
   };
 
   return (
-    <div className="grid grid-cols-2 gap-[30px] w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -540,7 +540,7 @@ const BrandPhoneAndLocation = () => {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-[30px] w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px] w-full">
       <div className="flex flex-col items-start gap-2.5">
         <label
           className=" text-[#232323] text-base leading-[19.36px]"
@@ -628,7 +628,7 @@ const OrganiserAddress = ({ location }) => {
   return (
     <div className="flex flex-col items-start gap-2.5">
       <p className=" text-base leading-[19.36px] text-[#232323]">Address</p>
-      <div className="grid grid-cols-2 gap-2.5 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full">
         <div className="flex flex-col items-start gap-2.5">
           <label
             className="text-xs text-[#232323]"
@@ -666,7 +666,7 @@ const OrganiserAddress = ({ location }) => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2.5 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full">
         <div className="flex flex-col items-start gap-2.5">
           <label
             className="text-xs text-[#232323]"
@@ -704,7 +704,7 @@ const OrganiserAddress = ({ location }) => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2.5 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full">
         <div className="flex flex-col items-start gap-2.5">
           <label
             className="text-xs text-[#232323]"

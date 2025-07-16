@@ -1,5 +1,6 @@
 import { checkRoles } from "../utils/roleCheck";
 import { ADMIN_ROLES } from "../Constant/Roles";
+import axiosInstance from "../Services/axios";
 
 export const getAllEventBookings = async (tournamentId, eventId) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -7,15 +8,12 @@ export const getAllEventBookings = async (tournamentId, eventId) => {
   ? `/users/admin/tournaments/${tournamentId}/categories/${eventId}/bookings?categoryStatus=ACTIVE`
   : `/users/tournament-owner/tournaments/${tournamentId}/categories/${eventId}/bookings?categoryStatus=ACTIVE`;
 
-  const response = await fetch(`${baseURL}${endpoint}`, {
-    method: 'GET',
-    credentials: 'include',
-  });
-  if (!response.ok) {
-    throw new Error('Failed to fetch bookings');
+  try {
+    const response = await axiosInstance.get(`${baseURL}${endpoint}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch bookings');
   }
-  const data = await response.json();
-  return data;
 }
 
 export const swapEventBooking = async ({ tournamentId, categoryId, bookingId, bookingData, replace }) => {
@@ -24,29 +22,22 @@ export const swapEventBooking = async ({ tournamentId, categoryId, bookingId, bo
     ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/bookings/swap`
     : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/bookings/swap`;
 
-  const response = await fetch(`${baseURL}${endpoint}`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  try {
+    const response = await axiosInstance.post(`${baseURL}${endpoint}`, {
       tournamentId,
       categoryId,
       bookingId,
       bookingData,
       replace,
-    }),
-  });
-  if (!response.ok) {
-    let errorMsg = 'Failed to swap booking';
-    try {
-      const errorData = await response.json();
-      errorMsg = errorData?.message || errorMsg;
-    } catch (e) {
-      // ignore JSON parse error, use default message
-    }
+    }, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    return response.data;
+  } catch (error) {
+    const errorMsg = error.response?.data?.message || 'Failed to swap booking';
     throw new Error(errorMsg);
   }
-  return await response.json();
 };
 
 export const searchEventBookings = async (tournamentId, categoryId, search) => {
@@ -55,13 +46,13 @@ export const searchEventBookings = async (tournamentId, categoryId, search) => {
     ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/bookings/search?search=${encodeURIComponent(search)}&categoryStatus=ACTIVE`
     : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/bookings/search?search=${encodeURIComponent(search)}&categoryStatus=ACTIVE`;
 
-  const response = await fetch(`${baseURL}${endpoint}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!response.ok) {
-    throw new Error('Failed to search bookings');
+  try {
+    const response = await axiosInstance.get(`${baseURL}${endpoint}`, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to search bookings');
   }
-  return await response.json();
 };

@@ -20,20 +20,26 @@ export default function WhyChooseContentTable({ data, fetchHomepageSections }) {
     };
 
     const handleDeleteItem = async () => {
-        const updatedFeatures = data.steps.filter(item => item._id !== selectedCard._id);
+        const updatedFeatures = data.steps.filter(item => {
+            const itemKey = `${item.position}-${item.heading}-${item.subHeading}`;
+            const selectedKey = `${selectedCard.position}-${selectedCard.heading}-${selectedCard.subHeading}`;
+            
+            return itemKey !== selectedKey;
+        });
 
         const payload = {
             sectionTitle: data.sectionTitle,
             isVisible: data.isVisible,
-            features: updatedFeatures,
+            steps: updatedFeatures,
         };
         const config = {
             headers: {
               "Content-Type": "application/json",
             },
           };
-        await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/why-choose`, JSON.stringify(payload),config);
+        await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}/users/admin/homepage-sections/whyChoosePicklebay`, JSON.stringify(payload),config);
         fetchHomepageSections();
+        setDeleteModal(false);
     };
 
     const headers = [

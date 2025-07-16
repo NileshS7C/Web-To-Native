@@ -16,6 +16,7 @@ import { getFixtureById, getHybridFixtures } from "../../../redux/tournament/fix
 import { useDispatch, useSelector } from "react-redux";
 import { checkRoles } from '../../../utils/roleCheck';
 import { ADMIN_ROLES } from '../../../Constant/Roles';
+import axiosInstance from '../../../Services/axios';
 
 const initialValues = {
   name: "",
@@ -460,12 +461,8 @@ const RoundCreationModal = ({ toggleModal, actionType, roundIndex, tournamentId,
         const endpoint = checkRoles(ADMIN_ROLES)
           ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`
           : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`;
-        const response = await fetch(`${baseURL}${endpoint}`, {
-          method: 'GET',
-          credentials: 'include',
-        });
-        const data = await response.json();
-        setParentFixtures(data?.data?.fixtures || []);
+        const response = await axiosInstance.get(endpoint);
+        setParentFixtures(response.data?.data?.fixtures || []);
       } catch (error) {
         setParentFixtures([]);
       } finally {

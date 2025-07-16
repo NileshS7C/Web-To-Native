@@ -1,4 +1,5 @@
-import axios from "axios";
+import axiosInstance from "../Services/axios";
+import Cookies from "js-cookie";
 import { API_END_POINTS } from "../Constant/routes";
 
 export const getFixtureId = async ({ tournamentId, categoryId }) => {
@@ -18,7 +19,7 @@ export const getFixtureId = async ({ tournamentId, categoryId }) => {
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data?.fixtures?.[0]?._id;
   } catch (error) {
     console.error("🚀 ~ getFixtureId ~ error:", error);
@@ -49,7 +50,7 @@ export const getTournamentStanding = async ({
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ getTournamentStanding ~ error:", error);

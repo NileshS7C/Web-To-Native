@@ -156,7 +156,7 @@ const EventListingModal = ({ eventData, isOpen, onClose, fetchEventSections }) =
         `${import.meta.env.VITE_BASE_URL}/users/admin/events?status=PUBLISHED&page=${page}&limit=10`,
         config
       );
-      setEventsData(response.data.data.events);
+      setEventsData(response.data.data.events || []);
       setTotalEvent(response?.data?.data?.total || 0);
       if (eventData?.featuredSocialEvents) {
         const formattedSelected = eventData.featuredSocialEvents.map(
@@ -235,7 +235,7 @@ const EventListingModal = ({ eventData, isOpen, onClose, fetchEventSections }) =
         config
       );
 
-      setEventsData(response.data.data.featuredSocialEvents);
+      setEventsData(response.data.data.events || []);
       setTotalEvent(response?.data?.data?.total || 0);
       if (eventData?.featuredSocialEvents) {
         const formattedSelected = eventData.featuredSocialEvents.map(

@@ -6,6 +6,7 @@ import {
   createFixture,
   getFixture,
   publishFixture,
+  refreshChildFixtureData,
   unPublishFixture,
   updateSeeding,
 } from "../../redux/tournament/fixturesActions";
@@ -100,6 +101,9 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
     isUnPublishing,
     isUnPublished,
     unPublishError,
+    isRefreshingData,
+    isRefreshedData,
+    isRefreshError,
   } = useSelector((state) => state.fixture);
 
   const isChildFixture = fixture?.isChildFixture;
@@ -158,6 +162,15 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
       })
     );
   };
+  const handleRefreshChildFixtureData=()=>{
+    dispatch(
+      refreshChildFixtureData({
+        tour_Id: tournamentId,
+        eventId,
+        fixtureId,
+      })
+    );
+  }
 
   useEffect(() => {
     dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
@@ -241,13 +254,28 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
         })
       );
     }
-  }, [FixtureCreationError, publishError, unPublishError]);
-
+    if (isRefreshError) {
+      dispatch(
+        showError({
+          message:
+            ErrorMessage ||
+            "Oops! something went wrong while unpublishing the fixture.",
+          onClose: "hideError",
+        })
+      );
+    }
+  }, [isRefreshError, FixtureCreationError, publishError, unPublishError]);
+  
   useEffect(() => {
-    if (isPublished || FixtureCreatedSuccess || isUnPublished) {
+    if (
+      isPublished ||
+      FixtureCreatedSuccess ||
+      isUnPublished ||
+      isRefreshedData
+    ) {
       dispatch(getFixtureById({ tour_Id: tournamentId, eventId, fixtureId }));
     }
-  }, [isPublished, FixtureCreatedSuccess, isUnPublished]);
+  }, [isPublished, FixtureCreatedSuccess, isUnPublished, isRefreshedData]);
 
   useEffect(() => {
     if (!fixture?.bracketData) return;
@@ -459,6 +487,17 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
           <TbSwipe className="w-[20px] h-[20px]" />
         </button>
         <div className="flex gap-2">
+          {fixture?.status === "PUBLISHED" && isChildFixture && (
+            <Button
+              className={
+                "py-2 px-4 rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
+              }
+              onClick={handleRefreshChildFixtureData}
+              loading={isRefreshingData}
+            >
+              Refresh Data
+            </Button>
+          )}
           <Button
             className={
               "py-2 px-4 rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed"
@@ -467,6 +506,7 @@ export const TournamentHybridFixture = ({ tournament, fixtureId }) => {
           >
             Update Time
           </Button>
+
           {fixture?.status === "PUBLISHED" ? (
             <Button
               className={`w-[148px] h-[40px] rounded-[10px] shadow-md bg-[#1570EF] text-[14px] leading-[17px] text-[#FFFFFF] ml-auto disabled:bg-blue-400 disabled:cursor-not-allowed ${

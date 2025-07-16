@@ -5,6 +5,7 @@ import { checkRoles } from '../../../utils/roleCheck';
 import { ADMIN_ROLES } from '../../../Constant/Roles';
 import { useDispatch } from 'react-redux';
 import { getHybridFixtures } from '../../../redux/tournament/fixturesActions';
+import axiosInstance from '../../../Services/axios';
 
 const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
   const dispatch = useDispatch();
@@ -35,12 +36,8 @@ const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
         const endpoint = checkRoles(ADMIN_ROLES) 
           ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`
           : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid`;
-        const response = await fetch(`${baseURL}${endpoint}`, {
-          method: 'GET',
-          credentials: 'include',
-        });
-        const data = await response.json();
-        const fixtures = data?.data?.fixtures || [];
+        const response = await axiosInstance.get(`${baseURL}${endpoint}`);
+        const fixtures = response.data?.data?.fixtures || [];
         setParentFixtures(fixtures);
         
         // Check if no fixtures are available
@@ -167,19 +164,17 @@ const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
         ? `/users/admin/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child`
         : `/users/tournament-owner/tournaments/${tournamentId}/categories/${categoryId}/fixtures/hybrid/child`;
       const payload = buildPayload();
-      const response = await fetch(`${baseURL}${endpoint}`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+      const response = await axiosInstance.post(`${baseURL}${endpoint}`, payload, {
+        headers: { 'Content-Type': 'application/json' }
       });
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err?.message || 'Failed to create child round');
+      
+      if (response.status !== 200 && response.status !== 201) {
+        throw new Error(response.data?.message || 'Failed to create child round');
       }
       setSuccess('Child round created successfully!');
       toggleModal();
       setTimeout(() => {
+        console.log('setTimeOUt')
         dispatch(
           getHybridFixtures({
             tour_Id: tournamentId,
@@ -188,7 +183,7 @@ const ChildRoundModal = ({ tournamentId, categoryId, toggleModal }) => {
         );
       }, 1000);
     } catch (err) {
-      setError(err.message || 'Something went wrong');
+      setError(err.response?.data?.message || err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
