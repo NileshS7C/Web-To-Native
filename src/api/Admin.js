@@ -1,9 +1,9 @@
-import axios from "axios";
+import axiosInstance from "../Services/axios";
 
 export const getAllAdmins = async (page = 1, limit = 50) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
   try {
-    const response = await axios.get(`${baseURL}/users/admin/admins?page=${page}&limit=${limit}`, {
+    const response = await axiosInstance.get(`${baseURL}/users/admin/admins?page=${page}&limit=${limit}`, {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
@@ -18,7 +18,7 @@ export const getAllAdmins = async (page = 1, limit = 50) => {
 export const createAdmin = async (adminObj) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
   try {
-    const response = await axios.post(`${baseURL}/users/admin/admins`, adminObj ,{
+    const response = await axiosInstance.post(`${baseURL}/users/admin/admins`, adminObj ,{
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +33,7 @@ export const createAdmin = async (adminObj) => {
 export const getAdminById = async (id) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
   try {
-    const response = await axios.get(`${baseURL}/users/admin/admins/${id}`, {
+    const response = await axiosInstance.get(`${baseURL}/users/admin/admins/${id}`, {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +48,7 @@ export const getAdminById = async (id) => {
 export const updateAdmin = async (id, adminObj) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
   try {
-    const response = await axios.post(`${baseURL}/users/admin/admins/${id}`, adminObj ,{
+    const response = await axiosInstance.post(`${baseURL}/users/admin/admins/${id}`, adminObj ,{
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",

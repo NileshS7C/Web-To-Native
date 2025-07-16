@@ -4,18 +4,18 @@ import { checkRoles } from "../utils/roleCheck";
 import { ADMIN_ROLES, EVENT_OWNER_ROLES } from "../Constant/Roles";
 
 
-export const useGetAllEvents = (page = 1, limit = 10, id, filters = {}) => {
+export const useGetAllEvents = (page = 1, limit = 10, id, filters = {}, activeSearchTerm) => {
   return useQuery({
-    queryKey: ["socialEvents", page, filters],
-    queryFn: () => getAllEvents(page, limit, id, filters),
+    queryKey: ["socialEvents", page, filters, activeSearchTerm],
+    queryFn: () => getAllEvents(page, limit, id, filters, activeSearchTerm),
     enabled: true,
   });
 };
 
-export const useSearchEvents = ({ownerId, searchTitle, page = 1, limit = 10}) => {
+export const useSearchEvents = ({ownerId, searchTitle, page = 1, limit = 10 , filters = {}}) => {
   return useQuery({
-    queryKey: ["searchEvents", ownerId, searchTitle, page, limit],
-    queryFn: () => searchEvents({ownerId, searchTitle, page, limit}),
+    queryKey: ["searchEvents", ownerId, searchTitle, page, limit, filters],
+    queryFn: () => searchEvents({ownerId, searchTitle, page, limit, filters}),
     enabled: !!ownerId && !!searchTitle, // only run when both are available
   });
 };

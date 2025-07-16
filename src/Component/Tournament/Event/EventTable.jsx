@@ -31,7 +31,8 @@ export const EventTable = ({ isDisable, categories }) => {
           getAllCategories({
             currentPage,
             limit: 10,
-            id: tournamentId
+            sort: "position",
+            id: tournamentId,
           })
         );
       });
@@ -47,7 +48,8 @@ export const EventTable = ({ isDisable, categories }) => {
       getAllCategories({
         currentPage,
         limit: 10,
-        id: tournamentId
+        sort: "position",
+        id: tournamentId,
       })
     );
   },[currentPage])

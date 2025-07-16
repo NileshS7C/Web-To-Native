@@ -5,10 +5,11 @@ import { toggleModal, resetAllCategories, resetCurrentPage } from "../../../redu
 import { searchIcon } from "../../../Assests";
 import Button from "../../Common/Button";
 import { EventTable } from "./EventTable";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { resetGlobalLocation } from "../../../redux/Location/locationSlice";
 import { getAllCategories } from "../../../redux/tournament/tournamentActions";
 import { useParams } from "react-router-dom";
+import EventOrder from "./EventOrder";
 
 function EventInfo({ disabled }) {
 
@@ -16,6 +17,7 @@ function EventInfo({ disabled }) {
   const { currentStep } = useSelector((state) => state.Tournament);
   const { categories, currentPage } = useSelector((state) => state.event);
   const { tournamentId } = useParams();
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     dispatch(resetAllCategories());
@@ -23,7 +25,8 @@ function EventInfo({ disabled }) {
       getAllCategories({
         currentPage,
         limit: 10,
-        id: tournamentId
+        sort: "position",
+        id: tournamentId,
       })
     );
   }, [currentPage, tournamentId]);
@@ -32,16 +35,32 @@ function EventInfo({ disabled }) {
     dispatch(resetGlobalLocation());
   }, []);
 
-  useEffect(()=>{
-    return ()=>{
-       dispatch(resetCurrentPage());
+  useEffect(() => {
+    return () => {
+      dispatch(resetCurrentPage());
     }
-  },[])
+  }, [])
+
+  const handleEventOrderModal = () => {
+    setIsOpen(!isOpen);
+  }
+
+  const refetchCategories = () => {
+    dispatch(
+      getAllCategories({
+        currentPage,
+        limit: 10,
+        sort: "position",
+        id: tournamentId,
+      })
+    );
+  };
+
 
   return (
     <div className="grid grid-cols-1 gap-[50px] pb-20">
       <div className="flex items-center">
-        <div className="flex ml-auto gap-[10px]">
+        <div className="flex ml-auto gap-[10px] flex-wrap">
           {categories.length > 0 && (
             <Button
               className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
@@ -51,9 +70,20 @@ function EventInfo({ disabled }) {
               Add New Event
             </Button>
           )}
+          {categories.length > 0 && (
+            <Button
+              className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
+              onClick={handleEventOrderModal}
+              disabled={disabled}
+            >
+              Change Event Order
+            </Button>
+          )}
         </div>
       </div>
+
       <EventTable isDisable={disabled} categories={categories} />
+
       <Button
         className="text-[18px] text-[#FFFFFF] bg-[#1570EF] w-[190px] h-[50px] rounded-[10px] leading-[21.5px] ml-auto"
         onClick={() => dispatch(stepReducer(currentStep))}
@@ -61,6 +91,15 @@ function EventInfo({ disabled }) {
       >
         Save & Continue
       </Button>
+
+      {isOpen && (
+        <EventOrder
+          tournamentId={tournamentId}
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          onRefresh={refetchCategories}
+        />
+      )}
     </div>
   );
 }

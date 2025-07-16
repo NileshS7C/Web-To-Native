@@ -1,4 +1,4 @@
-import axios from "axios";;
+import axiosInstance from "../Services/axios";
 import { API_END_POINTS } from "../Constant/routes";
 
 export const createHybridFixture = async (
@@ -22,7 +22,7 @@ export const createHybridFixture = async (
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ CreateFixture ~ error:", error);
@@ -53,7 +53,7 @@ export const updateHybridFixture = async (
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ UpdateFixture ~ error:", error);
@@ -82,7 +82,7 @@ export const deleteHybridFixture = async (
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ deleteFixture ~ error:", error);
@@ -111,7 +111,7 @@ export const deleteChildFixture = async (
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ deleteChildFixture ~ error:", error);
@@ -138,7 +138,7 @@ export const updateChildFixture = async (
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ updateChildFixture ~ error:", error);
@@ -163,7 +163,7 @@ export const getFixtureById = async ({ tournamentId, categoryId, fixtureId }) =>
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ Get Fixture by id ~ error:", error);
@@ -193,7 +193,7 @@ export const getDoubleEliminationFinal = async ({
   };
 
   try {
-    const response = await axios.request(config);
+    const response = await axiosInstance.request(config);
     return response.data?.data;
   } catch (error) {
     console.error("🚀 ~ Get double elimination final ~ error:", error);

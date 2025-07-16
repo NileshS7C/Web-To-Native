@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import PropTypes from "prop-types";
 import { useParams } from "react-router-dom";
 import { getAllBookings } from '../../../redux/tournament/tournamentActions';
+import axiosInstance from '../../../Services/axios';
 
 const AddTbdPlayer = ({ onTbdToggle }) => {
   const user = useSelector((state) => state.user);
@@ -34,19 +35,16 @@ const AddTbdPlayer = ({ onTbdToggle }) => {
         ? `/users/admin/bookings/owner/${ownerId}/tbd-bookings`
         : `/users/tournament-owner/bookings/owner/${ownerId}/tbd-bookings`;
 
-      const response = await fetch(`${baseURL}${endpoint}`, {
-        method: 'POST',
-        credentials: 'include',
+      const response = await axiosInstance.post(`${baseURL}${endpoint}`, {
+        tournamentId,
+        categoryId
+      }, {
         headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          tournamentId,
-          categoryId
-        })
+        }
       });
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error('Failed to add TBD player');
       }
 
@@ -60,7 +58,7 @@ const AddTbdPlayer = ({ onTbdToggle }) => {
         eventId: categoryId
       }));
     } catch (error) {
-      toast.error(error.message || 'Failed to add TBD player');
+      toast.error(error.response?.data?.message || error.message || 'Failed to add TBD player');
     }
   };
 

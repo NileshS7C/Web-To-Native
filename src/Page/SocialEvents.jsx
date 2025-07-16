@@ -13,6 +13,8 @@ const SocialEvents = () => {
   const [totalEvents, setTotalEvents] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [activeFilter, setActiveFilter] = useState({ id: 'all' });
+  const [activeSearchTerm, setActiveSearchTerm] = useState('');
+  const [searchWithFitler, setSearchWithFitler] = useState('');
   const limit = 10;
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
@@ -21,7 +23,8 @@ const SocialEvents = () => {
     page, 
     limit, 
     user?.id,
-    activeFilter.id !== 'all' ? activeFilter : {}
+    activeFilter.id !== 'all' ? activeFilter : {},
+    searchWithFitler?.trim() !== '' ? searchWithFitler : null
   );
 
   useEffect(() => {
@@ -37,6 +40,7 @@ const SocialEvents = () => {
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
+    setSearchWithFitler(activeSearchTerm?.trim() !== '' ? activeSearchTerm : null);
   };
 
   const handleSearchResults = (searchResults, total) => {
@@ -56,7 +60,12 @@ const SocialEvents = () => {
     setActiveFilter(filter);
     setPage(1); // Reset to first page when filter changes
     setIsSearching(false); // Reset search when filter changes
+    setSearchWithFitler(activeSearchTerm?.trim() !== '' ? activeSearchTerm : null);
   };
+
+  const handleSearch = (searchTerm) => {
+  setActiveSearchTerm(searchTerm);
+  }
 
   return (
     <>
@@ -76,6 +85,8 @@ const SocialEvents = () => {
         onSearchResults={handleSearchResults}
         currentPage={page}
         limit={limit}
+        activeFilter={activeFilter}
+        onSearch={handleSearch}
       />
 
       <EventListingFilters 

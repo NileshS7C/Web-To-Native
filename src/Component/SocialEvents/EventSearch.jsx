@@ -3,10 +3,9 @@ import { useSearchEvents } from '../../Hooks/SocialEventsHooks';
 import { useSelector } from 'react-redux';
 import { useSearchDebounce } from '../../Hooks/useSearchDebounce';
 
-const EventSearch = ({ onSearchResults, currentPage, limit }) => {
+const EventSearch = ({ onSearchResults, currentPage, limit, activeFilter = {}, onSearch}) => {
   const { userInfo } = useSelector((state) => state.auth);
   const ownerId = userInfo?.id;
-  // console.log(`🚀 || EventSearch.jsx:10 || EventSearch || ownerId:`, ownerId);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useSearchDebounce(searchTerm, 500);
 
@@ -14,7 +13,8 @@ const EventSearch = ({ onSearchResults, currentPage, limit }) => {
     ownerId, 
     searchTitle: debouncedSearch,
     page: currentPage,
-    limit: limit
+    limit: limit,
+    filters: activeFilter.id !== 'all' ? activeFilter : {}
   });
 
   useEffect(() => {
@@ -26,13 +26,17 @@ const EventSearch = ({ onSearchResults, currentPage, limit }) => {
     }
   }, [debouncedSearch, data, onSearchResults]);
 
+  const handleSearch = (searchTerm) => {
+    setSearchTerm(searchTerm);
+    onSearch(searchTerm);
+  }
   return (
     <div className="mt-4 md:w-[40%]">
       <input
         type="text"
         placeholder="Search events..."
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={(e) => handleSearch(e.target.value)}
         className="border px-4 py-2 w-full rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       {isLoading && <p className="text-gray-500 mt-2">Searching...</p>}
