@@ -22,6 +22,7 @@ import aboutUsSlice from "./AboutUs/aboutUsSlice"
 import userInfoSlice from "./Authentication/userInfoSlice"
 import axiosInstance, { setupAxiosInterceptors } from "../Services/axios";
 import { refreshTokens } from "./Authentication/authActions";
+import websToNative from "./WebToNative/webToNativeSlice"
 
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
@@ -46,7 +47,8 @@ const rootReducer = combineReducers({
   fixture: fixtureReducer,
   tour_Org: tour_OrganiserReducer,
   aboutUs: aboutUsSlice,
-  user: userInfoSlice
+  user: userInfoSlice,
+  websToNative:websToNative
 });
 
 const persistConfig = {
