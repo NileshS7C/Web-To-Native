@@ -1,14 +1,15 @@
 import { Toaster } from "react-hot-toast";
 import "./App.css";
 import AllRoutes from "./Routes/AllRoutes";
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { useEffect } from "react";
 import { setMobileConfig } from "./redux/WebToNative/webToNativeSlice";
 
 function App() {
-  // const platform = useSelector((state) => state.wtn.platform);
+  const platform = useSelector((state) => state.websToNative.platform);
+  console.log("platform",platform)
   const APP_SECRET = import.meta.env.VITE_APP_SECRET;
-  console.log("app secret", APP_SECRET)
+
   const dispatch = useDispatch();
   useEffect(() => {
     window.handleMobileConfig = (secret = "", platform = "browser") => {
