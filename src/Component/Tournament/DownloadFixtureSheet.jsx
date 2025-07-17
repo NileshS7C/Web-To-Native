@@ -7,7 +7,7 @@ const DownloadFixtureSheet = ({ isHybrid = false, tournamentId, categoryId, fixt
   const name = isHybrid ? 'Download Event Details' : 'Download Event Details';
   const stageId = fixture?.bracketData?.stage?.[0]?.id;
   const fixtureId = fixture?._id;
-
+  const platform = useSelector((state) => state.websToNative.platform);
   const [downloadError, setDownloadError] = useState('');
   const [downloading, setDownloading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -76,19 +76,34 @@ const DownloadFixtureSheet = ({ isHybrid = false, tournamentId, categoryId, fixt
 
   const triggerExcelDownload = async (response) => {
     const contentType = response.headers['content-type'];
-
     if (
       contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
       contentType.includes('application/vnd.ms-excel')
     ) {
       const blob = new Blob([response.data], { type: contentType });
-
       let filename = 'fixture_sheet.xlsx';
       const disposition = response.headers['content-disposition'];
       if (disposition && disposition.includes('filename=')) {
         filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
       }
-
+  
+      const androidPlatform =
+        typeof window !== 'undefined' &&
+        /android/i.test(navigator.userAgent) &&
+        typeof window.WTN !== 'undefined' &&
+        typeof window.WTN.downloadFile === 'function';
+  
+      if (platform==="android") {
+        try {
+          const blobUrl = window.URL.createObjectURL(blob);
+          await window.WTN.downloadFile(blobUrl, filename);
+          return;
+        } catch (err) {
+          console.warn('WebToNative download failed, falling back to browser download:', err);
+        }
+      }
+  
+      // Default browser fallback
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
       link.download = filename;
@@ -99,6 +114,7 @@ const DownloadFixtureSheet = ({ isHybrid = false, tournamentId, categoryId, fixt
       throw new Error('File is not an Excel sheet');
     }
   };
+  
 
   return (
     <div>
