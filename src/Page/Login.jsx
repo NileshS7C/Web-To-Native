@@ -11,14 +11,72 @@ import { useNavigate } from "react-router-dom";
 import { ErrorModal } from "../Component/Common/ErrorModal";
 import { SuccessModal } from "../Component/Common/SuccessModal";
 import { cleanUpError, showError } from "../redux/Error/errorSlice";
-import { useCookies } from "react-cookie";
+import { setMobileConfig } from "../redux/WebToNative/webToNativeSlice";
+function useDeviceInfoDialog() {
+  const [open, setOpen] = useState(false);
+  const [deviceInfo, setDeviceInfo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const handleClick = () => {
+    if (window.WTN && typeof window.WTN.deviceInfo === 'function') {
+      setLoading(true);
+      window.WTN.deviceInfo().then((value) => {
+        setDeviceInfo(value);
+        setLoading(false);
+        setOpen(true);
+      }).catch((err) => {
+        if (
+          typeof err === 'string' &&
+          err.includes('This function will work in Native App Powered By WebToNative')
+        ) {
+          dispatch(setMobileConfig({ platform: 'Browser' }));
+          alert('Good try! But this only works in the real app 😜');
+        } else {
+          setDeviceInfo({ error: 'Failed to get device info' });
+          setLoading(false);
+          setOpen(true);
+        }
+      });
+    }
+  };
+  const handleClose = () => setOpen(true);
+  const button = window.WTN && typeof window.WTN.deviceInfo === 'function' ? (
+    <button variant="contained" color="primary" onClick={handleClick} sx={{ mt: 2 }} disabled={loading}>
+      {loading ? 'Loading...' : 'Get Device Info'}
+    </button>
+  ) : null;
+
+  const dialog = (
+    <div open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <div>Device Info</div>
+      <div>
+        <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: 14, margin: 0 }}>
+          {deviceInfo ? JSON.stringify(deviceInfo, null, 2) : 'No data'}
+        </pre>
+      </div>
+      <div>
+        <button onClick={handleClose} color="primary">Close</button>
+      </div>
+    </div>
+  );
+  // Show device info in UI if available and not an error
+  const infoBox = deviceInfo && !deviceInfo.error ? (
+    <Paper elevation={2} sx={{ mt: 2, p: 2, textAlign: 'left', background: '#f3f4f6', maxWidth: 480, mx: 'auto', overflowX: 'auto' }}>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Device Info</Typography>
+      <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: 14, margin: 0 }}>
+        {JSON.stringify(deviceInfo, null, 2)}
+      </pre>
+    </Paper>
+  ) : null;
+  return { button, dialog, infoBox };
+}
 
 const LogInForm = ({ formData, formError }) => {
   const [email, setEmail] = useState("");
   const { isLoading } = useSelector((state) => state.auth);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [deviceinfo,setDeviceInfo]=useState("");
+  const [deviceinfo, setDeviceInfo] = useState("");
   const [error, setError] = useState({
     invalidEmail: false,
     invalidPass: false,
@@ -27,7 +85,8 @@ const LogInForm = ({ formData, formError }) => {
   const phoneRegex = /^\d{10}$/;
   const passRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\W_]{8,}$/;
-    const platform = useSelector((state) => state.websToNative.platform);
+  const platform = useSelector((state) => state.websToNative.platform);
+  const { button, dialog, infoBox } = useDeviceInfoDialog();
   useEffect(() => {
     formData({ email, password });
     if (error.invalidEmail || error.invalidPass) {
@@ -41,9 +100,7 @@ const LogInForm = ({ formData, formError }) => {
     setShowPassword((prev) => !prev);
   }, []);
 
-  const handleDeviceInfo=()=>{
-    setDeviceInfo(platform)
-  }
+
   return (
     <div className="flex flex-col gap-6 items-center w-full max-w-[500px] bg-white p-8 rounded-2xl">
       <div className="flex flex-col gap-3 items-center text-center">
@@ -125,8 +182,7 @@ const LogInForm = ({ formData, formError }) => {
           )}
         </div>
         <div>
-          <h1>Fetch Device Info {deviceinfo}</h1>
-          <button onClick={handleDeviceInfo}>Fetch Device Info</button>
+          {button}
         </div>
         <Button
           type="submit"
@@ -187,7 +243,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen w-full flex">
-      <form 
+      <form
         onSubmit={handleSubmit}
         className="w-full md:w-[40%] flex items-center justify-center p-4 relative z-10"
       >
@@ -213,6 +269,7 @@ const Login = () => {
     </div>
   );
 };
+
 
 const WrapperLogin = () => {
   return <Login />;
