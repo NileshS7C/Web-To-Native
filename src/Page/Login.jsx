@@ -18,6 +18,7 @@ const LogInForm = ({ formData, formError }) => {
   const { isLoading } = useSelector((state) => state.auth);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [deviceinfo,setDeviceInfo]=useState("");
   const [error, setError] = useState({
     invalidEmail: false,
     invalidPass: false,
@@ -26,7 +27,7 @@ const LogInForm = ({ formData, formError }) => {
   const phoneRegex = /^\d{10}$/;
   const passRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\W_]{8,}$/;
-
+    const platform = useSelector((state) => state.websToNative.platform);
   useEffect(() => {
     formData({ email, password });
     if (error.invalidEmail || error.invalidPass) {
@@ -40,6 +41,9 @@ const LogInForm = ({ formData, formError }) => {
     setShowPassword((prev) => !prev);
   }, []);
 
+  const handleDeviceInfo=()=>{
+    setDeviceInfo(platform)
+  }
   return (
     <div className="flex flex-col gap-6 items-center w-full max-w-[500px] bg-white p-8 rounded-2xl">
       <div className="flex flex-col gap-3 items-center text-center">
@@ -120,7 +124,10 @@ const LogInForm = ({ formData, formError }) => {
             </TextError>
           )}
         </div>
-
+        <div>
+          <h1>Fetch Device Info {deviceinfo}</h1>
+          <button onClick={handleDeviceInfo}>Fetch Device Info</button>
+        </div>
         <Button
           type="submit"
           className="w-full py-3 bg-[#1570EF] text-white rounded-xl hover:bg-blue-600 transition-colors"
