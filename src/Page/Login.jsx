@@ -61,7 +61,7 @@ function useDeviceInfoDialog() {
     </div>
   );
   if (deviceInfo) {
-    alert("device info", JSON.stringify(deviceInfo, null, 2))
+    alert("Device Info:\n" + JSON.stringify(deviceInfo, null, 2));
   }
   // Show device info in UI if available and not an error
   const infoBox = deviceInfo && !deviceInfo.error ? (
