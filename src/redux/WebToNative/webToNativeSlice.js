@@ -9,7 +9,7 @@ const wtnSlice = createSlice({
     initialState,
     reducers: {
         setMobileConfig(state, action) {
-            console.log("state")
+            console.log("state",action.payload.platform)
             state.platform = action.payload.platform;
         },
     },
