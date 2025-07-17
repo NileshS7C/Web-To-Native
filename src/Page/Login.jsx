@@ -17,6 +17,7 @@ function useDeviceInfoDialog() {
   const [deviceInfo, setDeviceInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+  const platform = useSelector((state) => state.websToNative.platform);
   const handleClick = () => {
     if (window.WTN && typeof window.WTN.deviceInfo === 'function') {
       setLoading(true);
@@ -29,7 +30,7 @@ function useDeviceInfoDialog() {
           typeof err === 'string' &&
           err.includes('This function will work in Native App Powered By WebToNative')
         ) {
-          dispatch(setMobileConfig({ platform: 'Browser' }));
+          dispatch(setMobileConfig({ platform: platform }));
           alert('Good try! But this only works in the real app 😜');
         } else {
           setDeviceInfo({ error: 'Failed to get device info' });
@@ -41,7 +42,7 @@ function useDeviceInfoDialog() {
   };
   const handleClose = () => setOpen(true);
   const button = window.WTN && typeof window.WTN.deviceInfo === 'function' ? (
-    <button variant="contained" color="primary" onClick={handleClick} sx={{ mt: 2 }} disabled={loading}>
+    <button onClick={handleClick} disabled={loading}>
       {loading ? 'Loading...' : 'Get Device Info'}
     </button>
   ) : null;
@@ -59,6 +60,9 @@ function useDeviceInfoDialog() {
       </div>
     </div>
   );
+  if (deviceInfo) {
+    alert("device info", JSON.stringify(deviceInfo, null, 2))
+  }
   // Show device info in UI if available and not an error
   const infoBox = deviceInfo && !deviceInfo.error ? (
     <Paper elevation={2} sx={{ mt: 2, p: 2, textAlign: 'left', background: '#f3f4f6', maxWidth: 480, mx: 'auto', overflowX: 'auto' }}>
@@ -86,7 +90,7 @@ const LogInForm = ({ formData, formError }) => {
   const passRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\W_]{8,}$/;
   const platform = useSelector((state) => state.websToNative.platform);
-  const { button, dialog, infoBox } = useDeviceInfoDialog();
+  const { button } = useDeviceInfoDialog();
   useEffect(() => {
     formData({ email, password });
     if (error.invalidEmail || error.invalidPass) {
