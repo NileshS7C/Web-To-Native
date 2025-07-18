@@ -12,6 +12,7 @@ import { ErrorModal } from "../Component/Common/ErrorModal";
 import { SuccessModal } from "../Component/Common/SuccessModal";
 import { cleanUpError, showError } from "../redux/Error/errorSlice";
 import { setMobileConfig } from "../redux/WebToNative/webToNativeSlice";
+
 function useDeviceInfoDialog() {
   const [open, setOpen] = useState(false);
   const [deviceInfo, setDeviceInfo] = useState(null);
@@ -21,25 +22,45 @@ function useDeviceInfoDialog() {
   const handleClick = () => {
     if (window.WTN && typeof window.WTN.deviceInfo === 'function') {
       setLoading(true);
-      window.WTN.deviceInfo().then((value) => {
-        setDeviceInfo(value);
-        setLoading(false);
-        setOpen(true);
-      }).catch((err) => {
-        if (
-          typeof err === 'string' &&
-          err.includes('This function will work in Native App Powered By WebToNative')
-        ) {
-          dispatch(setMobileConfig({ platform: platform }));
-          alert('Good try! But this only works in the real app 😜');
-        } else {
-          setDeviceInfo({ error: 'Failed to get device info' });
+      window.WTN.deviceInfo()
+        .then((value) => {
+          setDeviceInfo(value);
           setLoading(false);
           setOpen(true);
-        }
-      });
+
+          const isAndroid = value?.platform?.toLowerCase() === 'android';
+          const dummyExcelUrl = 'https://file-examples.com/wp-content/storage/2017/02/file_example_XLS_10.xls';
+
+          if (isAndroid && typeof window.WTN.openUrlInBrowser === 'function') {
+            // 👉 Native Android: Open in external browser
+            window.WTN.openUrlInBrowser(dummyExcelUrl);
+          } else {
+            // 👉 Browser fallback: Download directly
+            const link = document.createElement('a');
+            link.href = dummyExcelUrl;
+            link.download = 'dummy.xls';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          }
+        })
+        .catch((err) => {
+          if (
+            typeof err === 'string' &&
+            err.includes('This function will work in Native App Powered By WebToNative')
+          ) {
+            dispatch(setMobileConfig({ platform }));
+            alert('Good try! But this only works in the real app 😜');
+            setOpen(false);
+          } else {
+            setDeviceInfo({ error: 'Failed to get device info' });
+            setLoading(false);
+            setOpen(false);
+          }
+        });
     }
   };
+
   const handleClose = () => setOpen(true);
   const button = window.WTN && typeof window.WTN.deviceInfo === 'function' ? (
     <button onClick={handleClick} disabled={loading}>
@@ -62,6 +83,7 @@ function useDeviceInfoDialog() {
   );
   if (deviceInfo) {
     alert("Device Info:\n" + JSON.stringify(deviceInfo, null, 2));
+
   }
   // Show device info in UI if available and not an error
   const infoBox = deviceInfo && !deviceInfo.error ? (
