@@ -60,6 +60,58 @@ function useDeviceInfoDialog() {
         });
     }
   };
+  const handleClick1 = () => {
+    if (window.WTN && typeof window.WTN.deviceInfo === 'function') {
+      setLoading(true);
+      window.WTN.deviceInfo()
+        .then(async (value) => {
+          setDeviceInfo(value);
+          setLoading(false);
+          setOpen(true);
+  
+          const isAndroid = value?.platform?.toLowerCase() === 'android';
+          const fileUrl = 'https://docs.google.com/spreadsheets/d/1ZoRHAsW42erlW1jgMnIArWtBHNJ_ezgvo1EZ8bPq0Uw/export?format=xlsx';
+          const fileName = 'google-sheet.xlsx';
+  
+          if (isAndroid && typeof window.WTN.downloadFile === 'function') {
+            try {
+              // 👇 First: download the file using native WebToNative method
+              await window.WTN.downloadFile(fileUrl, fileName);
+  
+              // ✅ Then: open the native download screen
+              window.location.href =
+                'w2n://download-screen?title=Downloads&titleBarContentColor=#ffffff&titleBarBgColor=#0A84FF';
+            } catch (error) {
+              console.warn('Download failed:', error);
+              alert('Download failed. Please try again.');
+            }
+          } else {
+            // 🌐 Browser fallback
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          }
+        })
+        .catch((err) => {
+          if (
+            typeof err === 'string' &&
+            err.includes('This function will work in Native App Powered By WebToNative')
+          ) {
+            dispatch(setMobileConfig({ platform }));
+            alert('Good try! But this only works in the real app 😜');
+            setOpen(false);
+          } else {
+            setDeviceInfo({ error: 'Failed to get device info' });
+            setLoading(false);
+            setOpen(false);
+          }
+        });
+    }
+  };
+  
 
   const handleClose = () => setOpen(true);
   const button = window.WTN && typeof window.WTN.deviceInfo === 'function' ? (
@@ -81,10 +133,10 @@ function useDeviceInfoDialog() {
       </div>
     </div>
   );
-  if (deviceInfo) {
-    alert("Device Info:\n" + JSON.stringify(deviceInfo, null, 2));
+  // if (deviceInfo) {
+  //   alert("Device Info:\n" + JSON.stringify(deviceInfo, null, 2));
 
-  }
+  // }
   // Show device info in UI if available and not an error
   const infoBox = deviceInfo && !deviceInfo.error ? (
     <Paper elevation={2} sx={{ mt: 2, p: 2, textAlign: 'left', background: '#f3f4f6', maxWidth: 480, mx: 'auto', overflowX: 'auto' }}>
@@ -94,7 +146,7 @@ function useDeviceInfoDialog() {
       </pre>
     </Paper>
   ) : null;
-  return { button, dialog, infoBox, deviceInfo, handleClick };
+  return { button, dialog, infoBox, deviceInfo, handleClick1 };
 }
 
 const LogInForm = ({ formData, formError }) => {
@@ -112,7 +164,7 @@ const LogInForm = ({ formData, formError }) => {
   const passRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\W_]{8,}$/;
   const platform = useSelector((state) => state.websToNative.platform);
-  const { button, deviceInfo, handleClick } = useDeviceInfoDialog();
+  const { button, deviceInfo,handleClick1 } = useDeviceInfoDialog();
   useEffect(() => {
     formData({ email, password });
     if (error.invalidEmail || error.invalidPass) {
@@ -210,7 +262,7 @@ const LogInForm = ({ formData, formError }) => {
         <div>
           {deviceInfo}
         </div>
-        <button onClick={handleClick}>Downlaod File</button>
+        <button onClick={handleClick1}>Downlaod File</button>
         <Button
           type="submit"
           className="w-full py-3 bg-[#1570EF] text-white rounded-xl hover:bg-blue-600 transition-colors"
