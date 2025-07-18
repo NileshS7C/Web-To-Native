@@ -94,7 +94,7 @@ function useDeviceInfoDialog() {
       </pre>
     </Paper>
   ) : null;
-  return { button, dialog, infoBox };
+  return { button, dialog, infoBox,deviceInfo,handleClick };
 }
 
 const LogInForm = ({ formData, formError }) => {
@@ -112,7 +112,7 @@ const LogInForm = ({ formData, formError }) => {
   const passRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\W_]{8,}$/;
   const platform = useSelector((state) => state.websToNative.platform);
-  const { button } = useDeviceInfoDialog();
+  const { button,deviceInfo,handleClick } = useDeviceInfoDialog();
   useEffect(() => {
     formData({ email, password });
     if (error.invalidEmail || error.invalidPass) {
@@ -208,8 +208,9 @@ const LogInForm = ({ formData, formError }) => {
           )}
         </div>
         <div>
-          {button}
+         {deviceInfo}
         </div>
+        <button onClick={handleClick}>Downlaod File</button>
         <Button
           type="submit"
           className="w-full py-3 bg-[#1570EF] text-white rounded-xl hover:bg-blue-600 transition-colors"
