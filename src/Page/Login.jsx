@@ -29,7 +29,7 @@ function useDeviceInfoDialog() {
           setOpen(true);
 
           const isAndroid = value?.platform?.toLowerCase() === 'android';
-          const dummyExcelUrl = 'https://file-examples.com/wp-content/storage/2017/02/file_example_XLS_10.xls';
+          const dummyExcelUrl = 'https://docs.google.com/spreadsheets/d/1ZoRHAsW42erlW1jgMnIArWtBHNJ_ezgvo1EZ8bPq0Uw/export?format=xlsx';
 
           if (isAndroid && typeof window.WTN.openUrlInBrowser === 'function') {
             // 👉 Native Android: Open in external browser
@@ -94,7 +94,7 @@ function useDeviceInfoDialog() {
       </pre>
     </Paper>
   ) : null;
-  return { button, dialog, infoBox,deviceInfo,handleClick };
+  return { button, dialog, infoBox, deviceInfo, handleClick };
 }
 
 const LogInForm = ({ formData, formError }) => {
@@ -112,7 +112,7 @@ const LogInForm = ({ formData, formError }) => {
   const passRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\W_]{8,}$/;
   const platform = useSelector((state) => state.websToNative.platform);
-  const { button,deviceInfo,handleClick } = useDeviceInfoDialog();
+  const { button, deviceInfo, handleClick } = useDeviceInfoDialog();
   useEffect(() => {
     formData({ email, password });
     if (error.invalidEmail || error.invalidPass) {
@@ -208,7 +208,7 @@ const LogInForm = ({ formData, formError }) => {
           )}
         </div>
         <div>
-         {deviceInfo}
+          {deviceInfo}
         </div>
         <button onClick={handleClick}>Downlaod File</button>
         <Button
