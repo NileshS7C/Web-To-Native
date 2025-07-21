@@ -777,7 +777,6 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           window.WTN.customFileDownload({
             fileName: fileName,
             downloadUrl: base64data,
-            mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             cookies: "",
             isBlob: true,
             userAgent: "",
