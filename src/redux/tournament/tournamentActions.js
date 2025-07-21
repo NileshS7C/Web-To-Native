@@ -768,7 +768,9 @@ export const downloadSheetOfPlayers = createAsyncThunk(
       }
       console.log("filename>>",fileName)
 
-      if (platform === "android") {
+      // Use the native download function if it exists (i.e., we are in the Web-to-Native app)
+      if (window.WTN && typeof window.WTN.customFileDownload === 'function' && platform === "android") {
+        const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
         const reader = new FileReader();
         reader.readAsDataURL(response.data);
         reader.onloadend = () => {
@@ -776,15 +778,17 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           window.WTN.customFileDownload({
             fileName: fileName,
             downloadUrl: base64data,
-            mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            mimeType: mimeType,
             cookies: "",
-            isBlob: false,
+            isBlob: false, // We are sending a Base64 string, not a blob URL
             userAgent: "",
             openFileAfterDownload: true
           });
         };
       } else {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
+        // Fallback for standard web browsers
+        const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
         const link = document.createElement("a");
         link.href = url;
         link.setAttribute("download", fileName);
