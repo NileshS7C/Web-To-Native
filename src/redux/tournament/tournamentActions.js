@@ -766,33 +766,31 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           fileName = decodeURIComponent(fileName);
         }
       }
-      
-      const reader = new FileReader();
-      const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-      reader.readAsDataURL(blob);
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
 
+      alert("Url", url)
+      console.log("url,.,,,,.>>>,", url)
       if (platform === "android") {
-        reader.onloadend = () => {
-          const base64data = reader.result.split(',')[1];
-          window.WTN.customFileDownload({
-            fileName: fileName,
-            downloadUrl: base64data,
-            cookies: "",
-            isBlob: false,
-            userAgent: "",
-            openFileAfterDownload: true
-          });
-        };
-      } else {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
+        const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        const blob = new Blob([response.data], { type: mimeType });
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.WTN.customFileDownload({
+          fileName: fileName,
+          downloadUrl: blobUrl,
+          mimeType: "application/pdf",
+          cookies: "",
+          isBlob: true,
+          userAgent: "",
+          openFileAfterDownload: true
+        })
       }
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       if (
         err.response &&
