@@ -452,13 +452,14 @@ const TournamentActionButton = ({
             className="bg-blue-400 flex h-[24px] sm:h-auto sm:w-46 items-center justify-center gap-2 px-4 py-2  text-customColor ml-auto rounded-[8px] hover:bg-[#1570EF] shadow-lg transition-transform duration-200 ease-in-out  active:translate-y-1 active:scale-95 text-xs sm:text-base md:text-md lg:text-lg"
             type="button"
             onClick={() => {
+              const currentPlatform = window.WTN?.platform ? window.WTN.platform() : 'Browser';
               dispatch(
                 downloadSheetOfPlayers({
                   tournamentId: tournament._id.toString(),
                   ownerId: tournament?.ownerUserId?.toString(),
                   tournamentName:
                     tournament?.tournamentName || "Tournament-Bookings",
-                    platform
+                    platform: currentPlatform
                 })
               );
             }}

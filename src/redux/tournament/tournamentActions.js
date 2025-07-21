@@ -768,8 +768,16 @@ export const downloadSheetOfPlayers = createAsyncThunk(
       }
       console.log("filename>>",fileName)
 
+      console.log("Starting download logic...");
+      console.log("Platform:", platform);
+      console.log("Does window.WTN exist?", window.WTN);
+      if (window.WTN) {
+        console.log("Type of window.WTN.customFileDownload:", typeof window.WTN.customFileDownload);
+      }
+
       // Use the native download function if it exists (i.e., we are in the Web-to-Native app)
       if (window.WTN && typeof window.WTN.customFileDownload === 'function' && platform === "android") {
+        console.log(">>> Using NATIVE download path for Android.");
         const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
         const reader = new FileReader();
         reader.readAsDataURL(response.data);
@@ -786,6 +794,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           });
         };
       } else {
+        console.log(">>> Using WEB download path (fallback).");
         // Fallback for standard web browsers
         const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
         const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
