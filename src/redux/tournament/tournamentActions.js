@@ -783,7 +783,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
         const reader = new FileReader();
         reader.readAsDataURL(response.data);
         reader.onloadend = () => {
-          const base64data = reader.result.split(',')[1];
+          const base64data = reader.result; // Send the full data URI
           window.WTN.customFileDownload({
             fileName: fileName,
             downloadUrl: base64data,
