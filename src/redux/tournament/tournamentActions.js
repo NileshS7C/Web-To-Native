@@ -778,7 +778,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
             fileName: fileName,
             downloadUrl: base64data,
             cookies: "",
-            isBlob: true,
+            isBlob: false,
             userAgent: "",
             openFileAfterDownload: true
           });
