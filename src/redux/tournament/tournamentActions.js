@@ -777,23 +777,41 @@ export const downloadSheetOfPlayers = createAsyncThunk(
         console.log("Type of window.WTN.customFileDownload:", typeof window.WTN.customFileDownload);
       }
 
-      // FORCED TEST: Directly use the native download path. This may crash the app if window.WTN is not ready.
-      console.log(">>> FORCING NATIVE download path for testing.");
-      const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
-      const reader = new FileReader();
-      reader.readAsDataURL(response.data);
-      reader.onloadend = () => {
-        const base64data = reader.result.split(',')[1];
+      // Use the native download function if it exists (i.e., we are in the Web-to-Native app)
+      if (window.WTN && typeof window.WTN.customFileDownload === 'function') {
+        console.log(">>> Using NATIVE download path with isBlob: true.");
+        const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
+
+        // Create a blob URL, which is a temporary, in-memory URL.
+        const blob = new Blob([response.data], { type: mimeType });
+        const blobUrl = window.URL.createObjectURL(blob);
+
         window.WTN.customFileDownload({
           fileName: fileName,
-          downloadUrl: base64data,
+          downloadUrl: blobUrl, // Pass the blob URL
           mimeType: mimeType,
           cookies: "",
-          isBlob: false, 
+          isBlob: true, // Tell the native function this is a blob URL
           userAgent: "",
           openFileAfterDownload: true
         });
-      };
+
+        // Revoke the URL after a delay to give the native side time to process it.
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
+
+      } else {
+        console.log(">>> Using WEB download path (fallback).");
+        // Fallback for standard web browsers
+        const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      }
     } catch (err) {
       if (
         err.response &&
