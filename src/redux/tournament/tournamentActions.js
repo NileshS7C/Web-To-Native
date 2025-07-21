@@ -755,6 +755,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           responseType: "blob",
         }
       );
+      console.log("platform>>>",platform)
       const contentDisposition = response.headers["content-disposition"];
       let fileName = `${tournamentName}.xlsx`;
       if (contentDisposition) {
