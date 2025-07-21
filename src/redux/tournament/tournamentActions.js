@@ -767,14 +767,32 @@ export const downloadSheetOfPlayers = createAsyncThunk(
         }
       }
       console.log("filename>>",fileName)
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+
+      if (platform === "android") {
+        const reader = new FileReader();
+        reader.readAsDataURL(response.data);
+        reader.onloadend = () => {
+          const base64data = reader.result.split(',')[1];
+          window.WTN.customFileDownload({
+            fileName: fileName,
+            downloadUrl: base64data,
+            mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            cookies: "",
+            isBlob: false,
+            userAgent: "",
+            openFileAfterDownload: true
+          });
+        };
+      } else {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      }
     } catch (err) {
       if (
         err.response &&
