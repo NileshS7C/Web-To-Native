@@ -766,10 +766,12 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           fileName = decodeURIComponent(fileName);
         }
       }
+      
+      const reader = new FileReader();
+      const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      reader.readAsDataURL(blob);
 
       if (platform === "android") {
-        const reader = new FileReader();
-        reader.readAsDataURL(response.data);
         reader.onloadend = () => {
           const base64data = reader.result;
           window.WTN.customFileDownload({
@@ -783,7 +785,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           });
         };
       } else {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
         link.setAttribute("download", fileName);
