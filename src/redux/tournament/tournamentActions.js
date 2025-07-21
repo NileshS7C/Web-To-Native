@@ -772,7 +772,6 @@ export const downloadSheetOfPlayers = createAsyncThunk(
       reader.readAsDataURL(blob);
 
       if (platform === "android") {
-
         reader.onloadend = () => {
           const base64data = reader.result.split(',')[1];
           window.WTN.customFileDownload({
@@ -782,7 +781,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
             cookies: "",
             isBlob: true,
             userAgent: "",
-            openFileAfterDownload: true
+            openFileAfterDownload: false
           });
         };
       } else {
