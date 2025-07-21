@@ -772,8 +772,9 @@ export const downloadSheetOfPlayers = createAsyncThunk(
       reader.readAsDataURL(blob);
 
       if (platform === "android") {
+
         reader.onloadend = () => {
-          const base64data = reader.result;
+          const base64data = reader.result.split(',')[1];
           window.WTN.customFileDownload({
             fileName: fileName,
             downloadUrl: base64data,
