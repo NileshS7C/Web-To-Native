@@ -777,13 +777,13 @@ export const downloadSheetOfPlayers = createAsyncThunk(
       }
 
       // Use the native download function if it exists (i.e., we are in the Web-to-Native app)
-      if (window.WTN && typeof window.WTN.customFileDownload === 'function' && platform === "android") {
-        console.log(">>> Using NATIVE download path for Android.");
+      if (window.WTN && typeof window.WTN.customFileDownload === 'function') {
+        console.log(">>> Using NATIVE download path.");
         const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
         const reader = new FileReader();
         reader.readAsDataURL(response.data);
         reader.onloadend = () => {
-          const base64data = reader.result; // Send the full data URI
+          const base64data = reader.result.split(',')[1];
           window.WTN.customFileDownload({
             fileName: fileName,
             downloadUrl: base64data,
