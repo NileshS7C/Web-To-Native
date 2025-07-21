@@ -35,7 +35,7 @@ function useDeviceInfoDialog() {
             // 👉 Native Android: Open in external browser
             window.WTN.openUrlInBrowser(dummyExcelUrl);
           } else {
-            // 👉 Browser fallback: Download directly
+            //  Browser fallback: Download directly
             const link = document.createElement('a');
             link.href = dummyExcelUrl;
             link.download = 'dummy.xls';
