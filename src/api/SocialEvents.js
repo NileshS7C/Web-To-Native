@@ -495,6 +495,7 @@ export const exportEventBookings = async (eventId, ownerId) => {
     const link = document.createElement('a');
     link.href = url;
     console.log("link>>>>",link)
+    alert("url>>>>",link)
     // Get filename from content-disposition header or use default
     const filename = response.headers['content-disposition']?.split('filename=')[1]?.replace(/"/g, '') || 'event-bookings.xlsx';
     link.setAttribute('download', filename);
