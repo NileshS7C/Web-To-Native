@@ -766,26 +766,10 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           fileName = decodeURIComponent(fileName);
         }
       }
+      console.log("filename>>",fileName)
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-
-      alert("Url", url)
-      console.log("url,.,,,,.>>>,", url)
-      if (platform === "android") {
-        const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        const blob = new Blob([response.data], { type: mimeType });
-        const blobUrl = window.URL.createObjectURL(blob);
-        window.WTN.customFileDownload({
-          fileName: fileName,
-          downloadUrl: blobUrl,
-          mimeType: mimeType,
-          cookies: "",
-          isBlob: true,
-          userAgent: "",
-          openFileAfterDownload: true
-        })
-      }
       link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
