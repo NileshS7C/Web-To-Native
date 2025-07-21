@@ -780,7 +780,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
             cookies: "",
             isBlob: true,
             userAgent: "",
-            openFileAfterDownload: false
+            openFileAfterDownload: true
           });
         };
       } else {
