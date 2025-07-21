@@ -772,6 +772,8 @@ export const downloadSheetOfPlayers = createAsyncThunk(
       }
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
+      console.log("url>>>>",link)
+      alert("url",url)
       link.href = url;
       link.setAttribute("download", fileName);
       document.body.appendChild(link);
