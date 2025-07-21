@@ -766,29 +766,32 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           fileName = decodeURIComponent(fileName);
         }
       }
-      const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-      const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
-      const link = document.createElement("a");
-      link.href = url;
 
-      alert("Url", url)
-      console.log("url,.,,,,.>>>,", url)
       if (platform === "android") {
-        window.WTN.customFileDownload({
-          fileName: fileName,
-          downloadUrl: url,
-          mimeType: mimeType,
-          cookies: "",
-          isBlob: true,
-          userAgent: "",
-          openFileAfterDownload: true
-        })
+        const reader = new FileReader();
+        reader.readAsDataURL(response.data);
+        reader.onloadend = () => {
+          const base64data = reader.result;
+          window.WTN.customFileDownload({
+            fileName: fileName,
+            downloadUrl: base64data,
+            mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            cookies: "",
+            isBlob: false,
+            userAgent: "",
+            openFileAfterDownload: true
+          });
+        };
+      } else {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
       }
-      link.setAttribute("download", fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
     } catch (err) {
       if (
         err.response &&
