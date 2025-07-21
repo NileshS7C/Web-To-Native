@@ -756,6 +756,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
         }
       );
       console.log("platform>>>",platform)
+      console.log("response>>>",response)
       const contentDisposition = response.headers["content-disposition"];
       let fileName = `${tournamentName}.xlsx`;
       if (contentDisposition) {
@@ -776,37 +777,23 @@ export const downloadSheetOfPlayers = createAsyncThunk(
         console.log("Type of window.WTN.customFileDownload:", typeof window.WTN.customFileDownload);
       }
 
-      // Use the native download function if it exists (i.e., we are in the Web-to-Native app)
-      if (window.WTN && typeof window.WTN.customFileDownload === 'function') {
-        console.log(">>> Using NATIVE download path.");
-        const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
-        const reader = new FileReader();
-        reader.readAsDataURL(response.data);
-        reader.onloadend = () => {
-          const base64data = reader.result.split(',')[1];
-          window.WTN.customFileDownload({
-            fileName: fileName,
-            downloadUrl: base64data,
-            mimeType: mimeType,
-            cookies: "",
-            isBlob: false, // We are sending a Base64 string, not a blob URL
-            userAgent: "",
-            openFileAfterDownload: true
-          });
-        };
-      } else {
-        console.log(">>> Using WEB download path (fallback).");
-        // Fallback for standard web browsers
-        const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
-        const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      }
+      // FORCED TEST: Directly use the native download path. This may crash the app if window.WTN is not ready.
+      console.log(">>> FORCING NATIVE download path for testing.");
+      const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
+      const reader = new FileReader();
+      reader.readAsDataURL(response.data);
+      reader.onloadend = () => {
+        const base64data = reader.result.split(',')[1];
+        window.WTN.customFileDownload({
+          fileName: fileName,
+          downloadUrl: base64data,
+          mimeType: mimeType,
+          cookies: "",
+          isBlob: false, 
+          userAgent: "",
+          openFileAfterDownload: true
+        });
+      };
     } catch (err) {
       if (
         err.response &&
