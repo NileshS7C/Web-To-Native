@@ -772,11 +772,15 @@ export const downloadSheetOfPlayers = createAsyncThunk(
 
       alert("Url", url)
       console.log("url,.,,,,.>>>,", url)
+      console.log("fileName,.,,,,.>>>,", fileName)
       if (platform === "android") {
+        const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        const blob = new Blob([response.data], { type: mimeType });
+        const downloadURL = window.URL.createObjectURL(blob);
         window.WTN.customFileDownload({
           fileName: fileName,
-          downloadUrl: url,
-          mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          downloadUrl: downloadURL,
+          mimeType,
           cookies: "",
           isBlob: true,
           userAgent: "",
