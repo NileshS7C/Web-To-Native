@@ -776,7 +776,6 @@ export const downloadSheetOfPlayers = createAsyncThunk(
         window.WTN.customFileDownload({
           fileName: fileName,
           downloadUrl: url,
-          mimeType: "application/pdf",
           cookies: "",
           isBlob: true,
           userAgent: "",
