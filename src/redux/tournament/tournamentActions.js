@@ -780,7 +780,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
             downloadUrl: base64data,
             mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             cookies: "",
-            isBlob: false,
+            isBlob: true,
             userAgent: "",
             openFileAfterDownload: true
           });
