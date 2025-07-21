@@ -779,26 +779,23 @@ export const downloadSheetOfPlayers = createAsyncThunk(
 
       // Use the native download function if it exists (i.e., we are in the Web-to-Native app)
       if (window.WTN && typeof window.WTN.customFileDownload === 'function') {
-        console.log(">>> Using NATIVE download path with isBlob: true.");
+        console.log(">>> Using NATIVE download path with full Base64 data URI.");
         const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
-
-        // Create a blob URL, which is a temporary, in-memory URL.
-        const blob = new Blob([response.data], { type: mimeType });
-        const blobUrl = window.URL.createObjectURL(blob);
-
-        window.WTN.customFileDownload({
-          fileName: fileName,
-          downloadUrl: blobUrl, // Pass the blob URL
-          mimeType: mimeType,
-          cookies: "",
-          isBlob: true, // Tell the native function this is a blob URL
-          userAgent: "",
-          openFileAfterDownload: true
-        });
-
-        // Revoke the URL after a delay to give the native side time to process it.
-        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
-
+        const reader = new FileReader();
+        reader.readAsDataURL(response.data);
+        reader.onloadend = () => {
+          // Pass the entire data URI, e.g., "data:mime/type;base64,..."
+          const base64data = reader.result; 
+          window.WTN.customFileDownload({
+            fileName: fileName,
+            downloadUrl: base64data,
+            mimeType: mimeType,
+            cookies: "",
+            isBlob: false, 
+            userAgent: "",
+            openFileAfterDownload: true
+          });
+        };
       } else {
         console.log(">>> Using WEB download path (fallback).");
         // Fallback for standard web browsers
