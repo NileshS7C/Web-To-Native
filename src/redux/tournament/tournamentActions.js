@@ -71,7 +71,7 @@ export const searchTournament = createAsyncThunk(
 
 export const changeTournamentStatus = createAsyncThunk(
   "Tournament/changeTournamentStatus",
-  async ({ tournamentId, ownerId ,action}, { rejectWithValue }) => {
+  async ({ tournamentId, ownerId, action }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint = API_END_POINTS.tournament.POST.changeTournamentStatus(
         tournamentId,
@@ -89,7 +89,7 @@ export const changeTournamentStatus = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const data={actionType : action === "Archive" ? "ARCHIVED" : "COMPLETED"} 
+      const data = { actionType: action === "Archive" ? "ARCHIVED" : "COMPLETED" }
       const response = await axiosInstance.post(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         JSON.stringify(data),
@@ -117,7 +117,7 @@ export const submitFinalTournament = createAsyncThunk(
   "Tournament/submitFinalTournament",
   async ({ formData }, { rejectWithValue }) => {
     try {
-      console.log("Printing formdata",formData);
+      console.log("Printing formdata", formData);
       const userAPIEndPoint =
         API_END_POINTS.tournament.POST.tournamentCreation();
       const config = {
@@ -159,8 +159,7 @@ export const getAll_TO = createAsyncThunk(
         },
       };
       const response = await axiosInstance.get(
-        `${
-          import.meta.env.VITE_BASE_URL
+        `${import.meta.env.VITE_BASE_URL
         }/users/admin/tournament-owners?page=${currentPage}&limit=${limit}`,
         config
       );
@@ -398,7 +397,7 @@ export const updateEventCategory = createAsyncThunk(
 
 export const getAllCategories = createAsyncThunk(
   "Tournament/getAllCategories",
-  async ({ currentPage, limit,sort, id }, { rejectWithValue }) => {
+  async ({ currentPage, limit, sort, id }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.getAllCategoriesByTournament(
@@ -410,8 +409,7 @@ export const getAllCategories = createAsyncThunk(
         },
       };
       const response = await axiosInstance.get(
-        `${
-          import.meta.env.VITE_BASE_URL
+        `${import.meta.env.VITE_BASE_URL
         }${userAPIEndPoint}?page=${currentPage}&sort=${sort}&limit=${limit}`,
         config
       );
@@ -598,9 +596,8 @@ export const getAllBookings = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      let url = `${
-        import.meta.env.VITE_BASE_URL
-      }${userAPIEndPoint}?page=${currentPage}&limit=${limit}`;
+      let url = `${import.meta.env.VITE_BASE_URL
+        }${userAPIEndPoint}?page=${currentPage}&limit=${limit}`;
 
       if (["CONFIRMED"].includes(status)) {
         url += `&status=${status}`;
@@ -643,9 +640,8 @@ export const getSearchBookings = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      let url = `${
-        import.meta.env.VITE_BASE_URL
-      }${userAPIEndPoint}?page=${currentPage}&limit=${limit}`;
+      let url = `${import.meta.env.VITE_BASE_URL
+        }${userAPIEndPoint}?page=${currentPage}&limit=${limit}`;
 
       if (["CONFIRMED"].includes(status)) {
         url += `&status=${status}`;
@@ -741,7 +737,7 @@ export const cancelAndRefundBooking = createAsyncThunk(
 
 export const downloadSheetOfPlayers = createAsyncThunk(
   "GET_TOUR/downloadSheetOfPLayers",
-  async ({ tournamentId, ownerId, tournamentName }, { rejectWithValue }) => {
+  async ({ tournamentId, ownerId, tournamentName, platform }, { rejectWithValue }) => {
     try {
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.downloadSheetOfPlayers(
@@ -772,9 +768,21 @@ export const downloadSheetOfPlayers = createAsyncThunk(
       }
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
-      console.log("url>>>>",link)
-      alert("url",url)
       link.href = url;
+
+      alert("Url", url)
+      console.log("url,.,,,,.>>>,", url)
+      if (platform === "android") {
+        window.WTN.customFileDownload({
+          fileName: fileName,
+          downloadUrl: url,
+          mimeType: "application/pdf",
+          cookies: "",
+          isBlob: true,
+          userAgent: "",
+          openFileAfterDownload: true
+        })
+      }
       link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();

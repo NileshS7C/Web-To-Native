@@ -350,7 +350,7 @@ const TournamentActionButton = ({
   submitForm,
   isSubmitting,
 }) => {
-
+  const platform = useSelector((state) => state.websToNative.platform);
   const {rolesAccess}=useOwnerDetailsContext()
   return (
     <div className="flex gap-2.5 items-center">
@@ -458,6 +458,7 @@ const TournamentActionButton = ({
                   ownerId: tournament?.ownerUserId?.toString(),
                   tournamentName:
                     tournament?.tournamentName || "Tournament-Bookings",
+                    platform
                 })
               );
             }}
