@@ -780,14 +780,24 @@ export const downloadSheetOfPlayers = createAsyncThunk(
 
         // Proper base64 downloadUrl with data: prefix
         const downloadUrl = `data:${mimeType};base64,${base64}`;
-
+        const dummydata = {
+          fileName: "your_file_name.pdf",
+          downloadUrl: "https://tourism.gov.in/sites/default/files/2019-04/dummy-pdf_2.pdf",
+          mimeType: "application/pdf",
+          cookies: "",
+          isBlob: false,
+          userAgent: "",
+          openFileAfterDownload: false
+        }
         // Send to native layer
         window.WTN?.customFileDownload?.({
-          fileName,
-          downloadUrl,
-          mimeType,
-          isBlob: true,
-          openFileAfterDownload: false,
+          fileName: "your_file_name.pdf",
+          downloadUrl: "https://tourism.gov.in/sites/default/files/2019-04/dummy-pdf_2.pdf",
+          mimeType: "application/pdf",
+          cookies: "",
+          isBlob: false,
+          userAgent: "",
+          openFileAfterDownload: false
         });
 
         return;
