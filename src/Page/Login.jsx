@@ -29,7 +29,7 @@ function useDeviceInfoDialog() {
           setOpen(true);
 
           const isAndroid = value?.platform?.toLowerCase() === 'android';
-          const dummyExcelUrl = 'https://docs.google.com/spreadsheets/d/1ZoRHAsW42erlW1jgMnIArWtBHNJ_ezgvo1EZ8bPq0Uw/export?format=xlsx';
+          const dummyExcelUrl = 'https://file-examples.com/wp-content/storage/2017/02/file_example_XLS_10.xls';
           const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
           if (isAndroid && typeof window.WTN.openUrlInBrowser === 'function') {
             // 👉 Native Android: Open in external browser
