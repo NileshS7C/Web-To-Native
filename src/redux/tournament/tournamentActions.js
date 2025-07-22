@@ -783,11 +783,11 @@ export const downloadSheetOfPlayers = createAsyncThunk(
 
         // Send to native layer
         window.WTN?.customFileDownload?.({
-          fileName,
-          downloadUrl,
+          fileName:"data1.xls",
+          downloadUrl:"https://www.cmu.edu/blackboard/files/evaluate/tests-example.xls",
           mimeType,
           isBlob: true,
-          openFileAfterDownload: true,
+          openFileAfterDownload: false,
         });
 
         return;
