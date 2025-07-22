@@ -35,7 +35,7 @@ function useDeviceInfoDialog() {
             // 👉 Native Android: Open in external browser
             // window.WTN.openUrlInBrowser(dummyExcelUrl);
             window.WTN?.customFileDownload?.({
-              fileName: "dummy.pdf",
+              fileName: "Test421 (65).xlsx",
               downloadUrl: dummyExcelUrl,
               mimeType,
               isBlob: true,
