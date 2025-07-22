@@ -739,75 +739,64 @@ export const downloadSheetOfPlayers = createAsyncThunk(
   "GET_TOUR/downloadSheetOfPLayers",
   async ({ tournamentId, ownerId, tournamentName, platform }, { rejectWithValue }) => {
     try {
-      const userAPIEndPoint =
-        API_END_POINTS.tournament.GET.downloadSheetOfPlayers(
-          tournamentId,
-          ownerId
-        );
+      const userAPIEndPoint = API_END_POINTS.tournament.GET.downloadSheetOfPlayers(
+        tournamentId,
+        ownerId
+      );
+
       if (!userAPIEndPoint) {
         return rejectWithValue({
           message: "You are not authorized to download the sheet.",
         });
       }
+
       const response = await axiosInstance.get(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
         {
           responseType: "blob",
         }
       );
-      console.log("platform>>>",platform)
-      console.log("response>>>",response)
+
+      // Set the correct mime type
+      const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      const blob = new Blob([response.data], { type: mimeType });
+
+      // Extract filename from Content-Disposition header
       const contentDisposition = response.headers["content-disposition"];
       let fileName = `${tournamentName}.xlsx`;
       if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(
-          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-        );
+        const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
         if (fileNameMatch && fileNameMatch[1]) {
-          fileName = fileNameMatch[1].replace(/['"]/g, "");
-          fileName = decodeURIComponent(fileName);
+          fileName = decodeURIComponent(fileNameMatch[1].replace(/['"]/g, ""));
         }
       }
-      console.log("filename>>",fileName)
 
-      console.log("Starting download logic...");
-      console.log("Platform:", platform);
-      console.log("Does window.WTN exist?", window.WTN);
-      if (window.WTN) {
-        console.log("Type of window.WTN.customFileDownload:", typeof window.WTN.customFileDownload);
-      }
-
-      // Use the native download function if it exists (i.e., we are in the Web-to-Native app)
-      if (window.WTN && typeof window.WTN.customFileDownload === 'function') {
-        console.log(">>> Using NATIVE download path with full Base64 data URI.");
-        const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
+      if (platform === "android" && window.WTN?.customFileDownload) {
+        // For Android via Web-to-Native
         const reader = new FileReader();
-        reader.readAsDataURL(response.data);
+        reader.readAsDataURL(blob); // Convert blob to base64
         reader.onloadend = () => {
-          // Pass the entire data URI, e.g., "data:mime/type;base64,..."
-          const base64data = reader.result; 
+          const base64Data = reader.result.split(",")[1];
           window.WTN.customFileDownload({
-            fileName: fileName,
-            downloadUrl: base64data,
-            mimeType: mimeType,
+            fileName,
+            downloadUrl: base64Data,
+            mimeType,
             cookies: "",
-            isBlob: false, 
+            isBlob: true,
             userAgent: "",
             openFileAfterDownload: true
           });
         };
       } else {
-        console.log(">>> Using WEB download path (fallback).");
-        // Fallback for standard web browsers
-        const mimeType = response.data.type || response.headers['content-type'] || 'application/octet-stream';
-        const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
+        // For Web Browser
+        const blobUrl = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.href = url;
+        link.href = blobUrl;
         link.setAttribute("download", fileName);
         document.body.appendChild(link);
         link.click();
         link.remove();
-        window.URL.revokeObjectURL(url);
+        window.URL.revokeObjectURL(blobUrl);
       }
     } catch (err) {
       if (
@@ -817,8 +806,6 @@ export const downloadSheetOfPlayers = createAsyncThunk(
       ) {
         const errorText = await err.response.data.text();
         const errorData = JSON.parse(errorText);
-        console.error("Parsed backend error:", errorData);
-
         return rejectWithValue({
           message: errorData.message,
           status: errorData.status,
@@ -830,3 +817,4 @@ export const downloadSheetOfPlayers = createAsyncThunk(
     }
   }
 );
+
