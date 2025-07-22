@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createEvent, getAllEvents, searchEvents, updateEvent, getAllEventOwners, getSingleEventOwner, getEventById, verifyEvent, archiveEvent, publishEvent, getEventBookings, addEventPlayer, searchPlayers, cancelEventBooking, refundEventBooking, getEventOwners, createEventOwner, getEventOwnerById, updateEventOwner, changeEventStatus, exportEventBookings } from "../api/SocialEvents";
 import { checkRoles } from "../utils/roleCheck";
 import { ADMIN_ROLES, EVENT_OWNER_ROLES } from "../Constant/Roles";
+import { useSelector } from "react-redux";
 
 
 export const useGetAllEvents = (page = 1, limit = 10, id, filters = {}, activeSearchTerm) => {
@@ -260,8 +261,9 @@ export const useChangeEventStatus = () => {
 };
 
 export const useExportEventBookings = () => {
+  const platform = useSelector((state) => state.websToNative.platform);
   return useMutation({
-    mutationFn: ({ eventId, ownerId }) => exportEventBookings(eventId, ownerId),
+    mutationFn: ({ eventId, ownerId }) => exportEventBookings(eventId, ownerId,platform),
   });
 };
 
