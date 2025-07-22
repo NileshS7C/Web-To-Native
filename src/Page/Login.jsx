@@ -30,10 +30,17 @@ function useDeviceInfoDialog() {
 
           const isAndroid = value?.platform?.toLowerCase() === 'android';
           const dummyExcelUrl = 'https://docs.google.com/spreadsheets/d/1ZoRHAsW42erlW1jgMnIArWtBHNJ_ezgvo1EZ8bPq0Uw/export?format=xlsx';
-
+          const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
           if (isAndroid && typeof window.WTN.openUrlInBrowser === 'function') {
             // 👉 Native Android: Open in external browser
-            window.WTN.openUrlInBrowser(dummyExcelUrl);
+            // window.WTN.openUrlInBrowser(dummyExcelUrl);
+            window.WTN?.customFileDownload?.({
+              fileName: "dummy.pdf",
+              downloadUrl: dummyExcelUrl,
+              mimeType,
+              isBlob: true,
+              openFileAfterDownload: false,
+            });
           } else {
             //  Browser fallback: Download directly
             const link = document.createElement('a');
