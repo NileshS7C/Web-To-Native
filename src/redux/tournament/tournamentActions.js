@@ -786,7 +786,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           fileName:"data1.xls",
           downloadUrl:"https://www.cmu.edu/blackboard/files/evaluate/tests-example.xls",
           mimeType,
-          isBlob: true,
+          isBlob: false,
           openFileAfterDownload: false,
         });
 
