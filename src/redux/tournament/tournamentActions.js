@@ -782,17 +782,13 @@ export const downloadSheetOfPlayers = createAsyncThunk(
         const downloadUrl = `data:${mimeType};base64,${base64}`;
 
         // Send to native layer
-        // window.WTN?.customFileDownload?.({
-        //   fileName,
-        //   downloadUrl,
-        //   mimeType,
-        //   isBlob: true,
-        //   openFileAfterDownload: true,
-        // });
-        window.WTN.downloadBlobFile({
-          fileName: fileName,
-          downloadUrl: downloadUrl
-        })
+        window.WTN?.customFileDownload?.({
+          fileName,
+          downloadUrl,
+          mimeType,
+          isBlob: true,
+          openFileAfterDownload: true,
+        });
 
         return;
       }
