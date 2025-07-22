@@ -741,6 +741,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
     try {
       const userAPIEndPoint =
         API_END_POINTS.tournament.GET.downloadSheetOfPlayers(tournamentId, ownerId);
+
       if (!userAPIEndPoint) {
         return rejectWithValue({
           message: "You are not authorized to download the sheet.",
@@ -752,13 +753,10 @@ export const downloadSheetOfPlayers = createAsyncThunk(
         { responseType: "blob" }
       );
 
-      // Extract file name from headers or fallback
       const contentDisposition = response.headers["content-disposition"];
       let fileName = `${tournamentName}.xlsx`;
       if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(
-          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-        );
+        const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
         if (fileNameMatch && fileNameMatch[1]) {
           fileName = decodeURIComponent(fileNameMatch[1].replace(/['"]/g, ""));
         }
@@ -767,25 +765,27 @@ export const downloadSheetOfPlayers = createAsyncThunk(
       const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
       const blob = new Blob([response.data], { type: mimeType });
 
-      // PLATFORM-SPECIFIC HANDLING
       if (platform === "android") {
         // Convert Blob to base64
         const base64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onloadend = () => {
             const result = reader.result;
-            const base64data = result.split(",")[1];
+            const base64data = result.split(",")[1]; // remove data:...base64,
             resolve(base64data);
           };
           reader.onerror = reject;
           reader.readAsDataURL(blob);
         });
 
-        // Call WTN bridge for download
+        // Proper base64 downloadUrl with data: prefix
+        const downloadUrl = `data:${mimeType};base64,${base64}`;
+
+        // Send to native layer
         window.WTN?.customFileDownload?.({
-          fileName: fileName,
-          downloadUrl: base64,
-          mimeType: mimeType,
+          fileName,
+          downloadUrl,
+          mimeType,
           isBlob: true,
           openFileAfterDownload: true,
         });
@@ -793,7 +793,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
         return;
       }
 
-      // For Web: Trigger direct download
+      // Web fallback: trigger download using Blob URL
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -802,6 +802,7 @@ export const downloadSheetOfPlayers = createAsyncThunk(
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+
     } catch (err) {
       if (
         err.response &&
@@ -815,10 +816,12 @@ export const downloadSheetOfPlayers = createAsyncThunk(
           status: errorData.status,
         });
       }
+
       return rejectWithValue({
         message: err.message || "An unknown error occurred",
       });
     }
   }
 );
+
 
