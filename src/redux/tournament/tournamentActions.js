@@ -739,11 +739,8 @@ export const downloadSheetOfPlayers = createAsyncThunk(
   "GET_TOUR/downloadSheetOfPLayers",
   async ({ tournamentId, ownerId, tournamentName, platform }, { rejectWithValue }) => {
     try {
-      const userAPIEndPoint = API_END_POINTS.tournament.GET.downloadSheetOfPlayers(
-        tournamentId,
-        ownerId
-      );
-
+      const userAPIEndPoint =
+        API_END_POINTS.tournament.GET.downloadSheetOfPlayers(tournamentId, ownerId);
       if (!userAPIEndPoint) {
         return rejectWithValue({
           message: "You are not authorized to download the sheet.",
@@ -752,52 +749,59 @@ export const downloadSheetOfPlayers = createAsyncThunk(
 
       const response = await axiosInstance.get(
         `${import.meta.env.VITE_BASE_URL}${userAPIEndPoint}`,
-        {
-          responseType: "blob",
-        }
+        { responseType: "blob" }
       );
 
-      // Set the correct mime type
-      const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-      const blob = new Blob([response.data], { type: mimeType });
-
-      // Extract filename from Content-Disposition header
+      // Extract file name from headers or fallback
       const contentDisposition = response.headers["content-disposition"];
       let fileName = `${tournamentName}.xlsx`;
       if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        const fileNameMatch = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
         if (fileNameMatch && fileNameMatch[1]) {
           fileName = decodeURIComponent(fileNameMatch[1].replace(/['"]/g, ""));
         }
       }
 
-      if (platform === "android" && window.WTN?.customFileDownload) {
-        // For Android via Web-to-Native
-        const reader = new FileReader();
-        reader.readAsDataURL(blob); // Convert blob to base64
-        reader.onloadend = () => {
-          const base64Data = reader.result.split(",")[1];
-          window.WTN.customFileDownload({
-            fileName,
-            downloadUrl: base64Data,
-            mimeType,
-            cookies: "",
-            isBlob: true,
-            userAgent: "",
-            openFileAfterDownload: true
-          });
-        };
-      } else {
-        // For Web Browser
-        const blobUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(blobUrl);
+      const mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      const blob = new Blob([response.data], { type: mimeType });
+
+      // PLATFORM-SPECIFIC HANDLING
+      if (platform === "android") {
+        // Convert Blob to base64
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const result = reader.result;
+            const base64data = result.split(",")[1];
+            resolve(base64data);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        // Call WTN bridge for download
+        window.WTN?.customFileDownload?.({
+          fileName: fileName,
+          downloadUrl: base64,
+          mimeType: mimeType,
+          isBlob: true,
+          openFileAfterDownload: true,
+        });
+
+        return;
       }
+
+      // For Web: Trigger direct download
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       if (
         err.response &&
